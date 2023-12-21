@@ -1,0 +1,19 @@
+{
+    "patches": [
+        {
+            "project":"build",
+            "path":"build",
+            "pr_url":"https://gitee.com/openharmony/build/pulls/2676"
+        },
+        {
+            "project":"vendor_hihope",
+            "path":"vendor/hihope",
+            "pr_url":"https://gitee.com/openharmony/vendor_hihope/pulls/1004"
+        },
+        {
+            "project":"systemabilitymgr_samgr",
+            "path":"foundation/systemabilitymgr/samgr",
+            "pr_url":"https://gitee.com/openharmony/systemabilitymgr_samgr/pulls/686"
+        }
+    ]
+}

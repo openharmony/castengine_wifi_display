@@ -1,0 +1,69 @@
+# Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/CastEngine/castengine_wifi_display/config.gni")
+
+ohos_static_library("khsharing_common") {
+  include_dirs = [
+    "//utils/native/base/include",
+    "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/common",
+  ]
+
+  sources = [
+    "common.cpp",
+    "reflect_registration.cpp",
+    #  "sharing_hisysevent.cpp",
+  ]
+
+  external_deps = [
+    "graphic_2d:surface",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+  ]
+
+  part_name = "sharing_framework"
+  subsystem_name = "castplus"
+}
+
+MEDIA_ROOT_DIR = "//foundation/multimedia/player_framework"
+ABILITY_RUNTIME_PATH = "//foundation/ability/ability_runtime"
+ABILITY_RUNTIME_INNER_API_PATH = "${ABILITY_RUNTIME_PATH}/interfaces/inner_api"
+ABILITY_RUNTIME_SERVICES_PATH = "${ABILITY_RUNTIME_PATH}/services"
+
+ohos_static_library("kv_operator") {
+  sources = [ "kv_operator.cpp" ]
+
+  include_dirs = [
+    "//third_party/json/include",
+    "$MEDIA_ROOT_DIR/services/utils",
+    "//foundation/distributeddatamgr/kv_store/interfaces/innerkits/distributeddata/include",
+    "${ABILITY_RUNTIME_INNER_API_PATH}/ability_manager/include",
+    "${ABILITY_RUNTIME_PATH}/interfaces/kits/native/ability/native",
+    "${ABILITY_RUNTIME_INNER_API_PATH}/dataobs_manager/include",
+    "${ABILITY_RUNTIME_INNER_API_PATH}/app_manager/include/appmgr",
+    "${ABILITY_RUNTIME_SERVICES_PATH}/common/include",
+    "${ABILITY_RUNTIME_PATH}/interfaces/kits/native/appkit/ability_runtime/context/",
+  ]
+
+  external_deps = [
+    "ability_runtime:app_context",
+    "ability_runtime:runtime",
+    "hilog:libhilog",
+    "kv_store:distributeddata_inner",
+  ]
+
+  part_name = "sharing_framework"
+  subsystem_name = "castplus"
+}

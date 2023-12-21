@@ -1,0 +1,59 @@
+# Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/CastEngine/castengine_wifi_display/config.gni")
+
+ohos_shared_library("khsharing_network") {
+  install_enable = true
+
+  include_dirs = [
+    "$SHARING_ROOT_DIR/services",
+    "//utils/native/base/include",
+  ]
+
+  sources = [
+    "client/base_client.cpp",
+    "client/tcp_client.cpp",
+    "client/udp_client.cpp",
+    "eventhandler/event_descriptor_listener.cpp",
+    "eventhandler/event_handler_manager.cpp",
+    "network_factory.cpp",
+    "network_session_manager.cpp",
+    "server/base_server.cpp",
+    "server/tcp_server.cpp",
+    "server/udp_server.cpp",
+    "session/base_network_session.cpp",
+    "session/tcp_session.cpp",
+    "session/udp_session.cpp",
+    "socket/base_socket.cpp",
+    "socket/socket_utils.cpp",
+    "socket/tcp_socket.cpp",
+    "socket/udp_socket.cpp",
+  ]
+
+  deps = [
+    "$SHARING_ROOT_DIR/services/common:khsharing_common",
+    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+  ]
+
+  configs = ["$SHARING_ROOT_DIR/tests:coverage_flags"]
+
+  external_deps = [
+    "eventhandler:libeventhandler",
+    "hilog:libhilog",
+  ]
+
+  subsystem_name = "castplus"
+  part_name = "sharing_framework"
+}

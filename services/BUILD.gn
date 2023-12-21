@@ -1,0 +1,86 @@
+# Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/CastEngine/castengine_wifi_display/config.gni")
+
+group("sharing_services_package") {
+  deps = [
+    ":khsharing_service",
+    "extend:third_party_package",
+    "codec:khsharing_codec",
+    "common:khsharing_common",
+    "common:kv_operator",
+    "network:khsharing_network",
+    "protocol/mpeg_ts:khsharing_ts",
+    "protocol/rtp:khsharing_rtp",
+    "utils:khsharing_utils",
+  ]
+
+  # PORDUCT_CONFIG_FILE = rebase_path(
+  #         "//vendor/${product_company}/${product_name}/sharing_config/khsharing_config.json")
+  # CMD = "if [ -f ${PORDUCT_CONFIG_FILE} ]; then echo true; else echo false; fi"
+  # sharing_config_exist =
+  #     exec_script("//build/lite/run_shell_cmd.py", [ CMD ], "value")
+  # if (sharing_config_exist) {
+  #   deps += [ "//vendor/${product_company}/${product_name}/sharing_config:khsharing_config" ]
+  # }
+}
+
+ohos_shared_library("khsharing_service") {
+  install_enable = true
+
+  deps = [
+    "agent:sharing_agent_srcs",
+    "configuration:sharing_configure_srcs",
+    "context:sharing_context_srcs",
+    "event:sharing_event_srcs",
+    "interaction:sharing_interaction_srcs",
+    "mediachannel:sharing_media_channel_srcs",
+    "mediaplayer:sharing_media_player_srcs",
+    "scheduler:sharing_scheduler_srcs",
+  ]
+
+  deps += [
+    "codec:khsharing_codec",
+    "common:khsharing_common",
+    "common:kv_operator",
+    "network:khsharing_network",
+    "protocol/rtp:khsharing_rtp",
+    "protocol/rtsp:khsharing_rtsp",
+    "utils:khsharing_utils",
+    "//third_party/cJSON:cjson_static",
+  ]
+
+  if (sharing_framework_support_wfd_sink) {
+    deps += [ "impl/scene/wfd:sharing_wfd_srcs" ]
+  }
+
+  configs = [ "$SHARING_ROOT_DIR/tests:coverage_flags" ]
+
+  external_deps = [
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "audio_framework:audio_capturer",
+    "audio_framework:audio_client",
+    "audio_framework:audio_renderer",
+    "graphic_2d:surface",
+    "hilog:libhilog",
+    "kv_store:distributeddata_inner",
+    "samgr:samgr_proxy",
+  ]
+
+  subsystem_name = "castplus"
+  part_name = "sharing_framework"
+}

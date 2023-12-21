@@ -1,0 +1,97 @@
+# Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/CastEngine/castengine_wifi_display/config.gni")
+
+config("sharing_interaction_demo_config") {
+  include_dirs = [
+    "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd/include",
+    "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/protocol",
+    "$SHARING_ROOT_DIR/services/protocol/rtp",
+    "$SHARING_ROOT_DIR/services/protocol/rtp/interfaces",
+    "$SHARING_ROOT_DIR/services/extend/magic_enum",
+    "//utils/native/base/include",
+    "//foundation/communication/wifi/interfaces/innerkits/native_cpp/wifi_standard/include",
+    "//foundation/communication/wifi/interfaces/innerkits/native_cpp/wifi_standard/interfaces",
+    "//foundation/multimedia/image_framework/interfaces/innerkits/include",
+    "//foundation/CastEngine/castengine_wifi_display/services",
+    "//foundation/CastEngine/castengine_wifi_display/services/interaction/domain",
+    "//foundation/CastEngine/castengine_wifi_display/services/interaction/device_kit",
+    "//foundation/CastEngine/castengine_wifi_display/services/interaction/ipc_codec",
+    "//foundation/CastEngine/castengine_wifi_display/services/interaction/domain/rpc",
+    "//foundation/communication/wifi/wifi/frameworks/native/include",
+    "//foundation/communication/wifi/wifi/frameworks/native/interfaces",
+    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include/",
+    "//foundation/communication/ipc/ipc/native/c/ipc/include",
+    "//foundation/systemabilitymgr/safwk/services/safwk/include",
+    "//utils/native/base/include",
+    "//kaihong/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
+    "//base/security/access_token/interfaces/innerkits/token_setproc/include",
+    "//base/security/access_token/interfaces/innerkits/nativetoken/include",
+  ]
+}
+
+ohos_executable("sharing_wfd_sink_demo") {
+  configs = [
+    ":sharing_interaction_demo_config",
+    # "$SHARING_ROOT_DIR/services/windowmgr:window_external_include",
+  ]
+
+  sources = [ "wfd_sink_demo.cpp" ]
+
+  deps = [
+    "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd:khsharingwfd_client",
+    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+  ]
+
+  external_deps = [
+    "graphic_2d:surface",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  relative_install_dir = "sharing_demo"
+
+  subsystem_name = "castplus"
+  part_name = "sharing_framework"
+}
+
+ohos_executable("sharing_domain_demo") {
+  configs = [ ":sharing_interaction_demo_config" ]
+
+  cflags = [ "-Wno-c++20-extensions" ]
+
+  sources = [ "domain_demo.cpp" ]
+
+  deps = [ "//foundation/CastEngine/castengine_wifi_display/services/interaction/domain/rpc:khdomain_rpc_manager" ]
+
+  external_deps = [
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "device_manager:devicemanagersdk",
+    "graphic_2d:surface",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  relative_install_dir = "sharing_demo"
+  subsystem_name = "castplus"
+  part_name = "sharing_framework"
+}

@@ -1,0 +1,109 @@
+# Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/CastEngine/castengine_wifi_display/config.gni")
+
+config("sharing_service_config") {
+  include_dirs = [
+    "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/utils",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/CastEngine/castengine_wifi_display/services/interaction/domain",
+    "//foundation/CastEngine/castengine_wifi_display/services/interaction/device_kit",
+    "//foundation/CastEngine/castengine_wifi_display/services/interaction/ipc_codec",
+    "//foundation/CastEngine/castengine_wifi_display/services/interaction/domain/rpc",
+    "//foundation/communication/wifi/wifi/frameworks/native/include",
+    "//foundation/communication/wifi/wifi/frameworks/native/interfaces",
+    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include/",
+    "//foundation/communication/ipc/ipc/native/c/ipc/include",
+    "$SHARING_ROOT_DIR/services/extend/magic_enum",
+    "//foundation/systemabilitymgr/safwk/services/safwk/include",
+    "//utils/native/base/include",
+    "//foundation/distributeddatamgr/kv_store/interfaces/innerkits/distributeddata/include",
+    "//third_party/json/include",
+    "//foundation/ability/ability_runtime/interfaces/inner_api",
+    "//foundation/ability/ability_runtime/interfaces/kits/native",
+    "$SHARING_ROOT_DIR/tests:coverage_flags"
+  ]
+
+  cflags = [ "-Wno-c++20-extensions" ]
+}
+
+ohos_source_set("sharing_interaction_srcs") {
+  configs = [ ":sharing_service_config" ]
+
+  # EXCLUDE_CLIENT_SRCS = [
+  #   "*/standard_service_proxy.cpp",
+  #   "*/client_factory.cpp",
+  #   "*/standard_client.cpp",
+  #   "*/sharing_client.cpp",
+  #   "*/wfd_client.cpp",
+  #   "*/videochat_client.cpp",
+  #   "*/dm_kit.cpp",
+  #   "*/ipc_msg_decoder.cpp",
+  #   "*/ipc_msg_encoder.cpp",
+  #   "*/ipc_codec.cpp",
+  #   "*/rpc_client_factory.cpp",
+  # ]
+
+  # set_sources_assignment_filter(EXCLUDE_CLIENT_SRCS)
+
+  # PWD = rebase_path(".")
+  # CMD = "find ${PWD} -name *.cpp"
+  # sources = exec_script("//build/lite/run_shell_cmd.py", [ CMD ], "list lines")
+
+  sources = [
+    "domain/domain_manager.cpp",
+    "domain/rpc/domain_rpc_manager.cpp",
+    "domain/rpc/domain_rpc_service.cpp",
+    "domain/rpc/domain_rpc_client.cpp",
+    "domain/rpc/domain_rpc_service_stub.cpp",
+    "domain/rpc/domain_rpc_service_proxy.cpp",
+    "interaction.cpp",
+    "interaction_manager.cpp",
+    "interprocess/inter_ipc_client.cpp",
+    "interprocess/inter_ipc_proxy.cpp",
+    "interprocess/inter_ipc_client_stub.cpp",
+    "interprocess/inter_ipc_service.cpp",
+    "interprocess/inter_ipc_service_stub.cpp",
+    "interprocess/inter_ipc_stub.cpp",
+    "interprocess/inter_ipc_sub_stub.cpp",
+    "interprocess/ipc_msg_adapter.cpp",
+    "scene/scene_format.cpp",
+  ]
+
+  deps = [
+    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "device_kit:dmkit",
+    "domain:khdomain_manager",
+    "ipc_codec:ipc_codec_srcs",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "device_manager:devicemanagersdk",
+    "graphic_2d:surface",
+    "hilog:libhilog",
+    "kv_store:distributeddata_inner",
+    "wifi:wifi_sdk",
+  ]
+
+  subsystem_name = "castplus"
+  part_name = "sharing_framework"
+}

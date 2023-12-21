@@ -1,0 +1,93 @@
+{
+    "module": {
+        "common": [
+            {
+                "tag": "mediaLog",
+                "isEnable": false
+            }
+        ],
+        "codec": [
+            {
+                "tag": "forceSWDecoder",
+                "isEnable": false
+            }
+        ],
+        "mediachannel": [
+            {
+                "tag": "videoFormat",
+                "defaultWidth": 1920,
+                "defaultHeight": 1080,
+                "defaultFramerate": 30
+            },
+            {
+                "tag": "audioFormat",
+                "defaultChannel": 2,
+                "defaultSamplerate": 48000
+            },
+            {
+                "tag": "rtcpLimit",
+                "timeout": 3
+            },
+            {
+                "tag": "bufferDispatcher",
+                "maxBufferCapacity": 800,
+                "bufferCapacityIncrement": 50
+            }
+        ],
+        "interaction": [
+            {
+                "tag": "tag1",
+                "key1": 1
+            }
+        ],
+        "context": [
+            {
+                "tag": "agentLimit",
+                "maxContext": 20,
+                "maxSinkAgent": 20,
+                "maxSrcAgent": 20
+            }
+        ],
+        "network": [
+            {
+                "tag": "networkLimit",
+                "logOn": 1
+            },
+            {
+                "tag": "udpPort",
+                "minport": 6700,
+                "maxport": 7000
+            }
+        ]
+    },
+    "application": {
+        "khSharingChat": [
+            // defined in videochat_def.h
+            {
+                "tag": "videoCapture",
+                "defaultCameraIndex": 0,
+                "videoFormat": 4,
+                "audioFormat":2
+            }
+        ],
+        "khSharingWfd": [
+            // defined in wfd_def.h
+            {
+                "tag": "abilityLimit",
+                "accessDevMaximum": 4,
+                "surfaceMaximum": 5,
+                "foregroundMaximum": 2
+            },
+            {
+                "tag": "ctrlport",
+                "defaultWfdCtrlport": 7236
+            }
+        ],
+        "khSharingPlayer": [
+            {
+                "tag": "abilityLimit",
+                "rtspPlayerMaximum": 2
+            }
+        ]
+    }
+}
