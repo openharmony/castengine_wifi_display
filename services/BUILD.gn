@@ -16,28 +16,19 @@ import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 group("sharing_services_package") {
   deps = [
-    ":khsharing_service",
-    "extend:third_party_package",
-    "codec:khsharing_codec",
-    "common:khsharing_common",
+    ":sharing_service",
+    "codec:sharing_codec",
     "common:kv_operator",
-    "network:khsharing_network",
-    "protocol/mpeg_ts:khsharing_ts",
-    "protocol/rtp:khsharing_rtp",
-    "utils:khsharing_utils",
+    "common:sharing_common",
+    "extend:third_party_package",
+    "network:sharing_network",
+    "protocol/mpeg_ts:sharing_ts",
+    "protocol/rtp:sharing_rtp",
+    "utils:sharing_utils",
   ]
-
-  # PORDUCT_CONFIG_FILE = rebase_path(
-  #         "//vendor/${product_company}/${product_name}/sharing_config/khsharing_config.json")
-  # CMD = "if [ -f ${PORDUCT_CONFIG_FILE} ]; then echo true; else echo false; fi"
-  # sharing_config_exist =
-  #     exec_script("//build/lite/run_shell_cmd.py", [ CMD ], "value")
-  # if (sharing_config_exist) {
-  #   deps += [ "//vendor/${product_company}/${product_name}/sharing_config:khsharing_config" ]
-  # }
 }
 
-ohos_shared_library("khsharing_service") {
+ohos_shared_library("sharing_service") {
   install_enable = true
 
   deps = [
@@ -52,13 +43,13 @@ ohos_shared_library("khsharing_service") {
   ]
 
   deps += [
-    "codec:khsharing_codec",
-    "common:khsharing_common",
+    "codec:sharing_codec",
     "common:kv_operator",
-    "network:khsharing_network",
-    "protocol/rtp:khsharing_rtp",
-    "protocol/rtsp:khsharing_rtsp",
-    "utils:khsharing_utils",
+    "common:sharing_common",
+    "network:sharing_network",
+    "protocol/rtp:sharing_rtp",
+    "protocol/rtsp:sharing_rtsp",
+    "utils:sharing_utils",
     "//third_party/cJSON:cjson_static",
   ]
 

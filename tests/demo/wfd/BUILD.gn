@@ -20,7 +20,7 @@ config("sharing_wfd_demo_config") {
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
     "//foundation/CastEngine/castengine_wifi_display/services",
     "//foundation/window/window_manager/interfaces/innerkits/wm",
-    "//foundation/graphic/graphic_2d/interfaces/inner_api"
+    "//foundation/graphic/graphic_2d/interfaces/inner_api",
   ]
 }
 
@@ -57,19 +57,18 @@ ohos_executable("sharing_wfd_demo") {
 
   sources = [ "wfd_demo.cpp" ]
 
-  deps = [
-    "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd:khsharingwfd_client",
-  ]
+  deps =
+      [ "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd:sharingwfd_client" ]
 
   external_deps = [
+    "c_utils:utils",
+    "graphic_2d:libgraphic_utils",
+    "graphic_2d:librender_service_client",
+    "graphic_2d:surface",
+    "graphic_2d:sync_fence",
     "hilog:libhilog",
     "ipc:ipc_core",
     "window_manager:libwm",
-    "graphic_2d:librender_service_client",
-    "graphic_2d:libgraphic_utils",
-    "graphic_2d:surface",
-    "graphic_2d:sync_fence",
-    "c_utils:utils",
   ]
 
   relative_install_dir = "sharing_demo"

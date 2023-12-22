@@ -32,17 +32,17 @@ ohos_executable("sharing_player_demo") {
   sources = [ "player_demo.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/codec:khsharing_codec",
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/mediaplayer:khsharing_media_player",
-    "$SHARING_ROOT_DIR/services/protocol/rtp:khsharing_rtp",
+    "$SHARING_ROOT_DIR/services/codec:sharing_codec",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/mediaplayer:sharing_media_player",
+    "$SHARING_ROOT_DIR/services/protocol/rtp:sharing_rtp",
   ]
 
   external_deps = [
+    "audio_framework:audio_client",
+    "audio_framework:audio_renderer",
     "graphic_2d:surface",
     "hilog:libhilog",
-    "audio_framework:audio_renderer",
-    "audio_framework:audio_client",
   ]
   subsystem_name = "castplus"
   part_name = "sharing_framework"

@@ -29,7 +29,7 @@ ohos_executable("sharing_ts_rtp_dec_demo") {
 
   sources = [ "ts_rtp_dec_demo.cpp" ]
 
-  deps = [ "$SHARING_ROOT_DIR/services/protocol/rtp:khsharing_rtp" ]
+  deps = [ "$SHARING_ROOT_DIR/services/protocol/rtp:sharing_rtp" ]
 
   external_deps = [ "hilog:libhilog" ]
 
@@ -43,7 +43,7 @@ ohos_executable("sharing_h264_rtp_dec_demo") {
 
   sources = [ "h264_rtp_dec_demo.cpp" ]
 
-  deps = [ "$SHARING_ROOT_DIR/services/protocol/rtp:khsharing_rtp" ]
+  deps = [ "$SHARING_ROOT_DIR/services/protocol/rtp:sharing_rtp" ]
 
   external_deps = [ "hilog:libhilog" ]
   subsystem_name = "castplus"
@@ -55,7 +55,7 @@ ohos_executable("sharing_rtp_enc_demo") {
 
   sources = [ "rtp_enc_demo.cpp" ]
 
-  deps = [ "$SHARING_ROOT_DIR/services/protocol/rtp:khsharing_rtp" ]
+  deps = [ "$SHARING_ROOT_DIR/services/protocol/rtp:sharing_rtp" ]
 
   external_deps = [ "hilog:libhilog" ]
   subsystem_name = "castplus"
@@ -66,7 +66,7 @@ ohos_executable("sharing_rtp_dec_demo") {
   configs = [ ":sharing_demo_config" ]
   sources = [ "rtp_dec_demo.cpp" ]
 
-  deps = [ "$SHARING_ROOT_DIR/services/protocol/rtp:khsharing_rtp" ]
+  deps = [ "$SHARING_ROOT_DIR/services/protocol/rtp:sharing_rtp" ]
 
   external_deps = [ "hilog:libhilog" ]
   subsystem_name = "castplus"

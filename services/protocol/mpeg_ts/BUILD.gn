@@ -14,14 +14,14 @@
 import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
-ohos_shared_library("khsharing_ts") {
+ohos_shared_library("sharing_ts") {
   install_enable = true
 
   include_dirs = [
     "include",
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/services/protocol",
-    "$SHARING_ROOT_DIR/services/extend/mpeg/include"
+    "$SHARING_ROOT_DIR/services/extend/mpeg/include",
   ]
 
   sources = [
@@ -30,12 +30,12 @@ ohos_shared_library("khsharing_ts") {
     "mpeg_ts_splitter.cpp",
   ]
 
-  configs = ["$SHARING_ROOT_DIR/tests:coverage_flags"]
+  configs = [ "$SHARING_ROOT_DIR/tests:coverage_flags" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/extend:khsharing_mpeg",
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/extend:sharing_mpeg",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
   external_deps = [ "hilog:libhilog" ]

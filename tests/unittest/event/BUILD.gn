@@ -32,9 +32,9 @@ ohos_unittest("event_unit_test") {
   sources = [ "event_unit_test.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services:khsharing_service",
-    "$SHARING_ROOT_DIR/services:khsharing_service",
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
+    "$SHARING_ROOT_DIR/services:sharing_service",
+    "$SHARING_ROOT_DIR/services:sharing_service",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
     "//third_party/googletest:gtest_main",
   ]
 

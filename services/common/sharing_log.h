@@ -22,7 +22,7 @@
 namespace OHOS {
 namespace Sharing {
 #ifndef SHARING_LOG_TAG
-#define SHARING_LOG_TAG "khSharing"
+#define SHARING_LOG_TAG "sharing"
 #endif
 
 #ifndef SHARING_LOG_DOMAIN

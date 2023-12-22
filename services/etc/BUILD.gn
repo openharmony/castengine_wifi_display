@@ -13,8 +13,8 @@
 
 import("//build/ohos.gni")
 
-ohos_prebuilt_etc("khsharing_service.rc") {
-  source = "khsharing_service.cfg"
+ohos_prebuilt_etc("sharing_service.rc") {
+  source = "sharing_service.cfg"
   relative_install_dir = "init"
   part_name = "sharing_framework"
   subsystem_name = "castplus"

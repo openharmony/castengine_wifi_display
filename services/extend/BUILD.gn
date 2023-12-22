@@ -14,9 +14,7 @@
 import("//build/ohos.gni")
 
 group("third_party_package") {
-  deps = [
-    ":khsharing_mpeg",
-  ]
+  deps = [ ":sharing_mpeg" ]
 }
 
 config("libmpeg_config") {
@@ -24,12 +22,10 @@ config("libmpeg_config") {
     "mpeg/include",
     "mpeg/source",
   ]
-  cflags = [
-    "-Wno-error", 
-  ]
+  cflags = [ "-Wno-error" ]
 }
 
-ohos_shared_library("khsharing_mpeg") {
+ohos_shared_library("sharing_mpeg") {
   stable = true
   configs = [ ":libmpeg_config" ]
 

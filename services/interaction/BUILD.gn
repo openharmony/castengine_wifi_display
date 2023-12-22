@@ -34,7 +34,7 @@ config("sharing_service_config") {
     "//third_party/json/include",
     "//foundation/ability/ability_runtime/interfaces/inner_api",
     "//foundation/ability/ability_runtime/interfaces/kits/native",
-    "$SHARING_ROOT_DIR/tests:coverage_flags"
+    "$SHARING_ROOT_DIR/tests:coverage_flags",
   ]
 
   cflags = [ "-Wno-c++20-extensions" ]
@@ -65,16 +65,16 @@ ohos_source_set("sharing_interaction_srcs") {
 
   sources = [
     "domain/domain_manager.cpp",
+    "domain/rpc/domain_rpc_client.cpp",
     "domain/rpc/domain_rpc_manager.cpp",
     "domain/rpc/domain_rpc_service.cpp",
-    "domain/rpc/domain_rpc_client.cpp",
-    "domain/rpc/domain_rpc_service_stub.cpp",
     "domain/rpc/domain_rpc_service_proxy.cpp",
+    "domain/rpc/domain_rpc_service_stub.cpp",
     "interaction.cpp",
     "interaction_manager.cpp",
     "interprocess/inter_ipc_client.cpp",
-    "interprocess/inter_ipc_proxy.cpp",
     "interprocess/inter_ipc_client_stub.cpp",
+    "interprocess/inter_ipc_proxy.cpp",
     "interprocess/inter_ipc_service.cpp",
     "interprocess/inter_ipc_service_stub.cpp",
     "interprocess/inter_ipc_stub.cpp",
@@ -84,9 +84,9 @@ ohos_source_set("sharing_interaction_srcs") {
   ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
     "device_kit:dmkit",
-    "domain:khdomain_manager",
+    "domain:domain_manager",
     "ipc_codec:ipc_codec_srcs",
   ]
 

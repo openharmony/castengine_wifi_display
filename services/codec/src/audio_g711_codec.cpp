@@ -16,7 +16,6 @@
 #include "audio_g711_codec.h"
 #include "common/common_macro.h"
 #include "frame.h"
-#include "g711.h"
 #include "sharing_log.h"
 
 namespace OHOS {
@@ -62,15 +61,15 @@ int32_t AudioG711Encoder::Encode(int16_t *decoded, int32_t nSamples, uint8_t *en
         return -1;
     }
 
-    if (type_ == G711_ALAW) {
-        for (int32_t n = 0; n < nSamples; n++) {
-            encoded[n] = (uint8_t)linear_to_alaw((int32_t)decoded[n]);
-        }
-    } else if (type_ == G711_ULAW) {
-        for (int32_t n = 0; n < nSamples; n++) {
-            encoded[n] = (uint8_t)linear_to_ulaw((int32_t)decoded[n]);
-        }
-    }
+    // if (type_ == G711_ALAW) {
+    //     for (int32_t n = 0; n < nSamples; n++) {
+    //         encoded[n] = (uint8_t)linear_to_alaw((int32_t)decoded[n]);
+    //     }
+    // } else if (type_ == G711_ULAW) {
+    //     for (int32_t n = 0; n < nSamples; n++) {
+    //         encoded[n] = (uint8_t)linear_to_ulaw((int32_t)decoded[n]);
+    //     }
+    // }
 
     return nSamples;
 }
@@ -122,15 +121,15 @@ int32_t AudioG711Decoder::Decode(uint8_t *encoded, int32_t nSamples, int16_t *de
         return -1;
     }
 
-    if (type_ == G711_ALAW) {
-        for (int32_t n = 0; n < nSamples; n++) {
-            decoded[n] = (int16_t)alaw_to_linear(encoded[n]);
-        }
-    } else if (type_ == G711_ULAW) {
-        for (int32_t n = 0; n < nSamples; n++) {
-            decoded[n] = (uint8_t)alaw_to_linear(encoded[n]);
-        }
-    }
+    // if (type_ == G711_ALAW) {
+    //     for (int32_t n = 0; n < nSamples; n++) {
+    //         decoded[n] = (int16_t)alaw_to_linear(encoded[n]);
+    //     }
+    // } else if (type_ == G711_ULAW) {
+    //     for (int32_t n = 0; n < nSamples; n++) {
+    //         decoded[n] = (uint8_t)alaw_to_linear(encoded[n]);
+    //     }
+    // }
 
     return nSamples;
 }

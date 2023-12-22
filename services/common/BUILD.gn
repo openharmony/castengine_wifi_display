@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
-ohos_static_library("khsharing_common") {
+ohos_static_library("sharing_common") {
   include_dirs = [
     "//utils/native/base/include",
     "$SHARING_ROOT_DIR/services",
@@ -24,6 +24,7 @@ ohos_static_library("khsharing_common") {
   sources = [
     "common.cpp",
     "reflect_registration.cpp",
+
     #  "sharing_hisysevent.cpp",
   ]
 

@@ -36,10 +36,10 @@ ohos_executable("sharing_network_server_demo") {
   sources = [ "network_server_demo.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services:khsharing_service",
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/network:khsharing_network",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services:sharing_service",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/network:sharing_network",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
   external_deps = [
@@ -57,9 +57,9 @@ ohos_executable("sharing_network_client_demo") {
   sources = [ "network_client_demo.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/network:khsharing_network",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/network:sharing_network",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
   external_deps = [

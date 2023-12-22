@@ -22,7 +22,7 @@ config("codec_external_include") {
   ]
 }
 
-ohos_shared_library("khsharing_codec") {
+ohos_shared_library("sharing_codec") {
   install_enable = true
 
   public_configs = [ ":codec_external_include" ]
@@ -33,11 +33,9 @@ ohos_shared_library("khsharing_codec") {
     "$SHARING_ROOT_DIR/services/common",
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
-    "$SHARING_ROOT_DIR/services/extend/spandsp_g711",
   ]
 
   sources = [
-    "$SHARING_ROOT_DIR/services/extend/spandsp_g711/g711.c",
     "$SHARING_ROOT_DIR/services/protocol/frame/frame.cpp",
     "src/audio_aac_codec.cpp",
     "src/audio_g711_codec.cpp",
@@ -47,15 +45,9 @@ ohos_shared_library("khsharing_codec") {
   ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
-
-  defines = []
-
-  if ("${product_name}" == "khp_ftd2000_pc") {
-    defines += [ "FTD2000" ]
-  }
 
   external_deps = [
     "c_utils:utilsbase",

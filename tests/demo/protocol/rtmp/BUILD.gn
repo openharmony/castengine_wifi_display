@@ -30,10 +30,10 @@ ohos_executable("sharing_rtmp_push_demo") {
   sources = [ "rtmp_push_demo.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/network:khsharing_network",
-    "$SHARING_ROOT_DIR/services/protocol/rtmp:khsharing_rtmp",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/network:sharing_network",
+    "$SHARING_ROOT_DIR/services/protocol/rtmp:sharing_rtmp",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
   external_deps = [ "hilog:libhilog" ]
@@ -48,10 +48,10 @@ ohos_executable("sharing_rtmp_play_demo") {
   sources = [ "rtmp_play_demo.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/network:khsharing_network",
-    "$SHARING_ROOT_DIR/services/protocol/rtmp:khsharing_rtmp",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/network:sharing_network",
+    "$SHARING_ROOT_DIR/services/protocol/rtmp:sharing_rtmp",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
   external_deps = [ "hilog:libhilog" ]

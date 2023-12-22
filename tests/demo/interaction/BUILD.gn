@@ -53,8 +53,8 @@ ohos_executable("sharing_wfd_sink_demo") {
   sources = [ "wfd_sink_demo.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd:khsharingwfd_client",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd:sharingwfd_client",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
   external_deps = [
@@ -76,7 +76,7 @@ ohos_executable("sharing_domain_demo") {
 
   sources = [ "domain_demo.cpp" ]
 
-  deps = [ "//foundation/CastEngine/castengine_wifi_display/services/interaction/domain/rpc:khdomain_rpc_manager" ]
+  deps = [ "//foundation/CastEngine/castengine_wifi_display/services/interaction/domain/rpc:domain_rpc_manager" ]
 
   external_deps = [
     "access_token:libaccesstoken_sdk",

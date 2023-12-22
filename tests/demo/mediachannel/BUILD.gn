@@ -43,6 +43,7 @@ ohos_executable("sharing_buffer_dispatcher_demo") {
   configs = [
     ":capture_demo_config",
     "$SHARING_ROOT_DIR/services/codec:codec_external_include",
+
     # "$SHARING_ROOT_DIR/services/windowmgr:window_external_include",
   ]
   public_configs = [ ":plugin_ffmpeg_adapter_config" ]
@@ -54,10 +55,10 @@ ohos_executable("sharing_buffer_dispatcher_demo") {
   sources = [ "buffer_dispatcher_demo.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services:khsharing_service",
-    "$SHARING_ROOT_DIR/services/codec:khsharing_codec",
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services:sharing_service",
+    "$SHARING_ROOT_DIR/services/codec:sharing_codec",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
   external_deps = [

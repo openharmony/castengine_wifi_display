@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
-ohos_shared_library("khsharing_network") {
+ohos_shared_library("sharing_network") {
   install_enable = true
 
   include_dirs = [
@@ -43,11 +43,11 @@ ohos_shared_library("khsharing_network") {
   ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
-  configs = ["$SHARING_ROOT_DIR/tests:coverage_flags"]
+  configs = [ "$SHARING_ROOT_DIR/tests:coverage_flags" ]
 
   external_deps = [
     "eventhandler:libeventhandler",

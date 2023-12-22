@@ -33,10 +33,10 @@ ohos_executable("sharing_rtsp_pusher_demo") {
   sources = [ "rtsp_pusher_demo.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/network:khsharing_network",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/network:sharing_network",
     "$SHARING_ROOT_DIR/services/protocol/rtsp:sharing_rtsp",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
   external_deps = [ "hilog:libhilog" ]
@@ -51,11 +51,11 @@ ohos_executable("sharing_rtsp_player_demo") {
   sources = [ "rtsp_player_demo.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/network:khsharing_network",
-    "$SHARING_ROOT_DIR/services/protocol/rtp:khsharing_rtp",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/network:sharing_network",
+    "$SHARING_ROOT_DIR/services/protocol/rtp:sharing_rtp",
     "$SHARING_ROOT_DIR/services/protocol/rtsp:sharing_rtsp",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
   external_deps = [ "hilog:libhilog" ]

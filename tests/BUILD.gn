@@ -14,11 +14,8 @@
 import("//build/ohos.gni")
 
 group("test") {
-  deps = [
-    "demo:demo_test"
-  ]
+  deps = [ "demo:demo_test" ]
 }
-
 
 declare_args() {
   sharing_framework_feature_coverage = false

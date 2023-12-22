@@ -30,7 +30,7 @@ ohos_unittest("sharing_datacenter_unit_test") {
   sources = [ "sharing_data_center_test.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services:khsharing_service",
+    "$SHARING_ROOT_DIR/services:sharing_service",
     "//third_party/googletest:gtest_main",
   ]
 

@@ -19,9 +19,7 @@ module_out_path = "sharing/mediachannel"
 group("unittest") {
   testonly = true
 
-  deps = [
-    ":media_channel_unit_test"
-  ]
+  deps = [ ":media_channel_unit_test" ]
 }
 
 ohos_unittest("media_channel_unit_test") {
@@ -31,14 +29,14 @@ ohos_unittest("media_channel_unit_test") {
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/frameworks/innerkitsimpl",
     "//utils/native/base/include",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include"
+    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include",
   ]
 
   sources = [ "media_channel_unit_test.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services:khsharing_service"
+    "$SHARING_ROOT_DIR/services:sharing_service",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
   ]
 
   external_deps = [

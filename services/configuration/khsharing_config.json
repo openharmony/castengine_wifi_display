@@ -61,7 +61,7 @@
         ]
     },
     "application": {
-        "khSharingChat": [
+        "sharingChat": [
             // defined in videochat_def.h
             {
                 "tag": "videoCapture",
@@ -70,7 +70,7 @@
                 "audioFormat":2
             }
         ],
-        "khSharingWfd": [
+        "sharingWfd": [
             // defined in wfd_def.h
             {
                 "tag": "abilityLimit",
@@ -83,7 +83,7 @@
                 "defaultWfdCtrlport": 7236
             }
         ],
-        "khSharingPlayer": [
+        "sharingPlayer": [
             {
                 "tag": "abilityLimit",
                 "rtspPlayerMaximum": 2

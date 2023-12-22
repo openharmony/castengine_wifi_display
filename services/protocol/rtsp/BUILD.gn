@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
-ohos_static_library("khsharing_rtsp") {
+ohos_static_library("sharing_rtsp") {
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/services/protocol/rtsp/include",
@@ -28,11 +28,11 @@ ohos_static_library("khsharing_rtsp") {
     "src/rtsp_sdp.cpp",
   ]
 
-  configs = ["$SHARING_ROOT_DIR/tests:coverage_flags"]
+  configs = [ "$SHARING_ROOT_DIR/tests:coverage_flags" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils"
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
   external_deps = [ "hilog:libhilog" ]

@@ -10,16 +10,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 import("//build/ohos.gni")
 
-group("khsharing_packages") {
+group("sharing_packages") {
   deps = [
-    "//foundation/CastEngine/castengine_wifi_display/interfaces/innerkits/native/wfd:khsharingwfd_client",
-    "//foundation/CastEngine/castengine_wifi_display/sa_profile:khsharing_sa_profile",
+    "//foundation/CastEngine/castengine_wifi_display/interfaces/innerkits/native/wfd:sharingwfd_client",
+    "//foundation/CastEngine/castengine_wifi_display/sa_profile:sharing_sa_profile",
     "//foundation/CastEngine/castengine_wifi_display/services:sharing_services_package",
-    "//foundation/CastEngine/castengine_wifi_display/services/etc:khsharing_service.rc",
+    "//foundation/CastEngine/castengine_wifi_display/services/etc:sharing_service.rc",
   ]
-}   
+}

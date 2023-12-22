@@ -22,7 +22,7 @@ ohos_executable("sharing_context_demo") {
 
   sources = [ "context_demo.cpp" ]
 
-  deps = [ "$SHARING_ROOT_DIR/services:khsharing_service" ]
+  deps = [ "$SHARING_ROOT_DIR/services:sharing_service" ]
 
   external_deps = [
     "graphic_2d:surface",

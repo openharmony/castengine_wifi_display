@@ -1,5 +1,5 @@
 {
-  "name": "@kh_ohos/sharing_framework",
+  "name": "@ohos/sharing_framework",
   "description": "foundation Sharing Framework",
   "version": "3.2",
   "license": "Apache License 2.0",
@@ -59,18 +59,18 @@
       "group_type": {
         "base_group": [],
         "fwk_group": [
-          "//foundation/CastEngine/castengine_wifi_display/interfaces/innerkits/native/wfd:khsharingwfd_client"
+          "//foundation/CastEngine/castengine_wifi_display/interfaces/innerkits/native/wfd:sharingwfd_client"
         ],
         "service_group": [
-          "//foundation/CastEngine/castengine_wifi_display/sa_profile:khsharing_sa_profile",
+          "//foundation/CastEngine/castengine_wifi_display/sa_profile:sharing_sa_profile",
           "//foundation/CastEngine/castengine_wifi_display/services:sharing_services_package",
-          "//foundation/CastEngine/castengine_wifi_display/services/etc:khsharing_service.rc"
+          "//foundation/CastEngine/castengine_wifi_display/services/etc:sharing_service.rc"
         ]
       },
       "inner_kits": [
         {
           "type": "none",
-          "name": "//foundation/CastEngine/castengine_wifi_display/interfaces/innerkits/native/wfd:khsharingwfd_client",
+          "name": "//foundation/CastEngine/castengine_wifi_display/interfaces/innerkits/native/wfd:sharingwfd_client",
           "header": {
             "header_base": [
               "//foundation/CastEngine/castengine_wifi_display/interfaces/innerkits/native/wfd/include"

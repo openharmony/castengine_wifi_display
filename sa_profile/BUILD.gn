@@ -13,10 +13,10 @@
 
 import("//build/ohos/sa_profile/sa_profile.gni")
 
-ohos_sa_profile("khsharing_sa_profile") {
+ohos_sa_profile("sharing_sa_profile") {
   sources = [
-      "65547.json",
-      "65548.json"
+    "65547.json",
+    "65548.json",
   ]
   part_name = "sharing_framework"
 }

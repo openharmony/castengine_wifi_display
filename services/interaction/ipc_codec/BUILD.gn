@@ -15,9 +15,9 @@ import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 config("ipc_codec_config") {
-   cflags = [
+  cflags = [
     "-frtti",
-    "-Wno-c++20-extensions"
+    "-Wno-c++20-extensions",
   ]
 }
 
@@ -29,23 +29,23 @@ ohos_static_library("ipc_codec_srcs") {
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include/",
     "//foundation/communication/ipc/ipc/native/c/ipc/include",
     "//foundation/CastEngine/castengine_wifi_display/services",
-    "//foundation/CastEngine/castengine_wifi_display/services/common"
+    "//foundation/CastEngine/castengine_wifi_display/services/common",
   ]
 
-  configs = [":ipc_codec_config"]
+  configs = [ ":ipc_codec_config" ]
 
   sources = [
     "ipc_codec.cpp",
     "ipc_msg_decoder.cpp",
-    "ipc_msg_encoder.cpp"
+    "ipc_msg_encoder.cpp",
   ]
   external_deps = [
     "c_utils:utils",
-    "ipc:ipc_core",
-    "hilog:libhilog",
     "graphic_2d:surface",
-  ] 
-  
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
   subsystem_name = "castplus"
   part_name = "sharing_framework"
 }

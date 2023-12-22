@@ -35,9 +35,9 @@ ohos_unittest("network_tcp_unit_test") {
   sources = [ "network_tcp_unit_test.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/network:khsharing_network",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/network:sharing_network",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
     "//third_party/googletest:gtest_main",
   ]
 
@@ -58,9 +58,9 @@ ohos_unittest("network_udp_unit_test") {
   sources = [ "network_udp_unit_test.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/network:khsharing_network",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/network:sharing_network",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
     "//third_party/googletest:gtest_main",
   ]
 

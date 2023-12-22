@@ -15,14 +15,17 @@ import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 ohos_source_set("sharing_media_player_srcs") {
-  cflags = [ "-Wno-invalid-noreturn","-Wno-deprecated-builtins" ]
-  
+  cflags = [
+    "-Wno-invalid-noreturn",
+    "-Wno-deprecated-builtins",
+  ]
+
   sources = [
-    "src/media_controller.cpp",
-    "src/video_play_controller.cpp",
     "src/audio_play_controller.cpp",
     "src/audio_player.cpp",
     "src/audio_sink.cpp",
+    "src/media_controller.cpp",
+    "src/video_play_controller.cpp",
   ]
 
   include_dirs = [
@@ -37,15 +40,15 @@ ohos_source_set("sharing_media_player_srcs") {
   ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
   external_deps = [
-    "hilog:libhilog",
     "audio_framework:audio_renderer",
-    "player_framework:media_client",
     "graphic_2d:surface",
+    "hilog:libhilog",
+    "player_framework:media_client",
   ]
 
   subsystem_name = "castplus"

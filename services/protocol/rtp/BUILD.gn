@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
-ohos_shared_library("khsharing_rtp") {
+ohos_shared_library("sharing_rtp") {
   install_enable = true
   if (defined(enable_media_log) && enable_media_log) {
     defines = [ "SHARING_MEDIA_LOG" ]
@@ -33,6 +33,8 @@ ohos_shared_library("khsharing_rtp") {
     "$SHARING_ROOT_DIR/services/protocol/frame/frame.cpp",
     "$SHARING_ROOT_DIR/services/protocol/frame/frame_merger.cpp",
     "$SHARING_ROOT_DIR/services/protocol/frame/h264_frame.cpp",
+    "$SHARING_ROOT_DIR/services/protocol/rtp/src/adts.cpp",
+    "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_codec_aac.cpp",
     "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_codec_g711.cpp",
     "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_codec_h264.cpp",
     "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_codec_ts.cpp",
@@ -42,17 +44,15 @@ ohos_shared_library("khsharing_rtp") {
     "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_packet.cpp",
     "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_queue.cpp",
     "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_unpack_impl.cpp",
-    "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_codec_aac.cpp",
-    "$SHARING_ROOT_DIR/services/protocol/rtp/src/adts.cpp"
   ]
 
-  configs = ["$SHARING_ROOT_DIR/tests:coverage_flags"]
+  configs = [ "$SHARING_ROOT_DIR/tests:coverage_flags" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
-    "$SHARING_ROOT_DIR/services/protocol/mpeg_ts:khsharing_ts",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/protocol/mpeg_ts:sharing_ts",
     "$SHARING_ROOT_DIR/services/protocol/rtcp:sharing_rtcp_srcs",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
   external_deps = [ "hilog:libhilog" ]

@@ -33,8 +33,8 @@ ohos_unittest("wfd_sink_unit_test") {
   sources = [ "wfd_sink_unit_test.cpp" ]
 
   deps = [
-    "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd:khsharingwfd_client",
-    "$SHARING_ROOT_DIR/services/utils:khsharing_utils",
+    "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd:sharingwfd_client",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
     "//third_party/googletest:gtest_main",
   ]
 

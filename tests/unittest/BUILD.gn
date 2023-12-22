@@ -27,6 +27,6 @@ group("wfd_unit_test") {
     #"network:network_unittest",
     #"protocol/rtmp:unittest",
     #"common:sharing_common_unit_test",
-    "wfd_sink:wfd_sink_unit_test"
+    "wfd_sink:wfd_sink_unit_test",
   ]
 }

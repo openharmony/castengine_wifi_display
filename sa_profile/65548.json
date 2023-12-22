@@ -1,9 +1,9 @@
 {
-    "process": "khsharing_service",
+    "process": "sharing_service",
     "systemability": [
         {
             "name": 65548,
-            "libpath": "libkhsharing_service.z.so",
+            "libpath": "libsharing_service.z.so",
             "run-on-create": true,
             "distributed": true,
             "dump_level": 1

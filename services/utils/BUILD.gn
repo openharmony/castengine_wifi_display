@@ -18,7 +18,7 @@ config("sharing_utils_config") {
   include_dirs = [ "//third_party/openssl/include/" ]
 }
 
-ohos_static_library("khsharing_utils") {
+ohos_static_library("sharing_utils") {
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/services/utils",

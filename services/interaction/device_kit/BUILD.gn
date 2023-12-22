@@ -16,10 +16,10 @@ import("//build/ohos.gni")
 ohos_static_library("dmkit") {
   include_dirs = [
     ".",
-    "//foundation/CastEngine/castengine_wifi_display/services"
+    "//foundation/CastEngine/castengine_wifi_display/services",
   ]
 
-  sources = ["dm_kit.cpp"]
+  sources = [ "dm_kit.cpp" ]
 
   external_deps = [
     "device_manager:devicemanagersdk",

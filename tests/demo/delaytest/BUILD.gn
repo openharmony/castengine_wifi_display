@@ -18,7 +18,7 @@ config("loop_back_demo_config") {
     "./include",
     "//foundation/multimedia/audio_framework/interfaces/inner_api/native/audiocommon/include",
     "//foundation/multimedia/audio_framework/interfaces/inner_api/native/audiocapturer/include",
-    "//foundation/multimedia/audio_framework/interfaces/inner_api/native/audiorenderer/include"
+    "//foundation/multimedia/audio_framework/interfaces/inner_api/native/audiorenderer/include",
   ]
 
   cflags = [
@@ -28,26 +28,21 @@ config("loop_back_demo_config") {
     "-DHAVE_CONFIG_H",
     "-D_GNU_SOURCE",
   ]
-
 }
 
 ohos_executable("loop_back_demo") {
-  configs = [
-      ":loop_back_demo_config"
-  ]
+  configs = [ ":loop_back_demo_config" ]
 
-  sources = [
-    "src/loop_back_demo.cpp",
-  ]
+  sources = [ "src/loop_back_demo.cpp" ]
 
   external_deps = [
-    "hilog:libhilog",
-    "audio_framework:audio_capturer",
-    "audio_framework:audio_client",
-    "audio_framework:audio_renderer",
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
+    "audio_framework:audio_capturer",
+    "audio_framework:audio_client",
+    "audio_framework:audio_renderer",
+    "hilog:libhilog",
   ]
 
   subsystem_name = "castplus"
