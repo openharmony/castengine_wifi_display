@@ -44,20 +44,12 @@ enum WfdMsgId {
     WFD_ERROR_MSG,
     WFD_INFO_MSG,
     WFD_SURFACE_FAILURE,
-    WFD_SOURCE_START_REQ,
-    WFD_SOURCE_STOP_REQ,
     WFD_SOURCE_START_DISCOVERY_REQ,
     WFD_SOURCE_STOP_DISCOVERY_REQ,
     WFD_SOURCE_DEVICE_FOUND_MSG,
     WFD_SOURCE_ADD_DEVICE_REQ,
     WFD_SOURCE_REMOVE_DEVICE_REQ,
-    WFD_SOURCE_CONNECT_DEVICE_REQ,
-    WFD_SOURCE_CREATE_SCREEN_CAPTURE_REQ,
-    WFD_SOURCE_CREATE_SCREEN_CAPTURE_RSP,
     WFD_SOURCE_DESTROY_SCREEN_CAPTUREREQ_REQ,
-    WFD_SOURCE_APPEND_CAST_REQ,
-    WFD_SOURCE_APPEND_CAST_RSP,
-    WFD_SOURCE_REMOVE_CAST_REQ,
     // domain msg
 };
 
@@ -321,22 +313,6 @@ struct GetSinkConfigRsp : public BaseMsg {
     uint32_t foregroundMaximum;
 };
 
-struct WfdSourceStartReq : public BaseMsg {
-    enum { MSG_ID = WfdMsgId::WFD_SOURCE_START_REQ };
-
-    int32_t GetMsgId() final { return MSG_ID; }
-
-    IPC_BIND_ATTR0
-};
-
-struct WfdSourceStopReq : public BaseMsg {
-    enum { MSG_ID = WfdMsgId::WFD_SOURCE_STOP_REQ };
-
-    int32_t GetMsgId() final { return MSG_ID; }
-
-    IPC_BIND_ATTR0
-};
-
 struct WfdSourceStartDiscoveryReq : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_SOURCE_START_DISCOVERY_REQ };
 
@@ -394,61 +370,8 @@ struct WfdSourceRemoveDeviceReq : public BaseMsg {
     std::string deviceId;
 };
 
-struct ConnectDeviceReq : public BaseMsg {
-    enum { MSG_ID = WfdMsgId::WFD_SOURCE_CONNECT_DEVICE_REQ };
-
-    int32_t GetMsgId() final { return MSG_ID; }
-
-    IPC_BIND_ATTR(deviceId)
-
-    std::string deviceId;
-};
-
-struct CreateScreenCaptureReq : public BaseMsg {
-    enum { MSG_ID = WfdMsgId::WFD_SOURCE_CREATE_SCREEN_CAPTURE_REQ };
-
-    int32_t GetMsgId() final { return MSG_ID; }
-
-    IPC_BIND_ATTR(deviceId, mediaType)
-
-    std::string deviceId;
-    uint32_t mediaType;
-};
-
-struct CreateScreenCaptureRsp : public BaseMsg {
-    enum { MSG_ID = WfdMsgId::WFD_SOURCE_CREATE_SCREEN_CAPTURE_RSP };
-
-    int32_t GetMsgId() final { return MSG_ID; }
-
-    IPC_BIND_ATTR(screenId, agentId, contextId)
-
-    uint64_t screenId;
-    uint32_t agentId;
-    uint32_t contextId;
-};
-
 struct DestroyScreenCaptureReq : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_SOURCE_DESTROY_SCREEN_CAPTUREREQ_REQ };
-
-    int32_t GetMsgId() final { return MSG_ID; }
-
-    IPC_BIND_ATTR(deviceId)
-
-    std::string deviceId;
-};
-
-struct AppendCastRsp : public BaseMsg {
-    enum { MSG_ID = WfdMsgId::WFD_SOURCE_APPEND_CAST_RSP };
-
-    int32_t GetMsgId() final { return MSG_ID; }
-
-    IPC_BIND_ATTR(deviceId)
-
-    std::string deviceId;
-};
-
-struct RemoveCastReq : public BaseMsg {
-    enum { MSG_ID = WfdMsgId::WFD_SOURCE_REMOVE_CAST_REQ };
 
     int32_t GetMsgId() final { return MSG_ID; }
 
@@ -481,7 +404,6 @@ struct WfdErrorMsg : public BaseMsg {
 
     uint32_t agentId;
     uint32_t contextId;
-
 
     std::string message;
     std::string mac;

@@ -26,11 +26,6 @@ namespace Sharing {
 constexpr uint32_t SURFACE_MAX_NUMBER = 5;
 constexpr uint32_t ACCESS_DEV_MAX_NUMBER = 4;
 constexpr uint32_t FOREGROUND_SURFACE_MAX_NUMBER = 2;
-constexpr uint32_t WFD_SEC_TO_MSEC = 1000;
-constexpr uint32_t P2P_CONNECT_TIMEOUT = 180;
-constexpr uint32_t RTSP_INTERACTION_TIMEOUT = 10;
-
-enum class WfdSessionState { M0, M1, M2, M3, M4, M5, M6, M6_SENT, M6_DONE, M7, M7_WAIT, M7_SENT, M7_DONE, M8 };
 
 enum WfdErrorCode {};
 
@@ -88,21 +83,6 @@ struct WfdSceneEventMsg : public InteractionEventMsg {
 
     std::string mac;
 };
-
-struct WfdVideoFormatsInfo {
-    uint16_t native = 0;
-    uint16_t preferredDisplayMode = 0;
-    uint16_t profile = 0;
-    uint16_t level = 0;
-    uint32_t ceaMask = 0;
-    uint32_t veaMask = 0;
-    uint32_t hhMask = 0;
-    uint16_t latency = 0;
-    uint16_t minSlice = 0;
-    uint16_t sliceEncParam = 0;
-    uint16_t frameRateCtlSupport = 0;
-};
-
 } // namespace Sharing
 } // namespace OHOS
 #endif

@@ -172,48 +172,48 @@ void WfdSinkScene::Initialize()
     SHARING_LOGD("trace.");
     SharingValue::Ptr values = nullptr;
 
-    auto ret = Config::GetInstance().GetConfig("khSharingWfd", "ctrlport", "defaultWfdCtrlport", values);
+    auto ret = Config::GetInstance().GetConfig("sharingWfd", "ctrlport", "defaultWfdCtrlport", values);
     if (ret == CONFIGURE_ERROR_NONE) {
         values->GetValue<int32_t>(ctrlPort_);
     }
 
-    ret = Config::GetInstance().GetConfig("khSharingWfd", "abilityLimit", "accessDevMaximum", values);
+    ret = Config::GetInstance().GetConfig("sharingWfd", "abilityLimit", "accessDevMaximum", values);
     if (ret == CONFIGURE_ERROR_NONE) {
         values->GetValue<int32_t>(accessDevMaximum_);
     }
 
-    ret = Config::GetInstance().GetConfig("khSharingWfd", "abilityLimit", "surfaceMaximum", values);
+    ret = Config::GetInstance().GetConfig("sharingWfd", "abilityLimit", "surfaceMaximum", values);
     if (ret == CONFIGURE_ERROR_NONE) {
         values->GetValue<int32_t>(surfaceMaximum_);
     }
 
-    ret = Config::GetInstance().GetConfig("khSharingWfd", "abilityLimit", "foregroundMaximum", values);
+    ret = Config::GetInstance().GetConfig("sharingWfd", "abilityLimit", "foregroundMaximum", values);
     if (ret == CONFIGURE_ERROR_NONE) {
         values->GetValue<int32_t>(foregroundMaximum_);
     }
 
-    ret = Config::GetInstance().GetConfig("khSharingWfd", "mediaFormat", "videoCodec", values);
+    ret = Config::GetInstance().GetConfig("sharingWfd", "mediaFormat", "videoCodec", values);
     if (ret == CONFIGURE_ERROR_NONE) {
         int32_t videoCodec;
         values->GetValue<int32_t>(videoCodec);
         videoCodecId_ = static_cast<CodecId>(videoCodec);
     }
 
-    ret = Config::GetInstance().GetConfig("khSharingWfd", "mediaFormat", "videoFormat", values);
+    ret = Config::GetInstance().GetConfig("sharingWfd", "mediaFormat", "videoFormat", values);
     if (ret == CONFIGURE_ERROR_NONE) {
         int32_t videoFormat;
         values->GetValue<int32_t>(videoFormat);
         videoFormatId_ = static_cast<VideoFormat>(videoFormat);
     }
 
-    ret = Config::GetInstance().GetConfig("khSharingWfd", "mediaFormat", "audioCodec", values);
+    ret = Config::GetInstance().GetConfig("sharingWfd", "mediaFormat", "audioCodec", values);
     if (ret == CONFIGURE_ERROR_NONE) {
         int32_t audioCodec;
         values->GetValue<int32_t>(audioCodec);
         audioCodecId_ = static_cast<CodecId>(audioCodec);
     }
 
-    ret = Config::GetInstance().GetConfig("khSharingWfd", "mediaFormat", "audioFormat", values);
+    ret = Config::GetInstance().GetConfig("sharingWfd", "mediaFormat", "audioFormat", values);
     if (ret == CONFIGURE_ERROR_NONE) {
         int32_t audioFormat;
         values->GetValue<int32_t>(audioFormat);

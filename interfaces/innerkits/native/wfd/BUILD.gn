@@ -31,11 +31,9 @@ config("sharing_service_config") {
   cflags = [ "-Wno-c++20-extensions" ]
 }
 
-ohos_shared_library("khsharingwfd_client") {
+ohos_shared_library("sharingwfd_client") {
   install_enable = true
-  include_dirs = [
-    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
-  ]
+  include_dirs = [ "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include" ]
 
   sources = [
     "$SHARING_ROOT_DIR/frameworks/innerkitsimpl/native/wfd/wfd_impl.cpp",
@@ -55,7 +53,7 @@ ohos_shared_library("khsharingwfd_client") {
   ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/common:khsharing_common",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
     "$SHARING_ROOT_DIR/services/interaction/ipc_codec:ipc_codec_srcs",
   ]
 
