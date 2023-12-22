@@ -21,7 +21,7 @@ group("demo_test") {
     "delaytest:loop_back_demo",
     "interaction:sharing_domain_demo",
     "interaction:sharing_wfd_sink_demo",
-    "mediachannel:sharing_buffer_dispatcher_demo",
+    # "mediachannel:sharing_buffer_dispatcher_demo",
     "network:sharing_network_client_demo",
     "network:sharing_network_server_demo",
     "network:udp_client_demo",

@@ -46,5 +46,5 @@ ohos_executable("loop_back_demo") {
   ]
 
   subsystem_name = "castplus"
-  part_name = "sharing"
+  part_name = "sharing_framework"
 }
