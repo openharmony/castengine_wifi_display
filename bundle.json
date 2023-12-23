@@ -82,6 +82,8 @@
         }
       ],
       "test": [
+        "//foundation/CastEngine/castengine_wifi_display/tests:test",
+        "//foundation/CastEngine/castengine_wifi_display/tests/unittest:wfd_unit_test"
       ]
     }
   }

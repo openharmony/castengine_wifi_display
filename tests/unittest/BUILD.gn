@@ -17,16 +17,16 @@ import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 group("wfd_unit_test") {
   testonly = true
   deps = [
-    #"agent:unittest",
-    #"context:unittest",
-    #"configure:sharing_configure_unit_test",
-    #"datacenter:sharing_datacenter_unit_test",
-    #"event:event_unit_test",
-    #"interaction:interaction_unit_test",
-    #"mediachannel:unittest",
-    #"network:network_unittest",
-    #"protocol/rtmp:unittest",
-    #"common:sharing_common_unit_test",
-    "wfd_sink:wfd_sink_unit_test",
+    # "agent:unittest",
+    # "context:unittest",
+    # "configure:sharing_configure_unit_test",
+    # "datacenter:sharing_datacenter_unit_test",
+    # "event:event_unit_test",
+    # "interaction:interaction_unit_test",
+    # "mediachannel:unittest",
+    # "network:network_unittest",
+    # "protocol/rtmp:unittest",
+    # "common:sharing_common_unit_test",
+    # "wfd_sink:wfd_sink_unit_test",
   ]
 }
