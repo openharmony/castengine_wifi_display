@@ -54,7 +54,10 @@ ohos_shared_library("sharing_service") {
   ]
 
   if (sharing_framework_support_wfd_sink) {
-    deps += [ "impl/scene/wfd:sharing_wfd_srcs" ]
+    deps += [
+      "impl/scene/wfd:sharing_wfd_srcs",
+      "impl/wfd:sharing_wfd_session_srcs",
+    ]
   }
 
   configs = [ "$SHARING_ROOT_DIR/tests:coverage_flags" ]

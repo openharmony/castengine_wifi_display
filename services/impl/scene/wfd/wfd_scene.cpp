@@ -15,12 +15,12 @@
 
 #include "wfd_scene.h"
 #include <unistd.h>
-#include "extend/magic_enum/magic_enum.hpp"
 #include "common/common_macro.h"
 #include "common/reflect_registration.h"
 #include "common/sharing_log.h"
 #include "configuration/include/config.h"
 #include "const_def.h"
+#include "extend/magic_enum/magic_enum.hpp"
 #include "network/socket/socket_utils.h"
 #include "wfd_session_def.h"
 

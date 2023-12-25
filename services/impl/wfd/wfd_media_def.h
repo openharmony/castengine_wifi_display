@@ -26,11 +26,12 @@ struct WfdProducerEventMsg : public ChannelEventMsg {
 
     uint16_t port = 0;
     uint16_t localPort = 0;
+
     std::string localIp;
     std::string ip;
 };
 
-struct WfdChatConsumerEventMsg : public ChannelEventMsg {
+struct WfdConsumerEventMsg : public ChannelEventMsg {
     using Ptr = std::shared_ptr<WfdProducerEventMsg>;
 
     uint16_t port = 0;

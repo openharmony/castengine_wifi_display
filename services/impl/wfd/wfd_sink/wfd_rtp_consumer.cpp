@@ -61,7 +61,7 @@ void WfdRtpConsumer::HandleProsumerInitState(SharingEvent &event)
     SHARING_LOGD("trace.");
     RETURN_IF_NULL(event.eventMsg);
 
-    auto msg = ConvertEventMsg<WfdChatConsumerEventMsg>(event);
+    auto msg = ConvertEventMsg<WfdConsumerEventMsg>(event);
     if (msg) {
         port_ = msg->port;
         if (msg->audioTrack.codecId != CodecId::CODEC_NONE) {

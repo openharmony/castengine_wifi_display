@@ -19,9 +19,8 @@
 #include "common/common_macro.h"
 #include "common/reflect_registration.h"
 #include "common/sharing_log.h"
-#include "magic_enum.hpp"
+#include "extend/magic_enum/magic_enum.hpp"
 #include "mediachannel/media_channel_def.h"
-#include "wfd_def.h"
 #include "wfd_media_def.h"
 #include "wfd_message.h"
 
@@ -246,7 +245,7 @@ void WfdSinkSession::NotifyProsumerInit(SessionStatusMsg::Ptr &statusMsg)
     RETURN_IF_NULL(statusMsg);
     RETURN_IF_NULL(statusMsg->msg);
 
-    auto eventMsg = std::make_shared<WfdChatConsumerEventMsg>();
+    auto eventMsg = std::make_shared<WfdConsumerEventMsg>();
     eventMsg->type = EventType::EVENT_WFD_MEDIA_INIT;
     eventMsg->toMgr = ModuleType::MODULE_MEDIACHANNEL;
     eventMsg->port = localRtpPort_;

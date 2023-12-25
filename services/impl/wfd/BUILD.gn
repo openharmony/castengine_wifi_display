@@ -3,7 +3,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#      http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
-ohos_source_set("sharing_wfd_srcs") {
+ohos_source_set("sharing_wfd_session_srcs") {
   sanitize = {
     cfi = true
     boundary_sanitize = true
@@ -23,28 +23,36 @@ ohos_source_set("sharing_wfd_srcs") {
   }
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
-    "$SHARING_ROOT_DIR/services/impl/scene/wfd",
-    "$SHARING_ROOT_DIR/services/impl/screen_capture",
     "$SHARING_ROOT_DIR/services/impl/wfd",
     "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink",
     "$SHARING_ROOT_DIR/services/impl/wfd/wfd_source",
+    "$SHARING_ROOT_DIR/services/network",
+    "$SHARING_ROOT_DIR/services/mediachannel",
+    "$SHARING_ROOT_DIR/services/utils",
     "$SHARING_ROOT_DIR/services/common",
+    "$SHARING_ROOT_DIR/services/protocol",
+    "$SHARING_ROOT_DIR/services/protocol/frame",
+    "$SHARING_ROOT_DIR/services/protocol/rtp",
     "$SHARING_ROOT_DIR/services/3rdpart/magic_enum",
-    "$SHARING_ROOT_DIR/services/interaction/ipc_codec",
   ]
 
-  sources = [ "wfd_scene.cpp" ]
+  sources = [
+    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_message.cpp",
+    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink/wfd_rtp_consumer.cpp",
+    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink/wfd_sink_session.cpp",
+  ]
+
   deps = [
     "$SHARING_ROOT_DIR/services/agent:sharing_agent_srcs",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
     "$SHARING_ROOT_DIR/services/interaction:sharing_interaction_srcs",
     "$SHARING_ROOT_DIR/services/mediachannel:sharing_media_channel_srcs",
   ]
+
   external_deps = [
     "c_utils:utils",
     "graphic_2d:surface",
     "hilog:libhilog",
-    "wifi:wifi_sdk",
-    "window_manager:libdm",
   ]
 
   subsystem_name = "castplus"
