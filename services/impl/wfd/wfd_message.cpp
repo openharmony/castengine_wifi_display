@@ -22,6 +22,9 @@
 
 namespace OHOS {
 namespace Sharing {
+constexpr int32_t BIT_OFFSET_TWO = 2;
+constexpr int32_t BIT_OFFSET_THREE = 3;
+constexpr int32_t BIT_OFFSET_EIGHT = 8;
 
 WfdRtspM1Response::WfdRtspM1Response(int32_t cseq, int32_t status) : RtspResponseOptions(cseq, status)
 {
@@ -77,34 +80,35 @@ void WfdRtspM3Response::SetVideoFormats(VideoFormat format)
 
     switch (format) {
         case VIDEO_1920x1080_30:
-            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1920_1080_P30 << 3);
+            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1920_1080_P30 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1920_1080_P30);
             break;
         case VIDEO_1920x1080_25:
-            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1920_1080_P25 << 3);
+            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1920_1080_P25 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1920_1080_P25);
             break;
         case VIDEO_1280x720_30:
-            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1280_720_P30 << 3);
+            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1280_720_P30 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1280_720_P30);
             break;
         case VIDEO_1280x720_25:
-            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1280_720_P25 << 3);
+            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1280_720_P25 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1280_720_P25);
             break;
         case VIDEO_640x480_60:
         default:
-            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (WfdCeaResolution::CEA_640_480_P60 << 3);
+            native =
+                (uint8_t)WfdResolutionType::RESOLUTION_CEA | (WfdCeaResolution::CEA_640_480_P60 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_640_480_P60);
             break;
     }
 
-    ss << std::setfill('0') << std::setw(2) << std::hex << (int32_t)native << RTSP_SP << "00" << RTSP_SP;
-    ss << std::setfill('0') << std::setw(2) << std::hex << (int32_t)h264Profile << RTSP_SP;
-    ss << std::setfill('0') << std::setw(2) << std::hex << (int32_t)h264Level << RTSP_SP;
-    ss << std::setfill('0') << std::setw(8) << std::hex << ceaResolutionIndex << RTSP_SP;
-    ss << std::setfill('0') << std::setw(8) << std::hex << vesaResolutionIndex << RTSP_SP;
-    ss << std::setfill('0') << std::setw(8) << std::hex << hhResolutionIndex << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_TWO) << std::hex << (int32_t)native << RTSP_SP << "00" << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_TWO) << std::hex << (int32_t)h264Profile << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_TWO) << std::hex << (int32_t)h264Level << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_EIGHT) << std::hex << ceaResolutionIndex << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_EIGHT) << std::hex << vesaResolutionIndex << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_EIGHT) << std::hex << hhResolutionIndex << RTSP_SP;
 
     ss << "00 0000 0000 00 none none";
 
@@ -194,19 +198,12 @@ AudioFormat WfdRtspM3Response::GetAudioCodecs()
         std::stringstream ss(audioCap);
         ss >> format >> audioFormat0 >> audioFormat1;
         if (format == "LPCM") { // LPCM
-            // if (audioFormat0 == 1) {
-            //     return AUDIO_44100_8_2;
-            // } else if (audioFormat0 == 2) {
-            //     return AUDIO_44100_16_2;
-            // }
             continue;
-        } else if (format == "AAC") // AAC
-        {
+        } else if (format == "AAC") { // AAC
             if (audioFormat0 == 1) {
                 return AUDIO_48000_16_2;
             }
-        } else if (format == "AC3") // AC3
-        {
+        } else if (format == "AC3") { // AC3
             if (audioFormat0 == 1) {
             }
             continue;
@@ -306,19 +303,19 @@ VideoFormat WfdRtspM3Response::GetVideoFormats()
             run = false;
         }
         std::stringstream sss(temp);
-        WfdVideoFormatsInfo wfdVideoFormatsInfo_;
-        wfdVideoFormatsInfo_.native = native;
-        wfdVideoFormatsInfo_.preferredDisplayMode = preferredDisplayMode;
-        sss >> std::hex >> wfdVideoFormatsInfo_.profile >> std::hex >> wfdVideoFormatsInfo_.level >> std::hex >>
-            wfdVideoFormatsInfo_.ceaMask >> std::hex >> wfdVideoFormatsInfo_.veaMask >> std::hex >>
-            wfdVideoFormatsInfo_.hhMask >> std::hex >> wfdVideoFormatsInfo_.latency >> std::hex >>
-            wfdVideoFormatsInfo_.minSlice >> std::hex >> wfdVideoFormatsInfo_.sliceEncParam >> std::hex >>
-            wfdVideoFormatsInfo_.frameRateCtlSupport;
-        vWfdVideoFormatsInfo_.push_back(wfdVideoFormatsInfo_);
+        WfdVideoFormatsInfo wfdVideoFormatsInfo;
+        wfdVideoFormatsInfo.native = native;
+        wfdVideoFormatsInfo.preferredDisplayMode = preferredDisplayMode;
+        sss >> std::hex >> wfdVideoFormatsInfo.profile >> std::hex >> wfdVideoFormatsInfo.level >> std::hex >>
+            wfdVideoFormatsInfo.ceaMask >> std::hex >> wfdVideoFormatsInfo.veaMask >> std::hex >>
+            wfdVideoFormatsInfo.hhMask >> std::hex >> wfdVideoFormatsInfo.latency >> std::hex >>
+            wfdVideoFormatsInfo.minSlice >> std::hex >> wfdVideoFormatsInfo.sliceEncParam >> std::hex >>
+            wfdVideoFormatsInfo.frameRateCtlSupport;
+        vWfdVideoFormatsInfo_.push_back(wfdVideoFormatsInfo);
     }
 
     uint8_t tableSelection = vWfdVideoFormatsInfo_[0].native & 0x7;
-    index = vWfdVideoFormatsInfo_[0].native >> 3;
+    index = vWfdVideoFormatsInfo_[0].native >> BIT_OFFSET_THREE;
     switch (tableSelection) {
         case 0:
             return GetVideoFormatsByCea(index);
@@ -399,24 +396,25 @@ void WfdRtspM4Request::SetVideoFormats(const WfdVideoFormatsInfo &wfdVideoFormat
     switch (format) {
         case VIDEO_1920x1080_60:
         case VIDEO_1920x1080_30:
-            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1920_1080_P30 << 3);
+            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1920_1080_P30 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1920_1080_P30);
             break;
         case VIDEO_1920x1080_25:
-            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1920_1080_P25 << 3);
+            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1920_1080_P25 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1920_1080_P25);
             break;
         case VIDEO_1280x720_30:
-            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1280_720_P30 << 3);
+            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1280_720_P30 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1280_720_P30);
             break;
         case VIDEO_1280x720_25:
-            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1280_720_P25 << 3);
+            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1280_720_P25 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1280_720_P25);
             break;
         case VIDEO_640x480_60:
         default:
-            native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (WfdCeaResolution::CEA_640_480_P60 << 3);
+            native =
+                (uint8_t)WfdResolutionType::RESOLUTION_CEA | (WfdCeaResolution::CEA_640_480_P60 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_640_480_P60);
             break;
     }
@@ -429,12 +427,12 @@ void WfdRtspM4Request::SetVideoFormats(const WfdVideoFormatsInfo &wfdVideoFormat
     //    << "38 00 01 10 00000080 00000000 00000000 00 0000 0000 00 none none";
 
     ss << WFD_PARAM_VIDEO_FORMATS << ":" << RTSP_SP;
-    ss << std::setfill('0') << std::setw(2) << std::hex << native << RTSP_SP << "00" << RTSP_SP;
-    ss << std::setfill('0') << std::setw(2) << std::hex << h264Profile << RTSP_SP;
-    ss << std::setfill('0') << std::setw(2) << std::hex << h264Level << RTSP_SP;
-    ss << std::setfill('0') << std::setw(8) << std::hex << ceaResolutionIndex << RTSP_SP;
-    ss << std::setfill('0') << std::setw(8) << std::hex << vesaResolutionIndex << RTSP_SP;
-    ss << std::setfill('0') << std::setw(8) << std::hex << hhResolutionIndex << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_TWO) << std::hex << native << RTSP_SP << "00" << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_TWO) << std::hex << h264Profile << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_TWO) << std::hex << h264Level << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_EIGHT) << std::hex << ceaResolutionIndex << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_EIGHT) << std::hex << vesaResolutionIndex << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_EIGHT) << std::hex << hhResolutionIndex << RTSP_SP;
     ss << "00 0000 0000 00 none none";
     AddBodyItem(ss.str());
 }

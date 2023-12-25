@@ -78,11 +78,6 @@ struct DevSurfaceItem {
     sptr<Surface> surfacePtr;
 };
 
-struct WfdSceneEventMsg : public InteractionEventMsg {
-    using Ptr = std::shared_ptr<WfdSceneEventMsg>;
-
-    std::string mac;
-};
 } // namespace Sharing
 } // namespace OHOS
 #endif

@@ -25,24 +25,29 @@ constexpr uint32_t WFD_SEC_TO_MSEC = 1000;
 constexpr uint32_t P2P_CONNECT_TIMEOUT = 180;
 constexpr uint32_t RTSP_SESSION_TIMEOUT = 30;
 constexpr uint32_t RTSP_INTERACTION_TIMEOUT = 10;
+constexpr uint32_t MINIMAL_VIDEO_FORMAT_SIZE = 54;
 
-#define RTSP_METHOD_WFD           "org.wfa.wfd1.0"
-#define MINIMAL_VIDEO_FORMAT_SIZE 54
-#define WFD_RTSP_URL_DEFAULT      "rtsp://localhost/wfd1.0"
+const std::string RTSP_METHOD_WFD = "org.wfa.wfd1.0";
+const std::string WFD_PARAM_3D_FORMATS = "wfd_3d_formats";
+const std::string WFD_PARAM_TRIGGER = "wfd_trigger_method";
+const std::string WFD_PARAM_IDR_REQUEST = "wfd_idr_request";
+const std::string WFD_PARAM_DISPLAY_EDID = "wfd_display_edid";
+const std::string WFD_PARAM_COUPLED_SINK = "wfd_coupled_sink";
+const std::string WFD_PARAM_AUDIO_CODECS = "wfd_audio_codecs";
+const std::string WFD_PARAM_RTP_PORTS = "wfd_client_rtp_ports";
+const std::string WFD_PARAM_VIDEO_FORMATS = "wfd_video_formats";
+const std::string WFD_PARAM_TRIGGER_METHOD = "wfd_trigger_method";
+const std::string WFD_RTSP_URL_DEFAULT = "rtsp://localhost/wfd1.0";
+const std::string WFD_PARAM_UIBC_CAPABILITY = "wfd_uibc_capability";
+const std::string WFD_PARAM_PRESENTATION_URL = "wfd_presentation_URL";
+const std::string WFD_PARAM_CONTENT_PROTECTION = "wfd_content_protection";
+const std::string WFD_PARAM_STANDBY_RESUME = "wfd_standby_resume_capability";
 
-#define WFD_PARAM_AUDIO_CODECS       "wfd_audio_codecs"
-#define WFD_PARAM_VIDEO_FORMATS      "wfd_video_formats"
-#define WFD_PARAM_3D_FORMATS         "wfd_3d_formats"
-#define WFD_PARAM_CONTENT_PROTECTION "wfd_content_protection"
-#define WFD_PARAM_DISPLAY_EDID       "wfd_display_edid"
-#define WFD_PARAM_COUPLED_SINK       "wfd_coupled_sink"
-#define WFD_PARAM_TRIGGER_METHOD     "wfd_trigger_method"
-#define WFD_PARAM_PRESENTATION_URL   "wfd_presentation_URL"
-#define WFD_PARAM_RTP_PORTS          "wfd_client_rtp_ports"
-#define WFD_PARAM_UIBC_CAPABILITY    "wfd_uibc_capability"
-#define WFD_PARAM_STANDBY_RESUME     "wfd_standby_resume_capability"
-#define WFD_PARAM_TRIGGER            "wfd_trigger_method"
-#define WFD_PARAM_IDR_REQUEST        "wfd_idr_request"
+struct WfdSceneEventMsg : public InteractionEventMsg {
+    using Ptr = std::shared_ptr<WfdSceneEventMsg>;
+
+    std::string mac;
+};
 
 struct WfdSinkSessionEventMsg : public SessionEventMsg {
     using Ptr = std::shared_ptr<WfdSinkSessionEventMsg>;
@@ -59,10 +64,13 @@ struct WfdSinkSessionEventMsg : public SessionEventMsg {
 
 struct WfdSourceSessionEventMsg : public SessionEventMsg {
     using Ptr = std::shared_ptr<WfdSourceSessionEventMsg>;
-    std::string ip;
-    std::string mac;
+
     uint16_t localPort = 0;
     uint16_t remotePort = 0;
+
+    std::string ip;
+    std::string mac;
+
     AudioFormat audioFormat = AUDIO_48000_16_2;
     VideoFormat videoFormat = VIDEO_1920x1080_30;
 };

@@ -19,7 +19,6 @@
 #include <sstream>
 #include "protocol/rtsp/include/rtsp_request.h"
 #include "protocol/rtsp/include/rtsp_response.h"
-#include "wfd_def.h"
 #include "wfd_session_def.h"
 
 namespace OHOS {
