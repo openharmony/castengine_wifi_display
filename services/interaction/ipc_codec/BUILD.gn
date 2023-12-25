@@ -22,7 +22,6 @@ config("ipc_codec_config") {
 }
 
 ohos_static_library("ipc_codec_srcs") {
-
   sanitize = {
     cfi = true
     cfi_cross_dso = true

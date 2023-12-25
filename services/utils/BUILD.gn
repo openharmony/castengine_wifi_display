@@ -19,7 +19,6 @@ config("sharing_utils_config") {
 }
 
 ohos_static_library("sharing_utils") {
-
   sanitize = {
     cfi = true
     cfi_cross_dso = true

@@ -15,7 +15,6 @@ import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 ohos_static_library("sharing_rtsp") {
-
   sanitize = {
     cfi = true
     cfi_cross_dso = true

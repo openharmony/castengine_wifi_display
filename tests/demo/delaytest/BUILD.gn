@@ -31,7 +31,6 @@ config("loop_back_demo_config") {
 }
 
 ohos_executable("loop_back_demo") {
-
   sanitize = {
     cfi = true
     cfi_cross_dso = true

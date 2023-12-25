@@ -31,7 +31,6 @@ config("sharing_network_demo_config") {
 }
 
 ohos_executable("sharing_network_server_demo") {
-
   sanitize = {
     cfi = true
     cfi_cross_dso = true
@@ -59,7 +58,6 @@ ohos_executable("sharing_network_server_demo") {
 }
 
 ohos_executable("sharing_network_client_demo") {
-
   sanitize = {
     cfi = true
     cfi_cross_dso = true
@@ -86,7 +84,6 @@ ohos_executable("sharing_network_client_demo") {
 }
 
 ohos_executable("udp_client_demo") {
-
   sanitize = {
     cfi = true
     cfi_cross_dso = true
@@ -102,7 +99,6 @@ ohos_executable("udp_client_demo") {
 }
 
 ohos_executable("udp_server_demo") {
-
   sanitize = {
     cfi = true
     cfi_cross_dso = true

@@ -14,7 +14,6 @@
 import("//build/ohos.gni")
 
 ohos_static_library("dmkit") {
-
   sanitize = {
     cfi = true
     cfi_cross_dso = true

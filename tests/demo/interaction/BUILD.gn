@@ -45,7 +45,6 @@ config("sharing_interaction_demo_config") {
 }
 
 ohos_executable("sharing_wfd_sink_demo") {
-
   sanitize = {
     cfi = true
     cfi_cross_dso = true
@@ -77,7 +76,6 @@ ohos_executable("sharing_wfd_sink_demo") {
 }
 
 ohos_executable("sharing_domain_demo") {
-
   sanitize = {
     cfi = true
     cfi_cross_dso = true
