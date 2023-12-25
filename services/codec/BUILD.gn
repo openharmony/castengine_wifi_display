@@ -25,6 +25,12 @@ config("codec_external_include") {
 ohos_shared_library("sharing_codec") {
   install_enable = true
 
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   public_configs = [ ":codec_external_include" ]
 
   include_dirs = [

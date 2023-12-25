@@ -43,25 +43,11 @@ config("sharing_service_config") {
 ohos_source_set("sharing_interaction_srcs") {
   configs = [ ":sharing_service_config" ]
 
-  # EXCLUDE_CLIENT_SRCS = [
-  #   "*/standard_service_proxy.cpp",
-  #   "*/client_factory.cpp",
-  #   "*/standard_client.cpp",
-  #   "*/sharing_client.cpp",
-  #   "*/wfd_client.cpp",
-  #   "*/videochat_client.cpp",
-  #   "*/dm_kit.cpp",
-  #   "*/ipc_msg_decoder.cpp",
-  #   "*/ipc_msg_encoder.cpp",
-  #   "*/ipc_codec.cpp",
-  #   "*/rpc_client_factory.cpp",
-  # ]
-
-  # set_sources_assignment_filter(EXCLUDE_CLIENT_SRCS)
-
-  # PWD = rebase_path(".")
-  # CMD = "find ${PWD} -name *.cpp"
-  # sources = exec_script("//build/lite/run_shell_cmd.py", [ CMD ], "list lines")
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
 
   sources = [
     "domain/domain_manager.cpp",

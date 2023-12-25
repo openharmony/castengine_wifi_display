@@ -20,9 +20,11 @@ ohos_source_set("sharing_media_channel_srcs") {
     "-Wno-deprecated-builtins",
   ]
 
-  # PWD = rebase_path(".")
-  # CMD = "find ${PWD} -name *.cpp"
-  # sources = exec_script("//build/lite/run_shell_cmd.py", [ CMD ], "list lines")
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
 
   sources = [
     "base_consumer.cpp",

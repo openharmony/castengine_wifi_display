@@ -39,6 +39,13 @@ config("plugin_ffmpeg_adapter_config") {
 }
 
 ohos_executable("sharing_buffer_dispatcher_demo") {
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   include_dirs = []
   configs = [
     ":capture_demo_config",

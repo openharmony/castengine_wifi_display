@@ -16,8 +16,11 @@ import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 ohos_shared_library("sharing_rtp") {
   install_enable = true
-  if (defined(enable_media_log) && enable_media_log) {
-    defines = [ "SHARING_MEDIA_LOG" ]
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
   }
 
   include_dirs = [

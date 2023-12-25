@@ -25,6 +25,13 @@ config("sharing_demo_config") {
 }
 
 ohos_executable("sharing_ts_rtp_dec_demo") {
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   configs = [ ":sharing_demo_config" ]
 
   sources = [ "ts_rtp_dec_demo.cpp" ]
@@ -39,6 +46,13 @@ ohos_executable("sharing_ts_rtp_dec_demo") {
 }
 
 ohos_executable("sharing_h264_rtp_dec_demo") {
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   configs = [ ":sharing_demo_config" ]
 
   sources = [ "h264_rtp_dec_demo.cpp" ]
@@ -51,6 +65,13 @@ ohos_executable("sharing_h264_rtp_dec_demo") {
 }
 
 ohos_executable("sharing_rtp_enc_demo") {
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   configs = [ ":sharing_demo_config" ]
 
   sources = [ "rtp_enc_demo.cpp" ]
@@ -63,6 +84,13 @@ ohos_executable("sharing_rtp_enc_demo") {
 }
 
 ohos_executable("sharing_rtp_dec_demo") {
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   configs = [ ":sharing_demo_config" ]
   sources = [ "rtp_dec_demo.cpp" ]
 

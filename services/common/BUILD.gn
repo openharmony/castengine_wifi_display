@@ -15,6 +15,13 @@ import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 ohos_static_library("sharing_common") {
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   include_dirs = [
     "//utils/native/base/include",
     "$SHARING_ROOT_DIR/services",
@@ -44,6 +51,13 @@ ABILITY_RUNTIME_INNER_API_PATH = "${ABILITY_RUNTIME_PATH}/interfaces/inner_api"
 ABILITY_RUNTIME_SERVICES_PATH = "${ABILITY_RUNTIME_PATH}/services"
 
 ohos_static_library("kv_operator") {
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   sources = [ "kv_operator.cpp" ]
 
   include_dirs = [

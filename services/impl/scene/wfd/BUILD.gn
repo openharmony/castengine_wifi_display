@@ -15,12 +15,13 @@ import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 ohos_source_set("sharing_wfd_srcs") {
+
   sanitize = {
     cfi = true
-    boundary_sanitize = true
     cfi_cross_dso = true
     debug = false
   }
+
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/services/impl/scene/wfd",

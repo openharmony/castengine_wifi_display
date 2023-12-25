@@ -14,6 +14,13 @@
 import("//build/ohos.gni")
 
 ohos_static_library("dmkit") {
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   include_dirs = [
     ".",
     "//foundation/CastEngine/castengine_wifi_display/services",
