@@ -25,6 +25,12 @@ config("sharing_wfd_demo_config") {
 }
 
 ohos_executable("sharing_wfd_demo") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   configs = [
     ":sharing_wfd_demo_config",
     # "$SHARING_ROOT_DIR/services/windowmgr:window_external_include",

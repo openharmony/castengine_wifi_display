@@ -15,6 +15,12 @@ import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 ohos_executable("sharing_codec_demo") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/services/codec/include",
@@ -33,6 +39,12 @@ ohos_executable("sharing_codec_demo") {
 }
 
 ohos_executable("sharing_codec_video_demo") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   include_dirs = [
     "$SHARING_ROOT_DIR/services/codec/include",
     "$SHARING_ROOT_DIR/services",

@@ -31,6 +31,12 @@ config("loop_back_demo_config") {
 }
 
 ohos_executable("loop_back_demo") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   configs = [ ":loop_back_demo_config" ]
 
   sources = [ "src/loop_back_demo.cpp" ]

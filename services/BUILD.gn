@@ -31,6 +31,12 @@ group("sharing_services_package") {
 ohos_shared_library("sharing_service") {
   install_enable = true
 
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   deps = [
     "agent:sharing_agent_srcs",
     "configuration:sharing_configure_srcs",

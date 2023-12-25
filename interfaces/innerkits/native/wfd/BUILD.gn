@@ -33,6 +33,13 @@ config("sharing_service_config") {
 
 ohos_shared_library("sharingwfd_client") {
   install_enable = true
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   include_dirs = [ "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include" ]
 
   sources = [

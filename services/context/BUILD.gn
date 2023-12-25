@@ -15,6 +15,12 @@ import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 ohos_source_set("sharing_context_srcs") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   include_dirs = [
     "//utils/native/base/include",
     "$SHARING_ROOT_DIR/services",

@@ -27,6 +27,13 @@ config("libmpeg_config") {
 
 ohos_shared_library("sharing_mpeg") {
   stable = true
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   configs = [ ":libmpeg_config" ]
 
   sources = [

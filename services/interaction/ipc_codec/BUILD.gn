@@ -22,6 +22,12 @@ config("ipc_codec_config") {
 }
 
 ohos_static_library("ipc_codec_srcs") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   include_dirs = [
     ".",
     "//foundation/communication/wifi/wifi/frameworks/native/include",

@@ -28,6 +28,12 @@ config("sharing_rtsp_config") {
 }
 
 ohos_executable("sharing_rtsp_pusher_demo") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   configs = [ ":sharing_rtsp_config" ]
 
   sources = [ "rtsp_pusher_demo.cpp" ]
@@ -46,6 +52,12 @@ ohos_executable("sharing_rtsp_pusher_demo") {
 }
 
 ohos_executable("sharing_rtsp_player_demo") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   configs = [ ":sharing_rtsp_config" ]
 
   sources = [ "rtsp_player_demo.cpp" ]

@@ -31,6 +31,12 @@ config("sharing_network_demo_config") {
 }
 
 ohos_executable("sharing_network_server_demo") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   configs = [ ":sharing_network_demo_config" ]
 
   sources = [ "network_server_demo.cpp" ]
@@ -52,6 +58,12 @@ ohos_executable("sharing_network_server_demo") {
 }
 
 ohos_executable("sharing_network_client_demo") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   configs = [ ":sharing_network_demo_config" ]
 
   sources = [ "network_client_demo.cpp" ]
@@ -72,6 +84,12 @@ ohos_executable("sharing_network_client_demo") {
 }
 
 ohos_executable("udp_client_demo") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   sources = [ "udp_client_demo.cpp" ]
 
   external_deps = [ "hilog:libhilog" ]
@@ -81,6 +99,12 @@ ohos_executable("udp_client_demo") {
 }
 
 ohos_executable("udp_server_demo") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
   sources = [ "udp_server_demo.cpp" ]
 
   external_deps = [ "hilog:libhilog" ]
