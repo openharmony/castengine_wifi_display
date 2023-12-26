@@ -20,15 +20,19 @@
 #include <memory>
 #include <thread>
 #include "agent/session/base_session.h"
+#include "common/sharing_log.h"
+#include "extend/magic_enum/magic_enum.hpp"
 #include "network/network_factory.h"
 #include "protocol/rtsp/include/rtsp_request.h"
 #include "protocol/rtsp/include/rtsp_response.h"
+#include "timer.h"
+#include "utils/utils.h"
 #include "wfd_message.h"
 #include "wfd_session_def.h"
 
 namespace OHOS {
 namespace Sharing {
-static constexpr uint16_t MAX_RTSP_TIMEOUT_COUNTS = 3;
+
 class WfdSourceSession : public BaseSession,
                          public IServerCallback,
                          public std::enable_shared_from_this<WfdSourceSession> {
@@ -47,7 +51,104 @@ protected:
     void NotifyAgentSessionStatus(SessionStatusMsg::Ptr &statusMsg);
 
 private:
-    friend class WfdSourceNetworkSession;
+    class WfdSourceNetworkSession : public INetworkSessionCallback,
+                                    public std::enable_shared_from_this<WfdSourceNetworkSession> {
+    public:
+        WfdSourceNetworkSession(std::weak_ptr<INetworkSession> sessionPtr, std::weak_ptr<WfdSourceSession> serverPtr)
+            : sessionPtr_(sessionPtr), serverPtr_(serverPtr)
+        {
+            SHARING_LOGD("trace.");
+        }
+        ~WfdSourceNetworkSession()
+        {
+            SHARING_LOGD("trace.");
+            if (timer_ != nullptr) {
+                timer_->Shutdown();
+                timer_.reset();
+            }
+        }
+
+        void UnsetKeepAliveTimer()
+        {
+            SHARING_LOGD("trace.");
+            if (timer_ != nullptr) {
+                timer_->Unregister(timerId_);
+                timerId_ = 0;
+            }
+        }
+
+        void SetKeepAliveTimer()
+        {
+            SHARING_LOGD("trace.");
+            int32_t interval = RTSP_INTERACTION_TIMEOUT * WFD_SEC_TO_MSEC;
+            if (timer_ != nullptr) {
+                timerId_ = timer_->Register(std::bind(&WfdSourceNetworkSession::OnSendKeepAlive, this), interval);
+                timer_->Setup();
+            }
+        }
+
+        void OnSessionReadData(int32_t fd, DataBuffer::Ptr buf) override
+        {
+            SHARING_LOGD("trace.");
+            auto server = serverPtr_.lock();
+            if (server) {
+                auto session = sessionPtr_.lock();
+                if (session) {
+                    server->OnServerReadData(fd, buf, session);
+                }
+            }
+        }
+
+        void OnSessionWriteable(int32_t fd) override
+        {
+            SHARING_LOGD("trace.");
+        }
+
+        void OnSessionClose(int32_t fd) override
+        {
+            SHARING_LOGD("trace.");
+            auto server = serverPtr_.lock();
+            if (server) {
+                auto statusMsg = std::make_shared<SessionStatusMsg>();
+                statusMsg->msg = std::make_shared<EventMsg>();
+                statusMsg->status = STATE_SESSION_ERROR;
+                statusMsg->msg->errorCode = ERR_NETWORK_ERROR;
+                server->NotifyAgentSessionStatus(statusMsg);
+            }
+        }
+
+        void OnSessionException(int32_t fd) override
+        {
+            SHARING_LOGD("trace.");
+            auto server = serverPtr_.lock();
+            if (server) {
+                auto statusMsg = std::make_shared<SessionStatusMsg>();
+                statusMsg->msg = std::make_shared<EventMsg>();
+                statusMsg->status = STATE_SESSION_ERROR;
+                statusMsg->msg->errorCode = ERR_NETWORK_ERROR;
+                server->NotifyAgentSessionStatus(statusMsg);
+            }
+        }
+
+    private:
+        void OnSendKeepAlive() const
+        {
+            SHARING_LOGD("trace.");
+            auto session = sessionPtr_.lock();
+            if (session) {
+                auto server = serverPtr_.lock();
+                if (server) {
+                    server->SendM16Request(session);
+                }
+            }
+        }
+
+    private:
+        uint32_t timerId_ = 0;
+        std::weak_ptr<INetworkSession> sessionPtr_;
+        std::weak_ptr<WfdSourceSession> serverPtr_;
+        std::unique_ptr<OHOS::Utils::Timer> timer_ = std::make_unique<OHOS::Utils::Timer>("RtspSourceSessionTimer");
+    };
 
     void HandleSessionInit(SharingEvent &event);
     void HandleProsumerInitState(SharingEvent &event);
@@ -116,7 +217,6 @@ private:
     NetworkFactory::ServerPtr rtspServerPtr_ = nullptr;
 };
 
-class WfdSourceNetworkSession;
 } // namespace Sharing
 } // namespace OHOS
 

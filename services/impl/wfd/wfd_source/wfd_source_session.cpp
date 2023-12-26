@@ -17,120 +17,17 @@
 #include <iomanip>
 #include "common/common_macro.h"
 #include "common/reflect_registration.h"
-#include "common/sharing_log.h"
-#include "extend/magic_enum/magic_enum.hpp"
 #include "mediachannel/media_channel_def.h"
-#include "timer.h"
-#include "utils/utils.h"
 #include "wfd_media_def.h"
 #include "wfd_message.h"
+
 namespace OHOS {
 namespace Sharing {
-
-class WfdSourceNetworkSession : public INetworkSessionCallback,
-                                public std::enable_shared_from_this<WfdSourceNetworkSession> {
-public:
-    WfdSourceNetworkSession(std::weak_ptr<INetworkSession> sessionPtr, std::weak_ptr<WfdSourceSession> serverPtr)
-        : sessionPtr_(sessionPtr), serverPtr_(serverPtr)
-    {
-        SHARING_LOGD("trace.");
-    }
-    ~WfdSourceNetworkSession()
-    {
-        SHARING_LOGD("trace.");
-        if (timer_ != nullptr) {
-            timer_->Shutdown();
-            timer_.reset();
-        }
-    }
-
-    void UnsetKeepAliveTimer()
-    {
-        SHARING_LOGD("trace.");
-        if (timer_ != nullptr) {
-            timer_->Unregister(timerId_);
-            timerId_ = 0;
-        }
-    }
-
-    void SetKeepAliveTimer()
-    {
-        SHARING_LOGD("trace.");
-        int32_t interval = RTSP_INTERACTION_TIMEOUT * WFD_SEC_TO_MSEC;
-        if (timer_ != nullptr) {
-            timerId_ = timer_->Register(std::bind(&WfdSourceNetworkSession::OnSendKeepAlive, this), interval);
-            timer_->Setup();
-        }
-    }
-
-    void OnSessionReadData(int32_t fd, DataBuffer::Ptr buf) override
-    {
-        SHARING_LOGD("trace.");
-        auto server = serverPtr_.lock();
-        if (server) {
-            auto session = sessionPtr_.lock();
-            if (session) {
-                server->OnServerReadData(fd, buf, session);
-            }
-        }
-    }
-
-    void OnSessionWriteable(int32_t fd) override
-    {
-        SHARING_LOGD("trace.");
-    }
-
-    void OnSessionClose(int32_t fd) override
-    {
-        SHARING_LOGD("trace.");
-        auto server = serverPtr_.lock();
-        if (server) {
-            auto statusMsg = std::make_shared<SessionStatusMsg>();
-            statusMsg->msg = std::make_shared<EventMsg>();
-            statusMsg->status = STATE_SESSION_ERROR;
-            statusMsg->msg->errorCode = ERR_NETWORK_ERROR;
-            server->NotifyAgentSessionStatus(statusMsg);
-        }
-    }
-
-    void OnSessionException(int32_t fd) override
-    {
-        SHARING_LOGD("trace.");
-        auto server = serverPtr_.lock();
-        if (server) {
-            auto statusMsg = std::make_shared<SessionStatusMsg>();
-            statusMsg->msg = std::make_shared<EventMsg>();
-            statusMsg->status = STATE_SESSION_ERROR;
-            statusMsg->msg->errorCode = ERR_NETWORK_ERROR;
-            server->NotifyAgentSessionStatus(statusMsg);
-        }
-    }
-
-private:
-    void OnSendKeepAlive() const
-    {
-        SHARING_LOGD("trace.");
-        auto session = sessionPtr_.lock();
-        if (session) {
-            auto server = serverPtr_.lock();
-            if (server) {
-                server->SendM16Request(session);
-            }
-        }
-    }
-
-private:
-    uint32_t timerId_ = 0;
-    std::weak_ptr<INetworkSession> sessionPtr_;
-    std::weak_ptr<WfdSourceSession> serverPtr_;
-    std::unique_ptr<OHOS::Utils::Timer> timer_ = std::make_unique<OHOS::Utils::Timer>("RtspSourceSessionTimer");
-};
-
 WfdSourceSession::WfdSourceSession()
 {
     SHARING_LOGD("trace.");
     std::stringstream ss;
-    ss << std::setw(8) << std::setfill('f') << (int64_t)this; // width is 8
+    ss << std::setw(8) << std::setfill('f') << (int64_t)this; // width:8
     sessionID_ = ss.str();
 }
 
@@ -230,8 +127,8 @@ void WfdSourceSession::NotifyProsumerInit(SessionStatusMsg::Ptr &statusMsg)
     eventMsg->ip = sinkIp_;
     eventMsg->localPort = sourceRtpPort_;
     eventMsg->localIp = sourceIp_;
-    SHARING_LOGD("NotifyProsumerInit:sinkRtpPort %{public}d, sinkIp %{public}s sourceRtpPort %{public}d.", sinkRtpPort_,
-                 sinkIp_.c_str(), sourceRtpPort_);
+    SHARING_LOGD("sinkRtpPort %{public}d, sinkIp %{public}s sourceRtpPort %{public}d.", sinkRtpPort_, sinkIp_.c_str(),
+                 sourceRtpPort_);
     statusMsg->msg = std::move(eventMsg);
     statusMsg->status = NOTIFY_SESSION_PRIVATE_EVENT;
 
@@ -309,9 +206,9 @@ void WfdSourceSession::HandleSessionInit(SharingEvent &event)
         sourceRtpPort_ = inputMsg->localPort;
         videoFormat_ = inputMsg->videoFormat;
         audioFormat_ = inputMsg->audioFormat;
-        SHARING_LOGD(
-            "HandleSessionInit:sourceIp %s, sourceMac %s controlPort %d sourceRtpPort %d videoFormat %d audioFormat %d.",
-            sourceIp_.c_str(), sourceMac_.c_str(), wfdDefaultPort_, sourceRtpPort_, videoFormat_, audioFormat_);
+        SHARING_LOGD("sourceIp %s, sourceMac %s controlPort %d sourceRtpPort %d videoFormat %d audioFormat %d.",
+                     sourceIp_.c_str(), sourceMac_.c_str(), wfdDefaultPort_, sourceRtpPort_, videoFormat_,
+                     audioFormat_);
     } else {
         SHARING_LOGE("unknow event msg.");
     }
@@ -534,7 +431,7 @@ bool WfdSourceSession::HandleTeardownRequest(const RtspRequest &request, int32_t
 bool WfdSourceSession::HandleResponse(const RtspResponse &response, const std::string &message,
                                       INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("HandleResponse:sessionID %{public}s.", response.GetSession().c_str());
+    SHARING_LOGD("sessionID %{public}s.", response.GetSession().c_str());
     if (!lastMessage_.empty()) {
         lastMessage_.clear();
     }
@@ -722,7 +619,7 @@ bool WfdSourceSession::SendM1Request(INetworkSession::Ptr &session)
     }
     WfdRtspM1Request m1Request(++cseq_);
     std::string m1Req(m1Request.Stringify());
-    SHARING_LOGD("SendM1Request: %{public}s.", m1Req.c_str());
+    SHARING_LOGD("%{public}s.", m1Req.c_str());
 
     bool ret = session->Send(m1Req.c_str(), m1Req.size());
     if (!ret) {
@@ -741,7 +638,7 @@ bool WfdSourceSession::SendM2Response(int32_t cseq, INetworkSession::Ptr &sessio
     }
     WfdRtspM2Response m2Response(cseq, RTSP_STATUS_OK);
     std::string m2Res(m2Response.Stringify());
-    SHARING_LOGD("SendM2Response: %{public}s.", m2Res.c_str());
+    SHARING_LOGD("%{public}s.", m2Res.c_str());
 
     bool ret = session->Send(m2Res.c_str(), m2Res.size());
     if (!ret) {
@@ -760,7 +657,7 @@ bool WfdSourceSession::SendM3Request(INetworkSession::Ptr &session)
     }
     WfdRtspM3Request m3Request(++cseq_, WFD_RTSP_URL_DEFAULT);
     std::string m3Req(m3Request.Stringify());
-    SHARING_LOGD("SendM3Request: %{public}s.", m3Req.c_str());
+    SHARING_LOGD("%{public}s.", m3Req.c_str());
 
     bool ret = session->Send(m3Req.c_str(), m3Req.size());
     if (!ret) {
@@ -784,7 +681,7 @@ bool WfdSourceSession::SendM4Request(INetworkSession::Ptr &session)
     m4Request.SetAudioCodecs(audioFormat_);
     m4Request.SetClientRtpPorts(sinkRtpPort_);
     std::string m4Req(m4Request.Stringify());
-    SHARING_LOGD("SendM4Request: %{public}s.", m4Req.c_str());
+    SHARING_LOGD("%{public}s.", m4Req.c_str());
 
     bool ret = session->Send(m4Req.c_str(), m4Req.size());
     if (!ret) {
@@ -804,7 +701,7 @@ bool WfdSourceSession::SendM5Request(INetworkSession::Ptr &session)
     WfdRtspM5Request m5Request(++cseq_);
     m5Request.SetTriggerMethod(RTSP_METHOD_SETUP);
     std::string m5Req(m5Request.Stringify());
-    SHARING_LOGD("SendM5Request: %{public}s.", m5Req.c_str());
+    SHARING_LOGD("%{public}s.", m5Req.c_str());
 
     bool ret = session->Send(m5Req.c_str(), m5Req.size());
     if (!ret) {
@@ -825,7 +722,7 @@ bool WfdSourceSession::SendM6Response(INetworkSession::Ptr &session, int32_t cse
     m6Response.SetClientPort(sinkRtpPort_);
     m6Response.SetServerPort(sourceRtpPort_);
     std::string m6Res(m6Response.StringifyEx());
-    SHARING_LOGD("SendM6Response: %{public}s.", m6Res.c_str());
+    SHARING_LOGD("%{public}s.", m6Res.c_str());
 
     bool ret = session->Send(m6Res.c_str(), m6Res.size());
     if (!ret) {
@@ -845,7 +742,7 @@ bool WfdSourceSession::SendM7Response(INetworkSession::Ptr &session, int32_t cse
     m7Response.SetSession(sessionID_);
     m7Response.SetTimeout(rtspTimeout_);
     std::string m7Res(m7Response.StringifyEx());
-    SHARING_LOGD("WfdRtspM7Response: %{public}s.", m7Res.c_str());
+    SHARING_LOGD("%{public}s.", m7Res.c_str());
 
     bool ret = session->Send(m7Res.c_str(), m7Res.size());
     if (!ret) {
@@ -864,7 +761,7 @@ bool WfdSourceSession::SendM8Response(INetworkSession::Ptr &session, int32_t cse
     WfdRtspM8Response m8Response(cseq, RTSP_STATUS_OK);
     m8Response.SetSession(sessionID_);
     std::string m8Res(m8Response.Stringify());
-    SHARING_LOGD("SendM8Response: %{public}s.", m8Res.c_str());
+    SHARING_LOGD("%{public}s.", m8Res.c_str());
 
     bool ret = session->Send(m8Res.c_str(), m8Res.size());
     if (!ret) {
@@ -883,7 +780,7 @@ bool WfdSourceSession::SendCommonResponse(int32_t cseq, INetworkSession::Ptr &se
     RtspResponse m4Response(cseq, RTSP_STATUS_OK);
     m4Response.SetSession(sessionID_);
     std::string m4Res(m4Response.Stringify());
-    SHARING_LOGD("SendCommonResponse: %{public}s.", m4Res.c_str());
+    SHARING_LOGD("%{public}s.", m4Res.c_str());
 
     bool ret = session->Send(m4Res.c_str(), m4Res.size());
     if (!ret) {
@@ -905,7 +802,7 @@ bool WfdSourceSession::SendM16Request(INetworkSession::Ptr &session)
     }
     WfdRtspM16Request m16Request(++cseq_, WFD_RTSP_URL_DEFAULT, sessionID_);
     std::string m16Req(m16Request.Stringify());
-    SHARING_LOGD("SendM16Request: %{public}s.", m16Req.c_str());
+    SHARING_LOGD("%{public}s.", m16Req.c_str());
 
     bool ret = session->Send(m16Req.c_str(), m16Req.size());
     if (!ret) {
