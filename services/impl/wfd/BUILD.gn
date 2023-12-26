@@ -33,13 +33,13 @@ ohos_source_set("sharing_wfd_session_srcs") {
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/protocol/rtp",
-    "$SHARING_ROOT_DIR/services/3rdpart/magic_enum",
   ]
 
   sources = [
     "$SHARING_ROOT_DIR/services/impl/wfd/wfd_message.cpp",
     "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink/wfd_rtp_consumer.cpp",
     "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink/wfd_sink_session.cpp",
+    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_source/wfd_source_session.cpp",
   ]
 
   deps = [
