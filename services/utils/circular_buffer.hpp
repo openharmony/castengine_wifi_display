@@ -55,7 +55,7 @@ public:
     void clear()
     {
         circular_buffer_.clear();
-        SHARING_LOGD("size is %{public}d", size());
+        SHARING_LOGD("size is %{public}zu", size());
         set_capacity(capacity_);
     }
 

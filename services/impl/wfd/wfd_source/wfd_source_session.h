@@ -77,8 +77,8 @@ private:
     void HandleSessionInit(SharingEvent &event);
     void HandleProsumerInitState(SharingEvent &event);
 
-    bool StartWfdSession();
     bool StopWfdSession();
+    bool StartWfdSession();
 
     // impl IServerCallback
     void OnServerClose(int32_t fd) override {}
@@ -89,10 +89,10 @@ private:
 
     bool HandleRequest(const RtspRequest &request, INetworkSession::Ptr &session);
     bool HandleIDRRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);
-    bool HandleOptionRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);
-    bool HandleSetupRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);
     bool HandlePlayRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);
     bool HandlePauseRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);
+    bool HandleSetupRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);
+    bool HandleOptionRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);
     bool HandleTeardownRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);
 
     bool HandleResponse(const RtspResponse &response, const std::string &message, INetworkSession::Ptr &session);
@@ -124,8 +124,8 @@ private:
     uint16_t rtspTimeoutCounts_ = MAX_RTSP_TIMEOUT_COUNTS;
 
     int32_t rtspServerFd_ = 0;
-    int32_t rtspTimeout_ = RTSP_SESSION_TIMEOUT;
     int32_t prosumerState_ = ERR_PROSUMER_INIT;
+    int32_t rtspTimeout_ = RTSP_SESSION_TIMEOUT;
 
     std::string sinkIp_;
     std::string rtspUrl_;

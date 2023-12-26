@@ -175,8 +175,8 @@ void VideoSourceScreen::OnScreenBufferAvailable()
     }
 
     screenFence->Wait(40); // 40: sync timeout
-    SHARING_LOGD("AcquireBuffer success! seq:%{public}d, time:%{public}lld, fence:%{public}d.", buffer->GetSeqNum(),
-                 timestamp, screenFence->Get());
+    SHARING_LOGD("AcquireBuffer success! seq:%{public}d, time:%{public}" PRId64 ", fence:%{public}d.",
+                 buffer->GetSeqNum(), timestamp, screenFence->Get());
 
     if (lastBuffer_ != nullptr) {
         if (consumerSurface_->ReleaseBuffer(lastBuffer_, SyncFence::INVALID_FENCE) != SURFACE_ERROR_OK) {

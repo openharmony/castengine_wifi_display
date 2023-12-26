@@ -71,12 +71,12 @@ void ScreenCaptureConsumer::OnFrame(const Frame::Ptr &frame, FRAME_TYPE frameTyp
         uint32_t len = frame->Size();
         switch (frameType) {
             case SPS_FRAME: {
-                SHARING_LOGD("get sps frame, size:%{public}zu.", len);
+                SHARING_LOGD("get sps frame, size:%{public}u.", len);
                 HandleSpsFrame(dispatcher, frame);
                 break;
             }
             case PPS_FRAME: {
-                SHARING_LOGD("get pps frame, size:%{public}zu.", len);
+                SHARING_LOGD("get pps frame, size:%{public}u.", len);
                 HandlePpsFrame(dispatcher, frame);
                 break;
             }
@@ -88,7 +88,7 @@ void ScreenCaptureConsumer::OnFrame(const Frame::Ptr &frame, FRAME_TYPE frameTyp
                 mediaData->isRaw = false;
                 mediaData->keyFrame = keyFrame;
                 mediaData->pts = pts;
-                SHARING_LOGD("[%{public}" PRId64 "] capture a video into dispatcher:%{public}u, len:%{public}zu.",
+                SHARING_LOGD("[%{public}" PRId64 "] capture a video into dispatcher:%{public}u, len:%{public}u.",
                              mediaData->pts, dispatcher->GetDispatcherId(), len);
                 mediaData->buff = move(frame);
                 dispatcher->InputData(mediaData);
