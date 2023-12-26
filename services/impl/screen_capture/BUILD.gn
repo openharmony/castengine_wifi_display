@@ -3,7 +3,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#      http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,57 +14,44 @@
 import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
-config("codec_external_include") {
-  include_dirs = [
-    "//foundation/multimedia/multimedia",
-    "//foundation/multimedia/player_framework/interfaces/inner_api/native",
-    "//foundation/multimedia/player_framework/services/utils/include",
-  ]
-}
-
-ohos_shared_library("sharing_codec") {
-  install_enable = true
-
+ohos_source_set("sharing_screen_capture_srcs") {
   sanitize = {
     cfi = true
     cfi_cross_dso = true
     debug = false
   }
 
-  public_configs = [ ":codec_external_include" ]
-
   include_dirs = [
-    "$SHARING_ROOT_DIR/services/codec/include",
     "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/impl/screen_capture",
+    "$SHARING_ROOT_DIR/services/impl/screen_capture/mediasource",
+    "$SHARING_ROOT_DIR/services/utils",
     "$SHARING_ROOT_DIR/services/common",
-    "$SHARING_ROOT_DIR/services/protocol",
+    "$SHARING_ROOT_DIR/services/codec/include",
     "$SHARING_ROOT_DIR/services/protocol/frame",
+    "$SHARING_ROOT_DIR/services/extend/magic_enum",
   ]
 
   sources = [
-    "$SHARING_ROOT_DIR/services/protocol/frame/frame.cpp",
-    "$SHARING_ROOT_DIR/services/protocol/frame/h264_frame.cpp",
-    "src/audio_aac_codec.cpp",
-    "src/audio_g711_codec.cpp",
-    "src/codec_factory.cpp",
-    "src/media_frame_pipeline.cpp",
-    "src/video_sink_decoder.cpp",
-    "src/video_source_encoder.cpp",
+    "$SHARING_ROOT_DIR/services/impl/screen_capture/mediasource/video_source_screen.cpp",
+    "$SHARING_ROOT_DIR/services/impl/screen_capture/screen_capture_consumer.cpp",
   ]
 
   deps = [
+    "$SHARING_ROOT_DIR/services/agent:sharing_agent_srcs",
     "$SHARING_ROOT_DIR/services/common:sharing_common",
-    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
+    "$SHARING_ROOT_DIR/services/interaction:sharing_interaction_srcs",
+    "$SHARING_ROOT_DIR/services/mediachannel:sharing_media_channel_srcs",
   ]
 
   external_deps = [
-    "c_utils:utilsbase",
+    "c_utils:utils",
+    "drivers_peripheral_display:hdi_gralloc_client",
     "graphic_2d:surface",
+    "graphic_2d:sync_fence",
     "hilog:libhilog",
-    "ipc:ipc_core",
     "player_framework:media_client",
-    "player_framework:media_service_utils",
-    "safwk:system_ability_fwk",
+    "window_manager:libdm",
   ]
 
   subsystem_name = "castplus"
