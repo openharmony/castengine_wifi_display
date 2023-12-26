@@ -20,15 +20,18 @@
 #include <memory>
 #include <thread>
 #include "agent/session/base_session.h"
+#include "extend/magic_enum/magic_enum.hpp"
 #include "network/network_factory.h"
 #include "protocol/rtsp/include/rtsp_request.h"
 #include "protocol/rtsp/include/rtsp_response.h"
+#include "timer.h"
+#include "utils/utils.h"
 #include "wfd_message.h"
 #include "wfd_session_def.h"
 
 namespace OHOS {
 namespace Sharing {
-static constexpr uint16_t MAX_RTSP_TIMEOUT_COUNTS = 3;
+
 class WfdSourceSession : public BaseSession,
                          public IServerCallback,
                          public std::enable_shared_from_this<WfdSourceSession> {
@@ -47,7 +50,34 @@ protected:
     void NotifyAgentSessionStatus(SessionStatusMsg::Ptr &statusMsg);
 
 private:
-    friend class WfdSourceNetworkSession;
+    class WfdSourceNetworkSession : public INetworkSessionCallback,
+                                    public std::enable_shared_from_this<WfdSourceNetworkSession> {
+    public:
+        WfdSourceNetworkSession(std::weak_ptr<INetworkSession> sessionPtr, std::weak_ptr<WfdSourceSession> serverPtr);
+
+        ~WfdSourceNetworkSession();
+
+        void UnsetKeepAliveTimer();
+
+        void SetKeepAliveTimer();
+
+        void OnSessionReadData(int32_t fd, DataBuffer::Ptr buf) override;
+
+        void OnSessionWriteable(int32_t fd) override;
+
+        void OnSessionClose(int32_t fd) override;
+
+        void OnSessionException(int32_t fd) override;
+
+    private:
+        void OnSendKeepAlive() const;
+
+    private:
+        uint32_t timerId_ = 0;
+        std::weak_ptr<INetworkSession> sessionPtr_;
+        std::weak_ptr<WfdSourceSession> serverPtr_;
+        std::unique_ptr<OHOS::Utils::Timer> timer_ = std::make_unique<OHOS::Utils::Timer>("RtspSourceSessionTimer");
+    };
 
     void HandleSessionInit(SharingEvent &event);
     void HandleProsumerInitState(SharingEvent &event);
@@ -116,7 +146,6 @@ private:
     NetworkFactory::ServerPtr rtspServerPtr_ = nullptr;
 };
 
-class WfdSourceNetworkSession;
 } // namespace Sharing
 } // namespace OHOS
 

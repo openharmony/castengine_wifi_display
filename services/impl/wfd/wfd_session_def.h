@@ -21,6 +21,8 @@
 namespace OHOS {
 namespace Sharing {
 
+constexpr uint16_t MAX_RTSP_TIMEOUT_COUNTS = 3;
+
 constexpr uint32_t WFD_SEC_TO_MSEC = 1000;
 constexpr uint32_t P2P_CONNECT_TIMEOUT = 180;
 constexpr uint32_t RTSP_SESSION_TIMEOUT = 30;
