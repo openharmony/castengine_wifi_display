@@ -54,20 +54,15 @@ private:
                                     public std::enable_shared_from_this<WfdSourceNetworkSession> {
     public:
         WfdSourceNetworkSession(std::weak_ptr<INetworkSession> sessionPtr, std::weak_ptr<WfdSourceSession> serverPtr);
-
         ~WfdSourceNetworkSession();
 
+        void SetKeepAliveTimer();
         void UnsetKeepAliveTimer();
 
-        void SetKeepAliveTimer();
-
-        void OnSessionReadData(int32_t fd, DataBuffer::Ptr buf) override;
-
-        void OnSessionWriteable(int32_t fd) override;
-
         void OnSessionClose(int32_t fd) override;
-
+        void OnSessionWriteable(int32_t fd) override;
         void OnSessionException(int32_t fd) override;
+        void OnSessionReadData(int32_t fd, DataBuffer::Ptr buf) override;
 
     private:
         void OnSendKeepAlive() const;
@@ -93,12 +88,12 @@ private:
     void OnServerReadData(int32_t fd, DataBuffer::Ptr buf, INetworkSession::Ptr session = nullptr) override;
 
     bool HandleRequest(const RtspRequest &request, INetworkSession::Ptr &session);
-    bool HandleOptionRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);   // M2
-    bool HandleSetupRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);    // M6
-    bool HandlePlayRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);     // M7
-    bool HandlePauseRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);    // M7
-    bool HandleTeardownRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session); // M7
     bool HandleIDRRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);
+    bool HandleOptionRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);
+    bool HandleSetupRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);
+    bool HandlePlayRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);
+    bool HandlePauseRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);
+    bool HandleTeardownRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session);
 
     bool HandleResponse(const RtspResponse &response, const std::string &message, INetworkSession::Ptr &session);
     bool HandleM1Response(const RtspResponse &response, const std::string &message, INetworkSession::Ptr &session);
