@@ -271,7 +271,7 @@ void VideoSourceEncoder::OnOutputBufferAvailable(uint32_t index, Media::AVCodecB
     }
 
     if (videoEncoder_->ReleaseOutputBuffer(index) != Media::MSERR_OK) {
-        SHARING_LOGW("ReleaseOutputBuffer failed!");
+        SHARING_LOGW("release output buffer failed!");
     }
 }
 
