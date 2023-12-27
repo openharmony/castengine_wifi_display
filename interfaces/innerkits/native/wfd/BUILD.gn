@@ -44,6 +44,7 @@ ohos_shared_library("sharingwfd_client") {
 
   sources = [
     "$SHARING_ROOT_DIR/frameworks/innerkitsimpl/native/wfd/wfd_impl.cpp",
+    "$SHARING_ROOT_DIR/frameworks/innerkitsimpl/native/wfd/wfd_source_impl.cpp",
     "$SHARING_ROOT_DIR/frameworks/innerkitsimpl/native/wfd/wifi_display.cpp",
     "$SHARING_ROOT_DIR/services/interaction/interprocess/client_factory.cpp",
     "$SHARING_ROOT_DIR/services/interaction/interprocess/inter_ipc_client.cpp",
