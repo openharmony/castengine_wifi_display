@@ -75,6 +75,35 @@ ohos_executable("sharing_wfd_sink_demo") {
   part_name = "sharing_framework"
 }
 
+ohos_executable("sharing_wfd_source_demo") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
+  configs = [ ":sharing_interaction_demo_config" ]
+
+  sources = [ "wfd_source_demo.cpp" ]
+
+  deps = [
+    "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd:sharingwfd_client",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "graphic_2d:surface",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+  ]
+
+  relative_install_dir = "sharing_demo"
+
+  subsystem_name = "castplus"
+  part_name = "sharing_framework"
+}
+
 ohos_executable("sharing_domain_demo") {
   sanitize = {
     cfi = true
