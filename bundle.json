@@ -1,6 +1,6 @@
 {
   "name": "@ohos/sharing_framework",
-  "description": "foundation Sharing Framework",
+  "description": "foundation Castengine sharing framework",
   "version": "3.2",
   "license": "Apache License 2.0",
   "publishAs": "code-segment",
