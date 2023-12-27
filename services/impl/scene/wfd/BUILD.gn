@@ -29,11 +29,13 @@ ohos_source_set("sharing_wfd_srcs") {
     "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink",
     "$SHARING_ROOT_DIR/services/impl/wfd/wfd_source",
     "$SHARING_ROOT_DIR/services/common",
-    "$SHARING_ROOT_DIR/services/3rdpart/magic_enum",
     "$SHARING_ROOT_DIR/services/interaction/ipc_codec",
   ]
 
-  sources = [ "wfd_scene.cpp" ]
+  sources = [
+    "wfd_scene.cpp",
+    "wfd_source_scene.cpp",
+  ]
   deps = [
     "$SHARING_ROOT_DIR/services/agent:sharing_agent_srcs",
     "$SHARING_ROOT_DIR/services/interaction:sharing_interaction_srcs",
