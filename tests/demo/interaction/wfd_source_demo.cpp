@@ -23,7 +23,7 @@ WfdSourceDemo::WfdSourceDemo()
 {
     listener_ = std::make_shared<WfdSourceDemoListener>();
     if (!listener_) {
-        printf("create WfdSourceDemoListener failed\n");
+        printf("create WfdSourceDemoListener failed.\n");
     }
 }
 
@@ -36,7 +36,7 @@ bool WfdSourceDemo::CreateClient()
 {
     client_ = WfdSourceFactory::CreateSource(0, "wfd_Source_demo");
     if (!client_) {
-        printf("create wfdSource client error\n");
+        printf("create wfdSource client error.\n");
         return false;
     }
     if (listener_) {
@@ -44,7 +44,7 @@ bool WfdSourceDemo::CreateClient()
         client_->SetListener(listener_);
         return true;
     } else {
-        printf("Listener is nullptr\n");
+        printf("Listener is nullptr.\n");
         return false;
     }
 }
@@ -52,7 +52,7 @@ bool WfdSourceDemo::CreateClient()
 bool WfdSourceDemo::StartDiscover()
 {
     if (!client_) {
-        printf("client is null\n");
+        printf("client is null.\n");
         return false;
     }
 
@@ -63,7 +63,7 @@ bool WfdSourceDemo::StartDiscover()
 bool WfdSourceDemo::StopDiscover()
 {
     if (!client_) {
-        printf("client is null\n");
+        printf("client is null.\n");
         return false;
     }
 
@@ -73,13 +73,13 @@ bool WfdSourceDemo::StopDiscover()
 
 bool WfdSourceDemo::Start()
 {
-    printf("enter start\n");
+    printf("enter start.\n");
     if (!client_) {
-        printf("client is nullptr\n");
+        printf("client is nullptr.\n");
         return false;
     }
     if (client_->StartDiscover() == -1) {
-        printf("Source start error\n");
+        printf("Source start error.\n");
         return false;
     }
     return true;
@@ -88,7 +88,7 @@ bool WfdSourceDemo::Start()
 bool WfdSourceDemo::Stop()
 {
     if (client_->StopDiscover() == -1) {
-        printf("Source stop error\n");
+        printf("Source stop error.\n");
         return false;
     }
     return true;
@@ -97,20 +97,20 @@ bool WfdSourceDemo::Stop()
 static std::string g_deviceId;
 void WfdSourceDemo::AddCastDevice(const std::string deviceId)
 {
-    printf("add device: %s\n", deviceId.c_str());
+    printf("add device: %s.\n", deviceId.c_str());
     WfdCastDeviceInfo deviceInfo;
     deviceInfo.deviceId = deviceId;
     if (client_->AddDevice(0, deviceInfo) == -1) {
-        printf("AddDevice error\n");
+        printf("AddDevice error.\n");
     }
     g_deviceId = deviceId;
 }
 
 void WfdSourceDemo::RemoveCastDevice(const std::string deviceId)
 {
-    printf("remove device: %s\n", deviceId.c_str());
+    printf("remove device: %s.\n", deviceId.c_str());
     if (client_->RemoveDevice(deviceId) == -1) {
-        printf("RemoveDevice error\n");
+        printf("RemoveDevice error.\n");
     }
 }
 
@@ -119,22 +119,22 @@ void WfdSourceDemo::ExecuteCmd(int32_t cmd, std::string &deviceId)
     switch (cmd) {
         case 1: // 1: start
             if (Start()) {
-                printf("p2p start success\n");
+                printf("p2p start success.\n");
             }
             break;
         case 2: // 2: Stop
             if (Stop()) {
-                printf("p2p stop success\n");
+                printf("p2p stop success.\n");
             }
             break;
         case 3: // 3: StartDiscover
             if (StartDiscover()) {
-                printf("StartDiscover success\n");
+                printf("StartDiscover success.\n");
             }
             break;
         case 4: // 4: StopDiscover
             if (StopDiscover()) {
-                printf("StartDiscover success\n");
+                printf("StartDiscover success.\n");
             }
             break;
         case 5: // 5: AddCastDevice
@@ -155,10 +155,10 @@ void WfdSourceDemo::DoCmd(std::string cmd)
                                                       {"AddCastDevice", 5}, {"RemoveCastDevice", 6}};
 
     if (cmd2index.count(cmd) == 0) {
-        printf("command: %s not found", cmd.c_str());
+        printf("command: %s not found.", cmd.c_str());
         return;
     }
-    printf("enter commond, the commond is %s, the id is %d", cmd.c_str(), cmd2index.at(cmd));
+    printf("enter commond, the commond is %s, the id is %d.", cmd.c_str(), cmd2index.at(cmd));
     std::string input;
     std::string deviceId;
     // input params
@@ -182,12 +182,12 @@ void WfdSourceDemoListener::OnError(uint32_t regionId, uint32_t agentId, Sharing
 {
     (void)regionId;
     (void)agentId;
-    printf("on error. errorCode: %s, %d", std::string(magic_enum::enum_name(errorCode)).c_str(), errorCode);
+    printf("on error. errorCode: %s, %d.", std::string(magic_enum::enum_name(errorCode)).c_str(), errorCode);
 }
 
 void WfdSourceDemoListener::OnInfo(std::shared_ptr<BaseMsg> &msg)
 {
-    printf("on info. msgId: %d\n", msg->GetMsgId());
+    printf("on info. msgId: %d.\n", msg->GetMsgId());
     switch (msg->GetMsgId()) {
         case WfdSourceDeviceFoundMsg::MSG_ID: {
             auto data = std::static_pointer_cast<WfdSourceDeviceFoundMsg>(msg);
@@ -210,10 +210,10 @@ void WfdSourceDemoListener::OnInfo(std::shared_ptr<BaseMsg> &msg)
         }
         case WfdErrorMsg::MSG_ID: {
             auto data = std::static_pointer_cast<WfdErrorMsg>(msg);
-            printf("OnError: %d\n", data->errorCode);
+            printf("OnError: %d.\n", data->errorCode);
             auto listener = listener_.lock();
             if (!listener) {
-                printf("no listener\n");
+                printf("no listener.\n");
             }
             listener->RemoveCastDevice(g_deviceId);
             break;
@@ -227,14 +227,14 @@ void WfdSourceDemoListener::OnDeviceFound(const std::vector<WfdCastDeviceInfo> &
 {
     auto listener = listener_.lock();
     if (!listener) {
-        printf("no listener\n");
+        printf("no listener.\n");
     }
 
     for (auto itDev : deviceInfos) {
         printf("device found: %s\n"
                "\tmac: %s"
                "\tprimaryDeviceType: %s"
-               "\tsecondaryDeviceType: %s\n",
+               "\tsecondaryDeviceType: %s.\n",
                itDev.deviceName.c_str(), itDev.deviceId.c_str(),
                itDev.primaryDeviceType.c_str(), itDev.secondaryDeviceType.c_str());
     }
@@ -244,16 +244,16 @@ void WfdSourceDemoListener::OnConnectionChanged(const ConnectionInfo &info)
 {
     auto listener = listener_.lock();
     if (!listener) {
-        printf("no listener\n");
+        printf("no listener.\n");
     }
 
-    printf("on OnConnectionChanged. state: %d, ip: %s, mac: %s\n",
+    printf("on OnConnectionChanged. state: %d, ip: %s, mac: %s.\n",
            info.state, info.ip.c_str(), info.mac.c_str());
 }
 
 static int TestOneByOne()
 {
-    printf("ENTER TEST\n");
+    printf("ENTER TEST.\n");
     std::map<std::string, std::string> cmdMap = {{"1", "Start"},
                                                  {"2", "Stop"},
                                                  {"3", "StartDiscover"},
@@ -268,13 +268,13 @@ static int TestOneByOne()
 
     std::shared_ptr<WfdSourceDemo> demo = std::make_shared<WfdSourceDemo>();
     if (!demo->CreateClient()) {
-        printf("create client failed\n");
+        printf("create client failed.\n");
         return -1;
     }
     std::string inputCmd;
     bool exit = false;
     while (!exit) {
-        printf("%s\n", helpNotice.c_str());
+        printf("%s.\n", helpNotice.c_str());
         getline(std::cin, inputCmd);
         if (inputCmd == "") {
             continue;
@@ -282,7 +282,7 @@ static int TestOneByOne()
             exit = true;
         } else {
             if (cmdMap.count(inputCmd) == 0) {
-                printf("no cmd: %s, input again", inputCmd.c_str());
+                printf("no cmd: %s, input again.", inputCmd.c_str());
                 continue;
             } else {
                 demo->DoCmd(cmdMap[inputCmd]);

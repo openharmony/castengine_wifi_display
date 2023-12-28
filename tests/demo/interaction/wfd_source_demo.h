@@ -28,8 +28,8 @@ public:
     bool Stop();
     bool Start();
     bool CreateClient();
-    bool StartDiscover();
     bool StopDiscover();
+    bool StartDiscover();
 
     void DoCmd(std::string cmd);
     void AddCastDevice(const std::string deviceId);
