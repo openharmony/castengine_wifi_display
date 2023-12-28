@@ -48,7 +48,7 @@ int32_t ScreenCaptureSession::HandleEvent(SharingEvent &event)
             HandleProsumerInitState(event);
             break;
         default:
-            SHARING_LOGI("none process case");
+            SHARING_LOGI("none process case.");
             break;
     }
 
