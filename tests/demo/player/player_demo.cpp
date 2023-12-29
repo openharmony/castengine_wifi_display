@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
             SHARING_LOGD("setOnRtpUnpack");
             if (frame->GetTrackType() == TRACK_AUDIO) {
                 SHARING_LOGD("unpack G711 rtp: len: %{public}d dts: %{public}d.", frame->Size(), frame->Dts());
-                for (int i = 0; i < 12 && i < static_cast<int>(frame->Size()); i++) {
+                for (int i = 0; i < 0x12 && i < static_cast<int>(frame->Size()); i++) {
                     printf("%02x ", *(frame->Data() + i));
                 }
                 printf("\n");
