@@ -64,10 +64,10 @@ int ParseParam(int argc, char *argv[])
                 gAudioFileName = optarg;
                 break;
             case ':':
-                printf("option [-%c] requires an argument\n", (char)optopt);
+                printf("option [-%c] requires an argument", static_cast<char>(optopt));
                 break;
             case '?':
-                printf("unknown option: %c\n", (char)optopt);
+                printf("unknown option: %c", static_cast<char>(optopt));
                 break;
             default:
                 break;

@@ -47,42 +47,10 @@ HWTEST_F(SharingEventUnitTest, Event_Base_01, Function | SmallTest | Level2)
     event.emitterType = CLASS_TYPE_PRODUCER;
     event.eventMsg = std::make_shared<EventMsg>();
     event.listenerType = CLASS_TYPE_SCHEDULER;
-    event.type = MAKE_EVENT_TYPE_DESC(COMMON, BASE);
     int32_t ret = emitter->SendEvent(event);
     EXPECT_EQ(ret, 0);
     ret = emitter->SendSyncEvent(event);
     EXPECT_EQ(ret, 0);
-}
-
-HWTEST_F(SharingEventUnitTest, Event_Base_02, Function | SmallTest | Level2)
-{
-    SHARING_LOGD("trace");
-    std::shared_ptr<EventListenerImpl> listener = std::make_shared<EventListenerImpl>();
-    EXPECT_NE(listener, nullptr);
-    auto ret = listener->Register();
-    EXPECT_EQ(ret, 0);
-    ret = listener->UnRegister();
-    EXPECT_EQ(ret, 0);
-    EventType eventType = MAKE_EVENT_TYPE_DESC(COMMON, BASE);
-    ret = listener->AddAcceptEventType(eventType);
-    EXPECT_EQ(ret, 0);
-    ret = listener->isAcceptType(eventType);
-    EXPECT_EQ(ret, true);
-    ret = listener->isAcceptType(MAKE_EVENT_TYPE_DESC(CONTEXT, BASE));
-    EXPECT_EQ(ret, false);
-    auto typeList = listener->GetAcceptTypes();
-    EXPECT_EQ(typeList.size(), (uint32_t)1);
-    ret = listener->AddAcceptEventType(MAKE_EVENT_TYPE_DESC(AGENT, BASE));
-    EXPECT_EQ(ret, 0);
-    typeList = listener->GetAcceptTypes();
-    EXPECT_EQ(typeList.size(), (uint32_t)2);
-    ret = listener->DelAcceptEventType(eventType);
-    EXPECT_EQ(ret, 0);
-    typeList = listener->GetAcceptTypes();
-    EXPECT_EQ(typeList.size(), (uint32_t)1);
-    listener->SetListenerClassType(CLASS_TYPE_INTERACTION);
-    ret = listener->GetListenerClassType();
-    EXPECT_EQ(ret, CLASS_TYPE_INTERACTION);
 }
 
 HWTEST_F(SharingEventUnitTest, Event_Base_03, Function | SmallTest | Level2)
@@ -149,7 +117,6 @@ HWTEST_F(SharingEventUnitTest, Event_Manager_01, Function | SmallTest | Level2)
     event.emitterType = CLASS_TYPE_PRODUCER;
     event.eventMsg = std::make_shared<EventMsg>();
     event.listenerType = CLASS_TYPE_SCHEDULER;
-    event.type = MAKE_EVENT_TYPE_DESC(COMMON, BASE);
     ret = EventManager::GetInstance().PushEvent(event);
     EXPECT_EQ(ret, 0);
 

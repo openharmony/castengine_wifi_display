@@ -104,7 +104,7 @@ int main(int argc, char **argv)
     aacunPack->SetOnRtpUnpack([=](uint32_t ssrc, const Frame::Ptr &frame) {
         printf("SetOnRtpUnpack\n");
         if (frame->GetTrackType() == TRACK_AUDIO) {
-            printf("aac data: len: %d dts: %d=====================================\n", frame->Size(), frame->Dts());
+            printf("aac data: len: %d dts: %d", frame->Size(), frame->Dts());
             auto data = frame->Data();
             auto bytes = frame->Size();
             for (size_t i = 0; i < bytes; i++) {
@@ -124,7 +124,7 @@ int main(int argc, char **argv)
     auto h264unPack = RtpFactory::CreateRtpUnpack(RtpPlaylodParam{96, 90000, RtpPayloadStream::H264});
     h264unPack->SetOnRtpUnpack([=](uint32_t ssrc, const Frame::Ptr &frame) {
         if (frame->GetTrackType() == TRACK_VIDEO) {
-            printf("h264 data: len: %d dts: %d=====================================\n", frame->Size(), frame->Dts());
+            printf("h264 data: len: %d dts: %d", frame->Size(), frame->Dts());
             auto data = frame->Data();
             auto bytes = frame->Size();
             for (size_t i = 0; i < bytes; i++) {

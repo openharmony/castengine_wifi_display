@@ -15,7 +15,6 @@
 
 #include "wfd_demo.h"
 #include <cstdint>
-#include "math.h"
 #include <functional>
 #include <iostream>
 #include <mutex>
@@ -23,6 +22,7 @@
 #include <vector>
 #include "extend/magic_enum/magic_enum.hpp"
 #include "impl/scene/wfd/wfd_def.h"
+#include "math.h"
 #include "surface.h"
 #include "surface_utils.h"
 #include "transaction/rs_transaction.h"
@@ -62,28 +62,28 @@ bool WfdDemo::Init(const WfdMode mode)
 
 void WfdDemo::InitWindow()
 {
-
     if (!surfaceIds_.empty())
         return;
     std::cout << "create window enter\n";
 
     for (int i = 0; i < windowNum_; i++) {
         sptr<Rosen::WindowOption> option = new Rosen::WindowOption();
-        option->SetWindowRect(
-            {position[i].first, position[i].second, DEFAULT_WINDOW_WIDTH / sqrt(windowNum_), DEFAULT_WINDOW_HEIGHT / sqrt(windowNum_)});
+        option->SetWindowRect({position[i].first, position[i].second, DEFAULT_WINDOW_WIDTH / sqrt(windowNum_),
+                               DEFAULT_WINDOW_HEIGHT / sqrt(windowNum_)});
         option->SetWindowType(Rosen::WindowType::WINDOW_TYPE_APP_LAUNCHING);
-        option->SetWindowMode(Rosen::WindowMode::WINDOW_MODE_FLOATING);
+        option->SetWindowMode(Rosen::WindowMode::WINDOW_MODE_FULLSCREEN);
         sptr<Rosen::Window> window = Rosen::Window::Create("wifi display window:" + std::to_string(i), option);
         auto surfaceNode = window->GetSurfaceNode();
         surfaceNode->SetFrameGravity(Rosen::Gravity::RESIZE);
         Rosen::RSTransaction::FlushImplicitTransaction();
         sptr<Surface> surface = surfaceNode->GetSurface();
+        window->SetRequestedOrientation(Rosen::Orientation::HORIZONTAL);
         window->Show();
         auto surfaceId = surface->GetUniqueId();
         surfaceIds_.push_back(surfaceId);
         int ret = SurfaceUtils::GetInstance()->Add(surfaceId, surface);
         if (ret != 0)
-            std::cout << "add surface failed\n";
+            std::cout << "add failed\n";
         devicesIsPlaying_.push_back("");
     }
 }
@@ -129,7 +129,7 @@ void WfdDemo::RemoveDevice() {}
 
 void WfdDemo::OnError(const CastErrorInfo &errorInfo)
 {
-    std::cout << "on error. devId : " << errorInfo.deviceId << ", errorCode : " << errorInfo.errorCode << '\n';
+    std::cout << "on error. deviceId : " << errorInfo.deviceId << ", errorCode : " << errorInfo.errorCode << '\n';
 }
 
 void WfdDemo::OnDeviceState(const CastDeviceInfo &deviceInfo)
@@ -138,7 +138,7 @@ void WfdDemo::OnDeviceState(const CastDeviceInfo &deviceInfo)
         case CastDeviceState::CONNECTED: {
             {
                 std::unique_lock<std::mutex> lock(mutex_);
-                for (int item = 0; item < windowNum_; item ++) {
+                for (int item = 0; item < windowNum_; item++) {
                     if (devicesIsPlaying_[item] == "") {
                         client_->AppendSurface(deviceInfo.deviceId, surfaceIds_[item]);
                         client_->SetMediaFormat(deviceInfo.deviceId, videoAttr_, audioAttr_);
@@ -153,7 +153,7 @@ void WfdDemo::OnDeviceState(const CastDeviceInfo &deviceInfo)
         case CastDeviceState::DISCONNECTED: {
             {
                 std::unique_lock<std::mutex> lock(mutex_);
-                for (int item = 0; item < windowNum_; item ++) {
+                for (int item = 0; item < windowNum_; item++) {
                     if (devicesIsPlaying_[item] == deviceInfo.deviceId) {
                         devicesIsPlaying_[item] = "";
                     }
@@ -229,7 +229,7 @@ void WfdDemo::DoCmd(std::string cmd)
         client_->Stop();
         {
             std::unique_lock<std::mutex> lock(mutex_);
-            for (int item = 0; item < devicesIsPlaying_.size(); item ++)
+            for (int item = 0; item < devicesIsPlaying_.size(); item++)
                 devicesIsPlaying_[item] = "";
         }
     } else if (WifiDisplayTable_.find(cmd) != WifiDisplayTable_.end()) {
@@ -241,7 +241,7 @@ void WfdDemo::DoCmd(std::string cmd)
             winNum = static_cast<int32_t>(atoi(input.c_str()));
             if (winNum >= windowNum_) {
                 std::cout << "the window not exits\n";
-                return;   
+                return;
             }
         }
         auto iter = WifiDisplayTable_.find(cmd);

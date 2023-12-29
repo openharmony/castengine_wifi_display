@@ -19,8 +19,8 @@
 #include <unistd.h>
 #include "common/sharing_log.h"
 #include "network/interfaces/iclient_callback.h"
+#include "network/interfaces/inetwork_session_callback.h"
 #include "network/interfaces/iserver_callback.h"
-#include "network/interfaces/isession_callback.h"
 #include "network/network_factory.h"
 
 using namespace std;
@@ -40,12 +40,12 @@ public:
 
 class TcpTestAgent final : public IServerCallback,
                            public IClientCallback,
-                           public ISessionCallback,
+                           public INetworkSessionCallback,
                            public std::enable_shared_from_this<TcpTestAgent> {
 public:
     TcpTestAgent() {}
 
-    virtual ~TcpTestAgent()
+    ~TcpTestAgent()
     {
         if (serverPtr_) {
             serverPtr_->Stop();
@@ -74,9 +74,13 @@ public:
         return ret;
     }
 
-    virtual void OnAccept(INetworkSession::Ptr session) override
+    void OnAccept(std::weak_ptr<INetworkSession> sessionPtr) override
     {
         SHARING_LOGD("===[TcpTestAgent] OnServerAccept");
+        auto session = sessionPtr.lock();
+        if (!session) {
+            return;
+        }
         session->RegisterCallback(shared_from_this());
         session->Start();
         static int index = 0;
@@ -88,11 +92,10 @@ public:
         sessionPtrVec_.push_back(session);
     }
 
-    virtual void OnServerReadData(int32_t fd, const DataBuffer::Ptr &buf, const INetworkSession::Ptr session) override
+    void OnServerReadData(int32_t fd, DataBuffer::Ptr buf, INetworkSession::Ptr session) override
     {
         SHARING_LOGD("===[TcpTestAgent] OnServerReadData");
         static int index = 0;
-        buf->PrintBuf();
         DataBuffer::Ptr bufSend = std::make_shared<DataBuffer>();
         const DataBuffer::Ptr &bufRefs = bufSend;
         string msg = "tcp server message.index=" + std::to_string(index++);
@@ -104,27 +107,26 @@ public:
         }
     }
 
-    virtual void OnServerWriteable(int32_t fd) override
+    void OnServerWriteable(int32_t fd) override
     {
         SHARING_LOGD("onServerWriteable");
     }
 
-    virtual void OnServerClose(int32_t fd) override
+    void OnServerClose(int32_t fd) override
     {
         SHARING_LOGD("===[TcpTestAgent] OnServerClose");
         serverPtr_ = nullptr;
     }
 
-    virtual void OnServerException(int32_t fd) override
+    void OnServerException(int32_t fd) override
     {
         SHARING_LOGD("===[TcpTestAgent] OnServerException");
         serverPtr_ = nullptr;
     }
 
-    virtual void OnSessionReadData(int32_t fd, const DataBuffer::Ptr &buf) override
+    void OnSessionReadData(int32_t fd, DataBuffer::Ptr buf) override
     {
         SHARING_LOGD("===[TcpTestAgent] OnSessionReadData");
-        buf->PrintBuf();
         static int index = 0;
         DataBuffer::Ptr bufSend = std::make_shared<DataBuffer>();
         string msg = "tcp session send message=" + std::to_string(index++);
@@ -139,47 +141,46 @@ public:
         sleep(3);
     }
 
-    virtual void OnSessionWriteable(int32_t fd) override
+    void OnSessionWriteable(int32_t fd) override
     {
         SHARING_LOGD("===[TcpTestAgent] OnSessionWriteable");
     }
 
-    virtual void OnSessionClose(int32_t fd) override
+    void OnSessionClose(int32_t fd) override
     {
         SHARING_LOGD("===[TcpTestAgent] OnSessionClose");
     }
 
-    virtual void OnSessionException(int32_t fd) override
+    void OnSessionException(int32_t fd) override
     {
         SHARING_LOGD("===[TcpTestAgent] OnSessionException");
     }
 
-    virtual void OnClientConnectResult(bool isSuccess) override
+    void OnClientConnect(bool isSuccess) override
     {
         if (isSuccess) {
-            SHARING_LOGD("===[TcpTestAgent] OnClientConnectResult success");
+            SHARING_LOGD("===[TcpTestAgent] OnClientConnect success");
             static int index = 0;
-            string msg = "tcp client OnClientConnectResult message.index=" + std::to_string(index++);
+            string msg = "tcp client OnClientConnect message.index=" + std::to_string(index++);
             DataBuffer::Ptr bufSend = std::make_shared<DataBuffer>();
             bufSend->PushData(msg.c_str(), msg.size());
             if (clientPtr_ != nullptr) {
-                SHARING_LOGD("===[TcpTestAgent] OnClientConnectResult send");
+                SHARING_LOGD("===[TcpTestAgent] OnClientConnect send");
                 clientPtr_->Send(bufSend, bufSend->Size());
             } else {
-                SHARING_LOGD("===[TcpTestAgent] OnClientConnectResult nullptr");
+                SHARING_LOGD("===[TcpTestAgent] OnClientConnect nullptr");
             }
         } else {
             if (clientPtr_ != nullptr) {
-                SHARING_LOGE("===[TcpTestAgent] OnClientConnectResult failed");
+                SHARING_LOGE("===[TcpTestAgent] OnClientConnect failed");
                 clientPtr_->Disconnect();
             }
         }
     }
 
-    virtual void OnClientReadData(int32_t fd, const DataBuffer::Ptr &buf) override
+    void OnClientReadData(int32_t fd, DataBuffer::Ptr buf) override
     {
         SHARING_LOGD("===[TcpTestAgent] OnClientReadData");
-        buf->PrintBuf();
         static int index = 0;
         string msg = "tcp client message.index=" + std::to_string(index++);
         DataBuffer::Ptr bufSend = std::make_shared<DataBuffer>();
@@ -188,18 +189,18 @@ public:
         sleep(3);
     }
 
-    virtual void OnClientWriteable(int32_t fd) override
+    void OnClientWriteable(int32_t fd) override
     {
         SHARING_LOGD("===[TcpTestAgent] OnClientWriteable");
     }
 
-    virtual void OnClientClose(int32_t fd) override
+    void OnClientClose(int32_t fd) override
     {
         SHARING_LOGD("===[TcpTestAgent] OnClientClose");
         clientPtr_ = nullptr;
     }
 
-    virtual void OnClientException(int32_t fd) override
+    void OnClientException(int32_t fd) override
     {
         SHARING_LOGD("===[TcpTestAgent] OnClientException");
         clientPtr_ = nullptr;

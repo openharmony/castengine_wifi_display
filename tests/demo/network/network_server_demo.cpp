@@ -36,20 +36,20 @@ public:
     SessionAgent(std::weak_ptr<INetworkSession> sessionPtr, std::weak_ptr<IServer> serverPtr)
         : sessionPtr_(sessionPtr), serverPtr_(serverPtr)
     {
-        SHARING_LOGD("===[SessionAgent] SessionAgent");
+        SHARING_LOGD("trace.");
     }
     ~SessionAgent()
     {
-        SHARING_LOGD("===[SessionAgent] ~SessionAgent");
+        SHARING_LOGD("trace.");
     }
-    virtual void OnSessionReadData(int32_t fd, DataBuffer::Ptr buf) override
+    void OnSessionReadData(int32_t fd, DataBuffer::Ptr buf) override
     {
-        SHARING_LOGD("===[SessionAgent] OnSessionReadData fd: %{public}d,thread_id: %{public}llu", fd, GetThreadId());
+        SHARING_LOGD("OnSessionReadData fd: %{public}d,thread_id: %{public}llu.", fd, GetThreadId());
     }
 
-    virtual void OnSessionWriteable(int32_t fd) override
+    void OnSessionWriteable(int32_t fd) override
     {
-        SHARING_LOGD("===[SessionAgent] OnSessionWriteable fd: %{public}d,thread_id: %{public}llu", fd, GetThreadId());
+        SHARING_LOGD("OnSessionWriteable fd: %{public}d,thread_id: %{public}llu.", fd, GetThreadId());
         static int index = 0;
         DataBuffer::Ptr bufSend = std::make_shared<DataBuffer>();
         string msg = "tcp session send message=" + std::to_string(index++);
@@ -60,18 +60,18 @@ public:
         }
     }
 
-    virtual void OnSessionClose(int32_t fd) override
+    void OnSessionClose(int32_t fd) override
     {
-        SHARING_LOGD("===[SessionAgent] OnSessionClose fd: %{public}d,thread_id: %{public}llu", fd, GetThreadId());
+        SHARING_LOGD("OnSessionClose fd: %{public}d,thread_id: %{public}llu.", fd, GetThreadId());
         auto server = serverPtr_.lock();
         if (server) {
             server->CloseClientSocket(fd);
         }
     }
 
-    virtual void OnSessionException(int32_t fd) override
+    void OnSessionException(int32_t fd) override
     {
-        SHARING_LOGD("===[SessionAgent] OnSessionException fd: %{public}d,thread_id: %{public}llu", fd, GetThreadId());
+        SHARING_LOGD("OnSessionException fd: %{public}d,thread_id: %{public}llu.", fd, GetThreadId());
         auto server = serverPtr_.lock();
         if (server) {
             server->CloseClientSocket(fd);
@@ -88,20 +88,20 @@ class ServerAgent final : public IServerCallback,
 public:
     explicit ServerAgent(bool tcpOrUdp) : tcpOrUdp_(tcpOrUdp)
     {
-        SHARING_LOGD("===[ServerAgent] ServerAgent");
+        SHARING_LOGD("trace.");
     }
 
-    virtual ~ServerAgent()
+    ~ServerAgent()
     {
-        SHARING_LOGD("===[ServerAgent] ~ServerAgent");
+        SHARING_LOGD("trace.");
         if (serverPtr_) {
             serverPtr_->Stop();
         }
     }
 
-    virtual void OnAccept(std::weak_ptr<INetworkSession> session) override
+    void OnAccept(std::weak_ptr<INetworkSession> session) override
     {
-        SHARING_LOGD("===[ServerAgent] OnServerAccept");
+        SHARING_LOGD("trace.");
         auto sessionStr = session.lock();
         if (sessionStr) {
             auto sa = std::make_shared<SessionAgent>(session, serverPtr_);
@@ -121,35 +121,35 @@ public:
         if (tcpOrUdp_) {
             bool ret = NetworkFactory::CreateTcpServer(8888, shared_from_this(), serverPtr_, "");
             if (!ret) {
-                SHARING_LOGE("===[ServerAgent] TCP server start failed");
+                SHARING_LOGE("TCP server start failed");
             }
         } else {
             bool ret = NetworkFactory::CreateUdpServer(9999, "", shared_from_this(), serverPtr_);
             if (!ret) {
-                SHARING_LOGE("===[ServerAgent] UDP server start failed");
+                SHARING_LOGE("UDP server start failed");
             }
         }
-        SHARING_LOGD("===[ServerAgent] server agent started");
+        SHARING_LOGD("server agent started");
     }
-    virtual void OnServerReadData(int32_t fd, DataBuffer::Ptr buf, INetworkSession::Ptr session) override
+    void OnServerReadData(int32_t fd, DataBuffer::Ptr buf, INetworkSession::Ptr session) override
     {
-        SHARING_LOGD("===[ServerAgent] OnServerReadData fd: %{public}d,thread_id: %{public}llu", fd, GetThreadId());
-    }
-
-    virtual void OnServerWriteable(int32_t fd) override
-    {
-        SHARING_LOGD("===[ServerAgent] OnServerWriteable fd: %{public}d,thread_id: %{public}llu", fd, GetThreadId());
+        SHARING_LOGD("OnServerReadData fd: %{public}d,thread_id: %{public}llu.", fd, GetThreadId());
     }
 
-    virtual void OnServerClose(int32_t fd) override
+    void OnServerWriteable(int32_t fd) override
     {
-        SHARING_LOGD("===[ServerAgent] OnServerClose fd: %{public}d,thread_id: %{public}llu", fd, GetThreadId());
+        SHARING_LOGD("OnServerWriteable fd: %{public}d,thread_id: %{public}llu.", fd, GetThreadId());
+    }
+
+    void OnServerClose(int32_t fd) override
+    {
+        SHARING_LOGD("OnServerClose fd: %{public}d,thread_id: %{public}llu.", fd, GetThreadId());
         serverPtr_->Stop();
     }
 
-    virtual void OnServerException(int32_t fd) override
+    void OnServerException(int32_t fd) override
     {
-        SHARING_LOGD("===[ServerAgent] OnServerException fd: %{public}d,thread_id: %{public}llu", fd, GetThreadId());
+        SHARING_LOGD("OnServerException fd: %{public}d,thread_id: %{public}llu.", fd, GetThreadId());
         serverPtr_->Stop();
     }
 
@@ -163,26 +163,26 @@ class ServerManager {
 public:
     ~ServerManager()
     {
-        SHARING_LOGD("===[SERVER DEMO] ~ServerManager");
+        SHARING_LOGD("trace.");
         serverAgents_.Clear();
     }
 
     ServerManager()
     {
-        SHARING_LOGD("===[SERVER DEMO] ServerManager");
+        SHARING_LOGD("trace.");
         serverAgents_.Clear();
     }
 
     void CreateTcpServer()
     {
-        SHARING_LOGD("===[ServerAgent] CreateTcpServer");
+        SHARING_LOGD("CreateTcpServer");
         serverAgent_ = std::make_shared<ServerAgent>(true);
         serverAgent_->Start();
     }
 
     void CreateUdpServer()
     {
-        SHARING_LOGD("===[ServerAgent] CreateUdpServer");
+        SHARING_LOGD("CreateUdpServer");
         serverAgent_ = std::make_shared<ServerAgent>(false);
         serverAgent_->Start();
     }
@@ -208,9 +208,9 @@ int main()
         std::stringstream ss;
         std::string inputCmd;
 
-        SHARING_LOGD("===[SERVER DEMO] Please input command.tcp-1,udp-2:");
+        SHARING_LOGD("Please input command.tcp-1,udp-2:");
         getline(std::cin, inputCmd);
-        SHARING_LOGD("===[SERVER DEMO] Get command: %{public}s", inputCmd.c_str());
+        SHARING_LOGD("Get command: %{public}s.", inputCmd.c_str());
         if (inputCmd == "quit") {
         } else if (inputCmd == "1") {
             serverMgr.CreateTcpServer();

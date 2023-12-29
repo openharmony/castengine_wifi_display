@@ -19,8 +19,8 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "extend/magic_enum/magic_enum.hpp"
 #include "common/sharing_log.h"
+#include "extend/magic_enum/magic_enum.hpp"
 #include "impl/scene/wfd/wfd_def.h"
 #include "interaction/interprocess/client_factory.h"
 #include "surface_utils.h"
@@ -33,11 +33,14 @@ VideoFormat DEFAULT_VIDEO_FORMAT = VideoFormat::VIDEO_1920x1080_30;
 AudioFormat DEFAULT_AUDIO_FORMAT = AudioFormat::AUDIO_48000_16_2;
 std::vector<std::pair<int32_t, int32_t>> position{{0, 0}, {960, 0}, {0, 540}, {960, 540}};
 
+constexpr uint32_t DEFAULT_WIDTH = 1280;
+constexpr uint32_t DEFAULT_HEIGHT = 720;
+
 WfdSinkDemo::WfdSinkDemo()
 {
     listener_ = std::make_shared<WfdSinkDemoListener>();
     if (!listener_)
-        printf("create WfdSinkDemoListener failed\n");
+        printf("create WfdSinkDemoListener failed");
 }
 
 std::shared_ptr<WfdSink> WfdSinkDemo::GetClient()
@@ -49,7 +52,7 @@ bool WfdSinkDemo::CreateClient()
 {
     client_ = WfdSinkFactory::CreateSink(0, "wfd_sink_demo");
     if (!client_) {
-        printf("create wfdsink client error\n");
+        printf("create wfdsink client error");
         return false;
     }
     if (listener_) {
@@ -57,7 +60,7 @@ bool WfdSinkDemo::CreateClient()
         client_->SetListener(listener_);
         return true;
     } else {
-        printf("Listener is nullptr\n");
+        printf("Listener is nullptr");
         return false;
     }
 }
@@ -72,35 +75,28 @@ bool WfdSinkDemo::SetDiscoverable(bool enable)
             ret = client_->Stop();
         }
         if (ret == 0) {
-            printf("start or stop p2p success\n");
+            printf("start or stop p2p success");
             return true;
         }
     }
-    printf("start or stop failed\n");
+    printf("start or stop failed");
     return false;
 }
 
 bool WfdSinkDemo::GetConfig()
 {
-    // SinkConfig sinkConfig;
-    // if (client_->GetConfig(sinkConfig) == -1) {
-    //     printf("getconfig error\n");
-    //     return false;
-    // }
-    // printf("foregroundMaximum: %d, surfaceMaximum: %d",
-    //          sinkConfig.foregroundMaximum, sinkConfig.surfaceMaximum);
     return true;
 }
 
 bool WfdSinkDemo::Start()
 {
-    printf("enter start\n");
+    printf("enter start");
     if (!client_) {
-        printf("client is nullptr\n");
+        printf("client is nullptr");
         return false;
     }
     if (client_->Start() == -1) {
-        printf("sink start error\n");
+        printf("sink start error");
         return false;
     }
     return true;
@@ -109,13 +105,13 @@ bool WfdSinkDemo::Start()
 bool WfdSinkDemo::Stop()
 {
     if (client_->Stop() == -1) {
-        printf("sink stop error\n");
+        printf("sink stop error");
         return false;
     }
     return true;
 }
 
-bool WfdSinkDemo::AppendSurface(std::string devId)
+bool WfdSinkDemo::AppendSurface(std::string deviceId)
 {
     uint64_t surfaceId = 0;
     for (auto item : surfaceUsing_) {
@@ -126,10 +122,10 @@ bool WfdSinkDemo::AppendSurface(std::string devId)
     }
     if (surfaceId == 0 && wdnum_ < 4) {
         // window1
-        printf("create window enter\n\n");
+        printf("create window enter");
         WindowProperty::Ptr windowPropertyPtr = std::make_shared<WindowProperty>();
-        windowPropertyPtr->height = 540;
-        windowPropertyPtr->width = 960;
+        windowPropertyPtr->height = DEFAULT_HEIGHT;
+        windowPropertyPtr->width = DEFAULT_WIDTH;
         windowPropertyPtr->startX = position[wdnum_].first;
         windowPropertyPtr->startY = position[wdnum_].second;
         windowPropertyPtr->isFull = false;
@@ -140,30 +136,30 @@ bool WfdSinkDemo::AppendSurface(std::string devId)
         surfaceId = surface->GetUniqueId();
         int ret = SurfaceUtils::GetInstance()->Add(surfaceId, surface);
         if (ret != 0)
-            printf("add surface failed\n");
+            printf("add failed");
         surfaceUsing_.emplace(surfaceId, true);
         surfaces_.push_back(surface);
     }
-    printf("surfaceId: %llu\n", surfaceId);
-    if (client_->AppendSurface(devId, surfaceId) == -1) {
-        printf("SetSurface error\n");
+    printf("surfaceId: %llu", surfaceId);
+    if (client_->AppendSurface(deviceId, surfaceId) == -1) {
+        printf("SetSurface error");
         return false;
     }
-    surfaceDevMap_[surfaceId] = devId;
+    surfaceDevMap_[surfaceId] = deviceId;
     return true;
 }
 
-bool WfdSinkDemo::RemoveSurface(std::string devId, std::string surfaceId)
+bool WfdSinkDemo::RemoveSurface(std::string deviceId, std::string surfaceId)
 {
     uint64_t surfaceUintId = std::stoull(surfaceId);
-    if (client_->RemoveSurface(devId, surfaceUintId) != 0) {
+    if (client_->RemoveSurface(deviceId, surfaceUintId) != 0) {
         printf("delete surface:%llu failed", surfaceUintId);
         return false;
     }
     return true;
 }
 
-bool WfdSinkDemo::SetMediaFormat(std::string devId, VideoFormat videoFormatId, AudioFormat audioFormatId)
+bool WfdSinkDemo::SetMediaFormat(std::string deviceId, VideoFormat videoFormatId, AudioFormat audioFormatId)
 {
     CodecAttr videoAttr;
     videoAttr.codecType = CodecId::CODEC_H264;
@@ -172,56 +168,56 @@ bool WfdSinkDemo::SetMediaFormat(std::string devId, VideoFormat videoFormatId, A
     audioAttr.codecType = CodecId::CODEC_AAC;
     audioAttr.formatId = audioFormatId;
 
-    if (client_->SetMediaFormat(devId, videoAttr, audioAttr) == -1) {
-        printf("SetVideoFormat error, surfaceId: %s\n", devId.c_str());
+    if (client_->SetMediaFormat(deviceId, videoAttr, audioAttr) == -1) {
+        printf("SetVideoFormat error, surfaceId: %s", deviceId.c_str());
         return false;
     }
     return true;
 }
 
-bool WfdSinkDemo::SetSceneType(std::string devId, std::string surfaceId, SceneType sceneType)
+bool WfdSinkDemo::SetSceneType(std::string deviceId, std::string surfaceId, SceneType sceneType)
 {
     uint64_t stringUintId = std::stoull(surfaceId);
-    if (client_->SetSceneType(devId, stringUintId, sceneType) == -1) {
-        printf("SetSceneType error, surfaceId: %s\n", devId.c_str());
+    if (client_->SetSceneType(deviceId, stringUintId, sceneType) == -1) {
+        printf("SetSceneType error, surfaceId: %s", deviceId.c_str());
         return false;
     }
     return true;
 }
 
-bool WfdSinkDemo::Mute(std::string devId)
+bool WfdSinkDemo::Mute(std::string deviceId)
 {
-    if (client_->Mute(devId) == -1) {
-        printf("Mute error, devId: %s\n", devId.c_str());
+    if (client_->Mute(deviceId) == -1) {
+        printf("Mute error, deviceId: %s", deviceId.c_str());
         return false;
     }
     return true;
 }
 
-int32_t WfdSinkDemo::UnMute(std::string devId)
+int32_t WfdSinkDemo::UnMute(std::string deviceId)
 {
-    if (client_->UnMute(devId) == -1) {
-        printf("UnMute error, devId: %s\n", devId.c_str());
+    if (client_->UnMute(deviceId) == -1) {
+        printf("UnMute error, deviceId: %s", deviceId.c_str());
         return false;
     }
     return true;
 }
 
-void WfdSinkDemo::AddDevice(const std::string devId)
+void WfdSinkDemo::AddDevice(const std::string deviceId)
 {
-    devices_.push_back(devId);
+    devices_.push_back(deviceId);
 }
 
-void WfdSinkDemo::RemoveDevice(const std::string devId)
+void WfdSinkDemo::RemoveDevice(const std::string deviceId)
 {
-    printf("remove device: %s\n", devId.c_str());
+    printf("remove device: %s", deviceId.c_str());
     for (uint32_t i = 0; i < devices_.size(); i++)
-        if (devices_[i] == devId) {
+        if (devices_[i] == deviceId) {
             devices_.erase(devices_.begin() + i);
         }
     for (auto item : surfaceDevMap_) {
-        if (item.second == devId) {
-            printf("free surfacId: %llu\n", item.first);
+        if (item.second == deviceId) {
+            printf("free surfacId: %llu", item.first);
             surfaceUsing_[item.first] = false;
         }
     }
@@ -229,35 +225,35 @@ void WfdSinkDemo::RemoveDevice(const std::string devId)
 
 void WfdSinkDemo::ListDevices()
 {
-    printf("The connected devices:\n");
+    printf("The connected devices:");
     for (auto str : devices_) {
-        printf("device : %s\n", str.c_str());
+        printf("device : %s", str.c_str());
     }
 }
 
-bool WfdSinkDemo::Play(std::string devId)
+bool WfdSinkDemo::Play(std::string deviceId)
 {
-    if (client_->Play(devId) == -1) {
-        printf("play error, devId: %s\n", devId.c_str());
+    if (client_->Play(deviceId) == -1) {
+        printf("play error, deviceId: %s", deviceId.c_str());
         return false;
     }
     return true;
 }
 
-bool WfdSinkDemo::Pause(std::string devId)
+bool WfdSinkDemo::Pause(std::string deviceId)
 {
-    if (client_->Pause(devId) == -1) {
-        printf("Pause error, devId: %s\n", devId.c_str());
+    if (client_->Pause(deviceId) == -1) {
+        printf("Pause error, deviceId: %s", deviceId.c_str());
         return false;
     }
     return true;
 }
 
-bool WfdSinkDemo::Close(std::string devId)
+bool WfdSinkDemo::Close(std::string deviceId)
 {
-    RemoveDevice(devId);
-    if (client_->Close(devId) == -1) {
-        printf("close error, devId: %s\n", devId.c_str());
+    RemoveDevice(deviceId);
+    if (client_->Close(deviceId) == -1) {
+        printf("close error, deviceId: %s", deviceId.c_str());
         return false;
     }
     return true;
@@ -276,7 +272,7 @@ void WfdSinkDemo::DoCmd(std::string cmd)
     }
     printf("enter commond, the commond is %s, the id is %d", cmd.c_str(), cmd2index.at(cmd));
     std::string input;
-    std::string devId;
+    std::string deviceId;
     std::string surfaceId;
     VideoFormat videoFormatId = VIDEO_1920x1080_30;
     AudioFormat audioFormatId = AUDIO_48000_16_2;
@@ -289,55 +285,51 @@ void WfdSinkDemo::DoCmd(std::string cmd)
         case 8:  // mute
         case 9:  // unmute
         case 12: // AppendSurface
-            printf("please input devId:\n");
+            printf("please input deviceId:");
             getline(std::cin, input);
             if (input != "") {
-                devId = input;
+                deviceId = input;
             }
             break;
         case 10: // SetSceneType
-            printf("please input devId:\n");
+            printf("please input deviceId:");
             getline(std::cin, input);
             if (input != "") {
-                devId = input;
+                deviceId = input;
             }
-            printf("please input surfaceId:\n");
+            printf("please input surfaceId:");
             getline(std::cin, input);
             if (input != "") {
                 surfaceId = input;
             }
-            printf("please input scenetype: default for 0, (0: FOREGROUND, 1: BACKGROUND)\n");
+            printf("please input scenetype: default for 0, (0: FOREGROUND, 1: BACKGROUND)");
             getline(std::cin, input);
             if (input != "") {
                 sceneType = static_cast<SceneType>(atoi(input.c_str()));
             }
             break;
         case 4: // SetMediaFormat
-            printf("please input devId:\n");
+            printf("please input deviceId:");
             getline(std::cin, input);
             if (input != "") {
-                devId = input;
+                deviceId = input;
             }
-            printf(
-                "please input videoFormatId: enter for 0, (0: VIDEO_640x480_60, 1: VIDEO_1280x720_25, 2: VIDEO_1280x720_30, 3: VIDEO_1920x1080_25, 4: VIDEO_1920x1080_30)\n");
             getline(std::cin, input);
             if (input != "") {
                 videoFormatId = static_cast<VideoFormat>(atoi(input.c_str()));
             }
-            printf(
-                "please input audioFormatId: enter for 0, (0: AUDIO_LPCM_44K_2, 1: AUDIO_LPCM_48K_2, 2: AUDIO_AAC_48K_2, 3: VIDEO_1920x1080_25, 4: VIDEO_1920x1080_30)\n");
             getline(std::cin, input);
             if (input != "") {
                 audioFormatId = static_cast<AudioFormat>(atoi(input.c_str()));
             }
             break;
         case 13: // delsurface
-            printf("please input devId:\n");
+            printf("please input deviceId:");
             getline(std::cin, input);
             if (input != "") {
-                devId = input;
+                deviceId = input;
             }
-            printf("please input surfaceId:\n");
+            printf("please input surfaceId:");
             getline(std::cin, input);
             if (input != "") {
                 surfaceId = input;
@@ -350,62 +342,62 @@ void WfdSinkDemo::DoCmd(std::string cmd)
     switch (cmd2index.at(cmd)) {
         case 1: // GetConfig
             if (GetConfig()) {
-                printf("GetConfig success\n");
+                printf("GetConfig success");
             }
             break;
         case 2: // start
             if (Start()) {
-                printf("p2p start success\n");
+                printf("p2p start success");
             }
             break;
         case 3: // Stop
             if (Stop()) {
-                printf("p2p stop success\n");
+                printf("p2p stop success");
             }
             break;
         case 4: // SetMediaFormat
-            if (SetMediaFormat(devId, videoFormatId, audioFormatId)) {
-                printf("Start success\n");
+            if (SetMediaFormat(deviceId, videoFormatId, audioFormatId)) {
+                printf("Start success");
             }
             break;
         case 5: // Play
-            if (Play(devId)) {
-                printf("Play success\n");
+            if (Play(deviceId)) {
+                printf("Play success");
             }
             break;
         case 6: // Close
-            if (Pause(devId)) {
-                printf("Pause success\n");
+            if (Pause(deviceId)) {
+                printf("Pause success");
             }
             break;
         case 7: // Close
-            if (Close(devId)) {
-                printf("Close success\n");
+            if (Close(deviceId)) {
+                printf("Close success");
             }
             break;
         case 8: // Mute
-            if (Mute(devId)) {
-                printf("Mute success\n");
+            if (Mute(deviceId)) {
+                printf("Mute success");
             }
             break;
         case 9: // UnMute
-            if (UnMute(devId)) {
-                printf("UnMute success\n");
+            if (UnMute(deviceId)) {
+                printf("UnMute success");
             }
             break;
         case 10: // SetSceneType
-            if (SetSceneType(devId, surfaceId, sceneType)) {
-                printf("UnMute success\n");
+            if (SetSceneType(deviceId, surfaceId, sceneType)) {
+                printf("UnMute success");
             }
             break;
         case 11: // ListDevice
             ListDevices();
             break;
         case 12:
-            AppendSurface(devId);
+            AppendSurface(deviceId);
             break;
         case 13:
-            RemoveSurface(devId, surfaceId);
+            RemoveSurface(deviceId, surfaceId);
             break;
         default:
             break;
@@ -443,7 +435,7 @@ void WfdSinkDemoListener::OnConnectionChanged(const ConnectionInfo &info)
 {
     auto listener = listener_.lock();
     if (!listener) {
-        printf("no listener\n");
+        printf("no listener");
     }
     switch (info.state) {
         case ConnectionState::CONNECTED: {
@@ -460,34 +452,34 @@ void WfdSinkDemoListener::OnConnectionChanged(const ConnectionInfo &info)
         default:
             break;
     }
-    printf("on OnConnectionChanged. ip: %s, mac: %s, surfaceId: %llu\n", info.ip.c_str(), info.mac.c_str(),
+    printf("on OnConnectionChanged. ip: %s, mac: %s, surfaceId: %llu", info.ip.c_str(), info.mac.c_str(),
            info.surfaceId);
 }
 
 int TestOneByOne()
 {
-    printf("ENTER TEST\n");
+    printf("ENTER TEST");
     std::map<std::string, std::string> cmdMap = {
         {"1", "GetConfig"}, {"2", "AppendSurface"}, {"3", "SetMediaFormat"}, {"4", "Start"},
         {"5", "Stop"},      {"6", "ListDevice"},    {"7", "Play"},           {"8", "Pause"},
         {"9", "Close"},     {"10", "SetSceneType"}, {"11", "Mute"},          {"12", "UnMute"}};
 
-    std::string helpNotice = "select steps:     0-quit;\n"
-                             "1-GetConfig;      2-AppendSurface;\n"
-                             "3-SetMediaFormat; 4-Start;\n"
-                             "5-Stop;           6-ListDevice;\n"
-                             "7-Play;           8-Pause;\n"
-                             "9-Close;          10-SetSceneType;\n"
-                             "11-Mute;          12-UnMute\n";
+    std::string helpNotice = "select steps:     0-quit;"
+                             "1-GetConfig;      2-AppendSurface;"
+                             "3-SetMediaFormat; 4-Start;"
+                             "5-Stop;           6-ListDevice;"
+                             "7-Play;           8-Pause;"
+                             "9-Close;          10-SetSceneType;"
+                             "11-Mute;          12-UnMute";
 
     std::shared_ptr<WfdSinkDemo> demo = std::make_shared<WfdSinkDemo>();
     if (!demo->CreateClient()) {
-        printf("create client failed\n");
+        printf("create client failed");
         return -1;
     }
     std::string inputCmd;
     while (1) {
-        printf("%s\n", helpNotice.c_str());
+        printf("%s", helpNotice.c_str());
         getline(std::cin, inputCmd);
         if (inputCmd == "") {
             continue;
@@ -508,7 +500,7 @@ int TestOneByOne()
 
 int main()
 {
-    printf("wfd sink test start!\n");
+    printf("wfd sink test start!");
     TestOneByOne();
     return 0;
 }

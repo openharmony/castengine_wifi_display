@@ -121,7 +121,7 @@ public:
             bufferIndex = inQueue_.front();
             inQueue_.pop();
         }
-        SHARING_LOGD("process video data bufferIndex: %{public}d", bufferIndex);
+        SHARING_LOGD("process video data bufferIndex: %{public}d.", bufferIndex);
         if (stop_) {
             SHARING_LOGD("stop return");
             return;

@@ -65,10 +65,10 @@ int ParseParam(int argc, char *argv[])
                 gPort = atoi(optarg);
                 break;
             case ':':
-                SHARING_LOGD("option [-%c] requires an argument", (char)optopt);
+                SHARING_LOGD("option [-%c] requires an argument.", static_cast<char>(optopt));
                 break;
             case '?':
-                SHARING_LOGD("unknown option: %c", (char)optopt);
+                SHARING_LOGD("unknown option: %c.", static_cast<char>(optopt));
                 break;
             default:
                 break;
@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
 
         char *content = new char[size];
         infile.read(content, size);
-        SHARING_LOGD("size %{public}d", size);
+        SHARING_LOGD("size %{public}d.", size);
         infile.close();
 
         DecodeG711ByTime(content, size);
@@ -234,8 +234,8 @@ int main(int argc, char *argv[])
         g711Unpack->SetOnRtpUnpack([=](uint32_t ssrc, const Frame::Ptr &frame) {
             SHARING_LOGD("setOnRtpUnpack");
             if (frame->GetTrackType() == TRACK_AUDIO) {
-                SHARING_LOGD("unpack G711 rtp: len: %{public}d dts: %{public}d", frame->Size(), frame->Dts());
-                for (int i = 0; i < 12 && i < (int)frame->Size(); i++) {
+                SHARING_LOGD("unpack G711 rtp: len: %{public}d dts: %{public}d.", frame->Size(), frame->Dts());
+                for (int i = 0; i < 0x12 && i < static_cast<int>(frame->Size()); i++) {
                     printf("%02x ", *(frame->Data() + i));
                 }
                 printf("\n");
