@@ -131,6 +131,9 @@ void LoopBackDemo::loopback()
     StartRender();
 
     uint8_t *frame = (uint8_t *)malloc(bufferLen_ * 2);
+    if (frame == nullptr) {
+        return;
+    }
     while (isRunningCapture_ && isRunningRender_) {
         int temp = audioCapturer_->Read(*frame, bufferLen_, isBlockingRead_);
         audioRenderer_->Write(frame, temp);
