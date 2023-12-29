@@ -191,7 +191,7 @@ std::pair<const uint8_t *, int> FindAACFrame(uint8_t *begin, uint8_t *end)
         if ((p[0] & 0xff) == 0xff && (p[1] & 0xf0) == 0xf0) {
             printf("is aac header");
             length = static_cast<int>(
-                (((p[3] & 0x03) << 11) | ((p[4] & 0xff) << 3) | ((p[5] & 0xe0) >> 5))); // get AAC length
+                (((p[3] & 0x03) << 0x11) | ((p[4] & 0xff) << 0x3) | ((p[5] & 0xe0) >> 0x5))); // get AAC length
             if (p + length <= end) {
                 break;
             }
