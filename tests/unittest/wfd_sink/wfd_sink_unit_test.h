@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "wfd.h"
+#include "wfd_sink.h"
 #include "gtest/gtest.h"
 namespace OHOS {
 namespace Sharing {
@@ -23,6 +23,7 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
+
 protected:
     std::shared_ptr<WfdSink> wfdSink_ = nullptr;
 };

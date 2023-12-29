@@ -16,47 +16,48 @@
 #ifndef LOOP_BACK_DEMO_H
 #define LOOP_BACK_DEMO_H
 
-#include "audio_capturer.h"
-#include "audio_renderer.h"
 #include "access_token.h"
 #include "accesstoken_kit.h"
+#include "audio_capturer.h"
+#include "audio_renderer.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
 
 namespace OHOS {
 namespace AudioStandard {
-class LoopBackDemo  {
+class LoopBackDemo {
 public:
     LoopBackDemo();
     ~LoopBackDemo();
-    void InitializeCapturerOptions(AudioCapturerOptions &capturerOptions);//初始化麦克风参数
-    void InitializeRenderOptions(AudioRendererParams &rendererParams);//初始化喇叭参数
-    int32_t InitAudioCapturer();//创建capture
-    int32_t StartCapture();//运行capture
-    int32_t InitAudioRenderer();//创建render
-    int32_t StartRender();//运行render
-    void loopback();//声音回环
-    void CaptureThreadWorker();//capture线程创建
-    void RendererThread();//renderer线程创建
-    bool GetPermission(); //获取权限
-private:
-    AudioCapturerOptions capturerOptions_;
-    std::unique_ptr<AudioCapturer> audioCapturer_ = nullptr;
-    // std::mutex mutex_capture;
-    bool isRunningCapture_ = false;
-    //std::thread captureThread_;
-    size_t bufferLen_ = 0;
-    bool isBlockingRead_ = true;
-    // bool isInit = false;
-    bool isRunningRender_ = false;
 
+    void InitializeRenderOptions(AudioRendererParams &rendererParams);
+    void InitializeCapturerOptions(AudioCapturerOptions &capturerOptions);
+
+    int32_t StartRender();
+    int32_t InitAudioRenderer();
+
+    int32_t StartCapture();
+    int32_t InitAudioCapturer();
+
+    void RendererThread();
+    void CaptureThreadWorker();
+
+    void loopback();
+    bool GetPermission();
+
+private:
+    bool isBlockingRead_ = true;
+    bool isRunningRender_ = false;
+    bool isRunningCapture_ = false;
+
+    size_t bufferLen_ = 0;
+
+    std::unique_ptr<AudioCapturer> audioCapturer_ = nullptr;
     std::unique_ptr<AudioRenderer> audioRenderer_ = nullptr;
-    //CacheQueue *cacheQueue_ = nullptr;
-    // std::mutex mutex_renderer;
-    AudioRendererParams rendererParams_ ;
-    // std::thread *rendererThread_ = nullptr;
+
+    AudioRendererParams rendererParams_;
+    AudioCapturerOptions capturerOptions_;
 };
 } // namespace AudioStandard
 } // namespace OHOS
-
 #endif // AUDIO_CAPTURER_UNIT_TEST_H

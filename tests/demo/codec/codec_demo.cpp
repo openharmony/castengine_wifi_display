@@ -27,9 +27,9 @@
 
 using namespace OHOS::Sharing;
 
-int gType = -1; // 0 for decode, 1 for encode
 char *gInFile = nullptr;
 char *gOutFile = nullptr;
+int gType = -1; // 0 for decode, 1 for encode
 
 void ShowUsage(char *exe)
 {
@@ -55,10 +55,10 @@ int ParseParam(int argc, char *argv[])
                 gOutFile = optarg;
                 break;
             case ':':
-                SHARING_LOGD("option [-%c] requires an argument", (char)optopt);
+                SHARING_LOGD("option [-%c] requires an argument.", static_cast<char>(optopt));
                 break;
             case '?':
-                SHARING_LOGD("unknown option: %c", (char)optopt);
+                SHARING_LOGD("unknown option: %c.", static_cast<char>(optopt));
                 break;
             default:
                 break;
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
 
     char *content = new char[size];
     infile.read(content, size);
-    SHARING_LOGD("size %{public}d", size);
+    SHARING_LOGD("size %{public}d.", size);
     infile.close();
     if (gType == 0) {
         DecodeG711(content, size, outfile);

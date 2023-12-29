@@ -29,68 +29,67 @@ class ClientAgent final : public IClientCallback,
 public:
     ~ClientAgent()
     {
-        SHARING_LOGD("===[ ~ClientAgent()]  ");
+        SHARING_LOGD("trace.");
         clientPtr_->Disconnect();
     }
     ClientAgent()
     {
-        SHARING_LOGD("===[ ClientAgent()] ");
+        SHARING_LOGD("trace.");
     }
 
     void UdpConnect()
     {
         bool ret = NetworkFactory::CreateUdpClient("127.0.0.1", 9999, "127.0.0.1", 0, shared_from_this(), clientPtr_);
         if (ret) {
-            SHARING_LOGD("===[ClientAgent] CreateUdpClient success");
+            SHARING_LOGD("CreateUdpClient success");
         } else {
-            SHARING_LOGE("===[ClientAgent] CreateUdpClient failed");
+            SHARING_LOGE("CreateUdpClient failed");
         }
     }
 
     void TcpConnect()
     {
-        bool ret = NetworkFactory::CreateTcpClient("127.0.0.1", 8888, shared_from_this(),
-                                                   clientPtr_); //(const IServerCallback::Ptr &)
+        bool ret = NetworkFactory::CreateTcpClient("127.0.0.1", 8888, shared_from_this(), clientPtr_);
         if (ret) {
-            SHARING_LOGD("===[ClientAgent] CreateTcpClient success");
+            SHARING_LOGD("CreateTcpClient success");
         } else {
-            SHARING_LOGE("===[ClientAgent] CreateTcpClient failed");
+            SHARING_LOGE("CreateTcpClient failed");
         }
     }
 
-    virtual void OnClientConnectResult(bool isSuccess) override
+    void OnClientConnect(bool isSuccess) override
     {
         if (isSuccess) {
-            SHARING_LOGD("===[ClientAgent] OnClientConnectResult success");
+            SHARING_LOGD("OnClientConnect success");
         } else {
-            SHARING_LOGE("===[ClientAgent] OnClientConnectResult failed");
+            SHARING_LOGE("OnClientConnect failed");
         }
     }
 
-    virtual void OnClientReadData(int32_t fd, DataBuffer::Ptr buf) override
+    void OnClientReadData(int32_t fd, DataBuffer::Ptr buf) override
     {
-        SHARING_LOGD("===[ClientAgent] OnClientReadData");
+        SHARING_LOGD("OnClientReadData");
     }
 
-    virtual void OnClientWriteable(int32_t fd) override
+    void OnClientWriteable(int32_t fd) override
     {
-        SHARING_LOGD("===[ClientAgent] OnClientWriteable");
+        SHARING_LOGD("OnClientWriteable");
         static int index = 0;
-        string msg = "tcp/udp client OnClientConnectResult message.index=" + std::to_string(index++);
+        string msg = "tcp/udp client OnClientConnect message.index=" + std::to_string(index++);
         DataBuffer::Ptr bufSend = std::make_shared<DataBuffer>();
         bufSend->PushData(msg.c_str(), msg.size());
         clientPtr_->Send(bufSend, bufSend->Size());
     }
 
-    virtual void OnClientClose(int32_t fd) override
+    void OnClientClose(int32_t fd) override
     {
-        SHARING_LOGD("===[ClientAgent] OnClientClose");
+        SHARING_LOGD("OnClientClose");
         clientPtr_->Disconnect();
     }
 
-    virtual void OnClientException(int32_t fd) override
+    void OnClientException(int32_t fd) override
     {
-        SHARING_LOGD("===[ClientAgent] OnClientException");
+        SHARING_LOGD("OnClientException");
         clientPtr_->Disconnect();
     }
 
@@ -104,16 +103,16 @@ int main()
         std::string inputCmd;
         auto clientAgent = std::make_shared<ClientAgent>();
 
-        SHARING_LOGD("===[CLIENT DEMO] Please input command.tcp-1,udp-2:");
+        SHARING_LOGD("Please input command.tcp-1,udp-2:");
         getline(std::cin, inputCmd);
-        SHARING_LOGD("===[CLIENT DEMO] Get command: %{public}s", inputCmd.c_str());
+        SHARING_LOGD("Get command: %{public}s.", inputCmd.c_str());
         if (inputCmd == "quit") {
         } else if (inputCmd == "1") {
             clientAgent->TcpConnect();
         } else if (inputCmd == "2") {
             clientAgent->UdpConnect();
         } else if (inputCmd == "3") {
-            SHARING_LOGD("===[CLIENT DEMO] ===send message:");
+            SHARING_LOGD("send message:");
         }
         while (1) {
             sleep(1);

@@ -49,7 +49,10 @@ public:
     void OnConnectionChanged(const ConnectionInfo &info);
     void OnDeviceFound(const std::vector<WfdCastDeviceInfo> &deviceInfos);
     void OnError(uint32_t regionId, uint32_t agentId, SharingErrorCode errorCode);
-    void SetListener(std::shared_ptr<WfdSourceDemo> listener) { listener_ = listener; }
+    void SetListener(std::shared_ptr<WfdSourceDemo> listener)
+    {
+        listener_ = listener;
+    }
 
 private:
     std::weak_ptr<WfdSourceDemo> listener_;

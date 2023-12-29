@@ -235,8 +235,8 @@ void WfdSourceDemoListener::OnDeviceFound(const std::vector<WfdCastDeviceInfo> &
                "\tmac: %s"
                "\tprimaryDeviceType: %s"
                "\tsecondaryDeviceType: %s.\n",
-               itDev.deviceName.c_str(), itDev.deviceId.c_str(),
-               itDev.primaryDeviceType.c_str(), itDev.secondaryDeviceType.c_str());
+               itDev.deviceName.c_str(), itDev.deviceId.c_str(), itDev.primaryDeviceType.c_str(),
+               itDev.secondaryDeviceType.c_str());
     }
 }
 
@@ -247,19 +247,15 @@ void WfdSourceDemoListener::OnConnectionChanged(const ConnectionInfo &info)
         printf("no listener.\n");
     }
 
-    printf("on OnConnectionChanged. state: %d, ip: %s, mac: %s.\n",
-           info.state, info.ip.c_str(), info.mac.c_str());
+    printf("on OnConnectionChanged. state: %d, ip: %s, mac: %s.\n", info.state, info.ip.c_str(), info.mac.c_str());
 }
 
 static int TestOneByOne()
 {
     printf("ENTER TEST.\n");
-    std::map<std::string, std::string> cmdMap = {{"1", "Start"},
-                                                 {"2", "Stop"},
-                                                 {"3", "StartDiscover"},
-                                                 {"4", "StopDiscover"},
-                                                 {"5", "AddCastDevice"},
-                                                 {"6", "RemoveCastDevice"}};
+    std::map<std::string, std::string> cmdMap = {{"1", "Start"},         {"2", "Stop"},
+                                                 {"3", "StartDiscover"}, {"4", "StopDiscover"},
+                                                 {"5", "AddCastDevice"}, {"6", "RemoveCastDevice"}};
 
     std::string helpNotice = "select steps:    0-quit;\n"
                              "1-Start;         2-Stop;\n"

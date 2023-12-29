@@ -134,7 +134,7 @@ int main()
             bool bret6 = values->IsModule("mediachannel2");
             SHARING_LOGD(
                 "HasKey: %{public}d,HasTag: %{public}d,HasKey: %{public}d,HasTag: %{public}d,IsModule: %{public}d,IsModule="
-                "%{public}d,size: %{public}d",
+                "%{public}d,size: %{public}d.",
                 bret1, bret2, bret3, bret4, bret5, bret6, values1.size());
             ret = Config::GetInstance().SetConfig("mediachannel", values);
             sleep(1);
@@ -207,7 +207,7 @@ int main()
             SHARING_LOGD(
                 "hasKey: %{public}d,HasTag: %{public}d,HasKey: %{public}d,HasTag: %{public}d,HasModule: %{public}d,"
                 "HasModule="
-                "%{public}d",
+                "%{public}d.",
                 bret1, bret2, bret3, bret4, bret5, bret6);
 
             ret = Config::GetInstance().SetConfig(datas);

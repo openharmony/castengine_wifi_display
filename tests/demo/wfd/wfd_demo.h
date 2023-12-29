@@ -20,6 +20,7 @@
 #include <mutex>
 #include <string>
 #include "wifi_diaplay.h"
+
 namespace OHOS {
 namespace Sharing {
 
@@ -47,7 +48,9 @@ public:
 
 private:
     bool surfaceIsUsing_ = false;
+
     int32_t windowNum_ = 1;
+
     std::mutex mutex_;
     std::vector<uint64_t> surfaceIds_;
     std::vector<std::string> devicesIsPlaying_;
