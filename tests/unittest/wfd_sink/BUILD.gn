@@ -39,7 +39,7 @@ ohos_unittest("wfd_sink_unit_test") {
   ]
 
   external_deps = [
-    "graphic_2d:surface",
+    "graphic_surface:surface",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]

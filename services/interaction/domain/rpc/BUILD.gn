@@ -61,7 +61,7 @@ ohos_shared_library("domain_rpc_manager") {
     "access_token:libtoken_setproc",
     "c_utils:utils",
     "device_manager:devicemanagersdk",
-    "graphic_2d:surface",
+    "graphic_surface:surface",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",

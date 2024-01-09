@@ -39,7 +39,7 @@ ohos_source_set("sharing_scheduler_srcs") {
   configs = [ "$SHARING_ROOT_DIR/tests:coverage_flags" ]
   external_deps = [
     "device_manager:devicemanagersdk",
-    "graphic_2d:surface",
+    "graphic_surface:surface",
     "hilog:libhilog",
     "samgr:samgr_proxy",
   ]

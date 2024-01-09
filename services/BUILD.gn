@@ -76,7 +76,7 @@ ohos_shared_library("sharing_service") {
     "audio_framework:audio_capturer",
     "audio_framework:audio_client",
     "audio_framework:audio_renderer",
-    "graphic_2d:surface",
+    "graphic_surface:surface",
     "hilog:libhilog",
     "kv_store:distributeddata_inner",
     "samgr:samgr_proxy",

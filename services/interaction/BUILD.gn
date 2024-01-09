@@ -84,7 +84,7 @@ ohos_source_set("sharing_interaction_srcs") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "device_manager:devicemanagersdk",
-    "graphic_2d:surface",
+    "graphic_surface:surface",
     "hilog:libhilog",
     "kv_store:distributeddata_inner",
     "wifi:wifi_sdk",
