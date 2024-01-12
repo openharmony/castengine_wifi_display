@@ -112,52 +112,64 @@ void UdpServer::CloseClientSocket(int32_t fd)
 void UdpServer::OnServerReadable(int32_t fd)
 {
     MEDIA_LOGD("fd: %{public}d, thread_id: %{public}llu tid:%{public}d", fd, GetThreadId(), gettid());
-    std::unique_lock<std::shared_mutex> lk(mutex_);
-    if (socket_ == nullptr || fd != socket_->GetLocalFd()) {
-        SHARING_LOGE("onReadable socket null or fd wrong!");
+
+    std::shared_lock<std::shared_mutex> lk(mutex_);
+    if (socket_ == nullptr) {
+        SHARING_LOGE("onReadable socket null!");
         return;
     }
 
-    int32_t retCode = 0;
+    if (fd != socket_->GetLocalFd()) {
+        SHARING_LOGE("onReadable receive msg!");
+        return;
+    }
+
+    auto callback = callback_.lock();
+    if (callback == nullptr) {
+        SHARING_LOGE("callback null!");
+        return;
+    }
+
     int32_t retry = 0;
+    int32_t retCode = -1;
     bool firstRead = true;
-    do {
+    while (retCode == 0) {
         DataBuffer::Ptr buf = std::make_shared<DataBuffer>(DEAFULT_READ_BUFFER_SIZE);
         struct sockaddr_in clientAddr;
         socklen_t len = sizeof(struct sockaddr_in);
         retCode = ::recvfrom(fd, buf->Data(), DEAFULT_READ_BUFFER_SIZE, 0, (struct sockaddr *)&clientAddr, &len);
         MEDIA_LOGD("recvSocket len: %{public}d,address: %{public}s,port: %{public}d,socklen: %{public}d.", retCode,
-                    inet_ntoa(clientAddr.sin_addr), clientAddr.sin_port, len);
+                   inet_ntoa(clientAddr.sin_addr), clientAddr.sin_port, len);
+        
+        if (retCode < 0) {
+            if (errno != EAGAIN) {
+                MEDIA_LOGD("on read data error %{public}d : %{public}s!", errno, strerror(errno));
+                callback->OnServerException(fd);
+                break;
+            }
+
+            if (firstRead && retry < 5) { // 5: retry 5 times
+                SHARING_LOGE("first read error %{public}d : %{public}s retry: %{public}d", errno, strerror(errno), retry);
+                usleep(1000 * 5); // 1000 * 5: sleep 1000 * 5 millionseconds
+                retry++;
+                continue;
+            }
+            break;
+        }
+
         if (retCode > 0) {
             firstRead = false;
             buf->UpdateSize(retCode);
             BaseNetworkSession::Ptr session = FindOrCreateSession(clientAddr);
-            if (!session) {
-                SHARING_LOGE("FindOrCreateSession failed!");
-                continue;
-            }
-            auto callback = callback_.lock();
-            if (callback) {
+            if (session) {
                 callback->OnServerReadData(fd, std::move(buf), session);
             }
-        } else if (retCode < 0) {
-            if (errno == EAGAIN) {
-                if (firstRead && retry < 5) { // 5: retry times
-                    SHARING_LOGE("first read error %{public}d : %{public}s retry: %{public}d", errno, strerror(errno),
-                                    retry);
-                    usleep(1000 * 5); // 1000 * 5: sleep microseconds
-                    retry++;
-                    continue;
-                }
-                break;
-            }
-            auto callback = callback_.lock();
-            if (callback) {
-                callback->OnServerException(fd);
-            }
+        } else {
+            SHARING_LOGE("onReadable error: %{public}s!", strerror(errno));
             break;
         }
-    } while (retCode == 0);
+    }
+
     MEDIA_LOGD("fd: %{public}d, thread_id: %{public}llu tid:%{public}d exit.", fd, GetThreadId(), gettid());
 }
 

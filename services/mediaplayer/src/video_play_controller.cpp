@@ -15,6 +15,7 @@
 
 #include "video_play_controller.h"
 #include <chrono>
+#include <securec.h>
 #include "common/common_macro.h"
 #include "common/const_def.h"
 #include "common/event_channel.h"
@@ -357,7 +358,11 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
     }
 
     uint32_t dataSize = renderWidth * renderHeight * 3 / 2;
-    memcpy_s(bufferVirAddr, dataSize, decodedData->Peek(), dataSize);
+    auto ret = memcpy_s(bufferVirAddr, dataSize, decodedData->Peek(), dataSize);
+    if (ret != EOK) {
+        SHARING_LOGE("copy data failed !");
+        return -1;
+    }
 
     if (bufferVirAddr == nullptr) {
         SHARING_LOGD("bufferVirAddr is nullptr.");

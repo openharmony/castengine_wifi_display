@@ -198,7 +198,7 @@ bool SocketUtils::CheckAsyncConnect(int32_t fd)
     SHARING_LOGD("trace.");
     struct timeval timeout;
     timeout.tv_sec = 2;          // 2: wait +2 second
-    timeout.tv_usec = 500*1000;  // 500*1000: wait +0.5 second
+    timeout.tv_usec = 500 * 1000;  // 500 * 1000: wait +0.5 second
 
     fd_set fdr;
     fd_set fdw;
