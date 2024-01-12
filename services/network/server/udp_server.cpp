@@ -131,9 +131,9 @@ void UdpServer::OnServerReadable(int32_t fd)
     }
 
     int32_t retry = 0;
-    int32_t retCode = -1;
+    int32_t retCode = 0;
     bool firstRead = true;
-    while (retCode == 0) {
+    while (true) {
         DataBuffer::Ptr buf = std::make_shared<DataBuffer>(DEAFULT_READ_BUFFER_SIZE);
         struct sockaddr_in clientAddr;
         socklen_t len = sizeof(struct sockaddr_in);
