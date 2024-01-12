@@ -149,7 +149,8 @@ void UdpServer::OnServerReadable(int32_t fd)
             }
 
             if (firstRead && retry < 5) { // 5: retry 5 times
-                SHARING_LOGE("first read error %{public}d : %{public}s retry: %{public}d", errno, strerror(errno), retry);
+                SHARING_LOGE("first read error %{public}d : %{public}s retry: %{public}d",
+                    errno, strerror(errno), retry);
                 usleep(1000 * 5); // 1000 * 5: sleep 1000 * 5 millionseconds
                 retry++;
                 continue;
