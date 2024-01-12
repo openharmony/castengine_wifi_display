@@ -260,23 +260,24 @@ void VideoSinkDecoder::OnOutputBufferAvailable(uint32_t index, Media::AVCodecBuf
         MEDIA_LOGW("decoder is null!");
         return;
     }
-
-    auto videoSharedMemory = videoDecoder_->GetOutputBuffer(index);
-    if (videoSharedMemory == nullptr || videoSharedMemory->GetBase() == nullptr) {
-        MEDIA_LOGW("OnOutputBufferAvailable GetOutputBuffer null!");
-        return;
-    }
-    size_t dataSize = static_cast<size_t>(info.size);
-    MEDIA_LOGD("OnOutputBufferAvailable size: %{public}zu.", dataSize);
-    auto dataBuf = std::make_shared<DataBuffer>(dataSize);
-    if (dataBuf != nullptr) {
-        dataBuf->PushData((char *)videoSharedMemory->GetBase(), dataSize);
-        auto listerner = videoDecoderListener_.lock();
-        if (listerner) {
-            listerner->OnVideoDataDecoded(dataBuf);
+    if (forceSWDecoder_) {
+        auto videoSharedMemory = videoDecoder_->GetOutputBuffer(index);
+        if (videoSharedMemory == nullptr || videoSharedMemory->GetBase() == nullptr) {
+            MEDIA_LOGW("OnOutputBufferAvailable GetOutputBuffer null!");
+            return;
         }
-    } else {
-        MEDIA_LOGE("get databuffer failed!");
+        size_t dataSize = static_cast<size_t>(info.size);
+        SHARING_LOGD("OnOutputBufferAvailable size: %{public}zu.", dataSize);
+        auto dataBuf = std::make_shared<DataBuffer>(dataSize);
+        if (dataBuf != nullptr) {
+            dataBuf->PushData((char *)videoSharedMemory->GetBase(), dataSize);
+            auto listerner = videoDecoderListener_.lock();
+            if (listerner) {
+                listerner->OnVideoDataDecoded(dataBuf);
+            }
+        } else {
+            MEDIA_LOGE("get databuffer failed!");
+        }
     }
 
     if (videoDecoder_->ReleaseOutputBuffer(index, true) != Media::MSERR_OK) {

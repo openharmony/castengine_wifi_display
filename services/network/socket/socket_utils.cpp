@@ -46,13 +46,13 @@ uint16_t SocketUtils::GetAvailableUdpPortPair()
 
     uint16_t port = GetAvailableUdpPortPair(g_availablePort, maxPort_);
     if (port != 0) {
-        g_availablePort = port + 2;
+        g_availablePort = port + 2; // 2: pair port
         return port;
     }
 
     port = GetAvailableUdpPortPair(minPort_, g_availablePort);
     if (port != 0) {
-        g_availablePort = port + 2;
+        g_availablePort = port + 2; // 2: pair port
     }
 
     return port;
@@ -73,7 +73,7 @@ uint16_t SocketUtils::GetAvailableUdpPortPair(uint16_t minPort, uint16_t maxPort
         } else if (IsUdpPortAvailable(port) && IsUdpPortAvailable(port + 1)) {
             break;
         } else {
-            port += 2;
+            port += 2; // 2: pair port
         }
     }
 
@@ -174,12 +174,12 @@ bool SocketUtils::ConnectSocket(int32_t fd, bool isAsync, const std::string &ip,
     ret = res;
     if (isAsync) {
         if (res == 0) {
-            SHARING_LOGD("connect immediately.");
+            SHARING_LOGI("connect immediately.");
             return true;
         } else {
             if (errno == EINPROGRESS) {
-                SHARING_LOGD("connecting.");
-                return true;
+                SHARING_LOGI("connecting.");
+                return SocketUtils::CheckAsyncConnect(fd);
             } else {
                 return false;
             }
@@ -191,6 +191,37 @@ bool SocketUtils::ConnectSocket(int32_t fd, bool isAsync, const std::string &ip,
             return false;
         }
     }
+}
+
+bool SocketUtils::CheckAsyncConnect(int32_t fd)
+{
+    SHARING_LOGD("trace.");
+    struct timeval timeout;
+    timeout.tv_sec = 2;          // 2: wait +2 second
+    timeout.tv_usec = 500*1000;  // 500*1000: wait +0.5 second
+
+    fd_set fdr;
+    fd_set fdw;
+    FD_ZERO(&fdr);
+    FD_ZERO(&fdw);
+    FD_SET(fd, &fdr);
+    FD_SET(fd, &fdw);
+
+    int32_t rc = select(fd + 1, &fdr, &fdw, nullptr, &timeout);
+    if (rc == 1 && FD_ISSET(fd, &fdw)) {
+        SHARING_LOGI("async connect success\n");
+        return true;
+    }
+
+    if (rc == 0) {
+        SHARING_LOGE("async connect timeout.");
+    }
+
+    if ((rc < 0) || (rc == 2)) { // 2: select error
+        SHARING_LOGE("async connect error: %{public}s!", strerror(errno));
+    }
+
+    return false;
 }
 
 void SocketUtils::ShutDownSocket(int32_t fd)
@@ -338,7 +369,7 @@ int32_t SocketUtils::SendSocket(int32_t fd, const char *buf, int32_t len)
     if (fd < 0 || buf == NULL || len == 0) {
         return -1;
     }
-    SHARING_LOGD("sendSocket: \r\n%{public}s", buf);
+    SHARING_LOGD("sendSocket: \r\n%{public}s.", buf);
     int32_t bytes = 0;
     while (true) {
         if (bytes >= len || bytes < 0) {
@@ -348,7 +379,7 @@ int32_t SocketUtils::SendSocket(int32_t fd, const char *buf, int32_t len)
         int32_t retCode = send(fd, &buf[bytes], len - bytes, 0);
         if ((retCode < 0) && (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN)) {
             SHARING_LOGD("sendSocket: continue.");
-            break;
+            continue;
         } else if (retCode > 0) {
             bytes += retCode;
             if (bytes == len) {
@@ -478,9 +509,7 @@ bool SocketUtils::GetIpPortInfo(int32_t fd, std::string &strLocalAddr, std::stri
         SHARING_LOGE("getsockname error: %{public}s!", strerror(errno));
         return false;
     }
-    strLocalAddr = inet_ntoa(localAddr.sin_addr);
-    localPort = ntohs(localAddr.sin_port);
-    SHARING_LOGD("localAddr: %{public}s localPort: %{public}d.", strLocalAddr.c_str(), localPort);
+
     struct sockaddr_in remoteAddr;
     socklen_t remoteAddrLen = sizeof(remoteAddr);
     if (-1 == getpeername(fd, (struct sockaddr *)&remoteAddr, &remoteAddrLen)) {
@@ -488,9 +517,13 @@ bool SocketUtils::GetIpPortInfo(int32_t fd, std::string &strLocalAddr, std::stri
         return false;
     }
 
+    strLocalAddr = inet_ntoa(localAddr.sin_addr);
     strRemoteAddr = inet_ntoa(remoteAddr.sin_addr);
+
+    localPort = ntohs(localAddr.sin_port);
     remotePort = ntohs(remoteAddr.sin_port);
-    SHARING_LOGD("remoteAddr: %{public}s remotePort: %{public}d.", strRemoteAddr.c_str(), remotePort);
+    SHARING_LOGD("localAddr: %{public}s localPort: %{public}d remoteAddr: %{public}s remotePort: %{public}d",
+        strLocalAddr.c_str(), localPort, strRemoteAddr.c_str(), remotePort);
     return true;
 }
 } // namespace Sharing

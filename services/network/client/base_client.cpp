@@ -31,7 +31,7 @@ BaseClient::BaseClient()
 
 void BaseClient::RegisterCallback(std::weak_ptr<IClientCallback> callback)
 {
-    MEDIA_LOGD("trace.");
+    SHARING_LOGD("trace.");
     callback_ = callback;
 }
 

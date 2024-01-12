@@ -31,31 +31,17 @@ using namespace OHOS::Media;
 
 namespace OHOS {
 namespace Sharing {
-#ifdef TEST_WRITE_FILE
-constexpr uint32_t ARGB_BUFFER_SIZE = DEFAULT_WINDOW_WIDTH * DEFAULT_WINDOW_HEIGHT * 4;
-#endif
 
 VideoPlayController::VideoPlayController(uint32_t mediaChannelId)
 {
     SHARING_LOGD("trace.");
     bufferReceiver_ = std::make_shared<BufferReceiver>();
     mediachannelId_ = mediaChannelId;
-#ifdef TEST_WRITE_FILE
-    argbBuffer_ = (uint8_t *)malloc(ARGB_BUFFER_SIZE);
-    // fp_ = fopen("/data/test.yuv", "wb");
-#endif
 }
 
 VideoPlayController::~VideoPlayController()
 {
     SHARING_LOGD("delete video play controller, mediachannelId: %{public}u.", mediachannelId_);
-#ifdef TEST_WRITE_FILE
-    if (nullptr != argbBuffer_) {
-        free(argbBuffer_);
-        argbBuffer_ = nullptr;
-    }
-    fclose(fp_);
-#endif
 }
 
 bool VideoPlayController::Init(VideoTrack &videoTrack)
@@ -84,10 +70,6 @@ bool VideoPlayController::Init(VideoTrack &videoTrack)
 
     videoSinkDecoder_->SetVideoDecoderListener(shared_from_this());
     bufferReceiver_->SetBufferReceiverListener(shared_from_this());
-#ifdef TEST_WRITE_FILE
-    outFile_ = std::make_unique<std::ofstream>();
-    outFile_->open("/data/player.h264", std::ios::out | std::ios::binary);
-#endif
     return true;
 }
 
@@ -183,11 +165,6 @@ void VideoPlayController::Release()
         videoSinkDecoder_->Release();
         videoSinkDecoder_.reset();
     }
-#ifdef TEST_WRITE_FILE
-    if (outFile_ != nullptr) {
-        outFile_->close();
-    }
-#endif
 }
 
 void VideoPlayController::StartVideoThread()
@@ -247,28 +224,16 @@ void VideoPlayController::VideoPlayThread()
                 auto sps = bufferReceiver_->GetSPS();
                 if (sps != nullptr && sps->buff != nullptr) {
                     MEDIA_LOGD("get sps from dispatcher.");
-#ifdef TEST_WRITE_FILE
-                    outFile_->write(sps->buff->Peek(), sps->buff->Size());
-                    outFile_->flush();
-#endif
                     ProcessVideoData(sps->buff->Peek(), sps->buff->Size());
                 }
                 auto pps = bufferReceiver_->GetPPS();
                 if (pps != nullptr && pps->buff != nullptr) {
                     MEDIA_LOGD("get pps from dispatcher.");
-#ifdef TEST_WRITE_FILE
-                    outFile_->write(pps->buff->Peek(), pps->buff->Size());
-                    outFile_->flush();
-#endif
                     ProcessVideoData(pps->buff->Peek(), pps->buff->Size());
                 }
             }
             MEDIA_LOGD("process video data, size: %{public}d, keyFrame: %{public}d.", outData->buff->Size(),
                        outData->keyFrame);
-#ifdef TEST_WRITE_FILE
-            outFile_->write(outData->buff->Peek(), outData->buff->Size());
-            outFile_->flush();
-#endif
             ProcessVideoData(outData->buff->Peek(), outData->buff->Size());
         }
     }
@@ -370,7 +335,7 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
         // TODO: fix this
         // .format = PIXEL_FMT_RGBA_8888,
         // .usage = HBM_USE_CPU_READ | HBM_USE_CPU_WRITE | HBM_USE_MEM_DMA,
-        .format = GRAPHIC_PIXEL_FMT_RGBA_8888,
+        .format = GRAPHIC_PIXEL_FMT_YCRCB_420_SP,
         .usage = BUFFER_USAGE_CPU_READ | BUFFER_USAGE_CPU_WRITE | BUFFER_USAGE_MEM_DMA,
         .timeout = 0,
     };
@@ -391,11 +356,8 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
         SHARING_LOGD("first frame.");
     }
 
-    // SHARING_LOGD("Render before  YUV copy.");
-    // uint32_t uvbase = renderWidth * renderHeight;
-    // NV21ToARGB((const uint8_t *)decodedData->Peek(), renderWidth,
-    //                    (const uint8_t *)(decodedData->Peek() + uvbase), renderWidth, (uint8_t *)bufferVirAddr,
-    //                    renderWidth * 4, renderWidth, renderHeight);
+    uint32_t dataSize = renderWidth * renderHeight * 3 / 2;
+    memcpy_s(bufferVirAddr, dataSize, decodedData->Peek(), dataSize);
 
     if (bufferVirAddr == nullptr) {
         SHARING_LOGD("bufferVirAddr is nullptr.");

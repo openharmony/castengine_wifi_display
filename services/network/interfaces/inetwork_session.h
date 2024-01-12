@@ -31,8 +31,8 @@ public:
     virtual bool Start() = 0;
     virtual void Shutdown() = 0;
     virtual SocketInfo::Ptr GetSocketInfo() = 0;
-    virtual bool Send(const DataBuffer::Ptr &buf, int32_t nSize) = 0;
     virtual bool Send(const char *buf, int32_t nSize) = 0;
+    virtual bool Send(const DataBuffer::Ptr &buf, int32_t nSize) = 0;
     virtual std::shared_ptr<INetworkSessionCallback> &GetCallback() = 0;
     virtual void RegisterCallback(std::shared_ptr<INetworkSessionCallback> callback) = 0;
 };

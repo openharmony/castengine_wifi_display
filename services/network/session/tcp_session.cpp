@@ -84,7 +84,9 @@ void TcpSession::Shutdown()
 {
     SHARING_LOGD("trace.");
     if (socket_) {
-        eventListener_->RemoveFdListener(socket_->GetPeerFd());
+        if (eventListener_) {
+            eventListener_->RemoveFdListener(socket_->GetPeerFd());
+        }
         SocketUtils::ShutDownSocket(socket_->GetPeerFd());
         SocketUtils::CloseSocket(socket_->GetPeerFd());
         socket_.reset();

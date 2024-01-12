@@ -230,7 +230,7 @@ int32_t Interaction::CreateAgent(uint32_t &contextId, uint32_t &agentId, AgentTy
 int32_t Interaction::DestroyAgent(uint32_t contextId, uint32_t agentId)
 {
     SHARING_LOGD("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
-    auto contextMsg = std::make_shared<ContextEventMsg>();
+    auto contextMsg = std::make_shared<AgentEventMsg>();
     contextMsg->type = EventType::EVENT_CONTEXT_AGENT_DESTROY;
     contextMsg->toMgr = ModuleType::MODULE_CONTEXT;
     contextMsg->dstId = contextId;

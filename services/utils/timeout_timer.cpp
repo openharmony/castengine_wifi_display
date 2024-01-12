@@ -23,7 +23,7 @@
 namespace OHOS {
 namespace Sharing {
 
-#define STOP_TIMER_TIMEOUT 2
+#define TIMER_TIMEOUT 2
 TimeoutTimer::TimeoutTimer(std::string info)
 {
     SHARING_LOGD("trace.");
@@ -33,20 +33,31 @@ TimeoutTimer::TimeoutTimer(std::string info)
 
 TimeoutTimer::~TimeoutTimer()
 {
-    SHARING_LOGD("trace.");
-    state_ = State::EXITED;
-    taskSignal_.notify_all();
-    cancelSignal_.notify_all();
+    SHARING_LOGD("dtor in %{public}d.", state_);
+    {
+        std::unique_lock<std::mutex> taskLock(taskMutex_);
+        if (state_ == State::WAITING) {
+            state_ = State::EXITED;
+            taskSignal_.notify_all();
+        } else if (state_ == State::WORKING) {
+            state_ = State::EXITED;
+            cancelSignal_.notify_all();
+        } else {
+            state_ = State::EXITED;
+        }
+    }
+
+    SHARING_LOGD("thread join %{public}d.", state_);
     if (thread_->joinable()) {
         thread_->join();
     }
-    thread_->join();
+    SHARING_LOGD("dtor out %{public}d.", state_);
 }
 
 void TimeoutTimer::StartTimer(int timeout, std::string info, std::function<void()> callback, bool reuse)
 {
     SHARING_LOGD("add timeout timer (%{public}s).", info.c_str());
-    std::lock_guard<std::mutex> lock(operateMutex_);
+    std::lock_guard<std::mutex> lock(taskMutex_);
     reuse_ = reuse;
     timeout_ = timeout;
     if (state_ == State::WORKING) {
@@ -55,25 +66,26 @@ void TimeoutTimer::StartTimer(int timeout, std::string info, std::function<void(
         cancelSignal_.notify_all();
 
         std::unique_lock<std::mutex> waitLock(waitMutex_);
-        waitSignal_.wait(waitLock);
+        waitSignal_.wait_for(waitLock, std::chrono::milliseconds(TIMER_TIMEOUT));
     }
     taskName_ = std::move(info);
     if (callback) {
         callback_ = std::move(callback);
     }
     taskSignal_.notify_all();
+    SHARING_LOGD("start timeout timer (%{public}s) leave.", info.c_str());
 }
 
 void TimeoutTimer::StopTimer()
 {
     SHARING_LOGD("cancel timeout timer (%{public}s).", taskName_.c_str());
-    std::lock_guard<std::mutex> lock(operateMutex_);
+    std::lock_guard<std::mutex> lock(taskMutex_);
 
     if (state_ == State::WORKING) {
         state_ = State::CANCELLED;
         cancelSignal_.notify_all();
         std::unique_lock<std::mutex> waitLock(waitMutex_);
-        waitSignal_.wait_for(waitLock, std::chrono::milliseconds(STOP_TIMER_TIMEOUT));
+        waitSignal_.wait_for(waitLock, std::chrono::milliseconds(TIMER_TIMEOUT));
     }
     SHARING_LOGD("cancel timeout timer (%{public}s) leave.", taskName_.c_str());
 }
@@ -83,6 +95,10 @@ void TimeoutTimer::MainLoop()
     SHARING_LOGD("trace.");
     while (state_ != State::EXITED) {
         std::unique_lock<std::mutex> taskLock(taskMutex_);
+        if (state_ == State::EXITED) {
+            break;
+        }
+
         state_ = State::WAITING;
         waitSignal_.notify_all();
         if (!reuse_) {
@@ -93,10 +109,9 @@ void TimeoutTimer::MainLoop()
             break;
         }
 
-        std::unique_lock<std::mutex> cancelLock(cancelMutex_);
         state_ = State::WORKING;
         SHARING_LOGI("start timeout timer(%{public}s).", taskName_.c_str());
-        cancelSignal_.wait_for(cancelLock, std::chrono::seconds(timeout_));
+        cancelSignal_.wait_for(taskLock, std::chrono::seconds(timeout_));
         if (state_ == State::WORKING && callback_) {
             SHARING_LOGI("invoke timeout timer(%{public}s) callback.", taskName_.c_str());
             callback_();

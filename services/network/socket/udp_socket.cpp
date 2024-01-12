@@ -71,11 +71,6 @@ bool UdpSocket::Connect(const std::string &peerIp, uint16_t peerPort, int32_t &r
     if (!SocketUtils::CreateSocket(SOCK_DGRAM, fd)) {
         return false;
     }
-    if (!localIp.empty() && !SocketUtils::BindSocket(fd, localIp, localPort)) {
-        SocketUtils::ShutDownSocket(fd);
-        SHARING_LOGE("bind BindSocket Failed!");
-        return false;
-    }
     socketLocalFd_ = fd;
 
     if (enableReuse) {

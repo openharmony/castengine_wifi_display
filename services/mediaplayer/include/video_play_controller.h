@@ -22,10 +22,6 @@
 #include "common/event_comm.h"
 #include "common/sharing_log.h"
 
-
-#ifdef TEST_WRITE_FILE
-#include <fstream>
-#endif
 namespace OHOS {
 namespace Sharing {
 
@@ -100,11 +96,6 @@ private:
     std::shared_ptr<VideoSinkDecoder> videoSinkDecoder_ = nullptr;
 
     VideoTrack videoTrack_;
-#ifdef TEST_WRITE_FILE
-    FILE *fp_ = nullptr;
-    uint8_t *argbBuffer_ = nullptr;
-    std::unique_ptr<std::ofstream> outFile_ = nullptr;
-#endif
 };
 
 } // namespace Sharing
