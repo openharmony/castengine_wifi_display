@@ -63,12 +63,14 @@ bool TcpClient::Connect(const std::string &peerIp, uint16_t peerPort, const std:
             return ret;
         } else {
             std::unique_lock<std::shared_mutex> lk(mutex_);
-            if (socket_ != nullptr) {
+            if (eventListener_) {
                 eventListener_->RemoveFdListener(socket_->GetLocalFd());
-                SocketUtils::ShutDownSocket(socket_->GetLocalFd());
-                SocketUtils::CloseSocket(socket_->GetLocalFd());
-                socket_.reset();
+            } else {
+                SHARING_LOGE("eventListener is nullptr.");
             }
+            SocketUtils::ShutDownSocket(socket_->GetLocalFd());
+            SocketUtils::CloseSocket(socket_->GetLocalFd());
+            socket_.reset();
         }
     }
     SHARING_LOGE("[TcpClient] Connect failed!");

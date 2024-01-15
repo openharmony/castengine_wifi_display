@@ -64,13 +64,17 @@ void TcpServer::Stop()
     SHARING_LOGD("trace.");
     std::unique_lock<std::shared_mutex> lk(mutex_);
     if (socket_ != nullptr) {
-        eventListener_->RemoveFdListener(socket_->GetLocalFd());
+        if (eventListener_) {
+            eventListener_->RemoveFdListener(socket_->GetLocalFd());
+        }
         SocketUtils::ShutDownSocket(socket_->GetLocalFd());
         SocketUtils::CloseSocket(socket_->GetLocalFd());
         for (auto it = sessions_.begin(); it != sessions_.end(); it++) {
             SHARING_LOGD("closeClientSocket:erase fd: %{public}d,size: %{public}zu.", it->first, sessions_.size());
-            it->second->Shutdown();
-            it->second.reset();
+            if (it->second) {
+                it->second->Shutdown();
+                it->second.reset();
+            }
         }
         sessions_.clear();
         socket_.reset();
@@ -112,11 +116,6 @@ void TcpServer::OnServerReadable(int32_t fd)
             SHARING_LOGE("onReadable accept client error!");
             return;
         }
-        std::string strLocalAddr = "";
-        std::string strRemoteAddr = "";
-        uint16_t localPort = 0;
-        uint16_t remotePort = 0;
-        SocketUtils::GetIpPortInfo(clientFd, strLocalAddr, strRemoteAddr, localPort, remotePort);
         SocketUtils::SetNonBlocking(clientFd);
         SocketUtils::SetNoDelay(clientFd, true);
         SocketUtils::SetSendBuf(clientFd);
@@ -124,15 +123,13 @@ void TcpServer::OnServerReadable(int32_t fd)
         SocketUtils::SetCloseWait(clientFd);
         SocketUtils::SetCloExec(clientFd, true);
         SocketUtils::SetKeepAlive(clientFd);
-        SHARING_LOGD(
-            "onReadable accept client fd: %{public}d localaddr %{public}s remoteaddr %{public}s localport %{public}d remoteport %{public}d.",
-            clientFd, strLocalAddr.c_str(), strRemoteAddr.c_str(), localPort, remotePort);
+        SHARING_LOGD("onReadable accept client fd: %{public}d.", clientFd);
         if (socket_) {
             socket_->socketPeerFd_ = clientFd;
 
-            SocketInfo::Ptr socketInfo =
-                std::make_shared<SocketInfo>(strLocalAddr, inet_ntoa(clientAddr.sin_addr), socket_->GetLocalFd(),
-                                             clientFd, socket_->GetLocalPort(), clientAddr.sin_port);
+            SocketInfo::Ptr socketInfo = std::make_shared<SocketInfo>(
+                socket_->GetLocalIp(), inet_ntoa(clientAddr.sin_addr), socket_->GetLocalFd(), clientFd,
+                socket_->GetLocalPort(), clientAddr.sin_port);
             if (socketInfo) {
                 socketInfo->SetSocketType(SOCKET_TYPE_TCP);
                 BaseNetworkSession::Ptr session = std::make_shared<TcpSession>(std::move(socketInfo));

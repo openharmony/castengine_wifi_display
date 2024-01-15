@@ -32,9 +32,9 @@ public:
 
     bool Start() override;
     void Shutdown() override;
-    bool Send(const DataBuffer::Ptr &buf, int32_t nSize) override;
     void OnSessionReadble(int32_t fd) override;
     bool Send(const char *buf, int32_t nSize) override;
+    bool Send(const DataBuffer::Ptr &buf, int32_t nSize) override;
 };
 } // namespace Sharing
 } // namespace OHOS

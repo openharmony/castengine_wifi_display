@@ -72,7 +72,7 @@ bool TcpSocket::Connect(const std::string &peerIp, uint16_t peerPort, int32_t &r
     SHARING_LOGD("trace.");
     int32_t fd = -1;
     if (!SocketUtils::CreateSocket(SOCK_STREAM, fd)) {
-        SHARING_LOGE("connect Failed!");
+        SHARING_LOGE("create socket failed!");
         return false;
     }
 
@@ -87,27 +87,17 @@ bool TcpSocket::Connect(const std::string &peerIp, uint16_t peerPort, int32_t &r
     SocketUtils::SetCloseWait(fd);
     SocketUtils::SetCloExec(fd, true);
     SocketUtils::SetKeepAlive(fd);
+    SocketUtils::SetNonBlocking(fd, isAsync);
 
     int32_t value = 0xD0;
     setsockopt(fd, IPPROTO_IP, IP_TOS, &value, sizeof(value));
 
-    if (!SocketUtils::BindSocket(fd, localIp, localPort)) {
-        SHARING_LOGE("connect BindSocket Failed!");
-        SocketUtils::ShutDownSocket(fd);
-        return false;
-    }
-
     if (!SocketUtils::ConnectSocket(fd, isAsync, peerIp, peerPort, retCode)) {
-        SHARING_LOGE("connect ConnectSocket Failed!");
-        if (retCode != 0) {
-            if (!SocketUtils::ConnectSocket(fd, isAsync, peerIp, peerPort, retCode)) {
-                SHARING_LOGE("reconnect ConnectSocket Failed!");
-                SocketUtils::ShutDownSocket(fd);
-                return false;
-            }
-        }
+        SHARING_LOGE("connect socket failed, ip: %{public}s, port: %{public}d.", peerIp.c_str(), peerPort);
+        return false;
+    } else {
+        SHARING_LOGI("connect socket success, ip: %{public}s, port: %{public}d.", peerIp.c_str(), peerPort);
     }
-    SocketUtils::SetNonBlocking(fd, isAsync);
 
     localIp_ = localIp;
     localPort_ = localPort;
