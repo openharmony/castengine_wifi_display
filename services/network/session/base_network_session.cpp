@@ -85,7 +85,7 @@ void BaseSessionEventListener::OnWritable(int32_t fd)
     auto session = session_.lock();
     if (session) {
         auto callback = session->GetCallback();
-        if (callback != nullptr) {
+        if (callback) {
             callback->OnSessionWriteable(fd);
         }
     }
@@ -97,7 +97,7 @@ void BaseSessionEventListener::OnShutdown(int32_t fd)
     auto session = session_.lock();
     if (session) {
         auto callback = session->GetCallback();
-        if (callback != nullptr) {
+        if (callback) {
             callback->OnSessionClose(fd);
         }
     }
@@ -109,7 +109,7 @@ void BaseSessionEventListener::OnException(int32_t fd)
     auto session = session_.lock();
     if (session) {
         auto callback = session->GetCallback();
-        if (callback != nullptr) {
+        if (callback) {
             callback->OnSessionException(fd);
         }
     }

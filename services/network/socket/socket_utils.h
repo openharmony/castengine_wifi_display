@@ -30,7 +30,8 @@ public:
     static bool CreateSocket(int32_t socketType, int32_t &fd);
     static bool CreateTcpServer(const char *ip, unsigned port, int32_t &fd);
     static bool CreateTcpClient(const char *ip, unsigned port, int32_t &fd, int32_t &ret);
-
+    
+    static bool CheckAsyncConnect(int32_t fd);
     static bool ListenSocket(int32_t fd, uint32_t backlog = MAX_BACKLOG_NUM);
     static bool BindSocket(int32_t fd, const std::string &host, uint16_t port);
     static bool ConnectSocket(int32_t fd, bool isAsync, const std::string &ip, uint16_t port, int32_t &ret);

@@ -61,15 +61,6 @@
         ]
     },
     "application": {
-        "sharingChat": [
-            // defined in videochat_def.h
-            {
-                "tag": "videoCapture",
-                "defaultCameraIndex": 0,
-                "videoFormat": 4,
-                "audioFormat":2
-            }
-        ],
         "sharingWfd": [
             // defined in wfd_def.h
             {
@@ -81,12 +72,6 @@
             {
                 "tag": "ctrlport",
                 "defaultWfdCtrlport": 7236
-            }
-        ],
-        "sharingPlayer": [
-            {
-                "tag": "abilityLimit",
-                "rtspPlayerMaximum": 2
             }
         ]
     }
