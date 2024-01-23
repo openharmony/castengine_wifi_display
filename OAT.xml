@@ -59,20 +59,21 @@ Note:If the text contains special characters, please escape them according to th
         <licensefile></licensefile>
         <policylist>
             <policy name="projectPolicy" desc="">
-                <policyitem type="copyright" name="Shenzhen Kaihong Digital Industry Development Co., Ltd." path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc=""/>
+                <policyitem type="copyright" name="Shenzhen Kaihong Digital Industry Development Co., Ltd." path=".*" rule="may" desc=""/>
+                <policyitem type="license" name="Apache-2.0" path=".*" desc="Apache License"/>
             </policy>
         </policylist>
         <filefilterlist>
-            <filefilter name="copyrightPolicyFilter" desc="Files not to check">
+            <filefilter name="defaultFilter" desc="Files not to check">
                 <filteritem type="filepath" name="tests/.*" desc="test files."/>
-                <filteritem type="filepath" name="extend/.*" desc="other files."/>
+                <filteritem type="filepath" name="services/extend/.*" desc="other files."/>
             </filefilter>
             <filefilter name="binaryFileTypePolicyFilter" desc="Filters for binary file policies" >
                 <filteritem type="filepath" name="figures/.*" desc="architecture figure binary."/>
                 <filteritem type="filepath" name="tests/.*" desc="test files."/>
             </filefilter>
             <filefilter name="readmeFileNamePolicyFilter" desc="Filters for README file policies" >
-                <filteritem type="filepath" name="*.md" desc="Describe the reason for filtering scan results"/>
+                <filteritem type="filename" name="*.md" desc="Describe the reason for filtering scan results"/>
             </filefilter>
         </filefilterlist>
     </oatconfig>
