@@ -42,7 +42,7 @@ private:
     uint64_t screenId_ = 0;
     MediaType captureType_ = MEDIA_TYPE_AV;
     AudioFormat audioFormat_ = AUDIO_8000_8_1;
-    VideoFormat videoFormat_ = VIDEO_1920x1080_30;
+    VideoFormat videoFormat_ = VIDEO_1920X1080_30;
 };
 
 } // namespace Sharing

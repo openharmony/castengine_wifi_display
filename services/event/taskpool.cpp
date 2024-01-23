@@ -40,7 +40,7 @@ int32_t TaskPool::Start(int32_t threadsNum)
 
     if (threadsNum <= 0) {
         SHARING_LOGE("threadNum is illegal, %{public}d.", threadsNum);
-        return -2;
+        return -1;
     }
 
     isRunning_ = true;

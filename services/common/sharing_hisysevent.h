@@ -32,7 +32,7 @@ enum HisyseventErrorCode {
 };
 
 enum FrameworkModules {
-    InteractionManager,
+    INTERACTIONMANAGER,
     INTERACTION,
     AGENT,
     SCENE,

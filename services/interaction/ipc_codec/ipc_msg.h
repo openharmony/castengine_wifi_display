@@ -23,18 +23,16 @@ namespace OHOS {
 namespace Sharing {
 
 struct BaseMsg {
-
     virtual int32_t GetMsgId()
     {
         return 0;
     }
-    
+
     BaseMsg() = default;
     virtual ~BaseMsg() = default;
 };
 
 struct BaseDomainMsg : public BaseMsg {
-
     int32_t GetMsgId() override
     {
         return 1;

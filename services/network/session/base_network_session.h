@@ -27,10 +27,10 @@ class BaseNetworkSession;
 
 class BaseSessionEventListener : public EventDescriptorListener {
 public:
-    virtual void OnReadable(int32_t fd) override;
-    virtual void OnWritable(int32_t fd) override;
-    virtual void OnShutdown(int32_t fd) override;
-    virtual void OnException(int32_t fd) override;
+    void OnReadable(int32_t fd) override;
+    void OnWritable(int32_t fd) override;
+    void OnShutdown(int32_t fd) override;
+    void OnException(int32_t fd) override;
 
     virtual std::weak_ptr<BaseNetworkSession> &GetSession()
     {
@@ -67,7 +67,7 @@ public:
         session_ = session;
     }
 
-    virtual void ProcessEvent(const OHOS::AppExecFwk::InnerEvent::Pointer &event) override {}
+    void ProcessEvent(const OHOS::AppExecFwk::InnerEvent::Pointer &event) override {}
 
 protected:
     std::weak_ptr<BaseNetworkSession> session_;

@@ -30,10 +30,10 @@ public:
     virtual ~EventDescriptorListener();
 
     virtual void OnClose(int32_t fd);
-    virtual void OnReadable(int32_t fd) override;
-    virtual void OnWritable(int32_t fd) override;
-    virtual void OnShutdown(int32_t fd) override;
-    virtual void OnException(int32_t fd) override;
+    void OnReadable(int32_t fd) override;
+    void OnWritable(int32_t fd) override;
+    void OnShutdown(int32_t fd) override;
+    void OnException(int32_t fd) override;
 
     void RemoveFdListener(int32_t fd, const std::shared_ptr<OHOS::AppExecFwk::EventHandler> &handler = nullptr);
     bool AddFdListener(int32_t fd, const std::shared_ptr<FileDescriptorListener> &listener,

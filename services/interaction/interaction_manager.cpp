@@ -185,7 +185,7 @@ int32_t InteractionManager::OnDomainMsg(std::shared_ptr<BaseDomainMsg> msg)
             if (interactionId != 0) {
                 break;
             }
-            usleep(300 * 1000);
+            usleep(300000); // 300000:us
         }
 
         Interaction::Ptr interaction = GetInteraction(interactionId);

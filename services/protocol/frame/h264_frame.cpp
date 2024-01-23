@@ -20,17 +20,17 @@ namespace OHOS {
 namespace Sharing {
 size_t PrefixSize(const char *ptr, size_t len)
 {
-    if (len < 4) {
+    if (len < 4) { // 4:byte offset
         return 0;
     }
     if (ptr[0] != 0x00 || ptr[1] != 0x00) {
         return 0;
     }
-    if (ptr[2] == 0x00 && ptr[3] == 0x01) {
-        return 4;
+    if (ptr[2] == 0x00 && ptr[3] == 0x01) { // 2:byte offset, 3:byte offset
+        return 4;                           // 4:prefix size
     }
-    if (ptr[2] == 0x01) {
-        return 3;
+    if (ptr[2] == 0x01) { // 2:byte offset
+        return 3;         // 3:prefix size
     }
 
     return 0;
@@ -60,9 +60,9 @@ void SplitH264(const char *ptr, size_t len, size_t prefix, const std::function<v
         if (nextStart) {
             if (*(nextStart - 1) == 0x00) {
                 nextStart -= 1;
-                nextPrefix = 4;
+                nextPrefix = 4; // 4:prefix size
             } else {
-                nextPrefix = 3;
+                nextPrefix = 3; // 3:prefix size
             }
 
             cb(start - prefix, nextStart - start + prefix, prefix);

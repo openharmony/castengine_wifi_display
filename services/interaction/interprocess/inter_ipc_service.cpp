@@ -66,7 +66,6 @@ void InterIpcService::OnStart()
         InteractionManager::GetInstance().Init();
         ContextManager::GetInstance().Init();
         ChannelManager::GetInstance().Init();
-    //    RecordProcessIdByKvStore();
     } else {
         SHARING_LOGD("failed.");
     }

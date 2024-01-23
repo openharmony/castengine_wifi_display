@@ -15,8 +15,8 @@
 
 #ifndef OHOS_SHARING_RTSP_URI_H
 #define OHOS_SHARING_RTSP_URI_H
-#include <assert.h>
-#include <stdint.h>
+
+#include <cstdint>
 namespace OHOS {
 namespace Sharing {
 
@@ -33,25 +33,26 @@ class Base64 {
 public:
     static uint32_t Encode(const char *text, uint32_t text_len, uint8_t *encode)
     {
-        uint32_t i, j;
-        for (i = 0, j = 0; i + 3 <= text_len; i += 3) {
-            encode[j++] = alphabetMap[text[i] >> 2];
-            encode[j++] = alphabetMap[((text[i] << 4) & 0x30) | (text[i + 1] >> 4)];
-            encode[j++] = alphabetMap[((text[i + 1] << 2) & 0x3c) | (text[i + 2] >> 6)];
-            encode[j++] = alphabetMap[text[i + 2] & 0x3f];
+        uint32_t i = 0;
+        uint32_t j = 0;
+        for (i = 0, j = 0; i + 3 <= text_len; i += 3) { // 3: read offset
+            encode[j++] = alphabetMap[text[i] >> 2]; // 2: map to alphabetMap
+            encode[j++] = alphabetMap[((text[i] << 4) & 0x30) | (text[i + 1] >> 4)];  // 4: map to alphabetMap
+            encode[j++] = alphabetMap[((text[i + 1] << 2) & 0x3c) | (text[i + 2] >> 6)]; // 2: alphabetMap, 6: offset
+            encode[j++] = alphabetMap[text[i + 2] & 0x3f]; // 2: map to alphabetMap
         }
 
         if (i < text_len) {
             uint32_t tail = text_len - i;
             if (tail == 1) {
-                encode[j++] = alphabetMap[text[i] >> 2];
-                encode[j++] = alphabetMap[(text[i] << 4) & 0x30];
+                encode[j++] = alphabetMap[text[i] >> 2]; // 2: map to alphabetMap
+                encode[j++] = alphabetMap[(text[i] << 4) & 0x30]; // 4: map to alphabetMap
                 encode[j++] = '=';
                 encode[j++] = '=';
             } else {
-                encode[j++] = alphabetMap[text[i] >> 2];
-                encode[j++] = alphabetMap[((text[i] << 4) & 0x30) | (text[i + 1] >> 4)];
-                encode[j++] = alphabetMap[(text[i + 1] << 2) & 0x3c];
+                encode[j++] = alphabetMap[text[i] >> 2]; // 2: map to alphabetMap
+                encode[j++] = alphabetMap[((text[i] << 4) & 0x30) | (text[i + 1] >> 4)]; // 4: map to alphabetMap
+                encode[j++] = alphabetMap[(text[i + 1] << 2) & 0x3c]; // 2: map to alphabetMap
                 encode[j++] = '=';
             }
         }
@@ -61,27 +62,32 @@ public:
 
     static uint32_t Decode(const char *code, uint32_t code_len, uint8_t *plain)
     {
-        assert((code_len & 0x03) == 0);
+        if ((code_len & 0x03) != 0) {
+            return 0;
+        }
 
-        uint32_t i, j = 0;
+        uint32_t i;
+        uint32_t j = 0;
         uint8_t quad[4];
-        for (i = 0; i < code_len; i += 4) {
-            for (uint32_t k = 0; k < 4; k++) {
+        for (i = 0; i < code_len; i += 4) { // 4: read offset
+            for (uint32_t k = 0; k < 4; k++) { // 4: read offset
                 quad[k] = reverseMap[(int32_t)code[i + k]];
             }
 
-            assert(quad[0] < 64 && quad[1] < 64);
-
-            plain[j++] = (quad[0] << 2) | (quad[1] >> 4);
-
-            if (quad[2] >= 64) {
+            if (quad[0] > 63 && quad[1] > 63) { // 63: limit
                 break;
-            } else if (quad[3] >= 64) {
-                plain[j++] = (quad[1] << 4) | (quad[2] >> 2);
+            }
+
+            plain[j++] = (quad[0] << 2) | (quad[1] >> 4); // 2: fix offset, 4: fix offset
+
+            if (quad[2] >= 64) { // 2: fix offset, 64: limit
+                break;
+            } else if (quad[3] >= 64) { // 3: fix offset, 64: limit
+                plain[j++] = (quad[1] << 4) | (quad[2] >> 2); // 2: fix offset, 4: fix offset
                 break;
             } else {
-                plain[j++] = (quad[1] << 4) | (quad[2] >> 2);
-                plain[j++] = (quad[2] << 6) | quad[3];
+                plain[j++] = (quad[1] << 4) | (quad[2] >> 2); // 2: fix offset, 4: fix offset
+                plain[j++] = (quad[2] << 6) | quad[3]; // 6: fix offset, 4: fix offset, 2: fix offset, 3: fix offset
             }
         }
 

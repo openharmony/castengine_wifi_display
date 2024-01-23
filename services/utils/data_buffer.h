@@ -28,7 +28,7 @@ public:
     using Ptr = std::shared_ptr<DataBuffer>;
 
     DataBuffer() = default;
-    DataBuffer(int32_t size);
+    explicit DataBuffer(int32_t size);
 
     DataBuffer(const DataBuffer &other) noexcept;
     DataBuffer &operator=(const DataBuffer &other) noexcept;

@@ -26,7 +26,7 @@
 #include "common/identifier.h"
 #include "common/media_log.h"
 #include "media_channel_def.h"
-#include "utils/circular_buffer.hpp"
+#include "utils/circular_buffer.h"
 #include "utils/data_buffer.h"
 #include "utils/timeout_timer.h"
 
@@ -225,9 +225,9 @@ public:
     };
 
 public:
-    BufferDispatcher(uint32_t maxCapacity = MAX_BUFFER_CAPACITY,
+    explicit BufferDispatcher(uint32_t maxCapacity = MAX_BUFFER_CAPACITY,
                      uint32_t capacityIncrement = BUFFER_CAPACITY_INCREMENT);
-    virtual ~BufferDispatcher();
+    ~BufferDispatcher() override;
 
     inline uint32_t GetDispatcherId() override
     {

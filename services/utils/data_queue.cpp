@@ -29,8 +29,6 @@ template <class T>
 DataQueue<T>::~DataQueue()
 {
     Quit();
-    while (queue_.size())
-        ;
 }
 
 template <class T>

@@ -66,14 +66,14 @@ RtspError RtspResponse::Parse(const std::string &response)
 {
     std::vector<std::string> firstLine;
     auto result = RtspCommon::ParseMessage(response, firstLine, tokens_, body_);
-    if (result.code != RtspErrorType::OK || firstLine.size() < 2 || tokens_.empty()) {
+    if (result.code != RtspErrorType::OK || firstLine.size() < 2 || tokens_.empty()) { // 2:rstp line
         tokens_.clear();
         body_.clear();
         return {RtspErrorType::INVALID_MESSAGE, "invalid message"};
     }
 
     // "RTSP/1.0 200 OK"
-    if (firstLine.size() < 3 || firstLine[0] != RTSP_VERSION) {
+    if (firstLine.size() < 3 || firstLine[0] != RTSP_VERSION) { // 3:rstp line
         tokens_.clear();
         body_.clear();
         return {RtspErrorType::INVALID_MESSAGE, "invalid message"};
@@ -82,7 +82,7 @@ RtspError RtspResponse::Parse(const std::string &response)
     status_ = atoi(firstLine[1].c_str());
 
     if (tokens_.find(RTSP_TOKEN_CSEQ) != tokens_.end()) {
-        cSeq_ = (int32_t)strtol(tokens_.at(RTSP_TOKEN_CSEQ).c_str(), nullptr, 10);
+        cSeq_ = (int32_t)strtol(tokens_.at(RTSP_TOKEN_CSEQ).c_str(), nullptr, 10); // 10:unit
     }
 
     if (tokens_.find(RTSP_TOKEN_DATE) != tokens_.end()) {
@@ -94,12 +94,10 @@ RtspError RtspResponse::Parse(const std::string &response)
         auto si = session_.find(';');
         if (si != std::string::npos) {
             std::string to = session_.substr(si + 1);
-            if (!to.empty()) {
-                auto ti = to.find('=');
-                if (ti != std::string::npos) {
-                    auto timeoutStr = to.substr(ti + 1);
-                    timeout_ = atoi(timeoutStr.c_str());
-                }
+            auto ti = to.find('=');
+            if (ti != std::string::npos) {
+                auto timeoutStr = to.substr(ti + 1);
+                timeout_ = atoi(timeoutStr.c_str());
             }
 
             session_ = session_.substr(0, si);
@@ -113,11 +111,11 @@ RtspError RtspResponse::Parse(const std::string &response)
             if (separator != std::string::npos) {
                 auto key = item.substr(0, separator);
                 if (key == "Digest realm") {
-                    auto value = item.substr(separator + 2);
+                    auto value = item.substr(separator + 2); // 2:fixed size
                     value.pop_back();
                     digestRealm_ = value;
                 } else if (key == "nonce") {
-                    auto value = item.substr(separator + 2);
+                    auto value = item.substr(separator + 2); // 2:fixed size
                     value.pop_back();
                     nonce_ = value;
                 }
@@ -125,7 +123,7 @@ RtspError RtspResponse::Parse(const std::string &response)
         }
     }
 
-    if (result.info.size() > 2 && result.info.back() == '$') {
+    if (result.info.size() > 2 && result.info.back() == '$') { // 2:fixed size
         return result;
     }
 

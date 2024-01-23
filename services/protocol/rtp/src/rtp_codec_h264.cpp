@@ -14,6 +14,7 @@
  */
 
 #include "rtp_codec_h264.h"
+#include <securec.h>
 #include "common/common_macro.h"
 #include "common/media_log.h"
 #include "frame/h264_frame.h"
@@ -55,16 +56,14 @@ void RtpDecoderH264::InputRtp(const RtpPacket::Ptr &rtp)
                length, stamp, seq, nal);
 
     switch (nal) {
-        case 24:
-            // 24 STAP-A Single-time aggregation packet 5.7.1
+        case 24: // 24:STAP-A Single-time aggregation packet 5.7.1
             UnpackStapA(rtp, frame + 1, length - 1, stamp);
             break;
-        case 28:
-            // 28 FU-A Fragmentation unit
+        case 28: // 28:FU-A Fragmentation unit
             UnpackFuA(rtp, frame, length, stamp, seq);
             break;
         default: {
-            if (nal < 24) {
+            if (nal < 24) { // 24:STAP-A Single-time aggregation packet
                 // Single NAL Unit Packets
                 UnpackSingle(rtp, frame, length, stamp);
                 break;
@@ -89,7 +88,7 @@ bool RtpDecoderH264::UnpackSingle(const RtpPacket::Ptr &rtp, const uint8_t *ptr,
 {
     RETURN_FALSE_IF_NULL(frame_);
     MEDIA_LOGD("rtpDecoderH264::UnpackSingle.");
-    frame_->Assign("\x00\x00\x00\x01", 4);
+    frame_->Assign("\x00\x00\x00\x01", 4); // 4:avc start code size
     frame_->Append((char *)ptr, size);
     frame_->pts_ = stamp;
     auto key = frame_->KeyFrame();
@@ -103,13 +102,13 @@ bool RtpDecoderH264::UnpackStapA(const RtpPacket::Ptr &rtp, const uint8_t *ptr, 
 
     auto haveKeyFrame = false;
     auto end = ptr + size;
-    while (ptr + 2 < end) {
-        uint16_t len = (ptr[0] << 8) | ptr[1];
+    while (ptr + 2 < end) {                    // 2:fixed size
+        uint16_t len = (ptr[0] << 8) | ptr[1]; // 8:byte offset
         if (!len || ptr + len > end) {
             gopDropped_ = true;
             break;
         }
-        ptr += 2;
+        ptr += 2; // 2:fixed size
         if (UnpackSingle(rtp, ptr, len, stamp)) {
             haveKeyFrame = true;
         }
@@ -126,7 +125,7 @@ bool RtpDecoderH264::UnpackFuA(const RtpPacket::Ptr &rtp, const uint8_t *ptr, ss
     auto nalSuffix = *ptr & (~0x1F);
     FuFlags *fu = (FuFlags *)(ptr + 1);
     if (fu->startBit_) {
-        frame_->Assign("\x00\x00\x00\x01", 4);
+        frame_->Assign("\x00\x00\x00\x01", 4); // 4:avc start code size
         uint8_t flag = nalSuffix | fu->nalType_;
         frame_->Append(&flag, 1);
         frame_->pts_ = stamp;
@@ -143,7 +142,7 @@ bool RtpDecoderH264::UnpackFuA(const RtpPacket::Ptr &rtp, const uint8_t *ptr, ss
         return false;
     }
 
-    frame_->Append((char *)ptr + 2, size - 2);
+    frame_->Append((char *)ptr + 2, size - 2); // 2:fixed size
 
     if (!fu->endBit_) {
         return fu->startBit_ ? frame_->KeyFrame() : false;
@@ -158,7 +157,7 @@ bool RtpDecoderH264::UnpackFuA(const RtpPacket::Ptr &rtp, const uint8_t *ptr, ss
 H264Frame::Ptr RtpDecoderH264::ObtainFrame()
 {
     auto frame = std::make_shared<H264Frame>();
-    frame->prefixSize_ = 4;
+    frame->prefixSize_ = 4; // 4:fixed size
     return frame;
 }
 
@@ -177,7 +176,8 @@ void RtpDecoderH264::OutputFrame(const RtpPacket::Ptr &rtp, const H264Frame::Ptr
 }
 
 RtpEncoderH264::RtpEncoderH264(uint32_t ssrc, uint32_t mtuSize, uint32_t sampleRate, uint8_t payloadType, uint16_t seq)
-    : RtpMaker(ssrc, mtuSize, payloadType, sampleRate, seq) {}
+    : RtpMaker(ssrc, mtuSize, payloadType, sampleRate, seq)
+{}
 
 RtpEncoderH264::~RtpEncoderH264() {}
 
@@ -241,13 +241,13 @@ void RtpEncoderH264::PackRtp(const uint8_t *data, size_t len, uint32_t pts, bool
 void RtpEncoderH264::PackRtpFu(const uint8_t *data, size_t len, uint32_t pts, bool isMark, bool gopPos)
 {
     RETURN_IF_NULL(data);
-    auto packetSize = GetMaxSize() - 2;
+    auto packetSize = GetMaxSize() - 2; // 2:fixed size
     if (len <= packetSize + 1) {
         PackRtpStapA(data, len, pts, isMark, gopPos);
         return;
     }
 
-    auto fuChar0 = (data[0] & (~0x1F)) | 28;
+    auto fuChar0 = (data[0] & (~0x1F)) | 28; // 28:fixed size
     auto fuChar1 = H264_TYPE(data[0]);
     FuFlags *fuFlags = (FuFlags *)(&fuChar1);
     fuFlags->startBit_ = 1;
@@ -260,7 +260,7 @@ void RtpEncoderH264::PackRtpFu(const uint8_t *data, size_t len, uint32_t pts, bo
             fuFlags->endBit_ = 1;
         }
 
-        auto rtp = MakeRtp(nullptr, packetSize + 2, fuFlags->endBit_ && isMark, pts);
+        auto rtp = MakeRtp(nullptr, packetSize + 2, fuFlags->endBit_ && isMark, pts); // 2:fixed size
 
         uint8_t *payload = rtp->GetPayload();
 
@@ -268,7 +268,10 @@ void RtpEncoderH264::PackRtpFu(const uint8_t *data, size_t len, uint32_t pts, bo
 
         payload[1] = fuChar1;
 
-        memcpy(payload + 2, (uint8_t *)data + offset, packetSize);
+        auto ret = memcpy_s(payload + 2, packetSize, (uint8_t *)data + offset, packetSize); // 2:fixed size
+        if (ret != EOK) {
+            return;
+        }
 
         offset += packetSize;
         fuFlags->startBit_ = 0;
@@ -279,13 +282,16 @@ void RtpEncoderH264::PackRtpFu(const uint8_t *data, size_t len, uint32_t pts, bo
 void RtpEncoderH264::PackRtpStapA(const uint8_t *data, size_t len, uint32_t pts, bool isMark, bool gopPos)
 {
     RETURN_IF_NULL(data);
-    auto rtp = MakeRtp(nullptr, len + 3, isMark, pts);
+    auto rtp = MakeRtp(nullptr, len + 3, isMark, pts); // 3:fixed size
     uint8_t *payload = rtp->GetPayload();
     // STAP-A
-    payload[0] = (data[0] & (~0x1F)) | 24;
-    payload[1] = (len >> 8) & 0xFF;
-    payload[2] = len & 0xff;
-    memcpy(payload + 3, (uint8_t *)data, len);
+    payload[0] = (data[0] & (~0x1F)) | 24;                       // 24:fixed size
+    payload[1] = (len >> 8) & 0xFF;                              // 8:byte offset
+    payload[2] = len & 0xff;                                     // 2:byte offset
+    auto ret = memcpy_s(payload + 3, len, (uint8_t *)data, len); // 3:fixed size
+    if (ret != EOK) {
+        return;
+    }
 
     onRtpPack_(rtp);
 }

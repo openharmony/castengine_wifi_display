@@ -17,7 +17,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <stdio.h>
+#include <cstdio>
 #include "common/sharing_log.h"
 
 namespace OHOS {
@@ -79,23 +79,23 @@ void WfdRtspM3Response::SetVideoFormats(VideoFormat format)
     uint32_t hhResolutionIndex = 0;
 
     switch (format) {
-        case VIDEO_1920x1080_30:
+        case VIDEO_1920X1080_30:
             native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1920_1080_P30 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1920_1080_P30);
             break;
-        case VIDEO_1920x1080_25:
+        case VIDEO_1920X1080_25:
             native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1920_1080_P25 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1920_1080_P25);
             break;
-        case VIDEO_1280x720_30:
+        case VIDEO_1280X720_30:
             native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1280_720_P30 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1280_720_P30);
             break;
-        case VIDEO_1280x720_25:
+        case VIDEO_1280X720_25:
             native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1280_720_P25 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1280_720_P25);
             break;
-        case VIDEO_640x480_60:
+        case VIDEO_640X480_60:
         default:
             native =
                 (uint8_t)WfdResolutionType::RESOLUTION_CEA | (WfdCeaResolution::CEA_640_480_P60 << BIT_OFFSET_THREE);
@@ -229,19 +229,19 @@ VideoFormat WfdRtspM3Response::GetVideoFormatsByCea(int index)
     WfdCeaResolution res = static_cast<WfdCeaResolution>(index);
     switch (res) {
         case CEA_640_480_P60:
-            return VIDEO_640x480_60;
+            return VIDEO_640X480_60;
         case CEA_1280_720_P30:
-            return VIDEO_1280x720_30;
+            return VIDEO_1280X720_30;
         case CEA_1280_720_P60:
-            return VIDEO_1280x720_60;
+            return VIDEO_1280X720_60;
         case CEA_1920_1080_P25:
-            return VIDEO_1920x1080_25;
+            return VIDEO_1920X1080_25;
         case CEA_1920_1080_P30:
-            return VIDEO_1920x1080_30;
+            return VIDEO_1920X1080_30;
         case CEA_1920_1080_P60:
-            return VIDEO_1920x1080_60;
+            return VIDEO_1920X1080_60;
         default:
-            return VIDEO_640x480_60;
+            return VIDEO_640X480_60;
     }
 }
 
@@ -279,10 +279,10 @@ VideoFormat WfdRtspM3Response::GetVideoFormats()
      **/
     std::string value = GetCustomParam(WFD_PARAM_VIDEO_FORMATS);
     if (value.size() < MINIMAL_VIDEO_FORMAT_SIZE) {
-        return VIDEO_640x480_60;
+        return VIDEO_640X480_60;
     }
 
-    std::string head = value.substr(0, 5);
+    std::string head = value.substr(0, 5); // 5: fix offset
     uint16_t native = 0;
     uint16_t preferredDisplayMode = 0;
     int index = 0;
@@ -290,14 +290,13 @@ VideoFormat WfdRtspM3Response::GetVideoFormats()
     bool run = true;
     std::stringstream ss(head);
     ss >> std::hex >> native >> std::hex >> preferredDisplayMode;
-    value = value.substr(5);
+    value = value.substr(5); // 5: fix offset
 
     while (run) {
         auto nPos = value.find_first_of(",", index + 1);
         if (nPos != std::string::npos) {
             index = nPos;
             temp = value.substr(0, index);
-
         } else {
             temp = value.substr(index + 1);
             run = false;
@@ -320,9 +319,9 @@ VideoFormat WfdRtspM3Response::GetVideoFormats()
         case 0:
             return GetVideoFormatsByCea(index);
         default:
-            return VIDEO_640x480_60;
+            return VIDEO_640X480_60;
     }
-    return VIDEO_640x480_60;
+    return VIDEO_640X480_60;
 }
 
 std::string WfdRtspM3Response::GetStandbyResumeCapability()
@@ -394,37 +393,30 @@ void WfdRtspM4Request::SetVideoFormats(const WfdVideoFormatsInfo &wfdVideoFormat
     (void)h264Level;
 
     switch (format) {
-        case VIDEO_1920x1080_60:
-        case VIDEO_1920x1080_30:
+        case VIDEO_1920X1080_60:
+        case VIDEO_1920X1080_30:
             native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1920_1080_P30 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1920_1080_P30);
             break;
-        case VIDEO_1920x1080_25:
+        case VIDEO_1920X1080_25:
             native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1920_1080_P25 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1920_1080_P25);
             break;
-        case VIDEO_1280x720_30:
+        case VIDEO_1280X720_30:
             native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1280_720_P30 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1280_720_P30);
             break;
-        case VIDEO_1280x720_25:
+        case VIDEO_1280X720_25:
             native = (uint8_t)WfdResolutionType::RESOLUTION_CEA | (CEA_1280_720_P25 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_1280_720_P25);
             break;
-        case VIDEO_640x480_60:
+        case VIDEO_640X480_60:
         default:
             native =
                 (uint8_t)WfdResolutionType::RESOLUTION_CEA | (WfdCeaResolution::CEA_640_480_P60 << BIT_OFFSET_THREE);
             ceaResolutionIndex = (1 << CEA_640_480_P60);
             break;
     }
-    // 00 00 30 30 00000001 00000000 00000000 00 0000 0000 00 none none
-    // 40 00 02 10 00000100 00000000 00000000 00 0000 0000 00 none none
-    // ss << WFD_PARAM_VIDEO_FORMATS << ":" << RTSP_SP
-    //    << "40 00 02 10 00000100 00000000 00000000 00 0000 0000 00 none none";
-
-    // ss << WFD_PARAM_VIDEO_FORMATS << ":" << RTSP_SP
-    //    << "38 00 01 10 00000080 00000000 00000000 00 0000 0000 00 none none";
 
     ss << WFD_PARAM_VIDEO_FORMATS << ":" << RTSP_SP;
     ss << std::setfill('0') << std::setw(BIT_OFFSET_TWO) << std::hex << native << RTSP_SP << "00" << RTSP_SP;
@@ -478,7 +470,7 @@ int32_t WfdRtspM4Request::GetRtpPort()
 {
     auto ports = GetParameterValue(WFD_PARAM_RTP_PORTS);
     auto resVec = RtspCommon::Split(ports, " ");
-    if (resVec.size() > 2) {
+    if (resVec.size() > 2) { // 2: fix offset
         return atoi(resVec[1].c_str());
     }
 

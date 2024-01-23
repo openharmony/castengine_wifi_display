@@ -18,6 +18,7 @@
 #include <arpa/inet.h>
 #include <iostream>
 #include <unistd.h>
+#include <securec.h>
 #include "common/media_log.h"
 #include "network/session/udp_session.h"
 #include "network/socket/socket_utils.h"
@@ -185,11 +186,9 @@ std::shared_ptr<BaseNetworkSession> UdpServer::FindOrCreateSession(const struct 
     MEDIA_LOGD("trace.");
 
     auto it = std::find_if(addrToFdMap_.begin(), addrToFdMap_.end(),
-                           [&addr](std::pair<std::shared_ptr<struct sockaddr_in>, int32_t> value) {
-                               return value.first->sin_addr.s_addr == addr.sin_addr.s_addr &&
-                                      value.first->sin_port == addr.sin_port;
-                           });
-
+        [&addr](std::pair<std::shared_ptr<struct sockaddr_in>, int32_t> value) {
+            return value.first->sin_addr.s_addr == addr.sin_addr.s_addr && value.first->sin_port == addr.sin_port;
+            });
     if (it != addrToFdMap_.end()) {
         MEDIA_LOGD("find session.");
         return sessionMap_[it->second];
@@ -205,14 +204,22 @@ std::shared_ptr<BaseNetworkSession> UdpServer::FindOrCreateSession(const struct 
         SocketInfo::Ptr socketInfo =
             std::make_shared<SocketInfo>(socket_->GetLocalIp(), inet_ntoa(addr.sin_addr), socket_->GetLocalFd(), peerFd,
                                          socket_->GetLocalPort(), addr.sin_port);
-        memcpy(&socketInfo->udpClientAddr_, &addr, sizeof(struct sockaddr_in));
+        auto ret = memcpy_s(&socketInfo->udpClientAddr_, sizeof(struct sockaddr_in), &addr, sizeof(struct sockaddr_in));
+        if (ret != EOK) {
+            MEDIA_LOGE("mem copy data failed.");
+            return nullptr;
+        }
         socketInfo->SetSocketType(SOCKET_TYPE_UDP);
 
         if (socketInfo) {
             BaseNetworkSession::Ptr session = std::make_shared<UdpSession>(std::move(socketInfo));
             if (session) {
                 auto peerAddr = std::make_shared<struct sockaddr_in>();
-                memcpy(peerAddr.get(), &addr, sizeof(struct sockaddr_in));
+                auto ret = memcpy_s(peerAddr.get(), sizeof(struct sockaddr_in), &addr, sizeof(struct sockaddr_in));
+                if (ret != EOK) {
+                    MEDIA_LOGE("mem copy data failed.");
+                    return nullptr;
+                }
                 addrToFdMap_.insert(make_pair(peerAddr, peerFd));
                 sessionMap_.insert(make_pair(peerFd, std::move(session)));
                 auto callback = callback_.lock();

@@ -71,7 +71,7 @@ HWTEST_F(WfdSinkUnitTest, wfd_sink_SetMediaFormat_0100, TestSize.Level0)
 {
     CodecAttr videoAttr;
     videoAttr.codecType = CodecId::CODEC_H264;
-    videoAttr.formatId = VideoFormat::VIDEO_1920x1080_30;
+    videoAttr.formatId = VideoFormat::VIDEO_1920X1080_30;
     CodecAttr audioAttr;
     audioAttr.codecType = CodecId::CODEC_AAC;
     audioAttr.formatId = AudioFormat::AUDIO_48000_16_2;

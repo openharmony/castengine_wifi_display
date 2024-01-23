@@ -16,26 +16,22 @@
 #ifndef OHOS_SHARING_AUDIO_AAC_CODEC_H
 #define OHOS_SHARING_AUDIO_AAC_CODEC_H
 
-#include <stdint.h>
+#include <cstdint>
 #include <string.h>
 #include "audio_decoder.h"
 #include "audio_encoder.h"
-// #include "libAACdec/include/aacdecoder_lib.h"
-// #include "libAACenc/include/aacenc_lib.h"
 #include "media_frame_pipeline.h"
 
 constexpr uint8_t numberOfLayers = 1;
 constexpr uint8_t minChannelCount = 1;
 constexpr uint8_t maxChannelCount = 8;
 constexpr uint32_t maxConfigurationSize = 1024;
-// constexpr uint32_t maxOutBufferSize = 2048 * maxChannelCount * sizeof(INT_PCM);
 
 namespace OHOS {
 namespace Sharing {
 
 class AudioAACDecoder : public AudioDecoder {
 public:
-    // AudioAACDecoder(TRANSPORT_TYPE type = TT_MP4_ADTS);
     AudioAACDecoder();
     ~AudioAACDecoder();
 
@@ -52,14 +48,10 @@ private:
     uint32_t channels_ = 2;
     uint32_t concealMethod_ = 2;
     uint32_t sampleRate_ = 48000;
-
-    // TRANSPORT_TYPE type_;
-    // HANDLE_AACDECODER aacDecoderHandle_ = nullptr;
 };
 
 class AudioAACEncoder : public AudioEncoder {
 public:
-    // AudioAACEncoder(TRANSPORT_TYPE type = TT_MP4_ADTS);
     AudioAACEncoder();
     ~AudioAACEncoder();
 
@@ -74,9 +66,6 @@ private:
     uint32_t flags_ = 0;
     uint32_t channels_ = 1;
     uint32_t sampleRate_ = 48000;
-
-    // TRANSPORT_TYPE type_ = TT_MP4_ADTS;
-    // HANDLE_AACENCODER aacEncoderHandle = nullptr;
 };
 
 } // namespace Sharing

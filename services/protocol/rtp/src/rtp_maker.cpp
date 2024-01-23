@@ -15,6 +15,7 @@
 
 #include "rtp_maker.h"
 #include <arpa/inet.h>
+#include <securec.h>
 
 namespace OHOS {
 namespace Sharing {
@@ -54,13 +55,16 @@ RtpPacket::Ptr RtpMaker::MakeRtp(const void *data, size_t len, bool mark, uint32
     header->pt_ = pt_;
     header->seq_ = htons(seq_);
     ++seq_;
-    header->stamp_ = htonl(uint64_t(stamp) * (sampleRate_ / 1000));
+    header->stamp_ = htonl(uint64_t(stamp) * (sampleRate_ / 1000)); // 1000:unit
     header->ssrc_ = htonl(ssrc_);
 
     if (data) {
         auto rtpData = rtp->Data();
 
-        memcpy(rtpData + RtpPacket::RTP_HEADER_SIZE, data, len);
+        auto ret = memcpy_s(rtpData + RtpPacket::RTP_HEADER_SIZE, len, data, len);
+        if (ret != EOK) {
+            return nullptr;
+        }
     }
 
     return rtp;

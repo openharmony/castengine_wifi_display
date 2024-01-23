@@ -16,24 +16,20 @@
 #include "crypto.h"
 #include <iomanip>
 #include <sstream>
-// #include "openssl/md5.h"     // TODO: fix this
 
 namespace OHOS {
 namespace Sharing {
 
 std::string GetMD5(const std::string &src)
 {
-    int MD5_DIGEST_LENGTH = 4; // TODO: fix this
-    unsigned char MD5Hash[MD5_DIGEST_LENGTH];
+    int md5DigestLength = 4;
+    unsigned char MD5Hash[md5DigestLength];
     std::string MD5Digest;
     std::string tmp;
     std::stringstream ss;
 
-    // TODO: fix this
-    // MD5((const unsigned char *)src.c_str(), src.size(), MD5Hash);
-
-    for (int32_t i = 0; i < MD5_DIGEST_LENGTH; ++i) {
-        ss << std::hex << std::setw(2) << std::setfill('0') << (int32_t)MD5Hash[i] << std::endl;
+    for (int32_t i = 0; i < md5DigestLength; ++i) {
+        ss << std::hex << std::setw(2) << std::setfill('0') << (int32_t)MD5Hash[i] << std::endl; // 2: fix offset
         ss >> tmp;
         MD5Digest += tmp;
     }

@@ -27,7 +27,7 @@ class TcpSessionEventHandler : public BaseSessionEventHandler {};
 
 class TcpSession final : public BaseNetworkSession {
 public:
-    ~TcpSession();
+    ~TcpSession() override;
     explicit TcpSession(SocketInfo::Ptr socket);
 
     bool Start() override;

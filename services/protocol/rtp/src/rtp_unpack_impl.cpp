@@ -37,14 +37,13 @@ void RtpUnpackImpl::ParseRtp(const char *data, size_t len)
     auto decoder = rtpDecoder_[pt];
 
     if (!decoder) {
-        if (rtpDecoder_.size() > 2) {
+        if (rtpDecoder_.size() > 2) { // 2:fixed size
             return;
         }
         switch (pt) {
-            // mpeg-2 ts
-            case 33: {
+            case 33: { // 33:mpeg-2 ts code
                 // todo judge ps/ts
-                CreateRtpDecoder(RtpPlaylodParam{pt, 90000, RtpPayloadStream::MPEG2_TS});
+                CreateRtpDecoder(RtpPlaylodParam{pt, 90000, RtpPayloadStream::MPEG2_TS}); // 90000:audio clock cycle
                 break;
             }
             default:

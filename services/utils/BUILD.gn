@@ -44,7 +44,10 @@ ohos_static_library("sharing_utils") {
     "//third_party/openssl:libcrypto_shared",
     "//third_party/openssl:libssl_shared",
   ]
-  external_deps = [ "hilog:libhilog" ]
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
   part_name = "sharing_framework"
   subsystem_name = "castplus"
 }

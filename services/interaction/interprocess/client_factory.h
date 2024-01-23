@@ -27,7 +27,8 @@ class ClientFactory : public DelayedRefSingleton<ClientFactory> {
 public:
     virtual ~ClientFactory();
     
-    std::shared_ptr<InterIpcClient> CreateClient(std::string key, std::string clientClassName, std::string serverClassName);
+    std::shared_ptr<InterIpcClient> CreateClient(std::string key,
+        std::string clientClassName, std::string serverClassName);
 
 private:
     ClientFactory();

@@ -16,7 +16,6 @@
 #ifndef OHOS_SHARING_RTSP_URI_H
 #define OHOS_SHARING_RTSP_URI_H
 
-#include <cassert>
 #include <iostream>
 #include <regex>
 #include <string>
@@ -43,24 +42,25 @@ public:
         if (!std::regex_search(url, sm, match)) {
             return false;
         }
-        assert(sm.size() == 7);
-        username_ = sm[2].str();
-        password_ = sm[3].str();
-        host_ = sm[4].str();
-        int32_t port = std::atoi(sm[6].str().c_str());
+        if (sm.size() != 7) { // 7:fixed size
+            return false;
+        }
+        username_ = sm[2].str();                       // 2:matching position
+        password_ = sm[3].str();                       // 3:matching position
+        host_ = sm[4].str();                           // 4:matching position
+        int32_t port = std::atoi(sm[6].str().c_str()); // 6:matching position
         if (port > 0) {
             port_ = port;
         }
         path_ = sm.suffix().str();
-
         if (username_.empty() && path_.find("?username") != std::string::npos) {
             auto ui = path_.find("?username");
             auto pi = path_.find("&password");
             if (pi != std::string::npos) {
-                username_ = path_.substr(ui + 10, pi - ui - 10);
-                password_ = path_.substr(pi + 10);
+                username_ = path_.substr(ui + 10, pi - ui - 10); // 10:matching position
+                password_ = path_.substr(pi + 10);               // 10:matching position
             } else {
-                username_ = path_.substr(ui + 10);
+                username_ = path_.substr(ui + 10); // 10:matching position
             }
             path_ = path_.substr(0, path_.find('?'));
         }
@@ -87,7 +87,7 @@ public:
     {
         return username_;
     }
-    
+
     std::string GetPassword() const
     {
         return password_;

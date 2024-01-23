@@ -39,7 +39,6 @@ bool TcpClient::Connect(const std::string &peerIp, uint16_t peerPort, const std:
 
     int32_t retCode = 0;
     socket_ = std::make_unique<TcpSocket>();
-
     if (socket_) {
         if (socket_->Connect(peerIp, peerPort, retCode, true, true, localIp, localPort)) {
             SHARING_LOGD("connect success.");

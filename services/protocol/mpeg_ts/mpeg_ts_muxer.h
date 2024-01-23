@@ -27,7 +27,7 @@ public:
     using Ptr = std::shared_ptr<MpegTsMuxer>;
 
     MpegTsMuxer();
-    ~MpegTsMuxer();
+    ~MpegTsMuxer() override;
 
     void InputFrame(const Frame::Ptr &frame) override;
     void SetOnMux(const OnMux &cb) override;

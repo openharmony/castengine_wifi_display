@@ -56,6 +56,7 @@ ohos_shared_library("sharing_network") {
   configs = [ "$SHARING_ROOT_DIR/tests:coverage_flags" ]
 
   external_deps = [
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
   ]

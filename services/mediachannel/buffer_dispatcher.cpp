@@ -16,7 +16,7 @@
 #include "buffer_dispatcher.h"
 #include <cmath>
 #include <cstdarg>
-#include <stdint.h>
+#include <cstdint>
 #include "media_channel_def.h"
 namespace OHOS {
 namespace Sharing {
@@ -685,7 +685,7 @@ int32_t BufferDispatcher::AttachReceiver(BufferReceiver::Ptr receiver)
 
     auto usableRef = ~readRefFlag_ & (-(~readRefFlag_));
 
-    if ((usableRef & usableRef - 1) != 0) {
+    if ((usableRef & (usableRef - 1)) != 0) {
         SHARING_LOGE("usableRef: %{public}d invalid.", usableRef);
         return -1;
     }
@@ -793,7 +793,7 @@ void BufferDispatcher::SetBufferDispatcherListener(BufferDispatcherListener::Ptr
 {
     SHARING_LOGD("trace.");
     listener_ = listener;
-    writingTimer_->StartTimer(WRITING_TIMTOUT, "waiting for continuous data inputs",[this]() {
+    writingTimer_->StartTimer(WRITING_TIMTOUT, "waiting for continuous data inputs", [this]() {
         if (!writing_) {
             SHARING_LOGI("writing timeout");
             auto listener = listener_.lock();
@@ -879,7 +879,8 @@ int32_t BufferDispatcher::ReadBufferData(uint32_t receiverId, MediaType type,
     }
 
     MEDIA_LOGD(
-        "Current data readed, Recvid:%{public}d, remain %{public}zu data, readIndex: %{public}u, readtype: %{public}d, diff: %{public}zu.",
+        "Current data readed, Recvid:%{public}d, remain %{public}zu data, readIndex: %{public}u, "
+        "readtype: %{public}d, diff: %{public}zu.",
         receiverId, circularBuffer_.size(), readIndex, int32_t(type), circularBuffer_.size() - readIndex);
     UpdateReceiverReadIndex(receiverId, readIndex, type);
     return 0;
@@ -914,7 +915,9 @@ int32_t BufferDispatcher::InputData(const MediaData::Ptr &data)
     }
 
     MEDIA_LOGD(
-        "dispatcherId: %{public}u, after InputData, current circularBuffer_ size: %{public}zu, idleVideoBuffer_ size: %{public}zu, idle_audioBuffer_ size: %{public}zu, keyFrame: %{public}s, data size: %{public}d, adataCount:%{public}d.",
+        "dispatcherId: %{public}u, after InputData, current circularBuffer_ size: %{public}zu, "
+        "idleVideoBuffer_ size: %{public}zu, idle_audioBuffer_ size: %{public}zu, "
+        "keyFrame: %{public}s, data size: %{public}d, adataCount:%{public}d.",
         GetDispatcherId(), circularBuffer_.size(), idleVideoBuffer_.size(), idleAudioBuffer_.size(),
         data->keyFrame ? "true" : "false", data->buff->Size(), audioFrameCnt_);
     return 0;
@@ -963,16 +966,16 @@ int32_t BufferDispatcher::WriteDataIntoBuffer(const DataSpec::Ptr &data)
         for (int32_t i = 0; i < popSize; i++) {
             if (HeadFrameNeedReserve()) {
                 MEDIA_LOGW(
-                    "dispatcherId: %{public}u, need reserve but pop, mediaType: %{public}d, keyFrame: %{public}s, pts: %{public}" PRIu64
-                    ".",
+                    "dispatcherId: %{public}u, need reserve but pop, mediaType: "
+                    "%{public}d, keyFrame: %{public}s, pts: %{public}" PRIu64".",
                     GetDispatcherId(), int32_t(circularBuffer_.front()->mediaData->mediaType),
                     circularBuffer_.front()->mediaData->keyFrame ? "true" : "false",
                     circularBuffer_.front()->mediaData->pts);
             }
 
             MEDIA_LOGW(
-                "dispatcherId: %{public}u, delete data, mediaType: %{public}d, keyFrame: %{public}s, pts: %{public}" PRIu64
-                ", reserveFlag: %{public}x.",
+                "dispatcherId: %{public}u, delete data, mediaType: %{public}d, keyFrame: "
+                "%{public}s, pts: %{public}" PRIu64", reserveFlag: %{public}x.",
                 GetDispatcherId(), int32_t(circularBuffer_.front()->mediaData->mediaType),
                 circularBuffer_.front()->mediaData->keyFrame ? "true" : "false",
                 circularBuffer_.front()->mediaData->pts, circularBuffer_.front()->reserveFlag.load());
@@ -982,7 +985,7 @@ int32_t BufferDispatcher::WriteDataIntoBuffer(const DataSpec::Ptr &data)
         }
 
         baseBufferCapacity_ = INITIAL_BUFFER_CAPACITY;
-        doubleBufferCapacity_ = INITIAL_BUFFER_CAPACITY * 2;
+        doubleBufferCapacity_ = INITIAL_BUFFER_CAPACITY * 2; //2 : increasement
         SHARING_LOGD("BufferDispatcher buffer Extended to %{public}d  NORMALSIZE.", baseBufferCapacity_);
         circularBuffer_.set_capacity(baseBufferCapacity_);
     }
@@ -1008,15 +1011,15 @@ int32_t BufferDispatcher::WriteDataIntoBuffer(const DataSpec::Ptr &data)
             DataSpec::Ptr retBuff = circularBuffer_.front();
             if (HeadFrameNeedReserve()) {
                 MEDIA_LOGW(
-                    "dispatcherId: %{public}u, need reserve but pop, mediaType: %{public}d, keyFrame: %{public}s, pts: %{public}" PRIu64
-                    ".",
+                    "dispatcherId: %{public}u, need reserve but pop, mediaType: "
+                    "%{public}d, keyFrame: %{public}s, pts: %{public}" PRIu64".",
                     GetDispatcherId(), int32_t(retBuff->mediaData->mediaType),
                     retBuff->mediaData->keyFrame ? "true" : "false", retBuff->mediaData->pts);
             }
 
             MEDIA_LOGW(
-                "dispatcherId: %{public}u, delete data, mediaType: %{public}d, keyFrame: %{public}s, pts: %{public}" PRIu64
-                ", reserveFlag: %{public}x.",
+                "dispatcherId: %{public}u, delete data, mediaType: %{public}d, "
+                "keyFrame: %{public}s, pts: %{public}" PRIu64", reserveFlag: %{public}x.",
                 GetDispatcherId(), int32_t(circularBuffer_.front()->mediaData->mediaType),
                 circularBuffer_.front()->mediaData->keyFrame ? "true" : "false",
                 circularBuffer_.front()->mediaData->pts, circularBuffer_.front()->reserveFlag.load());
@@ -1031,8 +1034,8 @@ int32_t BufferDispatcher::WriteDataIntoBuffer(const DataSpec::Ptr &data)
     data->reserveFlag = 0;
     MEDIA_LOGD("WriteDataIntoBuffer data type: %{public}d, keyFrame: %{public}s, pts: %{public}" PRIu64
                ", cur_size: %{public}zu, capacity: %{public}zu dispatcher[%{public}u].",
-               int32_t(data->mediaData->mediaType), data->mediaData->keyFrame ? "true" : "false", data->mediaData->pts,
-               circularBuffer_.size(), circularBuffer_.capacity(), GetDispatcherId());
+               int32_t(data->mediaData->mediaType), data->mediaData->keyFrame ? "true" : "false",
+               data->mediaData->pts, circularBuffer_.size(), circularBuffer_.capacity(), GetDispatcherId());
     circularBuffer_.push_back(data);
     if (IsAudioData(data)) {
         lastAudioIndex_ = circularBuffer_.size() - 1;
@@ -1128,11 +1131,11 @@ void BufferDispatcher::DeleteHeadDatas(uint32_t size, bool forceDelete)
         MEDIA_LOGD("BufferDispatcher pop out headtype  %{public}d.", retBuff->mediaData->mediaType);
         retBuff->mediaData->mediaType == MEDIA_TYPE_AUDIO ? audioFrameCnt_-- : videoFrameCnt_--;
         if (HeadFrameNeedReserve()) {
-            MEDIA_LOGW(
-                "dispatcherId: %{public}u, need reserve but pop, mediaType: %{public}d, keyFrame: %{public}s, pts: %{public}" PRIu64
-                ".",
-                GetDispatcherId(), int32_t(retBuff->mediaData->mediaType),
-                retBuff->mediaData->keyFrame ? "true" : "false", retBuff->mediaData->pts);
+            MEDIA_LOGW("dispatcherId: %{public}u, need reserve but pop, mediaType: "
+                 "%{public}d, keyFrame: %{public}s, pts: %{public}" PRIu64 ".",
+                 GetDispatcherId(), int32_t(retBuff->mediaData->mediaType),
+                 retBuff->mediaData->keyFrame ? "true" : "false",
+                 retBuff->mediaData->pts);
         }
 
         MEDIA_LOGW(
@@ -1296,7 +1299,6 @@ uint32_t BufferDispatcher::FindNextIndex(uint32_t index, MediaType type, uint32_
                     }
                     return i;
                 }
-
             } else {
                 return i;
             }
@@ -1406,7 +1408,7 @@ void BufferDispatcher::ReCalculateCapacity(bool keyFrame)
         uint32_t tmpSize = circularBuffer_.capacity() + bufferCapacityIncrement_ < maxBufferCapacity_
                                ? circularBuffer_.capacity() + bufferCapacityIncrement_
                                : maxBufferCapacity_;
-        doubleBufferCapacity_ = tmpSize * 2 < maxBufferCapacity_ ? tmpSize * 2 : maxBufferCapacity_;
+        doubleBufferCapacity_ = tmpSize * 2 < maxBufferCapacity_ ? tmpSize * 2 : maxBufferCapacity_; // 2: increasement
         SHARING_LOGD("BufferDispatcher buffer Extended to %{public}d in adaptive capacity calculating.", tmpSize);
         SetBufferCapacity(tmpSize);
         return;
@@ -1419,8 +1421,9 @@ void BufferDispatcher::ReCalculateCapacity(bool keyFrame)
         if (baseBufferCapacity_ < INITIAL_BUFFER_CAPACITY) {
             baseBufferCapacity_ = INITIAL_BUFFER_CAPACITY;
         }
-        doubleBufferCapacity_ =
-            baseBufferCapacity_ * 2 < maxBufferCapacity_ ? baseBufferCapacity_ * 2 : maxBufferCapacity_;
+        doubleBufferCapacity_ = baseBufferCapacity_ * 2 < maxBufferCapacity_ // 2: increasement
+                                ? baseBufferCapacity_ * 2 // 2: increasement
+                                : maxBufferCapacity_;
         gop_ = baseCounter_;
         capacityEvaluating_ = gop_ > 0 ? false : true;
         SetBufferCapacity(baseBufferCapacity_);
@@ -1443,12 +1446,14 @@ int32_t BufferDispatcher::NotifyThreadWorker(void *userParam)
 
         for (auto &[recvId, notifier] : dispatcher->notifiers_) {
             auto index = notifier->GetReadIndex();
-            if ((RECV_FLAG_BASE << (index * 2)) & notifyRef || ((RECV_FLAG_BASE << (index * 2 + 1)) & notifyRef)) {
+            if (((RECV_FLAG_BASE << (index * 2)) & notifyRef) || // 2: fix offset, get data type
+                ((RECV_FLAG_BASE << (index * 2 + 1)) & notifyRef)) { // 2: fix offset, get data type
                 MediaType notifyType;
                 if (notifier->IsMixedReceiver()) {
                     notifyType = MEDIA_TYPE_AV;
                 } else {
-                    notifyType = (((RECV_FLAG_BASE << (index * 2)) & notifyRef) ? MEDIA_TYPE_AUDIO : MEDIA_TYPE_VIDEO);
+                    notifyType = (((RECV_FLAG_BASE << (index * 2)) & notifyRef) ? // 2: fix offset, get data type
+                                    MEDIA_TYPE_AUDIO : MEDIA_TYPE_VIDEO); // 2: fix offset, get data type
                 }
                 MEDIA_LOGD("notify the receiveId: %{public}d, notifyType: %{public}d, notifyRef: %{public}x.", recvId,
                            notifyType, notifyRef);
@@ -1531,7 +1536,7 @@ void BufferDispatcher::ActiveDataRef(MediaType type, bool keyFrame)
     for (auto &[recvId, notifier] : notifiers_) {
         auto index = notifier->GetReadIndex();
         if (type == MEDIA_TYPE_AUDIO) {
-            bitRef |= RECV_FLAG_BASE << (index * 2);
+            bitRef |= RECV_FLAG_BASE << (index * 2); // 2: fix offset, get audio notifyer id
             continue;
         }
         bool keyModeReceiver = false;
@@ -1541,7 +1546,7 @@ void BufferDispatcher::ActiveDataRef(MediaType type, bool keyFrame)
         }
         if ((!keyModeReceiver || (keyModeReceiver && keyFrame))) {
             if (index != INVALID_INDEX) {
-                bitRef |= RECV_FLAG_BASE << (index * 2 + 1);
+                bitRef |= RECV_FLAG_BASE << (index * 2 + 1); // 2: fix offset, get video notifyer id
             }
         }
     }
@@ -1616,9 +1621,6 @@ void BufferDispatcher::SetReceiverReadRef(uint32_t receiverId, MediaType type, b
 uint32_t BufferDispatcher::GetReceiverDataRef(uint32_t receiverId)
 {
     SHARING_LOGD("trace.");
-    // TODO:: fix this
-    // uint32_t retBitRef = GetReceiverIndexRef(receiverId);
-    // retBitRef &= dataBitRef_;
     return 0;
 }
 

@@ -35,8 +35,8 @@ EventManager::~EventManager()
 int32_t EventManager::Init()
 {
     SHARING_LOGD("trace.");
-    SetMaxTaskNum(30);
-    SetTimeoutInterval(2000);
+    SetMaxTaskNum(30); // 30: thread numbers
+    SetTimeoutInterval(2000); // 2000: timeout
     return 0;
 }
 

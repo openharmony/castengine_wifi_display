@@ -57,7 +57,8 @@ struct WfdCommonRsp : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_COMMON_RSP };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    WfdCommonRsp() = default;
+    explicit WfdCommonRsp(const WfdCommonRsp &rReq) {};
     WfdCommonRsp &operator=(const WfdCommonRsp &rReq)
     {
         if (this != &rReq) {
@@ -74,7 +75,6 @@ struct WfdCommonRsp : public BaseMsg {
 
 struct WfdSinkStartReq : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_SINK_START_REQ };
-
     int32_t GetMsgId() final { return MSG_ID; }
 
     IPC_BIND_ATTR0
@@ -82,7 +82,6 @@ struct WfdSinkStartReq : public BaseMsg {
 
 struct WfdSinkStopReq : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_SINK_STOP_REQ };
-
     int32_t GetMsgId() final { return MSG_ID; }
 
     IPC_BIND_ATTR0
@@ -92,7 +91,8 @@ struct WfdAppendSurfaceReq : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_SET_SURFACE_REQ };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    WfdAppendSurfaceReq() = default;
+    explicit WfdAppendSurfaceReq(const WfdAppendSurfaceReq &rReq) {};
     WfdAppendSurfaceReq &operator=(const WfdAppendSurfaceReq &rReq)
     {
         if (this != &rReq) {
@@ -116,7 +116,8 @@ struct WfdRemoveSurfaceReq : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_DEL_SURFACE_REQ };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    WfdRemoveSurfaceReq() = default;
+    explicit WfdRemoveSurfaceReq(const WfdRemoveSurfaceReq &rReq) {};
     WfdRemoveSurfaceReq &operator=(const WfdRemoveSurfaceReq &rReq)
     {
         if (this != &rReq) {
@@ -144,7 +145,8 @@ struct SetMediaFormatReq : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_SET_MEDIA_FORMAT_REQ };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    SetMediaFormatReq() = default;
+    explicit SetMediaFormatReq(const SetMediaFormatReq &req) {};
     SetMediaFormatReq &operator=(const SetMediaFormatReq &rReq)
     {
         if (this != &rReq) {
@@ -167,7 +169,8 @@ struct WfdPlayReq : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_PLAY_REQ };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    WfdPlayReq() = default;
+    explicit WfdPlayReq(const WfdPlayReq &rReq) {};
     WfdPlayReq &operator=(const WfdPlayReq &rReq)
     {
         if (this != &rReq) {
@@ -186,7 +189,8 @@ struct WfdPauseReq : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_PAUSE_REQ };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    WfdPauseReq() = default;
+    explicit WfdPauseReq(const WfdPauseReq &rReq) {};
     WfdPauseReq &operator=(const WfdPauseReq &rReq)
     {
         if (this != &rReq) {
@@ -205,7 +209,8 @@ struct WfdCloseReq : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_CLOSE_REQ };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    WfdCloseReq() = default;
+    explicit WfdCloseReq(const WfdCloseReq &rReq) {};
     WfdCloseReq &operator=(const WfdCloseReq &rReq)
     {
         if (this != &rReq) {
@@ -224,7 +229,8 @@ struct SetSceneTypeReq : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_SET_SCENE_TYPE_REQ };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    SetSceneTypeReq() = default;
+    explicit SetSceneTypeReq(const SetSceneTypeReq &rReq) {};
     SetSceneTypeReq &operator=(const SetSceneTypeReq &rReq)
     {
         if (this != &rReq) {
@@ -248,7 +254,8 @@ struct MuteReq : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_MUTE_REQ };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    MuteReq() = default;
+    explicit MuteReq(const MuteReq &rReq) {};
     MuteReq &operator=(const MuteReq &rReq)
     {
         if (this != &rReq) {
@@ -267,7 +274,8 @@ struct UnMuteReq : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_UNMUTE_REQ };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    UnMuteReq() = default;
+    explicit UnMuteReq(const UnMuteReq &rReq) {};
     UnMuteReq &operator=(const UnMuteReq &rReq)
     {
         if (this != &rReq) {
@@ -294,7 +302,8 @@ struct GetSinkConfigRsp : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_GET_SINK_CONFIG_RSP };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    GetSinkConfigRsp() = default;
+    explicit GetSinkConfigRsp(const GetSinkConfigRsp &rReq) {};
     GetSinkConfigRsp &operator=(const GetSinkConfigRsp &rRsp)
     {
         if (this != &rRsp) {
@@ -384,7 +393,8 @@ struct WfdErrorMsg : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_ERROR_MSG };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    WfdErrorMsg() = default;
+    WfdErrorMsg(const WfdErrorMsg &rReq) {};
     WfdErrorMsg &operator=(const WfdErrorMsg &rReq)
     {
         if (this != &rReq) {
@@ -413,7 +423,8 @@ struct WfdConnectionChangedMsg : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_CONNECTION_CHANGED_MSG };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    WfdConnectionChangedMsg() = default;
+    explicit WfdConnectionChangedMsg(const WfdConnectionChangedMsg &rReq) {};
     WfdConnectionChangedMsg &operator=(const WfdConnectionChangedMsg &rReq)
     {
         if (this != &rReq) {
@@ -445,7 +456,8 @@ struct WfdDecoderAccelerationDoneMsg : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_DECODER_ACCELERATION_DONE };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    WfdDecoderAccelerationDoneMsg() = default;
+    explicit WfdDecoderAccelerationDoneMsg(const WfdDecoderAccelerationDoneMsg &rReq) {};
     WfdDecoderAccelerationDoneMsg &operator=(const WfdDecoderAccelerationDoneMsg &rReq)
     {
         if (this != &rReq) {
@@ -464,7 +476,8 @@ struct WfdSurfaceFailureMsg : public BaseMsg {
     enum { MSG_ID = WfdMsgId::WFD_SURFACE_FAILURE };
 
     int32_t GetMsgId() final { return MSG_ID; }
-
+    WfdSurfaceFailureMsg() = default;
+    explicit WfdSurfaceFailureMsg(const WfdSurfaceFailureMsg &rReq) {};
     WfdSurfaceFailureMsg &operator=(const WfdSurfaceFailureMsg &rReq)
     {
         if (this != &rReq) {

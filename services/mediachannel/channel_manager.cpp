@@ -111,7 +111,6 @@ int32_t ChannelManager::HandleEvent(SharingEvent &event)
             SHARING_LOGD("default.");
             uint32_t mediaChannelId = event.eventMsg->dstId;
             auto mediaChannel = GetMediaChannel(mediaChannelId);
-
             if (mediaChannel != nullptr) {
                 mediaChannel->HandleEvent(event);
             } else {

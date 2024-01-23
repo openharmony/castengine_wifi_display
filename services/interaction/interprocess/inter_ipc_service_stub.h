@@ -23,7 +23,7 @@ namespace Sharing {
 class InterIpcServiceStub : public InterIpcStub {
 public:
     InterIpcServiceStub();
-    virtual ~InterIpcServiceStub();
+    ~InterIpcServiceStub() override;
 
     void DelPeerProxy(std::string key) override;
     void CreateDeathListener(std::string key) override;

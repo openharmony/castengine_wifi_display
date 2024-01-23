@@ -30,13 +30,22 @@ public:
 
     circular_buffer() = default;
 
-    circular_buffer(int32_t capacity)
+    explicit circular_buffer(int32_t capacity)
     {
         if (capacity <= 0) {
             return;
         } else {
-            circular_buffer_.reverse(capacity);
             capacity_ = capacity;
+        }
+    }
+
+    explicit circular_buffer(circular_buffer& copy)
+    {
+        capacity_ = copy.capacity();
+        T *temp = copy.begin();
+        while (temp != copy.end()) {
+            circular_buffer_.push_back(*temp);
+            temp++;
         }
     }
 
@@ -125,7 +134,7 @@ public:
     T &back()
     {
         return circular_buffer_.back();
-    }    
+    }
 
     T &front()
     {
@@ -149,16 +158,16 @@ public:
 
     circular_buffer &operator=(circular_buffer &copy)
     {
-        if (this == &copy)
+        if (this == &copy) {
             return *this;
+        }
 
         clear();
         capacity_ = copy.capacity();
-        circular_buffer_.reserve(capacity_);
         T *temp = copy.begin();
         while (temp != copy.end()) {
             circular_buffer_.push_back(*temp);
-            temp ++;
+            temp++;
         }
     }
 };

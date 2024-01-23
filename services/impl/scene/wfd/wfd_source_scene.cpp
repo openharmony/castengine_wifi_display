@@ -148,6 +148,7 @@ void WfdSourceScene::WfdP2pCallback::OnP2pServicesChanged(const std::vector<Wifi
 
 void WfdSourceScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLinkedInfo &info)
 {
+    SHARING_LOGD("trace.");
     Wifi::P2pConnectedState state = info.GetConnectState();
     SHARING_LOGD("ConnectState: %{public}d.", state);
     if (state != Wifi::P2pConnectedState::P2P_CONNECTED) {
@@ -266,7 +267,7 @@ void WfdSourceScene::Initialize()
         int32_t videoFormat;
         values->GetValue<int32_t>(videoFormat);
         videoFormat_ = static_cast<VideoFormat>(videoFormat);
-        videoFormat_ = VideoFormat::VIDEO_1920x1080_25;
+        videoFormat_ = VideoFormat::VIDEO_1920X1080_25;
     }
 
     ret = Config::GetInstance().GetConfig("khSharingWfd", "mediaFormat", "audioCodec", values);
@@ -534,7 +535,7 @@ int32_t WfdSourceScene::CreateScreenCapture()
         startSessionMsg->dstId = contextId_;
         startSessionMsg->agentId = agentId_;
         startSessionMsg->screenId = screenId_;
-        videoFormat_ = VideoFormat::VIDEO_1920x1080_25;
+        videoFormat_ = VideoFormat::VIDEO_1920X1080_25;
 
         startSessionMsg->videoFormat = videoFormat_;
         startSessionMsg->audioFormat = audioFormat_;
