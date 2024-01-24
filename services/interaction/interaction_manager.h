@@ -48,7 +48,7 @@ class InteractionManager final : public Singleton<InteractionManager>,
 
 public:
     InteractionManager();
-    virtual ~InteractionManager();
+    ~InteractionManager() override;
 
     void Init();
     void RemoveInteraction(uint32_t interactionId);

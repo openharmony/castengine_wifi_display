@@ -63,7 +63,7 @@ struct ConnectionInfo {
     CodecId videoCodecId = CodecId::CODEC_H264;
 
     AudioFormat audioFormatId = AudioFormat::AUDIO_48000_16_2;
-    VideoFormat videoFormatId = VideoFormat::VIDEO_1920x1080_30;
+    VideoFormat videoFormatId = VideoFormat::VIDEO_1920X1080_30;
 };
 
 struct DevSurfaceItem {

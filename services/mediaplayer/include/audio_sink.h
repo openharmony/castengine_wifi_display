@@ -19,7 +19,7 @@
 #include <condition_variable>
 #include <memory>
 #include <mutex>
-#include <stdint.h>
+#include <cstdint>
 #include <thread>
 #include "audio_renderer.h"
 

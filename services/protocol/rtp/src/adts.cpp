@@ -21,26 +21,26 @@ namespace Sharing {
 
 void AdtsHeader::DumpAdtsHeader(const AdtsHeader &hed, uint8_t *out)
 {
-    out[0] = (hed.syncword_ >> 4 & 0xFF);                      // 8bit
-    out[1] = (hed.syncword_ << 4 & 0xF0);                      // 4 bit
-    out[1] |= (hed.id_ << 3 & 0x08);                           // 1 bit
-    out[1] |= (hed.layer_ << 1 & 0x06);                        // 2bit
-    out[1] |= (hed.protectionAbsent_ & 0x01);                  // 1 bit
-    out[2] = (hed.profile_ << 6 & 0xC0);                       // 2 bit
-    out[2] |= (hed.sfIndex_ << 2 & 0x3C);                      // 4bit
-    out[2] |= (hed.privateBit_ << 1 & 0x02);                   // 1 bit
-    out[2] |= (hed.channelConfiguration_ >> 2 & 0x03);         // 1 bit
-    out[3] = (hed.channelConfiguration_ << 6 & 0xC0);          // 2 bit
-    out[3] |= (hed.original_ << 5 & 0x20);                     // 1 bit
-    out[3] |= (hed.home_ << 4 & 0x10);                         // 1 bit
-    out[3] |= (hed.copyrightIdentificationBit_ << 3 & 0x08);   // 1 bit
-    out[3] |= (hed.copyrightIdentificationStart_ << 2 & 0x04); // 1 bit
-    out[3] |= (hed.aacFrameLength_ >> 11 & 0x03);              // 2 bit
-    out[4] = (hed.aacFrameLength_ >> 3 & 0xFF);                // 8 bit
-    out[5] = (hed.aacFrameLength_ << 5 & 0xE0);                // 3 bit
-    out[5] |= (hed.adtsBufferFullness_ >> 6 & 0x1F);           // 5 bit
-    out[6] = (hed.adtsBufferFullness_ << 2 & 0xFC);            // 6 bit
-    out[6] |= (hed.numberOfRawDataBlocksInFrame_ & 0x03);      // 2 bit
+    out[0] = ((hed.syncword_ >> 4) & 0xFF);                      // 8bit, 4:byte offset
+    out[1] = ((hed.syncword_ << 4) & 0xF0);                      // 4 bit, 4:byte offset
+    out[1] |= ((hed.id_ << 3) & 0x08);                           // 1 bit, 3:byte offset
+    out[1] |= ((hed.layer_ << 1) & 0x06);                        // 2bit
+    out[1] |= ((hed.protectionAbsent_) & 0x01);                  // 1 bit
+    out[2] = ((hed.profile_ << 6) & 0xC0);                       // 2 bit, 6:byte offset, 2:byte offset
+    out[2] |= ((hed.sfIndex_ << 2) & 0x3C);                      // 4bit, 2:byte offset
+    out[2] |= ((hed.privateBit_ << 1) & 0x02);                   // 1 bit, 2:byte offset
+    out[2] |= ((hed.channelConfiguration_ >> 2) & 0x03);         // 1 bit, 2:byte offset
+    out[3] = ((hed.channelConfiguration_ << 6) & 0xC0);          // 2 bit, 6:byte offset, 3:byte offset
+    out[3] |= ((hed.original_ << 5) & 0x20);                     // 1 bit, 5:byte offset, 3:byte offset
+    out[3] |= ((hed.home_ << 4) & 0x10);                         // 1 bit, 4:byte offset, 3:byte offset
+    out[3] |= ((hed.copyrightIdentificationBit_ << 3) & 0x08);   // 1 bit, 3:byte offset
+    out[3] |= ((hed.copyrightIdentificationStart_ << 2) & 0x04); // 1 bit, 2:byte offset, 3:byte offset
+    out[3] |= ((hed.aacFrameLength_ >> 11) & 0x03);              // 2 bit, 11:byte offset, 3:byte offset
+    out[4] = ((hed.aacFrameLength_ >> 3) & 0xFF);                // 8 bit, 3:byte offset, 4:byte offset
+    out[5] = ((hed.aacFrameLength_ << 5) & 0xE0);                // 3 bit, 5:byte offset
+    out[5] |= ((hed.adtsBufferFullness_ >> 6) & 0x1F);           // 5 bit, 6:byte offset, 5:byte offset
+    out[6] = ((hed.adtsBufferFullness_ << 2) & 0xFC);            // 6 bit, 2:byte offset, 6:byte offset
+    out[6] |= (hed.numberOfRawDataBlocksInFrame_ & 0x03);        // 2 bit, 6:byte offset
 }
 
 void AdtsHeader::ParseAacConfig(const std::string &config, AdtsHeader &adts)
@@ -52,9 +52,9 @@ void AdtsHeader::ParseAacConfig(const std::string &config, AdtsHeader &adts)
     int32_t samplingFrequencyIndex;
     int32_t channelConfiguration;
 
-    audioObjectType = cfg1 >> 3;
-    samplingFrequencyIndex = ((cfg1 & 0x07) << 1) | (cfg2 >> 7);
-    channelConfiguration = (cfg2 & 0x7F) >> 3;
+    audioObjectType = cfg1 >> 3;                                 // 3:byte offset
+    samplingFrequencyIndex = ((cfg1 & 0x07) << 1) | (cfg2 >> 7); // 7:byte offset
+    channelConfiguration = (cfg2 & 0x7F) >> 3;                   // 3:byte offset
 
     adts.syncword_ = 0x0FFF;
     adts.id_ = 0;
@@ -68,8 +68,8 @@ void AdtsHeader::ParseAacConfig(const std::string &config, AdtsHeader &adts)
     adts.home_ = 0;
     adts.copyrightIdentificationBit_ = 0;
     adts.copyrightIdentificationStart_ = 0;
-    adts.aacFrameLength_ = 7;
-    adts.adtsBufferFullness_ = 2047;
+    adts.aacFrameLength_ = 7;        // 7:aac header length
+    adts.adtsBufferFullness_ = 2047; // 2047:aac fixed value
     adts.numberOfRawDataBlocksInFrame_ = 0;
 }
 
@@ -86,12 +86,14 @@ int32_t AdtsHeader::GetAacFrameLength(const uint8_t *data, size_t bytes)
 {
     RETURN_INVALID_IF_NULL(data);
     uint16_t len;
-    if (bytes < 7)
+    if (bytes < 7) // 7:aac header length
         return -1;
     if (0xFF != data[0] || 0xF0 != (data[1] & 0xF0)) {
         return -1;
     }
-    len = ((uint16_t)(data[3] & 0x03) << 11) | ((uint16_t)data[4] << 3) | ((uint16_t)(data[5] >> 5) & 0x07);
+    len = ((uint16_t)(data[3] & 0x03) << 11) | // 3:byte offset, 11:byte length
+          ((uint16_t)data[4] << 3) |           // 4:byte offset, 3:byte length
+          ((uint16_t)(data[5] >> 5) & 0x07);   // 5:byte offset, 7:byte length
     return len;
 }
 } // namespace Sharing

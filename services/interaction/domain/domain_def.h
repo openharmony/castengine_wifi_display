@@ -44,7 +44,7 @@ public:
 
     virtual ~IDomainPeer() = default;
 
-    IDomainPeer(DomainPeerType type)
+    explicit IDomainPeer(DomainPeerType type)
     {
         SHARING_LOGD("trace.");
         peerType_ = type;

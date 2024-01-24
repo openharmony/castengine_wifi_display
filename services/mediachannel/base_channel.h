@@ -17,7 +17,7 @@
 #define OHOS_SHARING_BASE_CHANNEL_H
 
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 #include "base_consumer.h"

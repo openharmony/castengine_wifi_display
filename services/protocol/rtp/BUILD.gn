@@ -58,7 +58,10 @@ ohos_shared_library("sharing_rtp") {
     "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
-  external_deps = [ "hilog:libhilog" ]
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+  ]
 
   subsystem_name = "castplus"
   part_name = "sharing_framework"

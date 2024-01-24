@@ -17,12 +17,14 @@
 #include <arpa/inet.h>
 #include <iostream>
 #include <limits>
+#include <securec.h>
 #include "common/media_log.h"
 
 namespace OHOS {
 namespace Sharing {
 RtpPacketSortor::RtpPacketSortor(int32_t sampleRate, size_t kMax, size_t kMin)
-    : sampleRate_(sampleRate), kMin_(kMin), kMax_(kMax) {}
+    : sampleRate_(sampleRate), kMin_(kMin), kMax_(kMax)
+{}
 
 void RtpPacketSortor::InputRtp(TrackType type, uint8_t *ptr, size_t len)
 {
@@ -50,7 +52,10 @@ void RtpPacketSortor::InputRtp(TrackType type, uint8_t *ptr, size_t len)
     rtp->type_ = type;
 
     auto data = rtp->Data();
-    memcpy(data, ptr, len);
+    auto ret = memcpy_s(data, len, ptr, len);
+    if (ret != EOK) {
+        return;
+    }
     MEDIA_LOGD("rtp payload size: %{public}zu.", rtp->GetPayloadSize());
 
     if (ssrc_ != rtp->GetSSRC() || rtp->GetSeq() == 0) {
@@ -124,7 +129,7 @@ void RtpPacketSortor::PopPacket()
     }
 
     if (nextSeqOut_ - it->first > (0xFFFF >> 1)) {
-        if (pktSortCacheMap_.size() < 2 * kMin_) {
+        if (pktSortCacheMap_.size() < 2 * kMin_) { // 2:fixed size
             return;
         }
         ++seqCycleCount_;

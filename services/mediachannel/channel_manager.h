@@ -18,7 +18,7 @@
 
 #include <memory>
 #include <singleton.h>
-#include <stdint.h>
+#include <cstdint>
 #include <unordered_map>
 #include "event/handle_event_base.h"
 

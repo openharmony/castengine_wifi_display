@@ -32,7 +32,7 @@ class TcpServerEventHandler : public BaseServerEventHandler {};
 class TcpServer final : public BaseServer {
 public:
     TcpServer();
-    virtual ~TcpServer();
+    ~TcpServer() override;
 
     void Stop() override;
     bool Start(uint16_t port, const std::string &host, bool enableReuse = true,

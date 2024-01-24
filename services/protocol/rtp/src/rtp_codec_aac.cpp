@@ -15,6 +15,7 @@
 
 #include "rtp_codec_aac.h"
 #include <memory>
+#include <securec.h>
 #include "adts.h"
 #include "common/common_macro.h"
 #include "common/media_log.h"
@@ -27,9 +28,9 @@ RtpDecoderAAC::RtpDecoderAAC(const RtpPlaylodParam &rpp) : rpp_(rpp)
     frame_ = ObtainFrame();
     auto aacExtra = std::static_pointer_cast<AACExtra>(rpp_.extra_);
     if (aacExtra && !aacExtra->aacConfig_.empty()) {
-        for (size_t i = 0; i < aacExtra->aacConfig_.size() / 2; ++i) {
+        for (size_t i = 0; i < aacExtra->aacConfig_.size() / 2; ++i) { // 2:unit
             uint32_t cfg;
-            sscanf(aacExtra->aacConfig_.substr(i * 2, 2).data(), "%02X", &cfg);
+            sscanf_s(aacExtra->aacConfig_.substr(i * 2, 2).data(), "%02X", &cfg); // 2:unit
             cfg &= 0x00FF;
             aacConfig_.push_back((char)cfg);
         }
@@ -49,10 +50,10 @@ void RtpDecoderAAC::InputRtp(const RtpPacket::Ptr &rtp)
 
     auto end = ptr + rtp->GetPayloadSize();
 
-    auto auHeaderCount = ((ptr[0] << 8) | ptr[1]) >> 4;
+    auto auHeaderCount = ((ptr[0] << 8) | ptr[1]) >> 4; // 8:byte offset, 4:byte offset
 
-    auto auHeaderPtr = ptr + 2;
-    ptr = auHeaderPtr + auHeaderCount * 2;
+    auto auHeaderPtr = ptr + 2;            // 2:unit
+    ptr = auHeaderPtr + auHeaderCount * 2; // 2:unit
 
     if (end < ptr) {
         return;
@@ -67,13 +68,13 @@ void RtpDecoderAAC::InputRtp(const RtpPacket::Ptr &rtp)
         "RtpDecoderAAC::InputRtp seq: %{public}d payloadLen: %{public}zu  auHeaderCount: %{public}d stamp: %{public}d "
         "dtsInc_: %{public}d\n.",
         rtp->GetSeq(), rtp->GetPayloadSize(), auHeaderCount, stamp, dtsInc_);
-    if (dtsInc_ < 0 && dtsInc_ > 100) {
+    if (dtsInc_ < 0 && dtsInc_ > 100) { // 100:unit
         MEDIA_LOGD("abnormal timestamp.");
         dtsInc_ = 0;
     }
 
     for (int32_t i = 0; i <= auHeaderCount; ++i) {
-        uint16_t size = ((auHeaderPtr[0] << 8) | auHeaderPtr[1]) >> 3;
+        uint16_t size = ((auHeaderPtr[0] << 8) | auHeaderPtr[1]) >> 3; // 8:byte offset, 3:byte offset
 
         if (ptr + size > end) {
             break;
@@ -84,7 +85,7 @@ void RtpDecoderAAC::InputRtp(const RtpPacket::Ptr &rtp)
 
             frame_->dts_ = lastDts_ + i * dtsInc_;
             ptr += size;
-            auHeaderPtr += 2;
+            auHeaderPtr += 2; // 2:byte offset
             FlushData();
         }
     }
@@ -109,6 +110,7 @@ void RtpDecoderAAC::FlushData()
     if (frame_ == nullptr) {
         return;
     }
+
     auto ptr = frame_->Data();
 
     if ((ptr[0] == 0xFF && (ptr[1] & 0xF0) == 0xF0) && frame_->Size() > ADTS_HEADER_LEN) {
@@ -125,6 +127,7 @@ void RtpDecoderAAC::FlushData()
             frame_->prefixSize_ = size;
         }
     }
+
     InputFrame(frame_);
     frame_ = ObtainFrame();
 }
@@ -172,23 +175,31 @@ void RtpEncoderAAC::InputFrame(const Frame::Ptr &frame)
     auto len = frame->Size() - frame->PrefixSize();
     auto ptr = (char *)data;
     auto remain_size = len;
-    auto max_size = GetMaxSize() - 4;
+    auto max_size = GetMaxSize() - 4; // 4:avc start code size
     while (remain_size > 0) {
         if (remain_size <= max_size) {
             sectionBuf_[0] = 0;
-            sectionBuf_[1] = 16;
-            sectionBuf_[2] = (len >> 5) & 0xFF;
-            sectionBuf_[3] = ((len & 0x1F) << 3) & 0xFF;
-            memcpy(sectionBuf_ + 4, ptr, remain_size);
-            MakeAACRtp(sectionBuf_, remain_size + 4, true, stamp);
+            sectionBuf_[1] = 16;                                                 // 16:constants
+            sectionBuf_[2] = (len >> 5) & 0xFF;                                  // 5:byte offset,2:byte offset
+            sectionBuf_[3] = ((len & 0x1F) << 3) & 0xFF;                         // 3:byte offset
+            auto ret = memcpy_s(sectionBuf_ + 4, remain_size, ptr, remain_size); // 4:byte offset
+            if (ret != EOK) {
+                MEDIA_LOGE("mem copy data failed.");
+                break;
+            }
+            MakeAACRtp(sectionBuf_, remain_size + 4, true, stamp); // 4:byte offset
             break;
         }
         sectionBuf_[0] = 0;
-        sectionBuf_[1] = 16;
-        sectionBuf_[2] = ((len) >> 5) & 0xFF;
-        sectionBuf_[3] = ((len & 0x1F) << 3) & 0xFF;
-        memcpy(sectionBuf_ + 4, ptr, max_size);
-        MakeAACRtp(sectionBuf_, max_size + 4, false, stamp);
+        sectionBuf_[1] = 16;                                           // 16:byte offset
+        sectionBuf_[2] = ((len) >> 5) & 0xFF;                          // 2:byte offset, 5:byte offset
+        sectionBuf_[3] = ((len & 0x1F) << 3) & 0xFF;                   // 3:byte offset
+        auto ret = memcpy_s(sectionBuf_ + 4, max_size, ptr, max_size); // 4:byte offset
+        if (ret != EOK) {
+            MEDIA_LOGE("mem copy data failed.");
+            break;
+        }
+        MakeAACRtp(sectionBuf_, max_size + 4, false, stamp); // 4:byte offset
         ptr += max_size;
         remain_size -= max_size;
     }

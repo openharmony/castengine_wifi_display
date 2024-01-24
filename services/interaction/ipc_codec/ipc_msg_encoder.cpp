@@ -24,7 +24,7 @@ int32_t IpcMsgEncoder::MsgEncode(MessageParcel &ipcMsg, std::shared_ptr<BaseMsg>
     SHARING_LOGD("trace.");
     int32_t nMsgType = sharingMsg->GetMsgId();
     ipcMsg.WriteInt32(nMsgType);
-    
+
     return this->OnIpcMessage(nMsgType, ipcMsg, sharingMsg);
 }
 

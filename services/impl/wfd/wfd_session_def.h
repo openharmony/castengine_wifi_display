@@ -61,7 +61,7 @@ struct WfdSinkSessionEventMsg : public SessionEventMsg {
     std::string mac;
 
     AudioFormat audioFormat = AUDIO_48000_16_2;
-    VideoFormat videoFormat = VIDEO_1920x1080_30;
+    VideoFormat videoFormat = VIDEO_1920X1080_30;
 };
 
 struct WfdSourceSessionEventMsg : public SessionEventMsg {
@@ -74,7 +74,7 @@ struct WfdSourceSessionEventMsg : public SessionEventMsg {
     std::string mac;
 
     AudioFormat audioFormat = AUDIO_48000_16_2;
-    VideoFormat videoFormat = VIDEO_1920x1080_30;
+    VideoFormat videoFormat = VIDEO_1920X1080_30;
 };
 
 // Table 34. Supported CEA Resolution/Refresh Rates

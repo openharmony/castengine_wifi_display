@@ -39,12 +39,11 @@ void AudioG711Encoder::OnFrame(const Frame::Ptr &frame)
     }
 
     auto payload = frame->Data();
-    int32_t outLength = frame->Size() / 2;
+    int32_t outLength = frame->Size() / 2; // 2: double size
     if ((int32_t)outBuffer_.size() != outLength) {
         outBuffer_.resize(outLength);
     }
 
-    // pcm s16le -> g711 u8
     Encode((int16_t *)payload, outLength, outBuffer_.data());
 
     auto g711Frame = FrameImpl::Create();
@@ -60,16 +59,6 @@ int32_t AudioG711Encoder::Encode(int16_t *decoded, int32_t nSamples, uint8_t *en
     if (nSamples < 0) {
         return -1;
     }
-
-    // if (type_ == G711_ALAW) {
-    //     for (int32_t n = 0; n < nSamples; n++) {
-    //         encoded[n] = (uint8_t)linear_to_alaw((int32_t)decoded[n]);
-    //     }
-    // } else if (type_ == G711_ULAW) {
-    //     for (int32_t n = 0; n < nSamples; n++) {
-    //         encoded[n] = (uint8_t)linear_to_ulaw((int32_t)decoded[n]);
-    //     }
-    // }
 
     return nSamples;
 }
@@ -101,11 +90,10 @@ void AudioG711Decoder::OnFrame(const Frame::Ptr &frame)
 
     auto payload = frame->Data();
     int32_t length = frame->Size();
-    if ((int32_t)outBuffer_.size() != length * 2) {
-        outBuffer_.resize(length * 2);
+    if ((int32_t)outBuffer_.size() != length * 2) { // 2: double size
+        outBuffer_.resize(length * 2); // 2: double size
     }
 
-    // g711 u8 -> pcm s16le
     Decode((uint8_t *)payload, length, (int16_t *)outBuffer_.data());
     auto pcmFrame = FrameImpl::Create();
     pcmFrame->codecId_ = CODEC_PCM;
@@ -120,16 +108,6 @@ int32_t AudioG711Decoder::Decode(uint8_t *encoded, int32_t nSamples, int16_t *de
     if (nSamples < 0) {
         return -1;
     }
-
-    // if (type_ == G711_ALAW) {
-    //     for (int32_t n = 0; n < nSamples; n++) {
-    //         decoded[n] = (int16_t)alaw_to_linear(encoded[n]);
-    //     }
-    // } else if (type_ == G711_ULAW) {
-    //     for (int32_t n = 0; n < nSamples; n++) {
-    //         decoded[n] = (uint8_t)alaw_to_linear(encoded[n]);
-    //     }
-    // }
 
     return nSamples;
 }

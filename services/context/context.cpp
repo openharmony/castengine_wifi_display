@@ -38,8 +38,9 @@ void Context::Release()
     SHARING_LOGD("contextId: %{public}u.", GetId());
     destroying_ = true;
     std::lock_guard<std::mutex> lock(mutex_);
-    if (agents_.size())
+    if (agents_.size()) {
         SHARING_LOGW("exception to enter! contextId: %{public}u.", GetId());
+    }
     agents_.clear();
 }
 
@@ -48,7 +49,8 @@ int32_t Context::HandleEvent(SharingEvent &event)
     SHARING_LOGD("trace.");
     RETURN_INVALID_IF_NULL(event.eventMsg);
     SHARING_LOGI(
-        "contextId: %{public}u, fromMgr: %{public}u, srcId: %{public}u, toMgr: %{public}u, toId: %{public}u, event: %{public}s.",
+        "contextId: %{public}u, fromMgr: %{public}u, srcId: %{public}u, "
+        "toMgr: %{public}u, toId: %{public}u, event: %{public}s.",
         GetId(), event.eventMsg->fromMgr, event.eventMsg->srcId, event.eventMsg->toMgr, event.eventMsg->dstId,
         std::string(magic_enum::enum_name(event.eventMsg->type)).c_str());
     if (destroying_) {
@@ -296,8 +298,8 @@ uint32_t Context::HandleCreateAgent(const std::string &className, AgentType agen
 
     std::lock_guard<std::mutex> lock(mutex_);
     agents_.emplace(agent->GetId(), agent);
-    SHARING_LOGI(
-        "contextId: %{public}u, create agent className: %{public}s agentType: %{public}s agentId: %{public}u size: %{public}zu.",
+    SHARING_LOGI("contextId: %{public}u, create agent className: %{public}s "
+        "agentType: %{public}s agentId: %{public}u size: %{public}zu.",
         GetId(), className.c_str(), std::string(magic_enum::enum_name(agentType)).c_str(), agent->GetId(),
         agents_.size());
     return agent->GetId();
@@ -357,9 +359,8 @@ void Context::CheckNeedDestroySink(uint32_t sinkAgentId)
     RETURN_IF_NULL(agent);
 
     if (agent->GetDestroy() && IsEmptySrcAgent(sinkAgentId)) {
-        SHARING_LOGI(
-            "produer destroyed. src agent is all destroyed. destroy sink agent now. contextId: %{public}u, sinkAgentId: %{public}u.",
-            GetId(), sinkAgentId);
+        SHARING_LOGI("produer destroyed. src agent is all destroyed. destroy sink agent now. "
+            "contextId: %{public}u, sinkAgentId: %{public}u.", GetId(), sinkAgentId);
 
         SharingEvent event;
         auto agentEvent = std::make_shared<AgentEventMsg>();

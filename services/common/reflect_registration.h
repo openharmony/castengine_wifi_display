@@ -39,7 +39,7 @@ public:
     std::shared_ptr<void> CreateObject(const std::string &descriptor);
 
 private:
-    ReflectRegistration &operator=(ReflectRegistration &&) = delete;    
+    ReflectRegistration &operator=(ReflectRegistration &&) = delete;
     ReflectRegistration &operator=(const ReflectRegistration &) = delete;
 
 private:

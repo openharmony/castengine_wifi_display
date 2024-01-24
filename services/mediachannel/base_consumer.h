@@ -18,7 +18,7 @@
 
 #include <functional>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include "buffer_dispatcher.h"
 #include "common/event_channel.h"

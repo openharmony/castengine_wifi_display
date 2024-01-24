@@ -226,7 +226,7 @@ bool VideoSinkDecoder::DecodeVideoData(const char *data, int32_t size, const int
     bufferInfo.offset = 0;
 
     auto p = data;
-    p = *(p + 2) == 0x01 ? p + 3 : p + 4;
+    p = *(p + 2) == 0x01 ? p + 3 : p + 4; // 2: offset, 3: offset, 4: offset
     if ((p[0] & 0x1f) == 0x06 || (p[0] & 0x1f) == 0x07 || (p[0] & 0x1f) == 0x08) {
         MEDIA_LOGD("media flag codec data controlId: %{public}u.", controlId_);
         ret = videoDecoder_->QueueInputBuffer(bufferIndex, bufferInfo, Media::AVCODEC_BUFFER_FLAG_CODEC_DATA);

@@ -29,6 +29,7 @@ RtpDecoderTs::RtpDecoderTs()
 {
     MEDIA_LOGD("RtpDecoderTs CTOR IN.");
     tsDemuxer_ = std::make_shared<MpegTsDemuxer>();
+    merger_.SetType(FrameMerger::NONE);
 
     tsDemuxer_->SetOnDecode([this](int32_t stream, int32_t codecId, int32_t flags, int64_t pts, int64_t dts,
                                    const void *data,
@@ -84,7 +85,7 @@ void RtpDecoderTs::OnDecode(int32_t stream, int32_t codecId, int32_t flags, int6
 
         case PSI_STREAM_AAC: {
             uint8_t *ptr = (uint8_t *)data;
-            if (!(bytes > 7 && ptr[0] == 0xFF && (ptr[1] & 0xF0) == 0xF0)) {
+            if (!(bytes > 7 && ptr[0] == 0xFF && (ptr[1] & 0xF0) == 0xF0)) { // 7:fixed size
                 break;
             } else {
                 auto outFrame = std::make_shared<AACFrame>((uint8_t *)data, bytes, (uint32_t)dts, (uint32_t)pts);
@@ -115,6 +116,7 @@ RtpEncoderTs::RtpEncoderTs(uint32_t ssrc, uint32_t mtuSize, uint32_t sampleRate,
     : RtpMaker(ssrc, mtuSize, payloadType, sampleRate, seq)
 {
     MEDIA_LOGD("RtpEncoderTs CTOR IN");
+    merger_.SetType(FrameMerger::H264_PREFIX);
     tsMuxer_ = std::make_shared<MpegTsMuxer>();
     tsMuxer_->SetOnMux([this](const std::shared_ptr<DataBuffer> &buffer, uint32_t stamp, bool keyPos) {
         if (onRtpPack_) {
@@ -140,9 +142,9 @@ void RtpEncoderTs::InputFrame(const Frame::Ptr &frame)
             // for sps, pps and key frame in one packet
             merger_.InputFrame(
                 frame, buffer, [this](uint32_t dts, uint32_t pts, const DataBuffer::Ptr &buffer, bool have_key_frame) {
-                    MEDIA_LOGD(
-                        "RtpEncoderTs H264 merger output success, dts %{public}d, pts %{public}d,BufferSize %{public}d, havekeyframe %{public}d",
-                        dts, pts, buffer->Size(), have_key_frame);
+                    MEDIA_LOGD("RtpEncoderTs H264 merger output success, dts %{public}d,"
+                               "pts %{public}d,BufferSize %{public}d, havekeyframe %{public}d",
+                               dts, pts, buffer->Size(), have_key_frame);
                     // have_key_frame
                     auto outFrame =
                         std::make_shared<H264Frame>(buffer->Data(), buffer->Size(), (uint32_t)dts, (uint32_t)pts,

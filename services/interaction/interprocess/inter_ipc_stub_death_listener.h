@@ -21,8 +21,7 @@
 namespace OHOS {
 namespace Sharing {
     
-class InterIpcStubDeathListener : public InterIpcDeathListener
-{
+class InterIpcStubDeathListener : public InterIpcDeathListener {
 public:
     explicit InterIpcStubDeathListener(sptr<InterIpcStub> stub)
     {
@@ -53,5 +52,3 @@ private:
 }
 }
 #endif
-
-

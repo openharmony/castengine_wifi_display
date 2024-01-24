@@ -136,7 +136,7 @@ private:
 
     WfdVideoFormatsInfo wfdVideoFormatsInfo_;
     AudioFormat audioFormat_ = AUDIO_48000_16_2;
-    VideoFormat videoFormat_ = VIDEO_1920x1080_30;
+    VideoFormat videoFormat_ = VIDEO_1920X1080_30;
     WfdSessionState wfdState_ = WfdSessionState::M0;
     NetworkFactory::ServerPtr rtspServerPtr_ = nullptr;
 };

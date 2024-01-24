@@ -43,7 +43,6 @@ void KvOperator::OpenKvStore()
     DistributedKv::StoreId storeId = { KVSTORE_STOREID };
     mkdir(options.baseDir.c_str(), (S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH));
     DistributedKv::Status status = dataManager_.GetSingleKvStore(options, appId, storeId, kvStorePtr_);
-
     if (status != DistributedKv::Status::SUCCESS) {
         MEDIA_LOGE("KvStore get failed! %{public}d.", status);
         return;
@@ -73,7 +72,6 @@ bool KvOperator::GetValues(const std::string &key,  std::string &val)
     DistributedKv::Key k(key);
     DistributedKv::Value v;
     DistributedKv::Status status = kvStorePtr_->Get(k, v);
-
     if (status != DistributedKv::Status::SUCCESS) {
         MEDIA_LOGE("get kvstore failed %{public}d.", status);
         val = "";
@@ -96,7 +94,6 @@ bool KvOperator::PutValues(const std::string &key, std::string values)
     DistributedKv::Key k(key);
     DistributedKv::Value v(values);
     DistributedKv::Status status = kvStorePtr_->Put(k, v);
-
     if (status != DistributedKv::Status::SUCCESS) {
         MEDIA_LOGE("put kvstore failed %{public}d.", status);
         return false;

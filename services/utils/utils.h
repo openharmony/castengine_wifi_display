@@ -42,13 +42,13 @@ public:
         std::regex reg{"\\+"};
         std::vector<std::string> out{std::sregex_token_iterator(key.begin(), key.end(), reg, -1),
                                      std::sregex_token_iterator()};
-        if (out.size() != 4) {
+        if (out.size() != 4) { // 4: rpckey length
             return false;
         }
         bundleName_ = std::move(out[0]);
         abilityName_ = std::move(out[1]);
-        deviceId_ = std::move(out[2]);
-        className_ = std::move(out[3]);
+        deviceId_ = std::move(out[2]); // 2: rpckey parse
+        className_ = std::move(out[3]); // 3: rpckey parse
         return true;
     }
 

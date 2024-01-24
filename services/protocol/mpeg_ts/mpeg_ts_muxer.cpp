@@ -22,33 +22,30 @@ namespace Sharing {
 static constexpr size_t MAX_BUFFER_LEN = 1500;
 MpegTsMuxer::MpegTsMuxer()
 {
-    static mpeg_muxer_func_t func = {// alloc new packet
-                                     .alloc = [](void *param, size_t bytes) -> void * {
-                                         MpegTsMuxer *tsMuxer = (MpegTsMuxer *)param;
-                                         if (tsMuxer) {
-                                             // flush
-                                             if (tsMuxer->curPos_ + bytes > MAX_BUFFER_LEN) {
-                                                 tsMuxer->OnTSPacket();
-                                             }
-                                             return tsMuxer->buffer_->Data() + tsMuxer->curPos_;
-                                         }
-                                         return NULL;
-                                     },
-                                     // free packet
-                                     .free =
-                                         [](void *param, void *packet) {
-                                             // Nothing to do, use the only buffer.
-                                         },
+    static mpeg_muxer_func_t func;
+    func.alloc = [](void *param, size_t bytes) {
+        MpegTsMuxer *tsMuxer = (MpegTsMuxer *)param;
+        if (tsMuxer) {
+            // flush
+            if (tsMuxer->curPos_ + bytes > MAX_BUFFER_LEN) {
+                tsMuxer->OnTSPacket();
+            }
+            return (void*)(tsMuxer->buffer_->Data() + tsMuxer->curPos_);
+        }
+        return (void*)nullptr;
+    };
+    func.free = [](void *param, void *packet) {
+        // Nothing to do, use the only buffer.
+    };
+    func.write = [](void *param, int stream, void *packet, size_t bytes) {
+        MpegTsMuxer *tsMuxer = (MpegTsMuxer *)param;
+        if (!tsMuxer) {
+            return 0;
+        }
+        tsMuxer->curPos_ += bytes;
+        return 0;
+    };
 
-                                     // callback on PS packet done
-                                     .write = [](void *param, int stream, void *packet, size_t bytes) -> int {
-                                         MpegTsMuxer *tsMuxer = (MpegTsMuxer *)param;
-                                         if (!tsMuxer) {
-                                             return 0;
-                                         }
-                                         tsMuxer->curPos_ += bytes;
-                                         return 0;
-                                     }};
     // ts muxer
     muxerCtx_ = mpeg_muxer_create(false, &func, this);
     buffer_ = std::make_shared<DataBuffer>(MAX_BUFFER_LEN);
@@ -81,7 +78,7 @@ void MpegTsMuxer::InputFrame(const Frame::Ptr &frame)
             }
 
             _timestamp = frame->Dts();
-            keyFrame_ = frame->ConfigFrame();// sps, pps, idr
+            keyFrame_ = frame->ConfigFrame();
             MEDIA_LOGD(
                 "_timestamp = %{public}d, keyFrame_  %{public}d, frame->Dts() %{public}d, frame->pts() %{public}d",
                 _timestamp, keyFrame_, frame->Dts(), frame->Pts());

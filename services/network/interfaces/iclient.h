@@ -16,7 +16,7 @@
 #ifndef OHOS_SHARING_ICLIENT_H
 #define OHOS_SHARING_ICLIENT_H
 
-#include <stdint.h>
+#include <cstdint>
 #include "iclient_callback.h"
 #include "network/data/socket_info.h"
 

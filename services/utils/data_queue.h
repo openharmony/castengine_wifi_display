@@ -28,7 +28,7 @@ namespace Sharing {
 template <class T>
 class DataQueue {
 public:
-    DataQueue(const size_t sizeMax);
+    explicit DataQueue(const size_t sizeMax);
     DataQueue(const DataQueue &) = delete;
     DataQueue &operator=(const DataQueue &) = delete;
     ~DataQueue();

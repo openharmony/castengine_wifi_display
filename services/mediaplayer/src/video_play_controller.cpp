@@ -333,7 +333,6 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
         .width = renderWidth,
         .height = renderHeight,
         .strideAlignment = 8,
-        // TODO: fix this
         // .format = PIXEL_FMT_RGBA_8888,
         // .usage = HBM_USE_CPU_READ | HBM_USE_CPU_WRITE | HBM_USE_MEM_DMA,
         .format = GRAPHIC_PIXEL_FMT_YCRCB_420_SP,

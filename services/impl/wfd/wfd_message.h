@@ -90,7 +90,7 @@ public:
     void SetAudioCodecs(AudioFormat format = AUDIO_48000_16_2);
     void SetCoupledSink(const std::string &value = "00  none");
     void SetContentProtection(const std::string &value = "none");
-    void SetVideoFormats(VideoFormat format = VIDEO_1920x1080_30);
+    void SetVideoFormats(VideoFormat format = VIDEO_1920X1080_30);
     void SetStandbyResumeCapability(const std::string &value = "none");
     void SetCustomParam(const std::string &key, const std::string &value = "none");
 
@@ -124,7 +124,7 @@ public:
     void SetClientRtpPorts(int32_t port);
     void SetAudioCodecs(AudioFormat format = AUDIO_48000_16_2);
     void SetPresentationUrl(const std::string &ip);
-    void SetVideoFormats(const WfdVideoFormatsInfo &wfdVideoFormatsInfo, VideoFormat format = VIDEO_1920x1080_30);
+    void SetVideoFormats(const WfdVideoFormatsInfo &wfdVideoFormatsInfo, VideoFormat format = VIDEO_1920X1080_30);
 
     int32_t GetRtpPort();
 
@@ -143,7 +143,8 @@ using WfdRtspM4Response = RtspResponse;
 class WfdRtspM5Request : public RtspRequestParameter {
 public:
     WfdRtspM5Request() = default;
-    explicit WfdRtspM5Request(int32_t cseq) : RtspRequestParameter(RTSP_METHOD_SET_PARAMETER, cseq, WFD_RTSP_URL_DEFAULT) {}
+    explicit WfdRtspM5Request(int32_t cseq) : RtspRequestParameter(RTSP_METHOD_SET_PARAMETER,
+        cseq, WFD_RTSP_URL_DEFAULT) {}
 
     void SetTriggerMethod(const std::string &method);
     std::string GetTriggerMethod();

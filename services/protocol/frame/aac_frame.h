@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#ifndef OHOS_SHARING_AAC_FRAME_H
+#define OHOS_SHARING_AAC_FRAME_H
+
 #include <cstdlib>
 #include <memory>
 #include <string>
@@ -26,8 +29,9 @@ public:
 
     AACFrame();
     AACFrame(uint8_t *ptr, size_t size, uint32_t dts, uint32_t pts = 0, size_t prefix_size = 0);
-    ~AACFrame() = default;
+    ~AACFrame() override {}
 };
 
 } // namespace Sharing
 } // namespace OHOS
+#endif

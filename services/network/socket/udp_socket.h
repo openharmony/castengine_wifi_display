@@ -25,7 +25,7 @@ public:
     using Ptr = std::shared_ptr<UdpSocket>;
 
     UdpSocket();
-    virtual ~UdpSocket();
+    ~UdpSocket() override;
 
     bool Bind(const uint16_t port, const std::string &host, bool enableReuse = true,
               uint32_t backlog = MAX_BACKLOG_NUM) override;

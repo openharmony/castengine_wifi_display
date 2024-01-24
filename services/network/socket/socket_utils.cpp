@@ -37,22 +37,22 @@ bool SocketUtils::CreateTcpServer(const char *ip, unsigned port, int32_t &fd)
 uint16_t SocketUtils::GetAvailableUdpPortPair()
 {
     SHARING_LOGD("trace.");
-    static uint16_t g_availablePort = minPort_;
+    static uint16_t gAvailablePort = minPort_;
 
-    SHARING_LOGD("current udp port: %{public}d.", g_availablePort);
-    if (g_availablePort >= maxPort_) {
-        g_availablePort = minPort_;
+    SHARING_LOGD("current udp port: %{public}d.", gAvailablePort);
+    if (gAvailablePort >= maxPort_) {
+        gAvailablePort = minPort_;
     }
 
-    uint16_t port = GetAvailableUdpPortPair(g_availablePort, maxPort_);
+    uint16_t port = GetAvailableUdpPortPair(gAvailablePort, maxPort_);
     if (port != 0) {
-        g_availablePort = port + 2; // 2: pair port
+        gAvailablePort = port + 2; // 2: pair port
         return port;
     }
 
-    port = GetAvailableUdpPortPair(minPort_, g_availablePort);
+    port = GetAvailableUdpPortPair(minPort_, gAvailablePort);
     if (port != 0) {
-        g_availablePort = port + 2; // 2: pair port
+        gAvailablePort = port + 2; // 2: pair port
     }
 
     return port;
@@ -66,12 +66,13 @@ uint16_t SocketUtils::GetAvailableUdpPortPair(uint16_t minPort, uint16_t maxPort
     }
 
     uint16_t port = minPort;
-    while (true) {
+    bool portAvalaible = false;
+    while (!portAvalaible) {
         if (port >= maxPort) {
             port = 0;
-            break;
+            portAvalaible = true;
         } else if (IsUdpPortAvailable(port) && IsUdpPortAvailable(port + 1)) {
-            break;
+            portAvalaible = true;
         } else {
             port += 2; // 2: pair port
         }
@@ -237,7 +238,7 @@ bool SocketUtils::SetReuseAddr(int32_t fd, bool isReuse)
 {
     SHARING_LOGD("trace.");
     int32_t on = isReuse ? 1 : 0;
-    if (0 != setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on))) {
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) != 0) {
         SHARING_LOGE("error: %{public}s!", strerror(errno));
         return false;
     }
@@ -249,7 +250,7 @@ bool SocketUtils::SetReusePort(int32_t fd, bool isReuse)
 {
     SHARING_LOGD("trace.");
     int32_t on = isReuse ? 1 : 0;
-    if (0 != setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on))) {
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on)) != 0) {
         SHARING_LOGE("error: %{public}s!", strerror(errno));
         return false;
     }
@@ -300,7 +301,7 @@ bool SocketUtils::SetNoDelay(int32_t fd, bool isOn)
 {
     SHARING_LOGD("trace.");
     int32_t on = isOn;
-    if (0 != setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on))) {
+    if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on)) != 0) {
         SHARING_LOGE("error: %{public}s!", strerror(errno));
         return false;
     }
@@ -312,10 +313,10 @@ void SocketUtils::SetKeepAlive(int32_t sockfd)
 {
     SHARING_LOGD("trace.");
     int32_t on = 1;
-    setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (char *)&on, sizeof(on));
+    setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, reinterpret_cast<char*>(&on), sizeof(on));
 }
 
-bool SocketUtils::SetNonBlocking(int32_t fd, bool isNonBlock, uint32_t write_timeout)
+bool SocketUtils::SetNonBlocking(int32_t fd, bool isNonBlock, uint32_t writeTimeout)
 {
     SHARING_LOGD("trace.");
     int32_t flags = -1;
@@ -323,9 +324,9 @@ bool SocketUtils::SetNonBlocking(int32_t fd, bool isNonBlock, uint32_t write_tim
         flags = fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
     } else {
         flags = fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) & ~O_NONBLOCK);
-        if (write_timeout > 0) {
-            struct timeval tv = {write_timeout / 1000, (write_timeout % 1000) * 1000};
-            setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&tv, sizeof tv);
+        if (writeTimeout > 0) {
+            struct timeval tv = {writeTimeout / 1000, (writeTimeout % 1000) * 1000};
+            setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<char*>(&tv), sizeof tv);
         }
     }
 
@@ -335,7 +336,7 @@ bool SocketUtils::SetNonBlocking(int32_t fd, bool isNonBlock, uint32_t write_tim
 bool SocketUtils::SetSendBuf(int32_t fd, int32_t size)
 {
     SHARING_LOGD("trace.");
-    if (0 != setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size))) {
+    if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size)) != 0) {
         SHARING_LOGE("error: %{public}s!", strerror(errno));
         return false;
     }
@@ -346,7 +347,7 @@ bool SocketUtils::SetSendBuf(int32_t fd, int32_t size)
 bool SocketUtils::SetRecvBuf(int32_t fd, int32_t size)
 {
     SHARING_LOGD("trace.");
-    if (0 != setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &size, sizeof(size))) {
+    if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &size, sizeof(size)) != 0) {
         SHARING_LOGE("error: %{public}s!", strerror(errno));
         return false;
     }
@@ -366,13 +367,15 @@ void SocketUtils::CloseSocket(int32_t fd)
 int32_t SocketUtils::SendSocket(int32_t fd, const char *buf, int32_t len)
 {
     SHARING_LOGD("trace.");
-    if (fd < 0 || buf == NULL || len == 0) {
+    if (fd < 0 || buf == nullptr || len == 0) {
         return -1;
     }
     SHARING_LOGD("sendSocket: \r\n%{public}s.", buf);
     int32_t bytes = 0;
-    while (true) {
+    bool sending = true;
+    while (sending) {
         if (bytes >= len || bytes < 0) {
+            sending = false;
             break;
         }
 
@@ -383,11 +386,13 @@ int32_t SocketUtils::SendSocket(int32_t fd, const char *buf, int32_t len)
         } else if (retCode > 0) {
             bytes += retCode;
             if (bytes == len) {
+                sending = false;
                 break;
             }
         } else {
             SHARING_LOGE("error: %{public}s!", strerror(errno));
             bytes = 0;
+            sending = false;
             break;
         }
     }
@@ -420,7 +425,7 @@ int32_t SocketUtils::Sendto(int32_t fd, const char *buf, size_t len, const char 
 int32_t SocketUtils::ReadSocket(int32_t fd, char *buf, uint32_t len, int32_t &error)
 {
     SHARING_LOGD("trace.");
-    if (fd < 0 || buf == NULL || len == 0) {
+    if (fd < 0 || buf == nullptr || len == 0) {
         SHARING_LOGE("invalid param!");
         return -1;
     }
@@ -471,7 +476,7 @@ int32_t SocketUtils::ReadSocket(int32_t fd, DataBuffer::Ptr buf, int32_t &error)
 int32_t SocketUtils::RecvSocket(int32_t fd, char *buf, uint32_t len, int32_t flags, int32_t &error)
 {
     SHARING_LOGD("trace.");
-    if (fd < 0 || buf == NULL || len == 0) {
+    if (fd < 0 || buf == nullptr || len == 0) {
         SHARING_LOGE("invalid param.");
         return -1;
     }
@@ -491,7 +496,7 @@ int32_t SocketUtils::RecvSocket(int32_t fd, char *buf, uint32_t len, int32_t fla
 int32_t SocketUtils::AcceptSocket(int32_t fd, struct sockaddr_in *clientAddr, socklen_t *addrLen)
 {
     SHARING_LOGD("trace.");
-    int32_t clientFd = accept(fd, (struct sockaddr *)clientAddr, addrLen);
+    int32_t clientFd = accept(fd, reinterpret_cast<struct sockaddr *>(clientAddr), addrLen);
     if (clientFd < 0) {
         SHARING_LOGE("accept error: %{public}s!", strerror(errno));
     }

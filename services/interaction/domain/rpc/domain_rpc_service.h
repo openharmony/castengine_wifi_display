@@ -34,7 +34,7 @@ class DomainRpcService final : public SystemAbility,
 
 public:
     explicit DomainRpcService(int32_t systemAbilityId, bool runOnCreate = true);
-    virtual ~DomainRpcService();
+    ~DomainRpcService() override;
 
     void DelPeerProxy(std::string remoteId);
     void CreateDeathListener(std::string deviceId) final;

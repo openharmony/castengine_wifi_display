@@ -277,7 +277,7 @@ bool WfdSinkSession::StartWfdSession()
         SHARING_LOGI("sessionId: %{public}u, wfds session connected ip: %{public}s.", GetId(), remoteRtspIp_.c_str());
     } else {
         // try connect again
-        for (int32_t i = 0; i < 5; i++) {
+        for (int32_t i = 0; i < 5; i++) { // 5: retry time
             if (interrupting_) {
                 if (status_ == SESSION_INTERRUPT) {
                     SHARING_LOGE("session: %{public}u, to notify be interrupted.", GetId());
@@ -287,7 +287,7 @@ bool WfdSinkSession::StartWfdSession()
                 return false;
             }
 
-            usleep(1000 * 200);
+            usleep(1000 * 200); // 1000 * 200: sleep 200ms
             if (rtspClient_) {
                 if (rtspClient_->Connect(remoteRtspIp_, remoteRtspPort_, "::", 0)) {
                     SHARING_LOGW("sessionId: %{public}u, reconnected successfully, ip: %{public}s, times: %{public}d.",
@@ -296,7 +296,7 @@ bool WfdSinkSession::StartWfdSession()
                 } else {
                     SHARING_LOGE("sessionId: %{public}u, Failed to connect wfd rtsp server %{public}s:%{public}d.",
                                  GetId(), remoteRtspIp_.c_str(), remoteRtspPort_);
-                    if (i == 4) {
+                    if (i == 4) { // 4: stop try
                         return false;
                     }
                 }
@@ -362,7 +362,7 @@ void WfdSinkSession::OnClientReadData(int32_t fd, DataBuffer::Ptr buf)
             return;
         }
 
-        if (ret.info.size() > 2 && ret.info.back() == '$') {
+        if (ret.info.size() > 2 && ret.info.back() == '$') { // 2: size of int
             ret.info.pop_back();
             SHARING_LOGW("*packet splicing need parse again\n%{public}s.", ret.info.c_str());
             ret = request.Parse(ret.info);
@@ -391,7 +391,6 @@ void WfdSinkSession::OnClientReadData(int32_t fd, DataBuffer::Ptr buf)
     } else {
         message = lastMessage_ + message;
         ret = request.Parse(message);
-
         if (ret.code == RtspErrorType::OK) {
             SHARING_LOGD("spliced the Request message Successfully.");
             HandleRequest(request, message);
@@ -431,7 +430,6 @@ void WfdSinkSession::HandleRequest(const RtspRequest &request, const std::string
 
     int32_t incomingCSeq = request.GetCSeq();
     std::string rtspMethod = request.GetMethod();
-
     if (rtspMethod == RTSP_METHOD_OPTIONS) {
         // this is M1 request
         SHARING_LOGD("Handle M1 request.");
@@ -484,7 +482,6 @@ void WfdSinkSession::HandleSetParamRequest(const RtspRequest &request, const std
     // Triger request
     auto it = std::find_if(paramMap.begin(), paramMap.end(),
                            [](std::pair<std::string, std::string> value) { return value.first == WFD_PARAM_TRIGGER; });
-
     if (it != paramMap.end()) {
         HandleTriggerMethod(incomingCSeq, it->second);
         return;
@@ -543,7 +540,6 @@ void WfdSinkSession::HandleM6Response(const RtspResponse &response, const std::s
 
     rtspSession_ = response.GetSession();
     keepAliveTimeout_ = response.GetTimeout();
-
     if (keepAliveTimeout_ < WFD_KEEP_ALIVE_TIMEOUT_MIN) {
         keepAliveTimeout_ = WFD_KEEP_ALIVE_TIMEOUT_DEFAULT;
     }

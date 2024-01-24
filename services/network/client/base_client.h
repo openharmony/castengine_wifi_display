@@ -16,7 +16,7 @@
 #ifndef OHOS_SHARING_BASE_CLIENT_H
 #define OHOS_SHARING_BASE_CLIENT_H
 
-#include <stdint.h>
+#include <cstdint>
 #include "event_handler.h"
 #include "network/data/socket_info.h"
 #include "network/eventhandler/event_descriptor_listener.h"
@@ -29,10 +29,10 @@ using namespace OHOS::AppExecFwk;
 class BaseClient;
 class BaseClientEventListener : public EventDescriptorListener {
 public:
-    virtual void OnReadable(int32_t fd) override;
-    virtual void OnWritable(int32_t fd) override;
-    virtual void OnShutdown(int32_t fd) override;
-    virtual void OnException(int32_t fd) override;
+    void OnReadable(int32_t fd) override;
+    void OnWritable(int32_t fd) override;
+    void OnShutdown(int32_t fd) override;
+    void OnException(int32_t fd) override;
 
     virtual std::weak_ptr<BaseClient> &GetClient()
     {
@@ -69,7 +69,7 @@ public:
         client_ = client;
     }
 
-    virtual void ProcessEvent(const OHOS::AppExecFwk::InnerEvent::Pointer &event) override {}
+    void ProcessEvent(const OHOS::AppExecFwk::InnerEvent::Pointer &event) override {}
 
 protected:
     std::weak_ptr<BaseClient> client_;
@@ -79,7 +79,7 @@ class BaseClient : public IClient,
                    public std::enable_shared_from_this<BaseClient> {
 public:
     BaseClient();
-    virtual ~BaseClient();
+    ~BaseClient() override;
 
     virtual void OnClientReadable(int32_t fd) {}
     virtual std::weak_ptr<IClientCallback> &GetCallback();
