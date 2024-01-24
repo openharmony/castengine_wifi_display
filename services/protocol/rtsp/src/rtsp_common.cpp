@@ -23,9 +23,17 @@ namespace Sharing {
 std::string RtspCommon::GetRtspDate()
 {
     time_t now = time(nullptr);
+    if (now <= 0) {
+        return {};
+    }
     struct tm *t = gmtime(&now);
+    if (t == nullptr) {
+        return {};
+    }
     char buf[32] = {0};
-    strftime(buf, 128, "%a, %b %d %Y %H:%M:%S GMT", t);
+    if (strftime(buf, 128, "%a, %b %d %Y %H:%M:%S GMT", t) < 0) { // 128:fixed size
+        return {};
+    }
     return buf;
 }
 
@@ -38,7 +46,7 @@ std::vector<std::string> RtspCommon::Split(const std::string &str, const std::st
 void RtspCommon::SplitParameter(std::list<std::string> &lines, std::list<std::pair<std::string, std::string>> &params)
 {
     for (auto &line : lines) {
-        if (line.size() > 3) {
+        if (line.size() > 3) { // 3:fixed size
             auto index = line.find_first_of(':');
             if (index != 0 && index + 1 != line.length()) {
                 auto token = RtspCommon::Trim(line.substr(0, index));
@@ -77,7 +85,7 @@ RtspError RtspCommon::ParseMessage(const std::string &message, std::vector<std::
     auto headers = messageV[0];
 
     std::vector<std::string> lines = RtspCommon::Split(headers, RTSP_CRLF);
-    if (lines.size() < 2) {
+    if (lines.size() < 2) { // 2:fixed size
         return {RtspErrorType::INVALID_MESSAGE, "invalid message"};
     }
 
@@ -85,7 +93,7 @@ RtspError RtspCommon::ParseMessage(const std::string &message, std::vector<std::
 
     // parse header
     for (int32_t i = 1; i < (int32_t)lines.size(); ++i) {
-        if (lines[i].size() > 3) {
+        if (lines[i].size() > 3) { // 3:fixed size
             auto index = lines[i].find_first_of(':');
             if (index != 0 && index != std::string::npos && index + 1 != lines[i].length()) {
                 auto token = RtspCommon::Trim(lines[i].substr(0, index));
@@ -99,7 +107,7 @@ RtspError RtspCommon::ParseMessage(const std::string &message, std::vector<std::
     }
 
     // parse body
-    if (messageV.size() == 2 && header.find(RTSP_TOKEN_CONTENT_TYPE) != header.end() &&
+    if (messageV.size() == 2 && header.find(RTSP_TOKEN_CONTENT_TYPE) != header.end() && // 2:fixed size
         header.find(RTSP_TOKEN_CONTENT_LENGTH) != header.end()) {
         int32_t length = atoi(header.at(RTSP_TOKEN_CONTENT_LENGTH).c_str());
         if (length == 0) {
@@ -113,7 +121,7 @@ RtspError RtspCommon::ParseMessage(const std::string &message, std::vector<std::
             return {RtspErrorType::INCOMPLETE_MESSAGE, "body length < Content-Length"};
         }
 
-        if (header.at(RTSP_TOKEN_CONTENT_TYPE).compare(0, 5, "text/") != 0 &&
+        if (header.at(RTSP_TOKEN_CONTENT_TYPE).compare(0, 5, "text/") != 0 && // 5:fixed size
             header.at(RTSP_TOKEN_CONTENT_TYPE) != "application/sdp") {
             return {RtspErrorType::INVALID_MESSAGE, "unsupported content"};
         }

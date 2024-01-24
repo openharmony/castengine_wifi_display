@@ -32,7 +32,8 @@ ClientFactory::~ClientFactory()
     interIpcClient_.reset();
 }
 
-std::shared_ptr<InterIpcClient> ClientFactory::CreateClient(std::string key, std::string clientClassName, std::string serverClassName)
+std::shared_ptr<InterIpcClient> ClientFactory::CreateClient(std::string key,
+    std::string clientClassName, std::string serverClassName)
 {
     SHARING_LOGD("trace.");
     if (!interIpcClient_) {

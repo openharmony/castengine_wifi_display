@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include "common/sharing_log.h"
 #include "ipc_codec.h"
+#include "common/sharing_log.h"
 
 namespace OHOS {
 namespace Sharing {

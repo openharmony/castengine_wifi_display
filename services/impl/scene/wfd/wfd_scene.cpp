@@ -31,7 +31,6 @@ void WfdSinkScene::WfdP2pCallback::OnP2pStateChanged(int32_t state)
 {
     SHARING_LOGD("state: %{public}d.", state);
     auto parent = parent_.lock();
-
     if (parent) {
         switch (state) {
             case (int32_t)Wifi::P2pState::P2P_STATE_NONE:
@@ -75,7 +74,6 @@ void WfdSinkScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::Wif
 {
     SHARING_LOGD("trace.");
     auto parent = parent_.lock();
-
     if (parent) {
         SHARING_LOGI("device size: %{public}zu.", device.size());
         for (auto itDev : device) {
@@ -121,10 +119,6 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
                 return;
             }
             for (auto itDev : devices) {
-                // if (itGc.ip == "0.0.0.0") {
-                //     SHARING_LOGE("device: %{public}s leased ip is: 0.0.0.0.", itGc.mac.c_str());
-                //     parent->OnInnerError("", ERR_DHCP_BLANK_IP, "ip is: 0.0.0.0.");
-                // }
                 ConnectionInfo connectionInfo;
                 connectionInfo.ip = "192.168.1.5";
                 connectionInfo.mac = itDev.GetDeviceAddress();
@@ -254,7 +248,6 @@ void WfdSinkScene::Release()
 
             if (p2pInstance_) {
                 SHARING_LOGI("p2p remove client: %{public}s.", item.second->mac.c_str());
-                // p2pInstance_->RemoveClient(item.second->mac);
             }
 
             sharingAdapter->DestroyAgent(contextId, agentId);
@@ -840,7 +833,6 @@ int32_t WfdSinkScene::HandleClose(std::shared_ptr<WfdCloseReq> &msg, std::shared
 
         if (p2pInstance_) {
             SHARING_LOGI("p2p remove client: %{public}s.", itemDev->second->mac.c_str());
-            // p2pInstance_->RemoveClient(itemDev->second->mac);
         }
 
         devConnectionMap_.erase(msg->deviceId);
@@ -930,7 +922,6 @@ void WfdSinkScene::WfdP2pStop()
 
                 if (p2pInstance_) {
                     SHARING_LOGI("p2p remove client: %{public}s.", item.second->mac.c_str());
-                    // p2pInstance_->RemoveClient(item.second->mac);
                 }
 
                 sharingAdapter->DestroyAgent(contextId, agentId);
@@ -963,7 +954,6 @@ void WfdSinkScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
     if (devConnectionMap_.size() >= (uint32_t)accessDevMaximum_) {
         if (p2pInstance_) {
             SHARING_LOGE("too more device.");
-            // p2pInstance_->RemoveClient(connectionInfo.mac);
         }
 
         auto ipcAdapter = ipcAdapter_.lock();
@@ -996,7 +986,8 @@ void WfdSinkScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
             return;
         } else {
             SHARING_LOGI(
-                "connected, create sink agent, contextId: %{public}u, agentId: %{public}u, devMac: %{public}s, devIp: %{public}s.",
+                "connected, create sink agent, contextId: %{public}u, "
+                "agentId: %{public}u, devMac: %{public}s, devIp: %{public}s.",
                 contextId, agentId, connectionInfo.mac.c_str(), connectionInfo.ip.c_str());
         }
 
@@ -1046,7 +1037,6 @@ void WfdSinkScene::OnP2pPeerDisconnected(ConnectionInfo &connectionInfo)
 
         if (p2pInstance_) {
             SHARING_LOGI("p2p remove client: %{public}s.", connectionInfo.mac.c_str());
-            // p2pInstance_->RemoveClient(connectionInfo.mac);
         }
 
         devConnectionMap_.erase(connectionInfo.mac);
@@ -1103,7 +1093,6 @@ void WfdSinkScene::OnP2pPeerDisconnected(std::string &mac)
                      contextId, agentId, mac.c_str(), connectionInfo->ip.c_str());
         if (p2pInstance_) {
             SHARING_LOGI("p2p remove client: %{public}s.", mac.c_str());
-            // p2pInstance_->RemoveClient(mac);
         }
 
         devConnectionMap_.erase(mac);
@@ -1237,7 +1226,6 @@ void WfdSinkScene::OnInnerDestroy(uint32_t contextId, uint32_t agentId, AgentTyp
 
             if (p2pInstance_) {
                 SHARING_LOGI("p2p remove client: %{public}s.", item.second->mac.c_str());
-                // p2pInstance_->RemoveClient(item.second->mac);
             }
 
             devConnectionMap_.erase(item.second->mac);

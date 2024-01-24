@@ -57,8 +57,6 @@ protected:
     void OnInputBufferAvailable(uint32_t index) override;
     void OnOutputFormatChanged(const Media::Format &format) override;
     void OnError(Media::AVCodecErrorType errorType, int32_t errorCode) override;
-    // TODO: fix this
-    // void OnInfo(Media::AVCodecInfoType type, int32_t extra, const Media::Format &infoBody) override;
     void OnOutputBufferAvailable(uint32_t index, Media::AVCodecBufferInfo info, Media::AVCodecBufferFlag flag) override;
 
 private:

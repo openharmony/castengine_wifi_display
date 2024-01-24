@@ -34,7 +34,7 @@
 using namespace OHOS;
 using namespace OHOS::Sharing;
 
-VideoFormat DEFAULT_VIDEO_FORMAT = VideoFormat::VIDEO_1920x1080_30;
+VideoFormat DEFAULT_VIDEO_FORMAT = VideoFormat::VIDEO_1920X1080_30;
 AudioFormat DEFAULT_AUDIO_FORMAT = AudioFormat::AUDIO_48000_16_2;
 int32_t DEFAULT_WINDOW_WIDTH = 1920;
 int32_t DEFAULT_WINDOW_HEIGHT = 1080;
@@ -96,11 +96,11 @@ void WfdDemo::SelectMediaFormat()
     audioAttr_.format = 43;
 
     std::cout << "please input videoFormatId:(default 4)\n";
-    std::cout << "0: VIDEO_640x480_60\n";
-    std::cout << "1: VIDEO_1280x720_25\n";
-    std::cout << "2: VIDEO_1280x720_30\n";
-    std::cout << "4: VIDEO_1920x1080_25\n";
-    std::cout << "5: VIDEO_1920x1080_30\n";
+    std::cout << "0: VIDEO_640X480_60\n";
+    std::cout << "1: VIDEO_1280X720_25\n";
+    std::cout << "2: VIDEO_1280X720_30\n";
+    std::cout << "4: VIDEO_1920X1080_25\n";
+    std::cout << "5: VIDEO_1920X1080_30\n";
 
     std::string input;
     getline(std::cin, input);

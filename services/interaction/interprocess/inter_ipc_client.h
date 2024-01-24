@@ -16,31 +16,32 @@
 #ifndef OHOS_SHARING_SHARING_DOMAIN_RPC_CLIENT_H
 #define OHOS_SHARING_SHARING_DOMAIN_RPC_CLIENT_H
 
-#include <stdint.h>
-#include "interaction/interprocess/ipc_msg_adapter.h"
-#include "inter_ipc_death_recipient.h"
+#include <cstdint>
 #include "common/identifier.h"
 #include "inter_ipc_client_stub.h"
+#include "inter_ipc_death_recipient.h"
 #include "inter_ipc_proxy.h"
+#include "interaction/interprocess/ipc_msg_adapter.h"
 
 namespace OHOS {
 namespace Sharing {
 
 class InterIpcClient final : public IdentifierInfo,
-                              public InterIpcDeathListener,
-                              public std::enable_shared_from_this<InterIpcClient> {
+                             public InterIpcDeathListener,
+                             public std::enable_shared_from_this<InterIpcClient> {
 public:
     explicit InterIpcClient();
-    virtual ~InterIpcClient() = default;
+    ~InterIpcClient() override {};
 
-    //rpc client
+    // rpc client
     int32_t CreateListenerObject();
     void OnRemoteDied(std::string key) final;
     void Initialize(sptr<IInterIpc> standardProxy = nullptr);
 
     sptr<IInterIpc> GetSharingProxy();
     sptr<IInterIpc> GetSubProxy(std::string key, std::string className);
-    std::shared_ptr<InterIpcClient> CreateSubService(std::string key, std::string clientClassName, std::string serverClassName);
+    std::shared_ptr<InterIpcClient> CreateSubService(std::string key, std::string clientClassName,
+                                                     std::string serverClassName);
 
     void SetKey(std::string key);
     std::shared_ptr<IpcMsgAdapter> GetMsgAdapter();

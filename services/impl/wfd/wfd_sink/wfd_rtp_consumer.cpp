@@ -176,10 +176,11 @@ int32_t WfdRtpConsumer::Release()
     std::chrono::duration<double, std::milli> diff = end - gopInterval_;
 
     SHARING_LOGD(
-        "TEST STATISTIC Miracast:finish, interval:%{public}.0f ms, agent ID:%{public}d, get video frame, gop:%{public}d, average receiving frames time:%{public}.0f ms.",
+        "TEST STATISTIC Miracast:finish, interval:%{public}.0f ms, agent ID:%{public}d, "
+        "get video frame, gop:%{public}d, average receiving frames time:%{public}.0f ms.",
         diff.count(), GetSinkAgentId(), frameNums_, diff.count() / frameNums_);
-    Stop();
 
+    Stop();
     return 0;
 }
 
@@ -188,7 +189,6 @@ bool WfdRtpConsumer::InitRtpUnpacker()
     SHARING_LOGD("trace.");
     RtpPlaylodParam arpp = {33, 90000, RtpPayloadStream::MPEG2_TS}; // 33 : ts rtp payload, 90000 : sampe rate
     rtpUnpacker_ = RtpFactory::CreateRtpUnpack(arpp);
-
     if (rtpUnpacker_ != nullptr) {
         // data callback
         rtpUnpacker_->SetOnRtpUnpack(
@@ -240,7 +240,7 @@ void WfdRtpConsumer::OnRtpUnpackCallback(uint32_t ssrc, const Frame::Ptr &frame)
         }
 
         auto p = frame->Data();
-        p = *(p + 2) == 0x01 ? p + 3 : p + 4;
+        p = *(p + 2) == 0x01 ? p + 3 : p + 4; // 2: fix offset, 3: fix offset, 4: fix offset
         if (((p[0]) & 0x1f) == 0x01) {
             mediaData = std::make_shared<MediaData>();
             mediaData->mediaType = MEDIA_TYPE_VIDEO;
@@ -303,8 +303,9 @@ void WfdRtpConsumer::OnRtpUnpackCallback(uint32_t ssrc, const Frame::Ptr &frame)
                     } else {
                         auto end = std::chrono::steady_clock::now();
                         std::chrono::duration<double, std::milli> diff = end - gopInterval_;
-                        MEDIA_LOGD(
-                            "TEST STATISTIC Miracast:interval:%{public}.0f ms, agent ID:%{public}d, get video frame, gop:%{public}d, average receiving frames time:%{public}.0f ms.",
+                        MEDIA_LOGD("TEST STATISTIC Miracast:interval:%{public}.0f ms, "
+                            "agent ID:%{public}d, get video frame, gop:%{public}d, "
+                            "average receiving frames time:%{public}.0f ms.",
                             diff.count(), GetSinkAgentId(), frameNums_, diff.count() / frameNums_);
                     }
 

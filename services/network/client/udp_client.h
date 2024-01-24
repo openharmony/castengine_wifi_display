@@ -30,7 +30,7 @@ class UdpClientEventHandler : public BaseClientEventHandler {};
 class UdpClient final : public BaseClient {
 public:
     UdpClient();
-    ~UdpClient();
+    ~UdpClient() override;
 
     bool Send(const std::string &msg) override;
     bool Send(const char *buf, int32_t nSize) override;

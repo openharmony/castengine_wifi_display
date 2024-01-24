@@ -61,7 +61,7 @@ public:
     using Ptr = std::shared_ptr<IpcMsgAdapter>;
 
     IpcMsgAdapter() = default;
-    virtual ~IpcMsgAdapter();
+    ~IpcMsgAdapter() override;
 
     int32_t OnRequest(std::shared_ptr<BaseMsg> msg, std::shared_ptr<BaseMsg> &reply) override;
     int32_t SendRequest(std::shared_ptr<BaseMsg> msg, std::shared_ptr<BaseMsg> &reply) override;

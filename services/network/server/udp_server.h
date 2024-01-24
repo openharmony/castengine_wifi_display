@@ -31,7 +31,7 @@ class UdpServerEventHandler : public BaseServerEventHandler {};
 class UdpServer final : public BaseServer {
 public:
     UdpServer();
-    virtual ~UdpServer();
+    ~UdpServer() override;
 
     void Stop() override;
     bool Start(uint16_t port, const std::string &host, bool enableReuse = true,

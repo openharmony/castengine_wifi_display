@@ -38,7 +38,6 @@ class InterIpcStub : public IRemoteStub<IInterIpc>,
 public:
     InterIpcStub();
     virtual ~InterIpcStub();
-
     
     virtual void OnRemoteDied();
     virtual void SetStubListener(std::weak_ptr<IInterIpcStubListener> listener);

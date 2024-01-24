@@ -21,59 +21,57 @@
 namespace OHOS {
 namespace Sharing {
 
-#define IPC_BIND_ATTR0 \
-	int32_t IpcSerialize(MessageParcel& pacel) \
-	{ \
-        return 0; \
-	} \
-	int32_t IpcDeserialize(MessageParcel& pacel) \
-	{ \
-		return 0; \
-	}
+#define IPC_BIND_ATTR0                           \
+    int32_t IpcSerialize(MessageParcel &pacel)   \
+    {                                            \
+        return 0;                                \
+    }                                            \
+    int32_t IpcDeserialize(MessageParcel &pacel) \
+    {                                            \
+        return 0;                                \
+    }
 
-#define IPC_BIND_ATTR(...) \
-    int32_t IpcSerialize(MessageParcel& pacel){ \
-        return IpcSerialize(pacel, __VA_ARGS__); \
-    } \
-    template<class T,class ... Args> \
-    int32_t IpcSerialize(MessageParcel& pacel, T first, Args... last) \
-    { \
-        if(!IPC_CODEC::IpcEncodeBindAttr(pacel, first)) \
-        { \
-            return -1; \
-        } \
-        return IpcSerialize(pacel, last...); \
-    } \
-    template<class T> \
-    int32_t IpcSerialize(MessageParcel& pacel, T t) \
-    { \
-        if(!IPC_CODEC::IpcEncodeBindAttr(pacel, t)) \
-        { \
-            return -1; \
-        } \
-        return 0; \
-    } \
-     \
-    int32_t IpcDeserialize(MessageParcel& pacel){ \
-        return IpcDeserialize(pacel, __VA_ARGS__); \
-    } \
-    template<class T,class ... Args> \
-    int32_t IpcDeserialize(MessageParcel& pacel, T& first, Args&... last) \
-    { \
-        if(!IPC_CODEC::IpcDecodeBindAttr(pacel, first)) \
-        { \
-            return -1; \
-        } \
-        return IpcDeserialize(pacel, last...); \
-    } \
-    template<class T> \
-    int32_t IpcDeserialize(MessageParcel& pacel, T& t) \
-    { \
-        if(!IPC_CODEC::IpcDecodeBindAttr(pacel, t)) \
-        { \
-            return -1; \
-        } \
-        return 0; \
+#define IPC_BIND_ATTR(...)                                                \
+    int32_t IpcSerialize(MessageParcel &pacel)                            \
+    {                                                                     \
+        return IpcSerialize(pacel, __VA_ARGS__);                          \
+    }                                                                     \
+    template <class T, class... Args>                                     \
+    int32_t IpcSerialize(MessageParcel &pacel, T first, Args... last)     \
+    {                                                                     \
+        if (!IPC_CODEC::IpcEncodeBindAttr(pacel, first)) {                \
+            return -1;                                                    \
+        }                                                                 \
+        return IpcSerialize(pacel, last...);                              \
+    }                                                                     \
+    template <class T>                                                    \
+    int32_t IpcSerialize(MessageParcel &pacel, T t)                       \
+    {                                                                     \
+        if (!IPC_CODEC::IpcEncodeBindAttr(pacel, t)) {                    \
+            return -1;                                                    \
+        }                                                                 \
+        return 0;                                                         \
+    }                                                                     \
+                                                                          \
+    int32_t IpcDeserialize(MessageParcel &pacel)                          \
+    {                                                                     \
+        return IpcDeserialize(pacel, __VA_ARGS__);                        \
+    }                                                                     \
+    template <class T, class... Args>                                     \
+    int32_t IpcDeserialize(MessageParcel &pacel, T &first, Args &...last) \
+    {                                                                     \
+        if (!IPC_CODEC::IpcDecodeBindAttr(pacel, first)) {                \
+            return -1;                                                    \
+        }                                                                 \
+        return IpcDeserialize(pacel, last...);                            \
+    }                                                                     \
+    template <class T>                                                    \
+    int32_t IpcDeserialize(MessageParcel &pacel, T &t)                    \
+    {                                                                     \
+        if (!IPC_CODEC::IpcDecodeBindAttr(pacel, t)) {                    \
+            return -1;                                                    \
+        }                                                                 \
+        return 0;                                                         \
     }
 
 } // namespace Sharing

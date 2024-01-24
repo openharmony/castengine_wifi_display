@@ -64,10 +64,9 @@ bool EventDescriptorListener::AddFdListener(int32_t fd, const std::shared_ptr<Fi
         EventHandlerManager::GetInstance().AddEventHandler(fd, eventHandler);
         EventHandlerManager::GetInstance().AddFdListener(fd, listener);
     }
-    return ERR_OK == eventHandler->AddFileDescriptorListener(
-                         fd,
-                         FILE_DESCRIPTOR_EVENTS_MASK | FILE_DESCRIPTOR_SHUTDOWN_EVENT | FILE_DESCRIPTOR_EXCEPTION_EVENT,
-                         listener, taskName);
+    return ERR_OK == eventHandler->AddFileDescriptorListener(fd,
+        FILE_DESCRIPTOR_EVENTS_MASK | FILE_DESCRIPTOR_SHUTDOWN_EVENT | FILE_DESCRIPTOR_EXCEPTION_EVENT,
+        listener, taskName);
 }
 
 void EventDescriptorListener::RemoveFdListener(int32_t fd,

@@ -89,7 +89,7 @@ void RtpEncoderG711::InputFrame(const Frame::Ptr &frame)
     if (next_pts == 0) {
         cacheFrame_->pts_ = frame->Pts();
     } else {
-        if ((next_pts + 20) < frame->Pts()) {
+        if ((next_pts + 20) < frame->Pts()) { // 20:interval ms
             cacheFrame_->pts_ = frame->Pts() - dur;
         }
     }

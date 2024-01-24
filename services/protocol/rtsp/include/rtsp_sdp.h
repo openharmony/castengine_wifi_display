@@ -16,7 +16,6 @@
 #ifndef OHOS_SHARING_RTSP_SDP_H
 #define OHOS_SHARING_RTSP_SDP_H
 
-#include <cassert>
 #include <cstdint>
 #include <list>
 #include <memory>

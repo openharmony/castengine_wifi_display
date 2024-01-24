@@ -19,65 +19,54 @@
 namespace OHOS {
 namespace Sharing {
 
-#define BEGIN_IPC_MESSAGE_ENCODE_BIND \
-	virtual int32_t OnIpcMessage(const int32_t nMsgType, MessageParcel &ipcMsg, std::shared_ptr<BaseMsg>& sharingMsg) \
-	{ \
-		switch(nMsgType) \
-		{
+#define BEGIN_IPC_MESSAGE_ENCODE_BIND                                                                                 \
+    virtual int32_t OnIpcMessage(const int32_t nMsgType, MessageParcel &ipcMsg, std::shared_ptr<BaseMsg> &sharingMsg) \
+    {                                                                                                                 \
+        switch (nMsgType) {
+#define IPC_MESSAGE_ENCODE_BIND(SERVICE_TYPE, MESSAGE_TYPE)                        \
+    case MESSAGE_TYPE: {                                                           \
+        auto message = static_pointer_cast<SERVICE_TYPE>(sharingMsg);              \
+        if (message) {                                                             \
+            message->IpcSerialize(ipcMsg);                                         \
+        } else {                                                                   \
+            SHARING_LOGE("encode error, message type: %{public}d.", MESSAGE_TYPE); \
+        }                                                                          \
+        break;                                                                     \
+    }
 
-#define IPC_MESSAGE_ENCODE_BIND(SERVICE_TYPE, MESSAGE_TYPE) \
-		case MESSAGE_TYPE: \
-		{ \
-			auto message = static_pointer_cast<SERVICE_TYPE>(sharingMsg); \
-			if (message) { \
-				message->IpcSerialize(ipcMsg); \
-			} else { \
-				SHARING_LOGE("encode error, message type: %{public}d.",MESSAGE_TYPE); \
-			} \
-			break; \
-		}
+#define END_IPC_MESSAGE_ENCODE_BIND                                                                     \
+    default: {                                                                                          \
+        SHARING_LOGE("cann't process, may be message type error, message type: %{public}d.", nMsgType); \
+        break;                                                                                          \
+    }                                                                                                   \
+        }                                                                                               \
+        return 0;                                                                                       \
+        }
 
-#define END_IPC_MESSAGE_ENCODE_BIND \
-			default: \
-			{ \
-				SHARING_LOGE("cann't process, may be message type error, message type: %{public}d.", nMsgType); \
-				break; \
-			} \
-		} \
-	return 0; \
-	}
+#define BEGIN_IPC_MESSAGE_DECODE_BIND                                                                                 \
+    virtual int32_t OnIpcMessage(const int32_t nMsgType, std::shared_ptr<BaseMsg> &sharingMsg, MessageParcel &ipcMsg) \
+    {                                                                                                                 \
+        switch (nMsgType) {
+#define IPC_MESSAGE_DECODE_BIND(SERVICE_TYPE, MESSAGE_TYPE)                        \
+    case MESSAGE_TYPE: {                                                           \
+        auto message = std::make_shared<SERVICE_TYPE>();                           \
+        if (0 == message->IpcDeserialize(ipcMsg)) {                                \
+            sharingMsg = std::move(message);                                       \
+            return 0;                                                              \
+        } else {                                                                   \
+            SHARING_LOGE("decode error, message type: %{public}d.", MESSAGE_TYPE); \
+        }                                                                          \
+        break;                                                                     \
+    }
 
-#define BEGIN_IPC_MESSAGE_DECODE_BIND \
-	virtual int32_t OnIpcMessage(const int32_t nMsgType, std::shared_ptr<BaseMsg>& sharingMsg, MessageParcel &ipcMsg) \
-	{ \
-		switch(nMsgType) \
-		{
-
-#define IPC_MESSAGE_DECODE_BIND(SERVICE_TYPE, MESSAGE_TYPE) \
-	case MESSAGE_TYPE: \
-	{ \
-		auto message = std::make_shared<SERVICE_TYPE>(); \
-		if( 0 == message->IpcDeserialize(ipcMsg) ) \
-		{ \
-			sharingMsg = std::move(message); \
-            return 0; \
-		} \
-		else \
-		{ \
-			SHARING_LOGE("decode error, message type: %{public}d.", MESSAGE_TYPE); \
-		} \
-		break; \
-	}
-
-#define END_IPC_MESSAGE_DECODE_BIND \
-		default: \
-		{ \
-			SHARING_LOGE("cann't process, may be message type error, message type: %{public}d.", nMsgType); \
-			break; \
-		} \
-	} \
-	return 0; \
-}
+#define END_IPC_MESSAGE_DECODE_BIND                                                                     \
+    default: {                                                                                          \
+        SHARING_LOGE("cann't process, may be message type error, message type: %{public}d.", nMsgType); \
+        break;                                                                                          \
+    }                                                                                                   \
+        }                                                                                               \
+        return 0;                                                                                       \
+        }
 
 } // namespace Sharing
 } // namespace OHOS

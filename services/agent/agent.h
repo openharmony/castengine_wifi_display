@@ -72,7 +72,7 @@ public:
         return agentType_;
     }
 
-public:                
+public:
     int32_t HandleEvent(SharingEvent &event) override;
     SharingErrorCode CreateSession(const std::string &className);
 

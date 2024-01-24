@@ -26,15 +26,15 @@ enum MediaType { MEDIA_TYPE_AV, MEDIA_TYPE_AUDIO, MEDIA_TYPE_VIDEO };
 enum SceneType { FOREGROUND = 0, BACKGROUND = 1 };
 
 enum VideoFormat {
-    VIDEO_640x480_25 = 0,
-    VIDEO_640x480_30,
-    VIDEO_640x480_60,
-    VIDEO_1280x720_25,
-    VIDEO_1280x720_30,
-    VIDEO_1280x720_60,
-    VIDEO_1920x1080_25,
-    VIDEO_1920x1080_30,
-    VIDEO_1920x1080_60
+    VIDEO_640X480_25 = 0,
+    VIDEO_640X480_30,
+    VIDEO_640X480_60,
+    VIDEO_1280X720_25,
+    VIDEO_1280X720_30,
+    VIDEO_1280X720_60,
+    VIDEO_1920X1080_25,
+    VIDEO_1920X1080_30,
+    VIDEO_1920X1080_60
 };
 
 enum AudioFormat {
@@ -74,10 +74,10 @@ constexpr uint16_t MIN_PORT = 6700;
 constexpr uint16_t MAX_PORT = 7000;
 constexpr uint16_t DEFAULT_WFD_CTRLPORT = 7236;
 
-constexpr uint32_t DEFAULT_VIDEO_WIDTH = 1920;   // 1920; //1280; //960; //640;
-constexpr uint32_t DEFAULT_VIDEO_HEIGHT = 1080;  // 1080; //720; //540; //360
-constexpr uint32_t DEFAULT_WINDOW_WIDTH = 1920;  // 1920; //1280;
-constexpr uint32_t DEFAULT_WINDOW_HEIGHT = 1080; // 1080; //720;
+constexpr uint32_t DEFAULT_VIDEO_WIDTH = 1920;
+constexpr uint32_t DEFAULT_VIDEO_HEIGHT = 1080;
+constexpr uint32_t DEFAULT_WINDOW_WIDTH = 1920;
+constexpr uint32_t DEFAULT_WINDOW_HEIGHT = 1080;
 constexpr uint32_t DEFAULT_CAPTURE_VIDEO_WIDTH = 1280;
 constexpr uint32_t DEFAULT_CAPTURE_VIDEO_HEIGHT = 720;
 constexpr uint32_t DEFAULT_FRAME_RATE = 30;
@@ -105,7 +105,7 @@ enum TrackType { TRACK_INVALID = -1, TRACK_VIDEO = 0, TRACK_AUDIO, TRACK_TITLE, 
     XX(CODEC_AAC, TRACK_AUDIO, 3, "mpeg4-generic", PSI_STREAM_AAC)   \
     XX(CODEC_G711A, TRACK_AUDIO, 4, "PCMA", PSI_STREAM_AUDIO_G711A)  \
     XX(CODEC_G711U, TRACK_AUDIO, 5, "PCMU", PSI_STREAM_AUDIO_G711U)  \
-    XX(CODEC_Opus, TRACK_AUDIO, 6, "opus", PSI_STREAM_AUDIO_OPUS)    \
+    XX(CODEC_OPUS, TRACK_AUDIO, 6, "opus", PSI_STREAM_AUDIO_OPUS)    \
     XX(CODEC_L16, TRACK_AUDIO, 7, "L16", PSI_STREAM_RESERVED)        \
     XX(CODEC_VP8, TRACK_VIDEO, 8, "VP8", PSI_STREAM_VP8)             \
     XX(CODEC_VP9, TRACK_VIDEO, 9, "VP9", PSI_STREAM_VP9)             \
@@ -114,13 +114,13 @@ enum TrackType { TRACK_INVALID = -1, TRACK_VIDEO = 0, TRACK_AUDIO, TRACK_TITLE, 
 
 typedef enum {
     CODEC_NONE = -1,
-#define XX(name, type, value, str, mpeg_id) name = value,
+#define XX(name, type, value, str, mpeg_id) name = (value),
     CODEC_MAP(XX)
 #undef XX
         CODEC_MAX
 } CodecId;
 
-#define ABSTRACT_ERR_BASE(errorCode) (errorCode / 100 * 100)
+#define ABSTRACT_ERR_BASE(errorCode) ((errorCode) / 100 * 100)
 
 enum SharingErrorCode {
     // common

@@ -27,10 +27,8 @@ std::shared_ptr<AudioEncoder> CodecFactory::CreateAudioEncoder(CodecId format)
 
     switch (format) {
         case CODEC_G711A:
-            // encoder.reset(new AudioG711Encoder(G711_TYPE::G711_ALAW));
             break;
         case CODEC_G711U:
-            // encoder.reset(new AudioG711Encoder(G711_TYPE::G711_ULAW));
             break;
         default:
             SHARING_LOGE("unsupported codec format %{public}d.", (int32_t)format);

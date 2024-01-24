@@ -76,10 +76,7 @@ std::string DmKit::GetIpAddrByNetworkId(const std::string &networkId)
         SHARING_LOGE("DmKit is not Inited.");
     }
 
-    std::string ipAddr;
-    // TODO: fix this
-    // int32_t ret = DistributedHardware::DeviceManager::GetInstance().GetIpAddrByNetworkId(PKG_NAME, networkId, ipAddr);
-    // CHECK_AND_RETURN_RET_LOG(ret == 0, ipAddr, "get ip addr by network id failed.");
+    std::string ipAddr = "";
 
     return ipAddr;
 }

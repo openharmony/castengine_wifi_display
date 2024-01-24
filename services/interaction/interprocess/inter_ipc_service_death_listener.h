@@ -27,7 +27,7 @@ class InterIpcServiceDeathListener : public InterIpcDeathListener {
 public:
     explicit InterIpcServiceDeathListener() = default;
 
-    virtual ~InterIpcServiceDeathListener()
+    ~InterIpcServiceDeathListener() override
     {
         SHARING_LOGD("trace.");
         if (service_!= nullptr) {

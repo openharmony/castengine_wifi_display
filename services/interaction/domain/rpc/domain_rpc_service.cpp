@@ -68,7 +68,7 @@ sptr<IRemoteObject> DomainRpcService::GetSubSystemAbility(int32_t type)
     SHARING_LOGD("trace.");
     std::unique_lock<std::mutex> lock(mutex_);
     sptr<IRemoteObject> peerObject = IPCSkeleton::GetContextObject();
-    sptr<DomainRpcServiceStub> stub = new(std::nothrow) DomainRpcServiceStub();
+    sptr<DomainRpcServiceStub> stub = new (std::nothrow) DomainRpcServiceStub();
     if (stub == nullptr) {
         SHARING_LOGE("stub null");
         return nullptr;

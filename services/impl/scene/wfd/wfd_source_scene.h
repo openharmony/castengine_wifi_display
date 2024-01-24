@@ -128,7 +128,7 @@ private:
     CodecId audioCodecId_ = CodecId::CODEC_AAC;
     CodecId videoCodecId_ = CodecId::CODEC_H264;
     AudioFormat audioFormat_ = AudioFormat::AUDIO_48000_16_2;
-    VideoFormat videoFormat_ = VideoFormat::VIDEO_1920x1080_25;
+    VideoFormat videoFormat_ = VideoFormat::VIDEO_1920X1080_25;
 
     std::mutex mutex_;
     std::shared_ptr<Wifi::WifiP2p> p2pInstance_;

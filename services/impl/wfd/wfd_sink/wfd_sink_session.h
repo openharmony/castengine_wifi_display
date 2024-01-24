@@ -106,7 +106,7 @@ private:
     std::map<int, std::function<void(const RtspResponse &response, const std::string &message)>> responseHandlers_;
 
     AudioFormat audioFormat_ = AUDIO_48000_16_2;
-    VideoFormat videoFormat_ = VIDEO_1920x1080_30;
+    VideoFormat videoFormat_ = VIDEO_1920X1080_30;
     NetworkFactory::ClientPtr rtspClient_ = nullptr;
     WfdSessionState wfdState_ = WfdSessionState::INIT;
 };

@@ -28,7 +28,6 @@ constexpr char ENABLE_HARDWARE[] = "enableHardware";
 
 class KvOperator final : public DistributedKv::KvStoreSyncCallback,
                                   public std::enable_shared_from_this<KvOperator> {
-
 public:
     KvOperator() = default;
     KvOperator(const KvOperator&) = delete;

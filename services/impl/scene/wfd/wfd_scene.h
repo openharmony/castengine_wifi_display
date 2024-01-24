@@ -132,7 +132,7 @@ private:
     CodecId audioCodecId_ = CodecId::CODEC_AAC;
     CodecId videoCodecId_ = CodecId::CODEC_H264;
     AudioFormat audioFormatId_ = AudioFormat::AUDIO_48000_16_2;
-    VideoFormat videoFormatId_ = VideoFormat::VIDEO_1920x1080_25;
+    VideoFormat videoFormatId_ = VideoFormat::VIDEO_1920X1080_25;
 };
 
 } // namespace Sharing

@@ -43,11 +43,11 @@ int32_t DomainManager::SendDomainRequest(std::string remoteId, std::shared_ptr<B
 {
     SHARING_LOGD("trace.");
     auto mgr = FindMgrByRemoteId(BaseMsg->toDevId);
-    if(mgr != nullptr) {
+    if (mgr != nullptr) {
         SHARING_LOGD("mgr exist.");
         mgr->SendDomainRequest(BaseMsg->toDevId, BaseMsg);
     } else {
-        if(!BaseMsg->toDevId.empty()) {
+        if (!BaseMsg->toDevId.empty()) {
             SHARING_LOGD("AddRpcClient.");
             // first send  need  to create  RPC client
             DomainRpcManager::GetInstance()->AddRpcClient(BaseMsg->toDevId);
@@ -63,7 +63,7 @@ int32_t DomainManager::SendDomainRequest(std::string remoteId, std::shared_ptr<B
 void DomainManager::OnDomainRequest(std::string remoteId, std::shared_ptr<BaseDomainMsg> BaseMsg)
 {
     SHARING_LOGD("redirect to interactionMgr.");
-    if(listener_!= nullptr) {
+    if (listener_!= nullptr) {
         listener_->OnDomainMsg(BaseMsg);
     } else {
         SHARING_LOGE("listener is null.");
@@ -93,7 +93,7 @@ int32_t DomainManager::DelPeer(std::string remoteId)
 {
     SHARING_LOGD("trace, remoteId: %{public}s.", remoteId.c_str());
     std::unique_lock lock(mutex_);
-    if(peerTypeMap_.find(remoteId) != peerTypeMap_.end()) {
+    if (peerTypeMap_.find(remoteId) != peerTypeMap_.end()) {
         peerTypeMap_.erase(remoteId);
     } else {
         SHARING_LOGE("remoteId is not exist.");
@@ -108,9 +108,9 @@ std::shared_ptr<ITransmitMgr> DomainManager::FindMgrByRemoteId(std::string remot
     SHARING_LOGD("trace, peerTypeMap size: %{public}zu.", peerTypeMap_.size());
     std::unique_lock lock(mutex_);
     auto iter = peerTypeMap_.find(remoteId);
-    if(iter != peerTypeMap_.end()) {
+    if (iter != peerTypeMap_.end()) {
         auto mgrIter = transmitMgrs_.find(iter->second);
-        if(mgrIter != transmitMgrs_.end()) {
+        if (mgrIter != transmitMgrs_.end()) {
             return mgrIter->second;
         } else {
             SHARING_LOGE("mgr is null.");

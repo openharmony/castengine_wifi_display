@@ -27,7 +27,7 @@ class UdpSessionEventHandler : public BaseSessionEventHandler {};
 
 class UdpSession final : public BaseNetworkSession {
 public:
-    ~UdpSession();
+    ~UdpSession() override;
     explicit UdpSession(SocketInfo::Ptr socket);
 
     bool Start() override;

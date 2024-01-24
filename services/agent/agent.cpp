@@ -50,7 +50,8 @@ int32_t Agent::HandleEvent(SharingEvent &event)
     SHARING_LOGD("trace.");
     RETURN_INVALID_IF_NULL(event.eventMsg);
     SHARING_LOGI(
-        "contextId: %{public}u, agentId: %{public}u, mediaChannelId: %{public}u, fromMgr: %{public}u, srcId: %{public}u channel event: %{public}s.",
+        "contextId: %{public}u, agentId: %{public}u, mediaChannelId: %{public}u, "
+        "fromMgr: %{public}u, srcId: %{public}u channel event: %{public}s.",
         event.eventMsg->dstId, GetId(), mediaChannelId_, event.eventMsg->fromMgr, event.eventMsg->srcId,
         std::string(magic_enum::enum_name(event.eventMsg->type)).c_str());
 
@@ -300,12 +301,6 @@ void Agent::PushNextStep(SessionStatusMsg::Ptr &statusMsg)
             }
             break;
         }
-        // case EVENT_AGENT_STATE_PROSUMER_PAUSE:
-        //     PopNextStep(AGENT_STEP_PAUSE, AGENT_STATUS_DONE);
-        //     break;
-        // case EVENT_AGENT_STATE_PROSUMER_RESUME:
-        //     PopNextStep(AGENT_STEP_RESUME, AGENT_STATUS_DONE);
-        //     break;
         case EVENT_AGENT_STATE_PLAY_START:
             PopNextStep(AGENT_STEP_PLAY, AGENT_STATUS_DONE);
             break;
@@ -648,12 +643,6 @@ AgentRunStep Agent::GetRunStep(EventType eventType)
         case EVENT_AGENT_START:
             step = AGENT_STEP_START;
             break;
-        // case EVENT_AGENT_PAUSE:
-        //     step = AGENT_STEP_PAUSE;
-        //     break;
-        // case EVENT_AGENT_RESUME:
-        //     step = AGENT_STEP_RESUME;
-        //     break;
         case EVENT_AGENT_CHANNEL_APPENDSURFACE:
             step = AGENT_STEP_APPENDSURFACE;
             break;
@@ -727,7 +716,7 @@ SharingErrorCode Agent::CheckRunStep(SharingEvent &event, bool &isCached)
             if (runStep_ == AGENT_STEP_DESTROY) {
                 return ERR_GENERAL_ERROR;
             }
-            if ((runStep_ < AGENT_STEP_START) && (AGENT_STEP_START < step) && (step < AGENT_STEP_DESTROY)) {
+            if ((runStep_ < AGENT_STEP_START) && (step > AGENT_STEP_START) && (step < AGENT_STEP_DESTROY)) {
                 runEvents_.emplace(nextKey, event);
                 isCached = true;
                 SHARING_LOGD("cache event: %{public}s agentId: %{public}u.",

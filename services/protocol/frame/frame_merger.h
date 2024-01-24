@@ -39,10 +39,11 @@ public:
     };
 
 public:
-    FrameMerger(int32_t type);
+    FrameMerger() = default;
     ~FrameMerger() = default;
 
     void Clear();
+    void SetType(int32_t type);
     bool InputFrame(const Frame::Ptr &frame, DataBuffer::Ptr &buffer, const onOutput &cb);
 
 private:

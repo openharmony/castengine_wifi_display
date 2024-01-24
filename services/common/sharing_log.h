@@ -33,19 +33,19 @@ namespace Sharing {
 
 static constexpr OHOS::HiviewDFX::HiLogLabel SHARING_LABEL = {LOG_CORE, SHARING_LOG_DOMAIN, SHARING_LOG_TAG};
 
-#define R_FILENAME__ (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
+#define R_FILENAME (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 : __FILE__)
 
-#define __SHARING_LOG(func, fmt, args...)                                                                            \
+#define SHARING_LOG(func, fmt, args...)                                                                            \
     do {                                                                                                             \
-        (void)func(SHARING_LABEL, "[Sharing][%{public}s()][%{public}s:%{public}d] " fmt, __FUNCTION__, R_FILENAME__, \
+        (void)func(SHARING_LABEL, "[Sharing][%{public}s()][%{public}s:%{public}d] " fmt, __FUNCTION__, R_FILENAME,   \
                    __LINE__, ##args);                                                                                \
     } while (0)
 
-#define SHARING_LOGD(fmt, ...) __SHARING_LOG(OHOS::HiviewDFX::HiLog::Debug, fmt, ##__VA_ARGS__)
-#define SHARING_LOGI(fmt, ...) __SHARING_LOG(OHOS::HiviewDFX::HiLog::Info, fmt, ##__VA_ARGS__)
-#define SHARING_LOGW(fmt, ...) __SHARING_LOG(OHOS::HiviewDFX::HiLog::Warn, fmt, ##__VA_ARGS__)
-#define SHARING_LOGE(fmt, ...) __SHARING_LOG(OHOS::HiviewDFX::HiLog::Error, fmt, ##__VA_ARGS__)
-#define SHARING_LOGF(fmt, ...) __SHARING_LOG(OHOS::HiviewDFX::HiLog::Fatal, fmt, ##__VA_ARGS__)
+#define SHARING_LOGD(fmt, ...) SHARING_LOG(OHOS::HiviewDFX::HiLog::Debug, fmt, ##__VA_ARGS__)
+#define SHARING_LOGI(fmt, ...) SHARING_LOG(OHOS::HiviewDFX::HiLog::Info, fmt, ##__VA_ARGS__)
+#define SHARING_LOGW(fmt, ...) SHARING_LOG(OHOS::HiviewDFX::HiLog::Warn, fmt, ##__VA_ARGS__)
+#define SHARING_LOGE(fmt, ...) SHARING_LOG(OHOS::HiviewDFX::HiLog::Error, fmt, ##__VA_ARGS__)
+#define SHARING_LOGF(fmt, ...) SHARING_LOG(OHOS::HiviewDFX::HiLog::Fatal, fmt, ##__VA_ARGS__)
 
 #define CHECK_AND_RETURN(cond)                                \
     do {                                                      \

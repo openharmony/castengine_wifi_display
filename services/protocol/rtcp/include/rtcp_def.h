@@ -16,7 +16,7 @@
 #ifndef OHOS_SHARING_RTCP_DEF_H
 #define OHOS_SHARING_RTCP_DEF_H
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace OHOS {
 namespace Sharing {

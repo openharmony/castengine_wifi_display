@@ -61,7 +61,7 @@ public:
         this->codecId_ = CODEC_H264;
     }
 
-    ~H264Frame() = default;
+    ~H264Frame() override {};
 
     bool KeyFrame() override
     {

@@ -18,7 +18,7 @@
 
 #include <functional>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include "buffer_dispatcher.h"
 #include "common/event_channel.h"
@@ -47,7 +47,7 @@ public:
     using Ptr = std::shared_ptr<BaseProducer>;
 
     BaseProducer();
-    virtual ~BaseProducer();
+    ~BaseProducer() override;
 
     virtual void SetSrcAgentId(uint32_t agentId);
     void SetProducerListener(std::weak_ptr<IProducerListener> listener);

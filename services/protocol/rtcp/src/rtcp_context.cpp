@@ -39,9 +39,10 @@ DataBuffer::Ptr RtcpSenderContext::CreateRtcpSR(uint32_t rtcpSSRC)
     rtcp->packetCount_ = htonl((uint32_t)packets_);
     rtcp->octetCount_ = htonl((uint32_t)bytes_);
 
-    auto lastSrLsr = ((ntohl(rtcp->ntpmsw_) & 0xFFFF) << 16) | ((ntohl(rtcp->ntplsw_) >> 16) & 0xFFFF);
+    auto lastSrLsr =
+        ((ntohl(rtcp->ntpmsw_) & 0xFFFF) << 16) | ((ntohl(rtcp->ntplsw_) >> 16) & 0xFFFF); // 16:byte offset
     senderReportNtp_[lastSrLsr] = GetCurrentMillisecond();
-    if (senderReportNtp_.size() >= 5) {
+    if (senderReportNtp_.size() >= 5) { // 5:fixed capacity
         senderReportNtp_.erase(senderReportNtp_.begin());
     }
 
@@ -67,7 +68,7 @@ void RtcpSenderContext::OnRtcp(RtcpHeader *rtcp)
                 // time: sender (send SR) -> receiver (recv SR) -> receiver (send RR) -> sender (recv RR)
                 auto msInc = GetCurrentMillisecond() - it->second;
                 // time: receiver (recv SR) -> receiver (send RR)
-                auto delayMs = (uint64_t)item->delaySinceLastSr_ * 1000 / 65536;
+                auto delayMs = (uint64_t)item->delaySinceLastSr_ * 1000 / 65536; // 1000:unit, 65536:max seq
                 // time: [sender (send SR) -> receiver (recv SR)] + [receiver (send RR) -> sender (recv RR)]
                 auto rtt = (int32_t)(msInc - delayMs);
                 if (rtt >= 0) {
@@ -78,11 +79,11 @@ void RtcpSenderContext::OnRtcp(RtcpHeader *rtcp)
         }
         case RtcpType::RTCP_XR: {
             auto rtcp_xr = (RtcpXRRRTR *)rtcp;
-            if (rtcp_xr->bt_ == 4) {
+            if (rtcp_xr->bt_ == 4) { // 4:xrXrrtr
                 xrXrrtrRecvLastRr_[rtcp_xr->ssrc_] =
-                    ((rtcp_xr->ntpmsw_ & 0xFFFF) << 16) | ((rtcp_xr->ntplsw_ >> 16) & 0xFFFF);
+                    ((rtcp_xr->ntpmsw_ & 0xFFFF) << 16) | ((rtcp_xr->ntplsw_ >> 16) & 0xFFFF); // 16:byte offset
                 xrRrtrRecvSysStamp_[rtcp_xr->ssrc_] = GetCurrentMillisecond();
-            } else if (rtcp_xr->bt_ == 5) {
+            } else if (rtcp_xr->bt_ == 5) { // 5:dlrr
                 SHARING_LOGD("for sender not recive dlrr.");
             } else {
                 SHARING_LOGD("not support xr bt.");
@@ -122,7 +123,7 @@ void RtcpReceiverContext::OnRtp(uint16_t seq, uint32_t stamp, uint64_t ntpStampM
             diff = -diff;
         }
         // jitter unit: sampling numbers
-        jitter_ += (diff - jitter_) / 16.0;
+        jitter_ += (diff - jitter_) / 16.0; // 16.0:jitter unit
     } else {
         jitter_ = 0;
     }
@@ -164,7 +165,8 @@ void RtcpReceiverContext::OnRtcp(RtcpHeader *rtcp)
             //  Section 4) received as part of the most recent RTCP sender report
             //  (SR) packet from source SSRC_n.  If no SR has been received yet,
             //  the field is set to zero.
-            lastSrLsr_ = (((ntohl(rtcpSR->ntpmsw_) & 0xffff) << 16) | ((ntohl(rtcpSR->ntplsw_) >> 16) & 0xffff));
+            lastSrLsr_ = (((ntohl(rtcpSR->ntpmsw_) & 0xffff) << 16) | // 16:byte offset
+                          ((ntohl(rtcpSR->ntplsw_) >> 16) & 0xffff)); // 16:byte offset
             lastSrNtpSys_ = GetCurrentMillisecond();
             break;
         }
@@ -183,13 +185,13 @@ DataBuffer::Ptr RtcpReceiverContext::CreateRtcpRR(uint32_t rtcpSSRC, uint32_t rt
 
     uint8_t fraction = 0;
     auto expectedInterval = GetExpectedPacketsInterval();
-    if (expectedInterval) {
-        fraction = uint8_t(GetLostInterval() << 8 / expectedInterval);
+    if (expectedInterval != 0) {
+        fraction = uint8_t((GetLostInterval() << 8) / expectedInterval); // 8:byte offset
     }
 
     // fraction = packet loss rate (percentage) * 256
     item->fractionLost_ = fraction;
-    item->cumulative_ = htonl(uint32_t(GetLost())) >> 8;
+    item->cumulative_ = htonl(uint32_t(GetLost())) >> 8; // 8:byte offset
     item->seqCycles_ = htons(seqCycles_);
     item->seqMax_ = htons(seqMax_);
     item->jitter_ = htonl(uint32_t(jitter_));
@@ -198,7 +200,7 @@ DataBuffer::Ptr RtcpReceiverContext::CreateRtcpRR(uint32_t rtcpSSRC, uint32_t rt
     // now - recv Last SR time
     auto delay = GetCurrentMillisecond() - lastSrNtpSys_;
     // in units of 1/65536 seconds
-    auto dlsr = (uint32_t)(delay / 1000.0f * 65536);
+    auto dlsr = (uint32_t)(delay / 1000.0f * 65536); // 1000.0:unit, 65536:max seq
     item->delaySinceLastSr_ = htonl(lastSrLsr_ ? dlsr : 0);
 
     DataBuffer::Ptr ret = std::make_shared<DataBuffer>();
@@ -208,7 +210,7 @@ DataBuffer::Ptr RtcpReceiverContext::CreateRtcpRR(uint32_t rtcpSSRC, uint32_t rt
 
 size_t RtcpReceiverContext::GetExpectedPackets() const
 {
-    return (seqCycles_ << 16) + seqMax_ - seqBase_ + 1;
+    return (seqCycles_ << 16) + seqMax_ - seqBase_ + 1; // 16:byte offset
 }
 
 size_t RtcpReceiverContext::GetExpectedPacketsInterval()

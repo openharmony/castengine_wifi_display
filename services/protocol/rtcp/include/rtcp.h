@@ -17,7 +17,7 @@
 #define OHOS_SHARING_RTCP_H
 
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <sys/time.h>
 #include <vector>

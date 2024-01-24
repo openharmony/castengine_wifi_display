@@ -29,7 +29,7 @@
 
 using namespace OHOS::Sharing;
 
-VideoFormat DEFAULT_VIDEO_FORMAT = VideoFormat::VIDEO_1920x1080_30;
+VideoFormat DEFAULT_VIDEO_FORMAT = VideoFormat::VIDEO_1920X1080_30;
 AudioFormat DEFAULT_AUDIO_FORMAT = AudioFormat::AUDIO_48000_16_2;
 std::vector<std::pair<int32_t, int32_t>> position{{0, 0}, {960, 0}, {0, 540}, {960, 540}};
 
@@ -274,7 +274,7 @@ void WfdSinkDemo::DoCmd(std::string cmd)
     std::string input;
     std::string deviceId;
     std::string surfaceId;
-    VideoFormat videoFormatId = VIDEO_1920x1080_30;
+    VideoFormat videoFormatId = VIDEO_1920X1080_30;
     AudioFormat audioFormatId = AUDIO_48000_16_2;
     SceneType sceneType = FOREGROUND;
     // input params

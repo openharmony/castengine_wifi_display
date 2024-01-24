@@ -26,12 +26,13 @@ namespace OHOS {
 namespace Sharing {
 class TimeoutTimer {
 public:
-    TimeoutTimer(std::string info = "TimeoutTimer");
+    explicit TimeoutTimer(std::string info = "TimeoutTimer");
     ~TimeoutTimer();
 
     void StopTimer();
     void SetTimeoutCallback(std::function<void()> callback);
-    void StartTimer(int timeout, std::string info = "none", std::function<void()> callback = nullptr, bool reuse = false);
+    void StartTimer(int timeout, std::string info = "none", std::function<void()> callback = nullptr,
+        bool reuse = false);
 
 private:
     void MainLoop();

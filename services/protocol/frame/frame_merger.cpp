@@ -20,12 +20,15 @@ namespace OHOS {
 namespace Sharing {
 static size_t constexpr MAX_FRAME_CACHE_SIZE = 100;
 
-FrameMerger::FrameMerger(int32_t type) : type_(type) {}
-
 void FrameMerger::Clear()
 {
     frameCache_.clear();
     haveDecodeAbleFrame_ = false;
+}
+
+void FrameMerger::SetType(int32_t type)
+{
+    type_ = type;
 }
 
 bool FrameMerger::InputFrame(const Frame::Ptr &frame, DataBuffer::Ptr &buffer, const onOutput &cb)
@@ -117,7 +120,7 @@ void FrameMerger::DoMerge(DataBuffer::Ptr &merged, const Frame::Ptr &frame) cons
             if (frame->PrefixSize()) {
                 merged->Append(frame->Data(), frame->Size());
             } else {
-                merged->Append("\x00\x00\x00\x01", 4);
+                merged->Append("\x00\x00\x00\x01", 4); // 4:avc start code size
                 merged->Append(frame->Data(), frame->Size());
             }
             break;
@@ -125,7 +128,7 @@ void FrameMerger::DoMerge(DataBuffer::Ptr &merged, const Frame::Ptr &frame) cons
         case MP4_NAL_SIZE: {
             uint32_t naluSize = (uint32_t)(frame->Size() - frame->PrefixSize());
             naluSize = htonl(naluSize);
-            merged->Append((char *)&naluSize, 4);
+            merged->Append((char *)&naluSize, 4); // 4:avc start code size
             merged->Append(frame->Data() + frame->PrefixSize(), frame->Size() - frame->PrefixSize());
             break;
         }

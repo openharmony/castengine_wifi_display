@@ -23,7 +23,7 @@ namespace Sharing {
 
 size_t RtpHeader::GetCsrcSize() const
 {
-    return csrc_ << 2;
+    return csrc_ << 2; // 2:byte offset
 }
 
 uint8_t *RtpHeader::GetCsrcData()
@@ -42,7 +42,7 @@ size_t RtpHeader::GetExtSize() const
     }
     auto ext_ptr = &payload_ + GetCsrcSize();
 
-    return AV_RB16(ext_ptr + 2) << 2;
+    return AV_RB16(ext_ptr + 2) << 2; // 2:byte offset
 }
 
 uint16_t RtpHeader::GetExtReserved() const
@@ -61,12 +61,12 @@ uint8_t *RtpHeader::GetExtData()
     }
     auto ext_ptr = &payload_ + GetCsrcSize();
 
-    return ext_ptr + 4;
+    return ext_ptr + 4; // 4:byte offset
 }
 
 size_t RtpHeader::GetPayloadOffset() const
 {
-    return GetCsrcSize() + (ext_ ? (4 + GetExtSize()) : 0);
+    return GetCsrcSize() + (ext_ ? (4 + GetExtSize()) : 0); // 4:byte offset
 }
 
 uint8_t *RtpHeader::GetPayloadData()
@@ -110,7 +110,7 @@ uint32_t RtpPacket::GetStamp()
 
 uint32_t RtpPacket::GetStampMS()
 {
-    return GetStamp() * uint64_t(1000) / sampleRate_;
+    return GetStamp() * uint64_t(1000) / sampleRate_; // 1000:unit
 }
 
 uint32_t RtpPacket::GetSSRC()

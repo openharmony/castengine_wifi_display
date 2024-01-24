@@ -16,7 +16,7 @@
 #ifndef OHOS_SHARING_DOMAIN_RPC_CLIENT_H
 #define OHOS_SHARING_DOMAIN_RPC_CLIENT_H
 
-#include <stdint.h>
+#include <cstdint>
 #include "domain_def.h"
 #include "domain_rpc_death_recipient.h"
 #include "common/identifier.h"
@@ -33,7 +33,7 @@ class DomainRpcClient final : public IDomainPeer,
                               public std::enable_shared_from_this<DomainRpcClient> {
 public:
     explicit DomainRpcClient();
-    virtual ~DomainRpcClient() = default;
+    ~DomainRpcClient() override {};
 
     //rpc client
     void Initialize();

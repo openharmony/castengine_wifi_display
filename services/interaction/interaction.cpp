@@ -115,8 +115,8 @@ int32_t Interaction::HandleEvent(SharingEvent &event)
             if (scene_) {
                 scene_->OnInnerError(contextId, agentId, errorCode);
                 if (errorCode == ERR_NETWORK_ERROR || errorCode == ERR_CONNECTION_FAILURE ||
-                    errorCode == ERR_INTERACTION_FAILURE || errorCode ==  ERR_PROTOCOL_INTERACTION_TIMEOUT 
-                    || errorCode == ERR_INTAKE_TIMEOUT) {
+                    errorCode == ERR_INTERACTION_FAILURE || errorCode ==  ERR_PROTOCOL_INTERACTION_TIMEOUT ||
+                    errorCode == ERR_INTAKE_TIMEOUT) {
                     SHARING_LOGD("on inner destroy network error.");
                     scene_->OnInnerDestroy(contextId, agentId, agentType);
                     DestroyAgent(contextId, agentId);
@@ -165,7 +165,6 @@ int32_t Interaction::CreateContext(uint32_t &contextId)
     event.eventMsg->fromMgr = ModuleType::MODULE_INTERACTION;
     event.eventMsg->srcId = GetId();
     int32_t ret = SendSyncEvent(event);
-
     if (ret != -1) {
         contextId = contextMsg->dstId;
         SHARING_LOGI("create context success contextId: %{public}u.", contextId);
@@ -261,7 +260,6 @@ int32_t Interaction::Start(uint32_t contextId, uint32_t agentId)
     agentMsg->dstId = contextId;
     agentMsg->agentId = agentId;
     int32_t ret = NotifyEvent(agentMsg);
-
     if (ret != -1) {
         SHARING_LOGI("start agent success agentId: %{public}u.", agentId);
     } else {
@@ -281,7 +279,6 @@ int32_t Interaction::Pause(uint32_t contextId, uint32_t agentId, MediaType media
     agentMsg->agentId = agentId;
     agentMsg->mediaType = mediaType;
     int32_t ret = NotifyEvent(agentMsg);
-
     if (ret != -1) {
         SHARING_LOGI("pause agent success agentId: %{public}u.", agentId);
     } else {
@@ -301,7 +298,6 @@ int32_t Interaction::Resume(uint32_t contextId, uint32_t agentId, MediaType medi
     agentMsg->agentId = agentId;
     agentMsg->mediaType = mediaType;
     int32_t ret = NotifyEvent(agentMsg);
-
     if (ret != -1) {
         SHARING_LOGI("resume agent success agentId: %{public}u.", agentId);
     } else {
@@ -335,7 +331,6 @@ int32_t Interaction::Play(uint32_t contextId, uint32_t agentId)
     agentMsg->dstId = contextId;
     agentMsg->agentId = agentId;
     int32_t ret = NotifyEvent(agentMsg);
-
     if (ret != -1) {
         SHARING_LOGI("agent play success agentId: %{public}u.", agentId);
     } else {
@@ -354,7 +349,6 @@ int32_t Interaction::Close(uint32_t contextId, uint32_t agentId)
     agentMsg->dstId = contextId;
     agentMsg->agentId = agentId;
     int32_t ret = NotifyEvent(agentMsg);
-
     if (ret != -1) {
         SHARING_LOGI("agent close success agentId: %{public}u.", agentId);
     } else {
@@ -374,7 +368,6 @@ int32_t Interaction::SetVolume(uint32_t contextId, uint32_t agentId, float volum
     agentMsg->agentId = agentId;
     agentMsg->volume = volume;
     int32_t ret = NotifyEvent(agentMsg);
-
     if (ret != -1) {
         SHARING_LOGI("agent set volume success agentId: %{public}u.", agentId);
     } else {
@@ -439,7 +432,6 @@ int32_t Interaction::AppendSurface(uint32_t contextId, uint32_t agentId, sptr<Su
     agentMsg->sceneType = sceneType;
     agentMsg->requestId = GetRequestId();
     int32_t ret = NotifyEvent(agentMsg);
-
     if (ret != -1) {
         SHARING_LOGI("agent set surface success agentId: %{public}u.", agentId);
     } else {
@@ -460,7 +452,6 @@ int32_t Interaction::RemoveSurface(uint32_t contextId, uint32_t agentId, uint64_
     agentMsg->surfaceId = surfaceId;
     agentMsg->requestId = GetRequestId();
     int32_t ret = NotifyEvent(agentMsg);
-
     if (ret != -1) {
         SHARING_LOGI("agent del surface success agentId: %{public}u.", agentId);
     } else {

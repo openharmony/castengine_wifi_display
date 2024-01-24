@@ -18,6 +18,7 @@
 
 #include <list>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <string>
 #include "common/const_def.h"
@@ -44,7 +45,7 @@ public:
     Frame() = default;
     explicit Frame(DataBuffer &&dataBuffer) : DataBuffer(std::move(dataBuffer)) {}
 
-    virtual ~Frame() = default;
+    ~Frame() override {};
 
     virtual uint32_t Dts() = 0;
 
@@ -83,14 +84,14 @@ public:
 
     static std::shared_ptr<FrameImpl> Create()
     {
-        return std::shared_ptr<FrameImpl>(new FrameImpl());
+        return std::make_shared<FrameImpl>();
     }
 
-    FrameImpl(DataBuffer &&dataBuffer) : Frame(std::move(dataBuffer)) {}
+    explicit FrameImpl(DataBuffer &&dataBuffer) : Frame(std::move(dataBuffer)) {}
 
     static std::shared_ptr<FrameImpl> CreateFrom(DataBuffer &&dataBuffer)
     {
-        return std::shared_ptr<FrameImpl>(new FrameImpl(std::move(dataBuffer)));
+        return std::make_shared<FrameImpl>(std::move(dataBuffer));
     }
 
     uint32_t Dts() override
@@ -123,7 +124,6 @@ public:
         return false;
     }
 
-protected:
     FrameImpl() = default;
 
 public:

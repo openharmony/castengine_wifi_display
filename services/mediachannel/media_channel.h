@@ -46,7 +46,7 @@ public:
     using Ptr = std::shared_ptr<MediaChannel>;
 
     MediaChannel();
-    virtual ~MediaChannel();
+    ~MediaChannel() override;
 
     void OnWriteTimeout() override;
     void SetContextId(uint32_t contextId)

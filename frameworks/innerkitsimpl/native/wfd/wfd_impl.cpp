@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-// #include <cstdint>
 #include "wfd_impl.h"
 #include <string>
 #include "common/common_macro.h"

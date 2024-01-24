@@ -268,15 +268,15 @@ bool WifiDisplay::IsVideoCodecAttr(CastCodecAttr videoAttr)
     }
 
     switch (videoAttr.format) {
-        case VideoFormat::VIDEO_640x480_60:
+        case VideoFormat::VIDEO_640X480_60:
             break;
-        case VideoFormat::VIDEO_1280x720_25:
+        case VideoFormat::VIDEO_1280X720_25:
             break;
-        case VideoFormat::VIDEO_1280x720_30:
+        case VideoFormat::VIDEO_1280X720_30:
             break;
-        case VideoFormat::VIDEO_1920x1080_25:
+        case VideoFormat::VIDEO_1920X1080_25:
             break;
-        case VideoFormat::VIDEO_1920x1080_30:
+        case VideoFormat::VIDEO_1920X1080_30:
             break;
         default:
             SHARING_LOGE("none process case.");

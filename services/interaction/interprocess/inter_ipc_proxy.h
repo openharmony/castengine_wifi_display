@@ -21,7 +21,7 @@
 
 namespace OHOS {
 namespace Sharing {
-    
+
 class InterIpcProxy : public IRemoteProxy<IInterIpc> {
 public:
     virtual ~InterIpcProxy() = default;

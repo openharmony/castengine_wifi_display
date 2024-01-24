@@ -107,7 +107,6 @@ private:
     WfdMode mode_ = WfdMode::SINK;
     std::weak_ptr<IWfdListener> listener_;
     std::shared_ptr<WfdSink> wfdSinkImpl_ = nullptr;
-    // std::shared_ptr<wfdSourceImpl_> wfdSourceImpl_;
 };
 
 class __attribute__((visibility("default"))) MiracastFactory {

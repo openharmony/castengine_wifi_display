@@ -24,7 +24,7 @@ namespace Sharing {
 class InterIpcClientStub : public InterIpcStub {
 public:
     InterIpcClientStub();
-    virtual ~InterIpcClientStub();
+    ~InterIpcClientStub() override;
 
     void OnRemoteDied() override;
     int32_t SetListenerObject(std::string key, const sptr<IRemoteObject> &object) override;

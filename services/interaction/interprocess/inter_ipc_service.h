@@ -27,12 +27,11 @@ namespace Sharing {
 class InterIpcService final : public SystemAbility,
                                public InterIpcServiceStub,
                                public std::enable_shared_from_this<InterIpcService> {
-
     DECLARE_SYSTEM_ABILITY(InterIpcService);
 
 public:
     explicit InterIpcService(int32_t systemAbilityId, bool runOnCreate = true);
-    virtual ~InterIpcService();
+    ~InterIpcService() override;
 
 protected:
     void OnDump() final;

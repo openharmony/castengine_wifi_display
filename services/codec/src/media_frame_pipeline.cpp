@@ -23,8 +23,8 @@ namespace Sharing {
 inline bool IsAudioFrame(const Frame::Ptr &frame)
 {
     RETURN_FALSE_IF_NULL(frame);
-    return frame->GetCodecId() == CODEC_G711A || frame->GetCodecId() == CODEC_G711U || frame->GetCodecId() == CODEC_AAC ||
-           frame->GetCodecId() == CODEC_PCM;
+    return frame->GetCodecId() == CODEC_G711A || frame->GetCodecId() == CODEC_G711U ||
+        frame->GetCodecId() == CODEC_AAC || frame->GetCodecId() == CODEC_PCM;
 }
 
 FrameSource::~FrameSource()

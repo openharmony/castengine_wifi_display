@@ -17,9 +17,10 @@
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
-#include <string.h>
+#include <cstring>
 #include <sys/time.h>
 #include <thread>
+#include <securec.h>
 #include "common/media_log.h"
 
 namespace OHOS {
@@ -67,17 +68,17 @@ std::vector<std::string> SplitOnce(const std::string &s, const char *delim)
     return ret;
 }
 
-#define TRIM(s, chars)                                         \
-    do {                                                       \
-        std::string map(0xFF, '\0');                           \
-        for (auto &ch : chars) {                               \
-            map[(unsigned char &)ch] = '\1';                   \
-        }                                                      \
-        while (s.size() && map.at((unsigned char &)s.back()))  \
-            s.pop_back();                                      \
-        while (s.size() && map.at((unsigned char &)s.front())) \
-            s.erase(0, 1);                                     \
-    } while (0);
+#define TRIM(s, chars)                                             \
+    do {                                                           \
+        std::string map(0xFF, '\0');                               \
+        for (auto &ch : (chars)) {                                 \
+            map[(unsigned char &)ch] = '\1';                       \
+        }                                                          \
+        while ((s).size() && map.at((unsigned char &)(s).back()))  \
+            (s).pop_back();                                        \
+        while ((s).size() && map.at((unsigned char &)(s).front())) \
+            (s).erase(0, 1);                                       \
+    } while (0)
 
 std::string &Trim(std::string &s, const std::string &chars)
 {
@@ -139,11 +140,13 @@ std::string ChangeCase(const std::string &value, bool LowerCase)
 
 void Replace(std::string &target, std::string search, std::string replacement)
 {
-    if (search == replacement)
+    if (search == replacement) {
         return;
+    }
 
-    if (search == "")
+    if (search == "") {
         return;
+    }
 
     std::string::size_type i = std::string::npos;
     std::string::size_type lastPos = 0;
@@ -172,7 +175,7 @@ uint64_t GetCurrentMillisecond()
 {
     struct timeval tv {};
     gettimeofday(&tv, nullptr);
-    return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+    return tv.tv_sec * 1000 + tv.tv_usec / 1000; // 1000: time base conversion.
 }
 
 void SaveFile(const char *data, int32_t dataSize, const std::string &fileName)
@@ -203,23 +206,31 @@ void NeonMemcpy(volatile unsigned char *dst, volatile unsigned char *src, int si
                        "d5", "d6", "d7", "cc", "memory");
     }
     if (size - neonCopy > 0) {
-        memcpy((void *)dst, (void *)src, size - neonCopy);
+        auto ret = memcpy_s((void *)dst, size - neonCopy, (void *)src, size - neonCopy);
+        if (ret != EOK) {
+            return;
+        }
     }
 #else
-    memcpy((void *)dst, (void *)src, size);
+    if (size > 0) {
+        auto ret = memcpy_s((void *)dst, size, (void *)src, size);
+        if (ret != EOK) {
+            return;
+        }
+    }
 #endif
 }
 
 uint16_t SwapEndian16(uint16_t value)
 {
-    return (value & 0xff00) >> 8 | (value & 0x00ff) << 8;
+    return (value & 0xff00) >> 8 | (value & 0x00ff) << 8; // 8: swap endian
 }
 
 uint32_t SwapEndian32(uint32_t value)
 {
     uint8_t res[4];
-    for (int i = 0; i < 4; ++i) {
-        res[i] = ((uint8_t *)&value)[3 - i];
+    for (int i = 0; i < 4; ++i) { // 4: swap endian
+        res[i] = ((uint8_t *)&value)[3 - i]; // 3: swap endian
     }
     return *(uint32_t *)res;
 }
@@ -227,8 +238,8 @@ uint32_t SwapEndian32(uint32_t value)
 uint64_t SwapEndian64(uint64_t value)
 {
     uint8_t res[8];
-    for (int i = 0; i < 8; ++i) {
-        res[i] = ((uint8_t *)&value)[7 - i];
+    for (int i = 0; i < 8; ++i) { // 8: swap endian
+        res[i] = ((uint8_t *)&value)[7 - i]; // 7: swap endian
     }
     return *(uint64_t *)res;
 }
@@ -257,27 +268,27 @@ uint64_t LoadBE64(const uint8_t *p)
 void SetBE24(void *p, uint32_t val)
 {
     uint8_t *data = (uint8_t *)p;
-    data[0] = val >> 16;
-    data[1] = val >> 8;
-    data[2] = val;
+    data[0] = val >> 16; // 16: byte offset
+    data[1] = val >> 8; // 8: byte offset
+    data[2] = val; // 2: transformed position
 }
 
 void SetBE32(void *p, uint32_t val)
 {
     uint8_t *data = (uint8_t *)p;
-    data[3] = val;
-    data[2] = val >> 8;
-    data[1] = val >> 16;
-    data[0] = val >> 24;
+    data[3] = val; // 3: transformed position
+    data[2] = val >> 8; // 2: transformed position, 8: byte offset
+    data[1] = val >> 16; // 16: byte offset
+    data[0] = val >> 24; // 24: byte offset
 }
 
 void SetLE32(void *p, uint32_t val)
 {
     uint8_t *data = (uint8_t *)p;
     data[0] = val;
-    data[1] = val >> 8;
-    data[2] = val >> 16;
-    data[3] = val >> 24;
+    data[1] = val >> 8; //  8: byte offset
+    data[2] = val >> 16; // 2: transformed position, 16: byte offset
+    data[3] = val >> 24; // 3: transformed position, 24: byte offset
 }
 
 } // namespace Sharing

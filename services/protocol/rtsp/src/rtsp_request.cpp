@@ -52,14 +52,14 @@ RtspError RtspRequest::Parse(const std::string &request)
         return result;
     }
 
-    if (firstLine.size() < 2 || tokens_.empty()) {
+    if (firstLine.size() < 2 || tokens_.empty()) { // 2:rtsp line
         tokens_.clear();
         body_.clear();
         return {RtspErrorType::INVALID_MESSAGE, "invalid message"};
     }
 
     // "METHOD URL VERSION"
-    if (firstLine.size() != 3 || firstLine[2] != RTSP_VERSION) {
+    if (firstLine.size() != 3 || firstLine[2] != RTSP_VERSION) { // 2:rtsp line, 3:rtsp line
         tokens_.clear();
         body_.clear();
         return {RtspErrorType::INVALID_MESSAGE, "invalid message"};
@@ -137,7 +137,7 @@ std::string RtspRequestPlay::Stringify()
     if (range_ >= 0) {
         std::stringstream ss;
         ss << RTSP_TOKEN_RANGE << ":" << RTSP_SP << "npt=";
-        ss << std::fixed << std::setprecision(3) << range_ << "-" << RTSP_CRLF;
+        ss << std::fixed << std::setprecision(3) << range_ << "-" << RTSP_CRLF; // 3:precision
         ClearCustomHeader();
         AddCustomHeader(ss.str());
     }

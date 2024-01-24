@@ -44,7 +44,7 @@ private:
 
 private:
     MpegDemuxer::Ptr tsDemuxer_ = nullptr;
-    FrameMerger merger_ = FrameMerger::NONE;
+    FrameMerger merger_;
 };
 
 class RtpEncoderTs : public RtpEncoder,
@@ -60,7 +60,7 @@ public:
 
 private:
     MpegMuxer::Ptr tsMuxer_ = nullptr;
-    FrameMerger merger_ = FrameMerger::H264_PREFIX;
+    FrameMerger merger_;
 };
 } // namespace Sharing
 } // namespace OHOS

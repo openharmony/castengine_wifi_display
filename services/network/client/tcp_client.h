@@ -30,7 +30,7 @@ class TcpClientEventHandler : public BaseClientEventHandler {};
 class TcpClient final : public BaseClient {
 public:
     TcpClient();
-    ~TcpClient();
+    ~TcpClient() override;
 
     bool Send(const std::string &msg) override;
     bool Send(const char *buf, int32_t nSize) override;

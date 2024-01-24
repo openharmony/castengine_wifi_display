@@ -28,7 +28,7 @@ public:
     using Ptr = std::shared_ptr<MpegTsDemuxer>;
 
     MpegTsDemuxer();
-    ~MpegTsDemuxer();
+    ~MpegTsDemuxer() override;
 
     void SetOnDecode(const OnDecode &cb) override;
     void SetOnStream(const OnStream &cb) override;

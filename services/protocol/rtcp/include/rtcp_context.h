@@ -17,7 +17,7 @@
 #define OHOS_SHARING_RTCP_CONTEXT_H
 
 #include <map>
-#include <stdint.h>
+#include <cstdint>
 #include "rtcp.h"
 #include "rtcp_def.h"
 #include "utils/data_buffer.h"
@@ -86,10 +86,10 @@ public:
     DataBuffer::Ptr CreateRtcpXRDLRR(uint32_t rtcp_ssrc, uint32_t rtp_ssrc) override;
 
 private:
-    std::map<uint32_t /*ssrc*/, uint32_t /*rtt*/> rtt_;
-    std::map<uint32_t /*ssrc*/, uint32_t /*last rr */> xrXrrtrRecvLastRr_;
-    std::map<uint32_t /*last sr lsr*/, uint64_t /*ntp stamp*/> senderReportNtp_;
-    std::map<uint32_t /*ssrc*/, uint64_t /*xr rrtr sys stamp*/> xrRrtrRecvSysStamp_;
+    std::map<uint32_t, uint32_t> rtt_; // ssrc, rtt
+    std::map<uint32_t, uint32_t> xrXrrtrRecvLastRr_; // ssrc, last rr
+    std::map<uint32_t, uint64_t> senderReportNtp_; // last sr, lsr ntp stamp
+    std::map<uint32_t, uint64_t> xrRrtrRecvSysStamp_; // ssrc, xr rrtr sys stamp
 };
 
 class RtcpReceiverContext : public RtcpContext {
