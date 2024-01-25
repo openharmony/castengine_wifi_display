@@ -67,7 +67,7 @@ ohos_source_set("sharing_media_channel_srcs") {
     "audio_framework:audio_renderer",
     "camera_framework:camera_framework",
     "drivers_interface_camera:metadata",
-    "graphic_surface:surface",
+    "graphic_2d:surface",
     "hilog:libhilog",
     "player_framework:media_client",
   ]

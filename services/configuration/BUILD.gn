@@ -39,7 +39,7 @@ ohos_source_set("sharing_configure_srcs") {
   deps = [ "//third_party/jsoncpp:jsoncpp" ]
 
   external_deps = [
-    "graphic_surface:surface",
+    "graphic_2d:surface",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",

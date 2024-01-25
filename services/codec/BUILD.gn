@@ -59,7 +59,7 @@ ohos_shared_library("sharing_codec") {
 
   external_deps = [
     "c_utils:utilsbase",
-    "graphic_surface:surface",
+    "graphic_2d:surface",
     "hilog:libhilog",
     "ipc:ipc_core",
     "player_framework:media_client",

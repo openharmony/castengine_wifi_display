@@ -64,7 +64,7 @@ ohos_executable("sharing_wfd_sink_demo") {
   ]
 
   external_deps = [
-    "graphic_surface:surface",
+    "graphic_2d:surface",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
@@ -93,7 +93,7 @@ ohos_executable("sharing_wfd_source_demo") {
 
   external_deps = [
     "c_utils:utils",
-    "graphic_surface:surface",
+    "graphic_2d:surface",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
@@ -125,7 +125,7 @@ ohos_executable("sharing_domain_demo") {
     "access_token:libtoken_setproc",
     "c_utils:utils",
     "device_manager:devicemanagersdk",
-    "graphic_surface:surface",
+    "graphic_2d:surface",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",

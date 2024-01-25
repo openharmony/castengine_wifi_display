@@ -67,7 +67,7 @@ ohos_shared_library("sharingwfd_client") {
 
   external_deps = [
     "c_utils:utils",
-    "graphic_surface:surface",
+    "graphic_2d:surface",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",

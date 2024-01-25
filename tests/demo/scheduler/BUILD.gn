@@ -31,7 +31,7 @@ ohos_executable("sharing_scheduler_demo") {
   deps = [ "$SHARING_ROOT_DIR/services:sharing_service" ]
 
   external_deps = [
-    "graphic_surface:surface",
+    "graphic_2d:surface",
     "hilog:libhilog",
   ]
   subsystem_name = "castplus"

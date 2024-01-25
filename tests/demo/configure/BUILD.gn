@@ -33,6 +33,8 @@ ohos_executable("sharing_configure_demo") {
 
   sources = [ "sharing_configure_demo.cpp" ]
 
+  public_deps = [ "//foundation/graphic/graphic_2d/frameworks/surface:surface" ]
+
   deps = [
     "$SHARING_ROOT_DIR/services:sharing_service",
     "$SHARING_ROOT_DIR/services/common:sharing_common",
@@ -42,7 +44,6 @@ ohos_executable("sharing_configure_demo") {
   external_deps = [
     "hilog:libhilog",
     "ipc:ipc_core",
-    "graphic_surface:surface",
     "safwk:system_ability_fwk",
   ]
 
