@@ -52,7 +52,7 @@ ohos_source_set("sharing_media_player_srcs") {
 
   external_deps = [
     "audio_framework:audio_renderer",
-    "graphic_2d:surface",
+    "graphic_surface:surface",
     "hilog:libhilog",
     "player_framework:media_client",
   ]

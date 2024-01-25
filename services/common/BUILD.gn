@@ -35,7 +35,7 @@ ohos_static_library("sharing_common") {
   ]
 
   external_deps = [
-    "graphic_2d:surface",
+    "graphic_surface:surface",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
   ]

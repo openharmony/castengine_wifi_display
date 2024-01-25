@@ -47,7 +47,7 @@ ohos_executable("sharing_player_demo") {
   external_deps = [
     "audio_framework:audio_client",
     "audio_framework:audio_renderer",
-    "graphic_2d:surface",
+    "graphic_surface:surface",
     "hilog:libhilog",
   ]
   subsystem_name = "castplus"

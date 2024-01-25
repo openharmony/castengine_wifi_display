@@ -37,6 +37,7 @@
         "device_manager",
         "c_utils",
         "graphic_2d",
+        "graphic_surface",
         "drivers_peripheral_display",
         "hilog",
         "ability_base",
