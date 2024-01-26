@@ -275,7 +275,7 @@ std::pair<int32_t, int32_t> MediaDescription::GetVideoSize()
         // offset_for_top_to_bottom_field
         GetSe(buf, nLen, cursor);
         int32_t numRefFramesInPicOrderCntCycle = GetUe(buf, nLen, cursor);
-        if (numRefFramesInPicOrderCntCycle == 0) {
+        if (numRefFramesInPicOrderCntCycle == 0 || numRefFramesInPicOrderCntCycle < 0) {
             return {width, height};
         }
         int32_t *offsetForRefFrame = new int32_t[numRefFramesInPicOrderCntCycle];

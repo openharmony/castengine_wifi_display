@@ -67,19 +67,21 @@ void RtpDecoderTs::OnDecode(int32_t stream, int32_t codecId, int32_t flags, int6
                stream, codecId, flags, pts, dts, bytes);
     pts /= TIMESTAMP_DIVIDER;
     dts /= TIMESTAMP_DIVIDER;
+
     DataBuffer::Ptr buffer = std::make_shared<DataBuffer>();
+
     switch (codecId) {
         case PSI_STREAM_H264: {
             auto inFrame = std::make_shared<H264Frame>((uint8_t *)data, bytes, (uint32_t)dts, (uint32_t)pts,
                                                        PrefixSize((char *)data, bytes));
-            merger_.InputFrame(inFrame, buffer,
-                               [this](uint32_t dts, uint32_t pts, const DataBuffer::Ptr &buffer, bool have_key_frame) {
-                                   MEDIA_LOGD("RtpDecoderTs H264 merger output success.");
-                                   auto outFrame = std::make_shared<H264Frame>(
-                                       buffer->Data(), buffer->Size(), (uint32_t)dts, (uint32_t)pts,
-                                       PrefixSize((char *)buffer->Data(), buffer->Size()));
-                                   onFrame_(outFrame);
-                               });
+            auto fn = [this](uint32_t dts, uint32_t pts, const DataBuffer::Ptr &buffer, bool have_key_frame) {
+                MEDIA_LOGD("RtpDecoderTs H264 merger output success.");
+                auto outFrame =
+                    std::make_shared<H264Frame>(buffer->Data(), buffer->Size(), (uint32_t)dts, (uint32_t)pts,
+                                                PrefixSize((char *)buffer->Data(), buffer->Size()));
+                onFrame_(outFrame);
+            };
+            merger_.InputFrame(inFrame, buffer, fn);
             break;
         }
 

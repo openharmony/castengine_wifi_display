@@ -21,7 +21,6 @@
 
 namespace OHOS {
 namespace Sharing {
-static constexpr char SHARING[] = "SHARING";
 const std::string SHARING_INIT = "SHARING_INIT";
 const std::string SHARING_OPERATION_FAIL = "SHARING_OPERATION_FAIL";
 const std::string SHARING_FORWARD_EVENT = "SHARING_FORWARD_EVENT";

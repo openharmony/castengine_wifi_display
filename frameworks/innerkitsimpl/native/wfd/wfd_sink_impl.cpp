@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "wfd_impl.h"
+#include "wfd_sink_impl.h"
 #include <string>
 #include "common/common_macro.h"
 #include "interaction/interprocess/client_factory.h"

@@ -112,7 +112,6 @@ void RtpDecoderAAC::FlushData()
     }
 
     auto ptr = frame_->Data();
-
     if ((ptr[0] == 0xFF && (ptr[1] & 0xF0) == 0xF0) && frame_->Size() > ADTS_HEADER_LEN) {
         frame_->prefixSize_ = ADTS_HEADER_LEN;
     } else {
