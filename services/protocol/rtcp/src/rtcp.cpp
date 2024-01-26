@@ -84,7 +84,7 @@ std::shared_ptr<RtcpSR> RtcpSR::Create(int32_t itemCount)
 {
     auto realSize = sizeof(RtcpSR) - sizeof(ReportItem) + itemCount * sizeof(ReportItem);
     auto bytes = AlignSize(realSize);
-    if (bytes == 0) {
+    if (bytes == 0 || bytes < 0) {
         return nullptr;
     }
     auto ptr = (RtcpSR *)new char[bytes];
@@ -185,7 +185,7 @@ std::shared_ptr<RtcpRR> RtcpRR::Create(size_t itemCount)
 {
     auto realSize = sizeof(RtcpRR) - sizeof(ReportItem) + itemCount * sizeof(ReportItem);
     auto bytes = AlignSize(realSize);
-    if (bytes == 0) {
+    if (bytes == 0 || bytes < 0) {
         return nullptr;
     }
     auto ptr = (RtcpRR *)new char[bytes];
@@ -230,7 +230,7 @@ std::shared_ptr<RtcpSdes> RtcpSdes::Create(const std::vector<std::string> &itemT
     }
     auto realSize = sizeof(RtcpSdes) - sizeof(SdesChunk) + itemTotalSize;
     auto bytes = AlignSize(realSize);
-    if (bytes == 0) {
+    if (bytes == 0 || bytes < 0) {
         return nullptr;
     }
     auto ptr = (RtcpSdes *)new char[bytes];
@@ -296,7 +296,7 @@ std::shared_ptr<RtcpFB> RtcpFB::CreateInner(RtcpType type, int32_t fmt, const vo
 
     auto realSize = sizeof(RtcpFB) + fciLen;
     auto bytes = AlignSize(realSize);
-    if (bytes == 0) {
+    if (bytes == 0 || bytes < 0) {
         return nullptr;
     }
     auto ptr = (RtcpFB *)new char[bytes];
@@ -317,7 +317,7 @@ std::shared_ptr<RtcpBye> RtcpBye::Create(const std::vector<uint32_t> &ssrcs, con
 {
     auto realSize = sizeof(RtcpHeader) + sizeof(uint32_t) * ssrcs.size() + 1 + reason.size();
     auto bytes = AlignSize(realSize);
-    if (bytes == 0) {
+    if (bytes == 0 || bytes < 0) {
         return nullptr;
     }
     auto ptr = (RtcpBye *)new char[bytes];
@@ -370,7 +370,7 @@ std::shared_ptr<RtcpXRDLRR> RtcpXRDLRR::Create(size_t itemCount)
 {
     auto realSize = sizeof(RtcpXRDLRR) - sizeof(RtcpXRDLRRReportItem) + itemCount * sizeof(RtcpXRDLRRReportItem);
     auto bytes = AlignSize(realSize);
-    if (bytes == 0) {
+    if (bytes == 0 || bytes < 0) {
         return nullptr;
     }
     auto ptr = (RtcpXRDLRR *)new char[bytes];

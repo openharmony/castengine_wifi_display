@@ -19,6 +19,7 @@
 #include "securec.h"
 
 constexpr uint32_t MAX_STRING_SIZE = 256;
+static constexpr char SHARING[] = "SHARING";
 
 namespace OHOS {
 namespace Sharing {

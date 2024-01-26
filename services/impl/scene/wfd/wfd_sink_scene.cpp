@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "wfd_scene.h"
+#include "wfd_sink_scene.h"
 #include <unistd.h>
 #include "common/common_macro.h"
 #include "common/reflect_registration.h"
@@ -78,8 +78,8 @@ void WfdSinkScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::Wif
         SHARING_LOGI("device size: %{public}zu.", device.size());
         for (auto itDev : device) {
             auto status = itDev.GetP2pDeviceStatus();
+            SHARING_LOGI("device mac: %{public}s, status: %{public}d.", itDev.GetDeviceAddress().c_str(), status);
             switch (status) {
-                SHARING_LOGI("device mac: %{public}s, status: %{public}d.", itDev.GetDeviceAddress().c_str(), status);
                 case Wifi::P2pDeviceStatus::PDS_AVAILABLE: {
                     ConnectionInfo connectionInfo;
                     connectionInfo.mac = itDev.GetDeviceAddress();
@@ -118,6 +118,7 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
                 SHARING_LOGE("QueryP2pDevices failed");
                 return;
             }
+            
             for (auto itDev : devices) {
                 ConnectionInfo connectionInfo;
                 connectionInfo.ip = "192.168.1.5";
@@ -886,7 +887,6 @@ void WfdSinkScene::WfdP2pStart()
 
         int32_t netWokrId = -2;
         if (!p2pGroups.empty()) {
-            netWokrId = p2pGroups.back().GetNetworkId();
             SHARING_LOGD("WfdSinkScene p2p group exists, the netWorkId:%{public}d.", netWokrId);
         }
 

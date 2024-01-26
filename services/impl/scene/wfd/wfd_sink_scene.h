@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_SHARING_WFD_SCENE_H
-#define OHOS_SHARING_WFD_SCENE_H
+#ifndef OHOS_SHARING_WFD_SINK_SCENE_H
+#define OHOS_SHARING_WFD_SINK_SCENE_H
 
 #include <mutex>
 #include <unordered_map>

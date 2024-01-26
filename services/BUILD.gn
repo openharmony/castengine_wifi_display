@@ -59,7 +59,7 @@ ohos_shared_library("sharing_service") {
     "//third_party/cJSON:cjson_static",
   ]
 
-  if (sharing_framework_support_wfd_sink) {
+  if (sharing_framework_support_wfd) {
     deps += [
       "impl/scene/wfd:sharing_wfd_srcs",
       "impl/screen_capture:sharing_screen_capture_srcs",
