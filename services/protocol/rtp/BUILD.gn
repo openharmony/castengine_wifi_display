@@ -28,7 +28,6 @@ ohos_shared_library("sharing_rtp") {
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/rtp/include",
-    "$SHARING_ROOT_DIR/services/extend/mpeg/include",
   ]
 
   sources = [
@@ -53,9 +52,9 @@ ohos_shared_library("sharing_rtp") {
 
   deps = [
     "$SHARING_ROOT_DIR/services/common:sharing_common",
-    "$SHARING_ROOT_DIR/services/protocol/mpeg_ts:sharing_ts",
     "$SHARING_ROOT_DIR/services/protocol/rtcp:sharing_rtcp_srcs",
     "$SHARING_ROOT_DIR/services/utils:sharing_utils",
+    "//third_party/ffmpeg:libohosffmpeg",
   ]
 
   external_deps = [

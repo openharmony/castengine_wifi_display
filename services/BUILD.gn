@@ -20,9 +20,7 @@ group("sharing_services_package") {
     "codec:sharing_codec",
     "common:kv_operator",
     "common:sharing_common",
-    "extend:third_party_package",
     "network:sharing_network",
-    "protocol/mpeg_ts:sharing_ts",
     "protocol/rtp:sharing_rtp",
     "utils:sharing_utils",
   ]

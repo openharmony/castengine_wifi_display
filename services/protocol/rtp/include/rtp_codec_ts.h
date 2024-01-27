@@ -16,12 +16,15 @@
 #ifndef OHOS_SHARING_TS_RTP_CODEC_H
 #define OHOS_SHARING_TS_RTP_CODEC_H
 
+#include <memory>
+#include <queue>
+#include <thread>
 #include "frame/frame.h"
-#include "frame/frame_merger.h"
-#include "mpeg_ts/mpeg_demuxer.h"
-#include "mpeg_ts/mpeg_muxer.h"
 #include "rtp_codec.h"
 #include "rtp_maker.h"
+extern "C" {
+#include <libavformat/avformat.h>
+}
 
 namespace OHOS {
 namespace Sharing {
@@ -36,15 +39,23 @@ public:
     void SetOnFrame(const OnFrame &cb) override;
 
 private:
-    void FrameReady(const Frame::Ptr &frame);
+    void StartDecoding();
+    int ReadPacket(uint8_t *buf, int buf_size);
 
-    void OnStream(int32_t stream, int32_t codecId, const void *extra, size_t bytes, int32_t finish);
-    void OnDecode(int32_t stream, int32_t codecId, int32_t flags, int64_t pts, int64_t dts, const void *data,
-                  size_t bytes);
+    static int StaticReadPacket(void *opaque, uint8_t *buf, int buf_size);
 
 private:
-    MpegDemuxer::Ptr tsDemuxer_ = nullptr;
-    FrameMerger merger_;
+    bool exit_ = false;
+    int videoStreamIndex_ = -1;
+    int audioStreamIndex_ = -1;
+    uint8_t *avioCtxBuffer_ = nullptr;
+
+    std::mutex queueMutex_;
+    std::queue<RtpPacket::Ptr> dataQueue_;
+    std::unique_ptr<std::thread> decodeThread_;
+
+    AVIOContext *avioContext_ = nullptr;
+    AVFormatContext *avFormatContext_ = nullptr;
 };
 
 class RtpEncoderTs : public RtpEncoder,
@@ -57,10 +68,6 @@ public:
 
     void InputFrame(const Frame::Ptr &frame) override;
     void SetOnRtpPack(const OnRtpPack &cb) override;
-
-private:
-    MpegMuxer::Ptr tsMuxer_ = nullptr;
-    FrameMerger merger_;
 };
 } // namespace Sharing
 } // namespace OHOS
