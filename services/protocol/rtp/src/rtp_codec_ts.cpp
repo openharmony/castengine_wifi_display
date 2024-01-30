@@ -13,44 +13,59 @@
  * limitations under the License.
  */
 
+#include <securec.h>
 #include "rtp_codec_ts.h"
-#include "adts.h"
 #include "common/common_macro.h"
 #include "common/media_log.h"
 #include "frame/aac_frame.h"
 #include "frame/h264_frame.h"
-#include "mpeg_ts/mpeg_ts_demuxer.h"
-#include "mpeg_ts/mpeg_ts_muxer.h"
 
-constexpr uint32_t TIMESTAMP_DIVIDER = 90;
 namespace OHOS {
 namespace Sharing {
+constexpr int32_t FF_BUFFER_SIZE = 1500;
+
 RtpDecoderTs::RtpDecoderTs()
 {
     MEDIA_LOGD("RtpDecoderTs CTOR IN.");
-    tsDemuxer_ = std::make_shared<MpegTsDemuxer>();
-    merger_.SetType(FrameMerger::NONE);
-
-    tsDemuxer_->SetOnDecode([this](int32_t stream, int32_t codecId, int32_t flags, int64_t pts, int64_t dts,
-                                   const void *data,
-                                   size_t bytes) { OnDecode(stream, codecId, flags, pts, dts, data, bytes); });
-    tsDemuxer_->SetOnStream([this](int32_t stream, int32_t codecId, const void *extra, size_t bytes, int32_t finish) {
-        OnStream(stream, codecId, extra, bytes, finish);
-    });
 }
 
 RtpDecoderTs::~RtpDecoderTs()
 {
     MEDIA_LOGD("RtpDecoderTs DTOR IN.");
+    exit_ = true;
+    if (decodeThread_ && decodeThread_->joinable()) {
+        decodeThread_->join();
+    }
+
+    if (avFormatContext_) {
+        avformat_close_input(&avFormatContext_);
+    }
+
+    if (avioContext_) {
+        avio_context_free(&avioContext_);
+    }
+
+    if (avioCtxBuffer_) {
+        av_freep(&avioCtxBuffer_);
+    }
 }
 
 void RtpDecoderTs::InputRtp(const RtpPacket::Ptr &rtp)
 {
-    MEDIA_LOGD("RtpDecoderTs::InputRtp IN.");
+    MEDIA_LOGD("trace.");
     RETURN_IF_NULL(rtp);
-    if (tsDemuxer_) {
-        tsDemuxer_->Input(rtp->GetPayload(), rtp->GetPayloadSize());
+
+    if (decodeThread_ == nullptr) {
+        decodeThread_ = std::make_unique<std::thread>(&RtpDecoderTs::StartDecoding, this);
     }
+
+    auto payload_size = rtp->GetPayloadSize();
+    if (payload_size <= 0) {
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(queueMutex_);
+    dataQueue_.emplace(rtp);
 }
 
 void RtpDecoderTs::SetOnFrame(const OnFrame &cb)
@@ -58,110 +73,102 @@ void RtpDecoderTs::SetOnFrame(const OnFrame &cb)
     onFrame_ = cb;
 }
 
-void RtpDecoderTs::OnDecode(int32_t stream, int32_t codecId, int32_t flags, int64_t pts, int64_t dts, const void *data,
-                            size_t bytes)
+void RtpDecoderTs::StartDecoding()
 {
-    MEDIA_LOGD("RtpDecoderTs::OnDecode stream: %{public}d codecID: %{public}d flag: %{public}d pts: %{public}" PRIx64
-               " dts: "
-               "%{public}" PRIx64 " data len: %{public}zu\n.",
-               stream, codecId, flags, pts, dts, bytes);
-    pts /= TIMESTAMP_DIVIDER;
-    dts /= TIMESTAMP_DIVIDER;
+    SHARING_LOGE("trace.");
+    avFormatContext_ = avformat_alloc_context();
+    if (avFormatContext_ == nullptr) {
+        SHARING_LOGE("avformat_alloc_context failed.");
+        return;
+    }
 
-    DataBuffer::Ptr buffer = std::make_shared<DataBuffer>();
+    avioCtxBuffer_ = (uint8_t *)av_malloc(FF_BUFFER_SIZE);
 
-    switch (codecId) {
-        case PSI_STREAM_H264: {
-            auto inFrame = std::make_shared<H264Frame>((uint8_t *)data, bytes, (uint32_t)dts, (uint32_t)pts,
-                                                       PrefixSize((char *)data, bytes));
-            auto fn = [this](uint32_t dts, uint32_t pts, const DataBuffer::Ptr &buffer, bool have_key_frame) {
-                MEDIA_LOGD("RtpDecoderTs H264 merger output success.");
-                auto outFrame =
-                    std::make_shared<H264Frame>(buffer->Data(), buffer->Size(), (uint32_t)dts, (uint32_t)pts,
-                                                PrefixSize((char *)buffer->Data(), buffer->Size()));
-                onFrame_(outFrame);
-            };
-            merger_.InputFrame(inFrame, buffer, fn);
-            break;
+    avioContext_ =
+        avio_alloc_context(avioCtxBuffer_, FF_BUFFER_SIZE, 0, this, &RtpDecoderTs::StaticReadPacket, nullptr, nullptr);
+    if (avioContext_ == nullptr) {
+        SHARING_LOGE("avio_alloc_context failed.");
+        return;
+    }
+    avFormatContext_->pb = avioContext_;
+
+    int ret = avformat_open_input(&avFormatContext_, nullptr, nullptr, nullptr);
+    if (ret != 0) {
+        SHARING_LOGE("avformat_open_input failed.");
+        return;
+    }
+
+    for (uint32_t i = 0; i < avFormatContext_->nb_streams; i++) {
+        if (avFormatContext_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+            videoStreamIndex_ = i;
+            SHARING_LOGD("find video stream %{public}u.", i);
+        } else if (avFormatContext_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+            audioStreamIndex_ = i;
+            SHARING_LOGD("find audio stream %{public}u.", i);
         }
+    }
 
-        case PSI_STREAM_AAC: {
-            uint8_t *ptr = (uint8_t *)data;
-            if (!(bytes > 7 && ptr[0] == 0xFF && (ptr[1] & 0xF0) == 0xF0)) { // 7:fixed size
-                break;
-            } else {
-                auto outFrame = std::make_shared<AACFrame>((uint8_t *)data, bytes, (uint32_t)dts, (uint32_t)pts);
+    AVPacket *packet = av_packet_alloc();
+
+    while (!exit_ && av_read_frame(avFormatContext_, packet) >= 0) {
+        if (packet->stream_index == videoStreamIndex_) {
+            SplitH264((char *)packet->data, (size_t)packet->size, 0, [&](const char *buf, size_t len, size_t prefix) {
+                if (H264_TYPE(buf[prefix]) == H264Frame::NAL_AUD) {
+                    return;
+                }
+                auto outFrame = std::make_shared<H264Frame>((uint8_t *)buf, len, (uint32_t)packet->dts,
+                                                            (uint32_t)packet->pts, prefix);
+                if (onFrame_) {
+                    onFrame_(outFrame);
+                }
+            });
+        } else if (packet->stream_index == audioStreamIndex_) {
+            auto outFrame = std::make_shared<AACFrame>((uint8_t *)packet->data, packet->size, (uint32_t)packet->dts,
+                                                       (uint32_t)packet->pts);
+            if (onFrame_) {
                 onFrame_(outFrame);
             }
-            break;
         }
-        default:
-            break;
+        av_packet_unref(packet);
     }
+
+    av_packet_free(&packet);
+    SHARING_LOGD("ts decoding Thread_ exit.");
 }
 
-void RtpDecoderTs::OnStream(int32_t stream, int32_t codecId, const void *extra, size_t bytes, int32_t finish)
+int RtpDecoderTs::StaticReadPacket(void *opaque, uint8_t *buf, int buf_size)
 {
-    MEDIA_LOGD("rtpDecoderTs::OnStream stream: %{public}d codecID: %{public}d data len: %{public}zu.", stream, codecId,
-               bytes);
-    // todo
+    RtpDecoderTs *decoder = (RtpDecoderTs *)opaque;
+    return decoder->ReadPacket(buf, buf_size);
 }
 
-void RtpDecoderTs::FrameReady(const Frame::Ptr &frame)
+int RtpDecoderTs::ReadPacket(uint8_t *buf, int buf_size)
 {
-    if (onFrame_) {
-        onFrame_(frame);
+    while (dataQueue_.empty()) {
+        std::this_thread::sleep_for(std::chrono::microseconds(5)); // 5: wait times
     }
+
+    std::unique_lock<std::mutex> lock(queueMutex_);
+    auto &rtp = dataQueue_.front();
+    auto data = rtp->GetPayload();
+    int length = rtp->GetPayloadSize();
+
+    auto ret = memcpy_s(buf, length, data, length);
+    if (ret != EOK) {
+        return 0;
+    }
+
+    dataQueue_.pop();
+    return length;
 }
 
 RtpEncoderTs::RtpEncoderTs(uint32_t ssrc, uint32_t mtuSize, uint32_t sampleRate, uint8_t payloadType, uint16_t seq)
-    : RtpMaker(ssrc, mtuSize, payloadType, sampleRate, seq)
-{
-    MEDIA_LOGD("RtpEncoderTs CTOR IN");
-    merger_.SetType(FrameMerger::H264_PREFIX);
-    tsMuxer_ = std::make_shared<MpegTsMuxer>();
-    tsMuxer_->SetOnMux([this](const std::shared_ptr<DataBuffer> &buffer, uint32_t stamp, bool keyPos) {
-        if (onRtpPack_) {
-            auto rtp = MakeRtp(reinterpret_cast<const void *>(buffer->Peek()), buffer->Size(), keyPos, stamp);
-            onRtpPack_(rtp);
-        }
-    });
-}
+    : RtpMaker(ssrc, mtuSize, sampleRate, payloadType, seq)
+{}
 
-RtpEncoderTs::~RtpEncoderTs()
-{
-    MEDIA_LOGD("RtpEncoderTs DTOR IN");
-}
+RtpEncoderTs::~RtpEncoderTs() {}
 
-void RtpEncoderTs::InputFrame(const Frame::Ptr &frame)
-{
-    if (!frame) {
-        return;
-    }
-    DataBuffer::Ptr buffer = std::make_shared<DataBuffer>();
-    switch (frame->GetCodecId()) {
-        case CODEC_H264:
-            // for sps, pps and key frame in one packet
-            merger_.InputFrame(
-                frame, buffer, [this](uint32_t dts, uint32_t pts, const DataBuffer::Ptr &buffer, bool have_key_frame) {
-                    MEDIA_LOGD("RtpEncoderTs H264 merger output success, dts %{public}d,"
-                               "pts %{public}d,BufferSize %{public}d, havekeyframe %{public}d",
-                               dts, pts, buffer->Size(), have_key_frame);
-                    // have_key_frame
-                    auto outFrame =
-                        std::make_shared<H264Frame>(buffer->Data(), buffer->Size(), (uint32_t)dts, (uint32_t)pts,
-                                                    PrefixSize((char *)buffer->Data(), buffer->Size()));
-                    tsMuxer_->InputFrame(outFrame);
-                });
-            break;
-        case CODEC_AAC:
-            tsMuxer_->InputFrame(frame);
-            break;
-        default:
-            MEDIA_LOGW("Unknown codec: %d", frame->GetCodecId());
-            break;
-    }
-}
+void RtpEncoderTs::InputFrame(const Frame::Ptr &frame) {}
 
 void RtpEncoderTs::SetOnRtpPack(const OnRtpPack &cb)
 {

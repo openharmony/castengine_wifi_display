@@ -1,11 +1,11 @@
+#ifndef MAGIC_ENUM_HPP
+#define MAGIC_ENUM_HPP
+
 #include <array>
 #include <exception>
 #include <stdexcept>
 #include <string_view>
 #include <string>
-
-#ifndef MAGIC_ENUM_HPP
-#    define MAGIC_ENUM_HPP
 
 #    if defined(__clang__)
 #        define PRETTY_FUNCTION_NAME __PRETTY_FUNCTION__
@@ -142,7 +142,7 @@ template <typename E>
 constexpr auto enum_name(E value)
 {
     int num = static_cast<int>(value);
-    if (num > MAGIC_ENUM_RANGE_MAX / 2 || num < -(MAGIC_ENUM_RANGE_MAX / 2)) {
+    if (num > MAGIC_ENUM_RANGE_MAX / 2 || num < -(MAGIC_ENUM_RANGE_MAX / 2)) { // 2: maxnum
         return std::to_string(static_cast<int>(value));
     } else {
         return std::string(enum2string<E>(value));
