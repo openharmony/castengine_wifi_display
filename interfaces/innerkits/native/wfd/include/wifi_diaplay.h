@@ -20,7 +20,7 @@
 #include <memory>
 #include <string>
 #include "impl/scene/wfd/wfd_def.h"
-#include "wfd_impl.h"
+#include "wfd_sink_impl.h"
 
 namespace OHOS {
 namespace Sharing {

@@ -16,7 +16,7 @@
 #include "common/common_macro.h"
 #include "common/const_def.h"
 #include "common/sharing_log.h"
-#include "wfd_impl.h"
+#include "wfd_sink_impl.h"
 #include "wifi_diaplay.h"
 
 namespace OHOS {

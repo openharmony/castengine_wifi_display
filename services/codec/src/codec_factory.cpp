@@ -65,6 +65,12 @@ std::shared_ptr<VideoEncoder> CodecFactory::CreateVideoEncoder(CodecId format)
     SHARING_LOGD("trace.");
     std::shared_ptr<VideoEncoder> encoder;
     switch (format) {
+        case CODEC_AAC:
+            SHARING_LOGE("unsupported codec format %{public}d.", (int32_t)format);
+            break;
+        case CODEC_G711U:
+            SHARING_LOGE("unsupported codec format %{public}d.", (int32_t)format);
+            break;
         default:
             SHARING_LOGE("unsupported codec format %{public}d.", (int32_t)format);
             break;

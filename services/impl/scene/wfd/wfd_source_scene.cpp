@@ -89,7 +89,7 @@ void WfdSourceScene::WfdP2pCallback::OnP2pThisDeviceChanged(const Wifi::WifiP2pD
     }
 
     Wifi::P2pConnectedState state = info.GetConnectState();
-    SHARING_LOGD("ConnectState:  %{public}d.", state);
+    SHARING_LOGD("ConnectState: %{public}d.", state);
     if (state != Wifi::P2pConnectedState::P2P_DISCONNECTED) {
         return;
     }
@@ -106,7 +106,7 @@ void WfdSourceScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::W
     RETURN_IF_NULL(scene);
 
     if (!scene->isSourceDiscovering) {
-        SHARING_LOGI("p2p source is not discovering");
+        SHARING_LOGI("p2p source is not discovering.");
         return;
     }
 
@@ -121,7 +121,7 @@ void WfdSourceScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::W
             Wifi::WifiP2pWfdInfo wfdInfo(itDev.GetWfdInfo());
             wfdInfo.GetDeviceInfoElement(subelement);
             SHARING_LOGI("\tsession available: %{public}d"
-                         "\tdevice info: %{private}s",
+                         "\tdevice info: %{private}s.",
                          wfdInfo.isSessionAvailable(), subelement.c_str());
 
             if (wfdInfo.isSessionAvailable()) {
@@ -187,7 +187,7 @@ void WfdSourceScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pL
     connectionInfo.ctrlPort = goDevice.GetWfdInfo().GetCtrlPort();
     connectionInfo.state = ConnectionState::CONNECTED;
 
-    SHARING_LOGD("device connected, mac: %{private}s, ip: %{private}s, port: %{private}d", connectionInfo.mac.c_str(),
+    SHARING_LOGD("device connected, mac: %{private}s, ip: %{private}s, port: %{private}d.", connectionInfo.mac.c_str(),
                  connectionInfo.ip.c_str(), connectionInfo.ctrlPort);
     scene->OnP2pPeerConnected(connectionInfo);
 }
