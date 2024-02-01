@@ -40,9 +40,9 @@ ohos_executable("sharing_configure_demo") {
   ]
 
   external_deps = [
+    "graphic_surface:surface",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "graphic_surface:surface",
     "safwk:system_ability_fwk",
   ]
 

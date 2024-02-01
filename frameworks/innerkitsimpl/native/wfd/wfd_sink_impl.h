@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_SHARING_WFD_IMPL_H
-#define OHOS_SHARING_WFD_IMPL_H
+#ifndef OHOS_SHARING_WFD_SINK_IMPL_H
+#define OHOS_SHARING_WFD_SINK_IMPL_H
 
 #include <memory>
 #include "impl/scene/wfd/wfd_msg.h"
