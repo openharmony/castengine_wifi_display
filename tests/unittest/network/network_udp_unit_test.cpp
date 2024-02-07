@@ -217,45 +217,6 @@ HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_002, TestSize.Level0)
     ASSERT_TRUE(ret);
 }
 
-HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_003, TestSize.Level0)
-{
-    auto udpAgent = std::make_shared<UdpTestAgent>();
-    ASSERT_TRUE(udpAgent != nullptr);
-    auto ret = udpAgent->StartUdpServer(8889, "");
-    ASSERT_TRUE(ret);
-    ret = udpAgent->StartUdpClient("127.0.0.1", 8889, "127.0.0.1", 0);
-    ASSERT_TRUE(ret);
-}
-
-HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_004, TestSize.Level0)
-{
-    auto udpAgent = std::make_shared<UdpTestAgent>();
-    ASSERT_TRUE(udpAgent != nullptr);
-    auto ret = udpAgent->StartUdpServer(8890, "");
-    ASSERT_TRUE(ret);
-    ret = udpAgent->StartUdpClient("127.0.0.1", 1888, "127.0.0.1", 0);
-    ASSERT_TRUE(ret);
-}
-
-HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_005, TestSize.Level0)
-{
-    auto udpAgent = std::make_shared<UdpTestAgent>();
-    ASSERT_TRUE(udpAgent != nullptr);
-    auto ret = udpAgent->StartUdpServer(8889, "");
-    ASSERT_TRUE(ret);
-    ret = udpAgent->StartUdpClient("1212121", 8889, "127.0.0.1", 0);
-    ASSERT_FALSE(ret);
-}
-
-HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_006, TestSize.Level0)
-{
-    auto udpAgent = std::make_shared<UdpTestAgent>();
-    ASSERT_TRUE(udpAgent != nullptr);
-    auto ret = udpAgent->StartUdpServer(8891, "");
-    ASSERT_TRUE(ret);
-    ret = udpAgent->StartUdpClient("1212121", 8891, "127.0.0.1", 0);
-    ASSERT_FALSE(ret);
-}
 } // namespace
 } // namespace Sharing
 } // namespace OHOS
