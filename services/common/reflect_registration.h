@@ -34,6 +34,7 @@ class ReflectRegistration : public Singleton<ReflectRegistration> {
 public:
     ReflectRegistration() = default;
     explicit ReflectRegistration(ReflectRegistration &&ref) {}
+    explicit ReflectRegistration(const ReflectRegistration &ref) {}
     ~ReflectRegistration();
 
     void Unregister(const std::string &descriptor);
