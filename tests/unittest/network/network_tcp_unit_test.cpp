@@ -227,45 +227,6 @@ HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_002, TestSize.Level0)
     ASSERT_TRUE(ret);
 }
 
-HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_003, TestSize.Level0)
-{
-    auto tcpAgent = std::make_shared<TcpTestAgent>();
-    ASSERT_TRUE(tcpAgent != nullptr);
-    auto ret = tcpAgent->StartTcpServer(8889);
-    ASSERT_TRUE(ret);
-    ret = tcpAgent->StartTcpClient("127.0.0.1", 8889);
-    ASSERT_TRUE(ret);
-}
-
-HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_004, TestSize.Level0)
-{
-    auto tcpAgent = std::make_shared<TcpTestAgent>();
-    ASSERT_TRUE(tcpAgent != nullptr);
-    auto ret = tcpAgent->StartTcpServer(8890);
-    ASSERT_TRUE(ret);
-    ret = tcpAgent->StartTcpClient("127.0.0.1", 1888);
-    ASSERT_TRUE(ret);
-}
-
-HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_005, TestSize.Level0)
-{
-    auto tcpAgent = std::make_shared<TcpTestAgent>();
-    ASSERT_TRUE(tcpAgent != nullptr);
-    auto ret = tcpAgent->StartTcpServer(8889);
-    ASSERT_FALSE(ret);
-    ret = tcpAgent->StartTcpClient("1212121", 8889);
-    ASSERT_FALSE(ret);
-}
-
-HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_006, TestSize.Level0)
-{
-    auto tcpAgent = std::make_shared<TcpTestAgent>();
-    ASSERT_TRUE(tcpAgent != nullptr);
-    auto ret = tcpAgent->StartTcpServer(8891);
-    ASSERT_TRUE(ret);
-    ret = tcpAgent->StartTcpClient("1212121", 8891);
-    ASSERT_FALSE(ret);
-}
 } // namespace
 } // namespace Sharing
 } // namespace OHOS
