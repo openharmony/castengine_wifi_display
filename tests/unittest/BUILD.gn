@@ -16,8 +16,5 @@ import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 group("wfd_unit_test") {
   testonly = true
-  deps = [
-    "event:event_unit_test",
-    "network:network_unittest",
-  ]
+  deps = [ "network:network_unittest" ]
 }
