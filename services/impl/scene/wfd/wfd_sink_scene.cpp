@@ -108,32 +108,45 @@ void WfdSinkScene::WfdP2pCallback::OnP2pServicesChanged(const std::vector<Wifi::
 void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLinkedInfo &info)
 {
     SHARING_LOGD("trace.");
-    Wifi::P2pConnectedState state = info.GetConnectState();
-    SHARING_LOGD("ConnectState:  %{public}d", state);
-    if (state == Wifi::P2pConnectedState::P2P_CONNECTED) {
-        auto parent = parent_.lock();
-        if (parent) {
-            std::vector<Wifi::WifiP2pDevice> devices;
-            if (Wifi::ErrCode::WIFI_OPT_SUCCESS != parent->p2pInstance_->QueryP2pDevices(devices)) {
-                SHARING_LOGE("QueryP2pDevices failed");
-                return;
-            }
-            
-            for (auto itDev : devices) {
-                ConnectionInfo connectionInfo;
-                connectionInfo.ip = "192.168.1.5";
-                connectionInfo.mac = itDev.GetDeviceAddress();
-                connectionInfo.primaryDeviceType = itDev.GetPrimaryDeviceType();
-                connectionInfo.secondaryDeviceType = itDev.GetSecondaryDeviceType();
-                connectionInfo.ctrlPort = itDev.GetWfdInfo().GetCtrlPort();
-                connectionInfo.state = ConnectionState::CONNECTED;
-                SHARING_LOGD("device connected, mac: %{public}s, ip: %{public}s, port: %{public}d",
-                             connectionInfo.mac.c_str(), connectionInfo.ip.c_str(), connectionInfo.ctrlPort);
-                parent->OnP2pPeerConnected(connectionInfo);
-                return;
-            }
+}
+
+void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &info)
+{
+    SHARING_LOGD("trace.");
+    auto parent = parent_.lock();
+    if (parent) {
+        std::vector<Wifi::WifiP2pDevice> devices;
+        if (Wifi::ErrCode::WIFI_OPT_SUCCESS != parent->p2pInstance_->QueryP2pDevices(devices)) {
+            SHARING_LOGE("QueryP2pDevices failed");
+            return;
+        }
+        SHARING_LOGI("QueryP2pDevices ip:%{public}s addr: %{public}s host: %{public}s.",
+            info.ip.c_str(), info.mac.c_str(), info.host.c_str());
+        if (info.ip == "0.0.0.0" || info.ip == "") {
+            SHARING_LOGE("device: %{public}s leased ip is: 0.0.0.0.", info.mac.c_str());
+            parent->OnInnerError(info.mac.c_str(), ERR_P2P_DHCP_INVALID_IP, "ip is: 0.0.0.0.");
+            return;
+        }
+        
+        for (auto itDev : devices) {
+            ConnectionInfo connectionInfo;
+            connectionInfo.ip = info.ip;
+            connectionInfo.mac = itDev.GetDeviceAddress();
+            connectionInfo.primaryDeviceType = itDev.GetPrimaryDeviceType();
+            connectionInfo.secondaryDeviceType = itDev.GetSecondaryDeviceType();
+            connectionInfo.ctrlPort = itDev.GetWfdInfo().GetCtrlPort();
+            connectionInfo.state = ConnectionState::CONNECTED;
+            SHARING_LOGD("device connected, mac: %{public}s, ip: %{public}s, port: %{public}d",
+                connectionInfo.mac.c_str(), connectionInfo.ip.c_str(), connectionInfo.ctrlPort);
+            parent->OnP2pPeerConnected(connectionInfo);
+            return;
         }
     }
+}
+
+void WfdSinkScene::WfdP2pCallback::OnP2pGcLeaveGroup(const OHOS::Wifi::GcInfo &info)
+{
+    return;
 }
 
 void WfdSinkScene::WfdP2pCallback::OnP2pDiscoveryChanged(bool isChange)
@@ -217,7 +230,10 @@ void WfdSinkScene::Initialize()
 
     p2pInstance_ = Wifi::WifiP2p::GetInstance(WIFI_P2P_ABILITY_ID);
     sptr<WfdP2pCallback> wfdP2pCallback(new WfdP2pCallback(shared_from_this()));
-    std::vector<std::string> event;
+    std::vector<std::string> event = {  EVENT_P2P_PEER_DEVICE_CHANGE,
+                                        EVENT_P2P_CONN_STATE_CHANGE,
+                                        EVENT_P2P_GC_JOIN_GROUP,
+                                        EVENT_P2P_GC_LEAVE_GROUP};
     p2pInstance_->RegisterCallBack(wfdP2pCallback, event);
 }
 
@@ -247,9 +263,7 @@ void WfdSinkScene::Release()
             event.eventMsg = std::move(sessionMsg);
             sharingAdapter->ForwardEvent(contextId, agentId, event, true);
 
-            if (p2pInstance_) {
-                SHARING_LOGI("p2p remove client: %{public}s.", item.second->mac.c_str());
-            }
+            P2pRemoveClient(*(item.second));
 
             sharingAdapter->DestroyAgent(contextId, agentId);
         }
@@ -832,9 +846,7 @@ int32_t WfdSinkScene::HandleClose(std::shared_ptr<WfdCloseReq> &msg, std::shared
             itemSurface++;
         }
 
-        if (p2pInstance_) {
-            SHARING_LOGI("p2p remove client: %{public}s.", itemDev->second->mac.c_str());
-        }
+        P2pRemoveClient(connectionInfo);
 
         devConnectionMap_.erase(msg->deviceId);
     }
@@ -890,9 +902,14 @@ void WfdSinkScene::WfdP2pStart()
             SHARING_LOGD("WfdSinkScene p2p group exists, the netWorkId:%{public}d.", netWokrId);
         }
 
+        Wifi::WifiP2pDevice p2pDev;
+        p2pInstance_->QueryP2pLocalDevice(p2pDev);
+        auto hostAddr = p2pDev.GetDeviceAddress();
+
         Wifi::WifiP2pConfig cfg;
         cfg.SetGoBand(Wifi::GroupOwnerBand::GO_BAND_5GHZ);
         cfg.SetNetId(netWokrId);
+        cfg.SetDeviceAddress(hostAddr);
 
         p2pInstance_->CreateGroup(cfg);
         SHARING_LOGD("WfdSinkScene DiscoverDevices.");
@@ -920,9 +937,7 @@ void WfdSinkScene::WfdP2pStop()
                 event.eventMsg = std::move(sessionMsg);
                 sharingAdapter->ForwardEvent(contextId, agentId, event, true);
 
-                if (p2pInstance_) {
-                    SHARING_LOGI("p2p remove client: %{public}s.", item.second->mac.c_str());
-                }
+                P2pRemoveClient(*(item.second));
 
                 sharingAdapter->DestroyAgent(contextId, agentId);
             }
@@ -952,9 +967,8 @@ void WfdSinkScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
     RETURN_IF_NULL(sharingAdapter);
 
     if (devConnectionMap_.size() >= (uint32_t)accessDevMaximum_) {
-        if (p2pInstance_) {
-            SHARING_LOGE("too more device.");
-        }
+        SHARING_LOGE("too more device.");
+        P2pRemoveClient(connectionInfo);
 
         auto ipcAdapter = ipcAdapter_.lock();
         RETURN_IF_NULL(ipcAdapter);
@@ -1035,9 +1049,7 @@ void WfdSinkScene::OnP2pPeerDisconnected(ConnectionInfo &connectionInfo)
             itemSurface++;
         }
 
-        if (p2pInstance_) {
-            SHARING_LOGI("p2p remove client: %{public}s.", connectionInfo.mac.c_str());
-        }
+        P2pRemoveClient(connectionInfo);
 
         devConnectionMap_.erase(connectionInfo.mac);
         SHARING_LOGI("disconnected, contextId: %{public}u, agentId: %{public}u, devMac: %{public}s, devIp: %{public}s.",
@@ -1091,9 +1103,7 @@ void WfdSinkScene::OnP2pPeerDisconnected(std::string &mac)
 
         SHARING_LOGI("disconnected, contextId: %{public}u, agentId: %{public}u, devMac: %{public}s, devIp: %{public}s.",
                      contextId, agentId, mac.c_str(), connectionInfo->ip.c_str());
-        if (p2pInstance_) {
-            SHARING_LOGI("p2p remove client: %{public}s.", mac.c_str());
-        }
+        P2pRemoveClient(*connectionInfo);
 
         devConnectionMap_.erase(mac);
     }
@@ -1224,9 +1234,7 @@ void WfdSinkScene::OnInnerDestroy(uint32_t contextId, uint32_t agentId, AgentTyp
                 contextId, agentId, connectionInfo.mac.c_str(), connectionInfo.ip.c_str());
             OnConnectionChanged(connectionInfo);
 
-            if (p2pInstance_) {
-                SHARING_LOGI("p2p remove client: %{public}s.", item.second->mac.c_str());
-            }
+            P2pRemoveClient(connectionInfo);
 
             devConnectionMap_.erase(item.second->mac);
             break;
@@ -1320,6 +1328,22 @@ void WfdSinkScene::OnConnectionChanged(ConnectionInfo &connectionInfo)
 
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
     ipcAdapter->SendRequest(msg, reply);
+}
+
+void WfdSinkScene::P2pRemoveClient(ConnectionInfo &connectionInfo)
+{
+    SHARING_LOGI("p2p remove client: %{public}s.", connectionInfo.mac.c_str());
+    if (!p2pInstance_) {
+        SHARING_LOGE("p2p instance is null");
+        return;
+    }
+
+    OHOS::Wifi::GcInfo info;
+    info.mac = connectionInfo.mac;
+    info.ip = connectionInfo.ip;
+    info.host = connectionInfo.deviceName;
+
+    p2pInstance_->RemoveGroupClient(info);
 }
 
 void WfdSinkScene::OnDecoderAccelerationDone(ConnectionInfo &connectionInfo)

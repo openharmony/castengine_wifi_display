@@ -35,6 +35,8 @@ public:
     RtpDecoderTs();
     ~RtpDecoderTs();
 
+    void Release();
+
     void InputRtp(const RtpPacket::Ptr &rtp) override;
     void SetOnFrame(const OnFrame &cb) override;
 

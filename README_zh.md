@@ -37,7 +37,7 @@ castengine_wifi_display部件别名Sharing，媒体分享之意。拥有流媒�
 ## 目录结构<a name="767fa455"></a>
 仓目录结构如下：
 ```
-/foundation/multimedia/sharing_framework  # 投播部件业务代码
+/foundation/CastEngine/castengine_wifi_display  # 投播部件业务代码
 ├── figures                               # 
 ├── interfaces                            # 外部接口层
 │   ├── kits                              # 应用接口

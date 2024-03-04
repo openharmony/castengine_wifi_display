@@ -166,6 +166,11 @@ bool WfdRtpConsumer::Stop()
         rtpServer_.second.reset();
     }
 
+    if (rtpUnpacker_) {
+        rtpUnpacker_->Release();
+        rtpUnpacker_.reset();
+    }
+
     return true;
 }
 

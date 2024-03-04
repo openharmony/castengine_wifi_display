@@ -192,6 +192,10 @@ void WfdSourceScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pL
     scene->OnP2pPeerConnected(connectionInfo);
 }
 
+void WfdSourceScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &info) {}
+
+void WfdSourceScene::WfdP2pCallback::OnP2pGcLeaveGroup(const OHOS::Wifi::GcInfo &info) {}
+
 void WfdSourceScene::WfdP2pCallback::OnP2pDiscoveryChanged(bool isChange)
 {
     SHARING_LOGD("isChange: %{public}d.", isChange);
@@ -199,7 +203,7 @@ void WfdSourceScene::WfdP2pCallback::OnP2pDiscoveryChanged(bool isChange)
 
 void WfdSourceScene::WfdP2pCallback::OnP2pActionResult(Wifi::P2pActionCallback action, Wifi::ErrCode code)
 {
-    SHARING_LOGD("action: %{public}hhu, code: %{public}d", action, code);
+    SHARING_LOGD("action: %{public}hhu, code: %{public}d.", action, code);
 }
 
 void WfdSourceScene::WfdP2pCallback::OnConfigChanged(Wifi::CfgType type, char *data, int32_t dataLen)
