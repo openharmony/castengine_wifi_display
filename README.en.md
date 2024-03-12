@@ -38,7 +38,7 @@ The alias of the "castengine_wifi_display" component is "Sharing", which means "
 Repositories directory structure is as follows:
 
 ```
-/ foundation/multimedia/sharing_framework # airing parts business code
+/foundation/CastEngine/castengine_wifi_display # airing parts business code
 ├── figures                               #
 ├── interfaces                            # External interface
 │   ├── kits                              # Application interface

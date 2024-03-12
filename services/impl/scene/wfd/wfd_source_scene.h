@@ -46,6 +46,8 @@ public:
         void OnP2pStateChanged(int32_t state) override;
         void OnP2pPersistentGroupsChanged(void) override;
         void OnP2pDiscoveryChanged(bool isChange) override;
+        void OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &info) override;
+        void OnP2pGcLeaveGroup(const OHOS::Wifi::GcInfo &info) override;
         void OnP2pThisDeviceChanged(const Wifi::WifiP2pDevice &device) override;
         void OnP2pConnectionChanged(const Wifi::WifiP2pLinkedInfo &info) override;
         void OnConfigChanged(Wifi::CfgType type, char *data, int32_t dataLen) override;

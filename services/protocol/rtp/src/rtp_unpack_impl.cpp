@@ -30,6 +30,12 @@ RtpUnpackImpl::RtpUnpackImpl(const RtpPlaylodParam &rpp)
     CreateRtpDecoder(rpp);
 }
 
+RtpUnpackImpl::~RtpUnpackImpl()
+{
+    SHARING_LOGI("~RtpUnpackImpl.");
+    Release();
+}
+
 void RtpUnpackImpl::ParseRtp(const char *data, size_t len)
 {
     RtpHeader *header = (RtpHeader *)data;
@@ -86,6 +92,12 @@ void RtpUnpackImpl::OnRtpDecode(int32_t pt, const Frame::Ptr &frame)
     if (onRtpUnpack_) {
         onRtpUnpack_(rtpSort_[pt]->GetSSRC(), frame);
     }
+}
+
+void RtpUnpackImpl::Release()
+{
+    rtpDecoder_.clear();
+    rtpSort_.clear();
 }
 
 void RtpUnpackImpl::CreateRtpDecoder(const RtpPlaylodParam &rpp)

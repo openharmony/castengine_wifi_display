@@ -23,6 +23,7 @@
 namespace OHOS {
 namespace Sharing {
 constexpr int32_t FF_BUFFER_SIZE = 1500;
+static std::mutex frameLock;
 
 RtpDecoderTs::RtpDecoderTs()
 {
@@ -31,10 +32,21 @@ RtpDecoderTs::RtpDecoderTs()
 
 RtpDecoderTs::~RtpDecoderTs()
 {
-    MEDIA_LOGD("RtpDecoderTs DTOR IN.");
+    SHARING_LOGI("RtpDecoderTs DTOR IN.");
+    Release();
+}
+
+void RtpDecoderTs::Release()
+{
+    {
+        std::lock_guard<std::mutex> lock(frameLock);
+        onFrame_ = nullptr;
+    }
+
     exit_ = true;
     if (decodeThread_ && decodeThread_->joinable()) {
         decodeThread_->join();
+        decodeThread_ = nullptr;
     }
 
     if (avFormatContext_) {
@@ -46,7 +58,7 @@ RtpDecoderTs::~RtpDecoderTs()
     }
 
     if (avioCtxBuffer_) {
-        av_freep(&avioCtxBuffer_);
+        avioCtxBuffer_ = nullptr;
     }
 }
 
@@ -54,6 +66,9 @@ void RtpDecoderTs::InputRtp(const RtpPacket::Ptr &rtp)
 {
     MEDIA_LOGD("trace.");
     RETURN_IF_NULL(rtp);
+    if (exit_) {
+        return;
+    }
 
     if (decodeThread_ == nullptr) {
         decodeThread_ = std::make_unique<std::thread>(&RtpDecoderTs::StartDecoding, this);
@@ -111,6 +126,10 @@ void RtpDecoderTs::StartDecoding()
     AVPacket *packet = av_packet_alloc();
 
     while (!exit_ && av_read_frame(avFormatContext_, packet) >= 0) {
+        if (exit_) {
+            SHARING_LOGI("ignore av read frame.");
+            break;
+        }
         if (packet->stream_index == videoStreamIndex_) {
             SplitH264((char *)packet->data, (size_t)packet->size, 0, [&](const char *buf, size_t len, size_t prefix) {
                 if (H264_TYPE(buf[prefix]) == H264Frame::NAL_AUD) {
@@ -118,6 +137,7 @@ void RtpDecoderTs::StartDecoding()
                 }
                 auto outFrame = std::make_shared<H264Frame>((uint8_t *)buf, len, (uint32_t)packet->dts,
                                                             (uint32_t)packet->pts, prefix);
+                std::lock_guard<std::mutex> lock(frameLock);
                 if (onFrame_) {
                     onFrame_(outFrame);
                 }
@@ -125,6 +145,7 @@ void RtpDecoderTs::StartDecoding()
         } else if (packet->stream_index == audioStreamIndex_) {
             auto outFrame = std::make_shared<AACFrame>((uint8_t *)packet->data, packet->size, (uint32_t)packet->dts,
                                                        (uint32_t)packet->pts);
+            std::lock_guard<std::mutex> lock(frameLock);
             if (onFrame_) {
                 onFrame_(outFrame);
             }
@@ -139,12 +160,20 @@ void RtpDecoderTs::StartDecoding()
 int RtpDecoderTs::StaticReadPacket(void *opaque, uint8_t *buf, int buf_size)
 {
     RtpDecoderTs *decoder = (RtpDecoderTs *)opaque;
+    if (decoder == nullptr) {
+        SHARING_LOGE("decoder is nullptr.");
+        return 0;
+    }
     return decoder->ReadPacket(buf, buf_size);
 }
 
 int RtpDecoderTs::ReadPacket(uint8_t *buf, int buf_size)
 {
     while (dataQueue_.empty()) {
+        if (exit_ == true) {
+            SHARING_LOGI("read packet exit.");
+            return 0;
+        }
         std::this_thread::sleep_for(std::chrono::microseconds(5)); // 5: wait times
     }
 

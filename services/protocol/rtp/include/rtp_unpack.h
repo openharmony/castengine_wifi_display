@@ -34,6 +34,10 @@ public:
         RTP_UNPACK_OK = 0,
     };
     /**
+     * @brief Release resources
+     */
+    virtual void Release() = 0;
+    /**
      * @brief Parse rtp data
      * @param data rtp data
      * @param len rtp length

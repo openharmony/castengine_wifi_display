@@ -27,12 +27,13 @@ class RtpUnpackImpl : public RtpUnpack {
 public:
     RtpUnpackImpl() = default;
     RtpUnpackImpl(const RtpPlaylodParam &rpp);
-    ~RtpUnpackImpl() = default;
+    ~RtpUnpackImpl();
 
     void SetSdp(const std::string &sdp);
     void SetOnRtpUnpack(const OnRtpUnpack &cb) override;
     void SetOnRtpNotify(const OnRtpNotify &cb) override;
 
+    void Release() override;
     void ParseRtp(const char *data, size_t len) override;
 
 private:
