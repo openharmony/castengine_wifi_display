@@ -25,22 +25,12 @@
 #include "video_source_encoder.h"
 namespace OHOS {
 namespace Sharing {
-constexpr uint32_t INVALID_SEQ = 0xFFFFFFFF;
 
 class VideoSourceScreen : public std::enable_shared_from_this<VideoSourceScreen> {
 public:
     class ScreenGroupListener : public Rosen::ScreenManager::IScreenGroupListener {
     public:
         void OnChange(const std::vector<uint64_t> &screenIds, Rosen::ScreenGroupChangeEvent event) override;
-    };
-
-    class ScreenBufferConsumerListener : public IBufferConsumerListener {
-    public:
-        explicit ScreenBufferConsumerListener(std::weak_ptr<VideoSourceScreen> parent) : parent_(parent) {}
-        void OnBufferAvailable() override;
-
-    public:
-        std::weak_ptr<VideoSourceScreen> parent_;
     };
 
     explicit VideoSourceScreen(sptr<OHOS::Surface> encoderSurface) : encoderSurface_(encoderSurface) {}
@@ -53,7 +43,6 @@ public:
     void StartScreenSourceCapture();
 
 private:
-    void OnScreenBufferAvailable();
     void RemoveScreenFromGroup() const;
     void FrameRateControlTimerWorker();
 
@@ -65,23 +54,11 @@ private:
     uint64_t CreateVirtualScreen(const VideoSourceConfigure &configure);
 
 private:
-    volatile uint32_t queueSzie_;
-    uint32_t lastEncFrameBufferSeq_ = INVALID_SEQ;
-
     uint64_t screenId_ = SCREEN_ID_INVALID;
     uint64_t srcScreenId_ = SCREEN_ID_INVALID;
 
-    std::mutex frameRateCtrlMutex_;
-    std::unique_ptr<std::thread> rateControlWorker_ = nullptr;
-    std::unique_ptr<OHOS::Utils::Timer> timer_ = std::make_unique<OHOS::Utils::Timer>("FrameRateControlTimer");
-
     OHOS::sptr<OHOS::Surface> encoderSurface_ = nullptr;
-    OHOS::sptr<OHOS::Surface> consumerSurface_ = nullptr;
-    OHOS::sptr<OHOS::Surface> producerSurface_ = nullptr;
-    OHOS::sptr<OHOS::SurfaceBuffer> lastBuffer_ = nullptr;
-    OHOS::sptr<OHOS::SurfaceBuffer> lastEncFrameBuffer_ = nullptr;
     OHOS::sptr<ScreenGroupListener> screenGroupListener_ = nullptr;
-    OHOS::sptr<ScreenBufferConsumerListener> screenBufferListener_ = nullptr;
 };
 } // namespace Sharing
 } // namespace OHOS
