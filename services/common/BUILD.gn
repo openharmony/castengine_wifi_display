@@ -44,7 +44,6 @@ ohos_static_library("sharing_common") {
   subsystem_name = "castplus"
 }
 
-MEDIA_ROOT_DIR = "//foundation/multimedia/player_framework"
 ABILITY_RUNTIME_PATH = "//foundation/ability/ability_runtime"
 ABILITY_RUNTIME_INNER_API_PATH = "${ABILITY_RUNTIME_PATH}/interfaces/inner_api"
 ABILITY_RUNTIME_SERVICES_PATH = "${ABILITY_RUNTIME_PATH}/services"
@@ -60,7 +59,6 @@ ohos_static_library("kv_operator") {
 
   include_dirs = [
     "//third_party/json/include",
-    "$MEDIA_ROOT_DIR/services/utils",
     "//foundation/distributeddatamgr/kv_store/interfaces/innerkits/distributeddata/include",
     "${ABILITY_RUNTIME_INNER_API_PATH}/ability_manager/include",
     "${ABILITY_RUNTIME_PATH}/interfaces/kits/native/ability/native",

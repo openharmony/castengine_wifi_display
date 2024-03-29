@@ -15,11 +15,13 @@
 
 #include "video_sink_decoder.h"
 #include <securec.h>
-#include "avsharedmemory.h"
+#include "avcodec_codec_name.h"
+#include "avcodec_errors.h"
+#include "avcodec_mime_type.h"
+#include "buffer/avsharedmemory.h"
 #include "common/common_macro.h"
 #include "common/media_log.h"
 #include "configuration/include/config.h"
-#include "media_errors.h"
 #include "utils/utils.h"
 
 namespace OHOS {
@@ -53,10 +55,12 @@ bool VideoSinkDecoder::InitDecoder()
     }
     if (forceSWDecoder_) {
         SHARING_LOGD("begin create software video decoder.");
-        videoDecoder_ = OHOS::Media::VideoDecoderFactory::CreateByName("avdec_h264");
+        videoDecoder_ = OHOS::MediaAVCodec::VideoDecoderFactory::CreateByName(
+            (MediaAVCodec::AVCodecCodecName::VIDEO_DECODER_AVC_NAME).data());
     } else {
         SHARING_LOGD("begin create hardware video decoder.");
-        videoDecoder_ = OHOS::Media::VideoDecoderFactory::CreateByMime("video/avc");
+        videoDecoder_ = OHOS::MediaAVCodec::VideoDecoderFactory::CreateByMime(
+            (MediaAVCodec::AVCodecMimeType::MEDIA_MIMETYPE_VIDEO_AVC).data());
     }
 
     if (videoDecoder_ == nullptr) {
@@ -72,16 +76,12 @@ bool VideoSinkDecoder::SetDecoderFormat(const VideoTrack &track)
     SHARING_LOGD("trace.");
     RETURN_FALSE_IF_NULL(videoDecoder_);
     videoTrack_ = track;
-    Media::Format format;
-    format.PutStringValue("codec_mime", "video/avc");
-    format.PutIntValue("pixel_format", Media::VideoPixelFormat::NV12);
-    format.PutLongValue("max_input_size", MAX_YUV420_BUFFER_SIZE);
+    MediaAVCodec::Format format;
     format.PutIntValue("width", track.width);
     format.PutIntValue("height", track.height);
-    format.PutIntValue("frame_rate", track.frameRate);
 
     auto ret = videoDecoder_->Configure(format);
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCS_ERR_OK) {
         SHARING_LOGE("configure decoder format param failed!");
         return false;
     }
@@ -93,7 +93,7 @@ bool VideoSinkDecoder::SetVideoCallback()
 {
     SHARING_LOGD("trace.");
     auto ret = videoDecoder_->SetCallback(shared_from_this());
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCS_ERR_OK) {
         SHARING_LOGE("set video decoder callback failed!");
         return false;
     }
@@ -111,7 +111,7 @@ bool VideoSinkDecoder::Start()
 {
     SHARING_LOGD("trace.");
     if (isRunning_) {
-        SHARING_LOGW("decoder is running!");
+        MEDIA_LOGD("decoder is running!");
         return true;
     }
     if (StartDecoder()) {
@@ -143,7 +143,6 @@ void VideoSinkDecoder::Release()
 {
     SHARING_LOGD("trace.");
     if (videoDecoder_ != nullptr) {
-        videoDecoder_->SetCallback(nullptr);
         videoDecoder_->Release();
         videoDecoder_.reset();
     }
@@ -154,13 +153,13 @@ bool VideoSinkDecoder::StartDecoder()
     SHARING_LOGD("trace.");
     RETURN_FALSE_IF_NULL(videoDecoder_);
     auto ret = videoDecoder_->Prepare();
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCS_ERR_OK) {
         SHARING_LOGE("prepare decoder failed!");
         return false;
     }
 
     ret = videoDecoder_->Start();
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCS_ERR_OK) {
         SHARING_LOGE("start decoder failed!");
         return false;
     }
@@ -178,14 +177,14 @@ bool VideoSinkDecoder::StopDecoder()
 
     SHARING_LOGD("before Stop.");
     auto ret = videoDecoder_->Stop();
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCS_ERR_OK) {
         SHARING_LOGE("stop decoder failed!");
         return false;
     }
 
     SHARING_LOGD("before Reset.");
     ret = videoDecoder_->Reset();
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCS_ERR_OK) {
         SHARING_LOGE("Reset decoder failed!");
         return false;
     }
@@ -204,23 +203,29 @@ bool VideoSinkDecoder::StopDecoder()
     return true;
 }
 
-bool VideoSinkDecoder::DecodeVideoData(const char *data, int32_t size, const int32_t bufferIndex)
+bool VideoSinkDecoder::DecodeVideoData(const char *data, int32_t size)
 {
-    MEDIA_LOGD("decode data index: %{public}u controlId: %{public}u.", bufferIndex, controlId_);
+    MEDIA_LOGD("decode data controlId: %{public}u.", controlId_);
     RETURN_FALSE_IF_NULL(videoDecoder_);
-    auto inputBuffer = videoDecoder_->GetInputBuffer(bufferIndex);
+
+    std::unique_lock<std::mutex> lock(inMutex_);
+    auto inputIndex = inQueue_.front();
+    MEDIA_LOGD("inQueue front: %{public}d.", inputIndex);
+    auto inputBuffer = inBufferQueue_.front();
     if (inputBuffer == nullptr) {
         MEDIA_LOGE("GetInputBuffer failed controlId: %{public}u.", controlId_);
         return false;
     }
+    lock.unlock();
     MEDIA_LOGD("try copy data dest size: %{public}d data size: %{public}d.", inputBuffer->GetSize(), size);
+
     auto ret = memcpy_s(inputBuffer->GetBase(), inputBuffer->GetSize(), data, size);
     if (ret != EOK) {
         MEDIA_LOGE("copy data failed controlId: %{public}u.", controlId_);
         return false;
     }
 
-    Media::AVCodecBufferInfo bufferInfo;
+    MediaAVCodec::AVCodecBufferInfo bufferInfo;
     bufferInfo.presentationTimeUs = 0;
     bufferInfo.size = size;
     bufferInfo.offset = 0;
@@ -229,21 +234,26 @@ bool VideoSinkDecoder::DecodeVideoData(const char *data, int32_t size, const int
     p = *(p + 2) == 0x01 ? p + 3 : p + 4; // 2: offset, 3: offset, 4: offset
     if ((p[0] & 0x1f) == 0x06 || (p[0] & 0x1f) == 0x07 || (p[0] & 0x1f) == 0x08) {
         MEDIA_LOGD("media flag codec data controlId: %{public}u.", controlId_);
-        ret = videoDecoder_->QueueInputBuffer(bufferIndex, bufferInfo, Media::AVCODEC_BUFFER_FLAG_CODEC_DATA);
+        ret = videoDecoder_->QueueInputBuffer(inputIndex, bufferInfo, MediaAVCodec::AVCODEC_BUFFER_FLAG_CODEC_DATA);
     } else {
         MEDIA_LOGD("media flag none controlId: %{public}u.", controlId_);
-        ret = videoDecoder_->QueueInputBuffer(bufferIndex, bufferInfo, Media::AVCODEC_BUFFER_FLAG_NONE);
+        ret = videoDecoder_->QueueInputBuffer(inputIndex, bufferInfo, MediaAVCodec::AVCODEC_BUFFER_FLAG_NONE);
     }
 
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCS_ERR_OK) {
         MEDIA_LOGE("QueueInputBuffer failed error: %{public}d controlId: %{public}u.", ret, controlId_);
         return false;
     }
+    
+    lock.lock();
+    inQueue_.pop();
+    inBufferQueue_.pop();
+
     MEDIA_LOGD("process data success controlId: %{public}u.", controlId_);
     return true;
 }
 
-void VideoSinkDecoder::OnError(Media::AVCodecErrorType errorType, int32_t errorCode)
+void VideoSinkDecoder::OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t errorCode)
 {
     SHARING_LOGE("controlId: %{public}u.", controlId_);
     auto listener = videoDecoderListener_.lock();
@@ -252,8 +262,8 @@ void VideoSinkDecoder::OnError(Media::AVCodecErrorType errorType, int32_t errorC
     }
 }
 
-void VideoSinkDecoder::OnOutputBufferAvailable(uint32_t index, Media::AVCodecBufferInfo info,
-                                               Media::AVCodecBufferFlag flag)
+void VideoSinkDecoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::AVCodecBufferInfo info,
+    MediaAVCodec::AVCodecBufferFlag flag, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
 {
     MEDIA_LOGD("OnOutputBufferAvailable index: %{public}u controlId: %{public}u.", index, controlId_);
     if (!videoDecoder_) {
@@ -261,16 +271,18 @@ void VideoSinkDecoder::OnOutputBufferAvailable(uint32_t index, Media::AVCodecBuf
         return;
     }
     if (forceSWDecoder_) {
-        auto videoSharedMemory = videoDecoder_->GetOutputBuffer(index);
-        if (videoSharedMemory == nullptr || videoSharedMemory->GetBase() == nullptr) {
-            MEDIA_LOGW("OnOutputBufferAvailable GetOutputBuffer null!");
+        MEDIA_LOGD("forceSWDecoder_ is true.");
+    }
+    if (forceSWDecoder_) {
+        if (buffer == nullptr || buffer->GetBase() == nullptr) {
+            MEDIA_LOGW("OnOutputBufferAvailable buffer null!");
             return;
         }
         size_t dataSize = static_cast<size_t>(info.size);
         SHARING_LOGD("OnOutputBufferAvailable size: %{public}zu.", dataSize);
         auto dataBuf = std::make_shared<DataBuffer>(dataSize);
         if (dataBuf != nullptr) {
-            dataBuf->PushData((char *)videoSharedMemory->GetBase(), dataSize);
+            dataBuf->PushData((char *)buffer->GetBase(), dataSize);
             auto listerner = videoDecoderListener_.lock();
             if (listerner) {
                 listerner->OnVideoDataDecoded(dataBuf);
@@ -280,23 +292,24 @@ void VideoSinkDecoder::OnOutputBufferAvailable(uint32_t index, Media::AVCodecBuf
         }
     }
 
-    if (videoDecoder_->ReleaseOutputBuffer(index, true) != Media::MSERR_OK) {
+    if (videoDecoder_->ReleaseOutputBuffer(index, true) != MediaAVCodec::AVCS_ERR_OK) {
         MEDIA_LOGW("ReleaseOutputBuffer failed!");
     }
 }
 
-void VideoSinkDecoder::OnInputBufferAvailable(uint32_t index)
+void VideoSinkDecoder::OnInputBufferAvailable(uint32_t index, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
 {
     MEDIA_LOGD("OnInputBufferAvailable index: %{public}u controlId: %{public}u.", index, controlId_);
     {
         std::lock_guard<std::mutex> lock(inMutex_);
         inQueue_.push(index);
+        inBufferQueue_.push(buffer);
     }
     inCond_.notify_all();
     MEDIA_LOGD("OnInputBufferAvailable notify.");
 }
 
-void VideoSinkDecoder::OnOutputFormatChanged(const Media::Format &format)
+void VideoSinkDecoder::OnOutputFormatChanged(const MediaAVCodec::Format &format)
 {
     SHARING_LOGD("controlId: %{public}u.", controlId_);
 }
@@ -312,7 +325,7 @@ bool VideoSinkDecoder::SetSurface(sptr<Surface> surface)
     }
 
     auto ret = videoDecoder_->SetOutputSurface(surface);
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCS_ERR_OK) {
         SHARING_LOGE("decoder set surface error, ret code:  %{public}u.", ret);
         return false;
     }

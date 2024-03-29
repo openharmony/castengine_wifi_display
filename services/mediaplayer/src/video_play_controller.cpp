@@ -16,6 +16,7 @@
 #include "video_play_controller.h"
 #include <chrono>
 #include <securec.h>
+#include "avcodec_errors.h"
 #include "common/common_macro.h"
 #include "common/const_def.h"
 #include "common/event_channel.h"
@@ -23,12 +24,11 @@
 #include "configuration/include/config.h"
 #include "magic_enum.hpp"
 #include "media_controller.h"
-#include "media_errors.h"
 #include "protocol/frame/h264_frame.h"
 #include "surface.h"
 #include "utils/data_buffer.h"
 
-using namespace OHOS::Media;
+using namespace OHOS::MediaAVCodec;
 
 namespace OHOS {
 namespace Sharing {
@@ -250,12 +250,11 @@ void VideoPlayController::ProcessVideoData(const char *data, int32_t size)
         return;
     }
 
-    int32_t bufferIndex = -1;
     {
         std::unique_lock<std::mutex> lock(videoSinkDecoder_->inMutex_);
         if (videoSinkDecoder_->inQueue_.empty()) {
             while (isVideoRunning_) {
-                MEDIA_LOGD("try wait, mediachannelId: %{public}u.", mediachannelId_);
+                SHARING_LOGD("try wait, mediachannelId: %{public}u.", mediachannelId_);
                 videoSinkDecoder_->inCond_.wait_for(lock, std::chrono::milliseconds(DECODE_WAIT_MILLISECONDS),
                                                     [this]() { return (!videoSinkDecoder_->inQueue_.empty()); });
 
@@ -266,10 +265,6 @@ void VideoPlayController::ProcessVideoData(const char *data, int32_t size)
                 break;
             }
         }
-        if (!videoSinkDecoder_->inQueue_.empty()) {
-            bufferIndex = videoSinkDecoder_->inQueue_.front();
-            videoSinkDecoder_->inQueue_.pop();
-        }
     }
 
     if (!isVideoRunning_) {
@@ -277,10 +272,9 @@ void VideoPlayController::ProcessVideoData(const char *data, int32_t size)
         return;
     }
 
-    if (bufferIndex == -1) {
-        SHARING_LOGD("stop no process video data, mediachannelId: %{public}u.", mediachannelId_);
-    } else {
-        videoSinkDecoder_->DecodeVideoData(data, size, bufferIndex);
+    bool ret = videoSinkDecoder_->DecodeVideoData(data, size);
+    if (ret == false) {
+        SHARING_LOGE("sink decode data failed.");
     }
 }
 
@@ -309,7 +303,7 @@ void VideoPlayController::OnError(int32_t errorCode)
     }
 
     switch (errorCode) {
-        case Media::MSERR_SERVICE_DIED:
+        case MediaAVCodec::AVCS_ERR_SERVICE_DIED:
             SHARING_LOGE("media service died: %{public}u.", mediachannelId_);
             statusMsg->status = CONNTROLLER_NOTIFY_DECODER_DIED;
             statusMsg->errorCode = ERR_SURFACE_FAILURE;

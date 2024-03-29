@@ -409,6 +409,7 @@ void WfdRtpProducer::DispatchMediaData()
             if (sps != nullptr && sps->buff != nullptr) {
                 auto spsFrame = std::make_shared<MediaData>(*sps);
                 spsFrame->buff = std::make_shared<DataBuffer>(*(sps->buff));
+                spsFrame->pts = mediaData->pts;
                 PublishOneFrame(spsFrame);
             }
 
@@ -416,6 +417,7 @@ void WfdRtpProducer::DispatchMediaData()
             if (pps != nullptr && pps->buff != nullptr) {
                 auto ppsFrame = std::make_shared<MediaData>(*pps);
                 ppsFrame->buff = std::make_shared<DataBuffer>(*(pps->buff));
+                ppsFrame->pts = mediaData->pts;
                 PublishOneFrame(ppsFrame);
             }
         }
