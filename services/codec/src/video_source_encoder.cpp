@@ -14,16 +14,16 @@
 */
 
 #include "video_source_encoder.h"
-#include "avsharedmemory.h"
+#include "avcodec_errors.h"
+#include "buffer/avsharedmemory.h"
 #include "common/common_macro.h"
-#include "media_errors.h"
 #include "protocol/frame/h264_frame.h"
 #include "sharing_log.h"
 
 namespace OHOS {
 namespace Sharing {
 
-void VideoSourceEncoder::VideoEncodeCallback::OnError(Media::AVCodecErrorType errorType, int32_t errorCode)
+void VideoSourceEncoder::VideoEncodeCallback::OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t errorCode)
 {
     SHARING_LOGD("trace.");
     if (auto parent = parent_.lock()) {
@@ -31,7 +31,7 @@ void VideoSourceEncoder::VideoEncodeCallback::OnError(Media::AVCodecErrorType er
     }
 }
 
-void VideoSourceEncoder::VideoEncodeCallback::OnOutputFormatChanged(const Media::Format &format)
+void VideoSourceEncoder::VideoEncodeCallback::OnOutputFormatChanged(const MediaAVCodec::Format &format)
 {
     SHARING_LOGD("trace.");
     if (auto parent = parent_.lock()) {
@@ -39,20 +39,22 @@ void VideoSourceEncoder::VideoEncodeCallback::OnOutputFormatChanged(const Media:
     }
 }
 
-void VideoSourceEncoder::VideoEncodeCallback::OnInputBufferAvailable(uint32_t index)
+void VideoSourceEncoder::VideoEncodeCallback::OnInputBufferAvailable(uint32_t index,
+    std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
 {
     SHARING_LOGD("trace.");
     if (auto parent = parent_.lock()) {
-        parent->OnInputBufferAvailable(index);
+        parent->OnInputBufferAvailable(index, buffer);
     }
 }
 
-void VideoSourceEncoder::VideoEncodeCallback::OnOutputBufferAvailable(uint32_t index, Media::AVCodecBufferInfo info,
-                                                                      Media::AVCodecBufferFlag flag)
+void VideoSourceEncoder::VideoEncodeCallback::OnOutputBufferAvailable(uint32_t index,
+    MediaAVCodec::AVCodecBufferInfo info, MediaAVCodec::AVCodecBufferFlag flag,
+    std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
 {
     SHARING_LOGD("trace.");
     if (auto parent = parent_.lock()) {
-        parent->OnOutputBufferAvailable(index, info, flag);
+        parent->OnOutputBufferAvailable(index, info, flag, buffer);
     }
 }
 
@@ -93,10 +95,10 @@ bool VideoSourceEncoder::CreateEncoder(const VideoSourceConfigure &configure)
     SHARING_LOGD("trace.");
     switch (configure.codecType_) {
         case CodecId::CODEC_H264:
-            videoEncoder_ = OHOS::Media::VideoEncoderFactory::CreateByMime("video/avc");
+            videoEncoder_ = OHOS::MediaAVCodec::VideoEncoderFactory::CreateByMime("video/avc");
             break;
         case CodecId::CODEC_H265:
-            videoEncoder_ = OHOS::Media::VideoEncoderFactory::CreateByMime("video/hevc");
+            videoEncoder_ = OHOS::MediaAVCodec::VideoEncoderFactory::CreateByMime("video/hevc");
             break;
         default:
             SHARING_LOGE("Encoder codecType is invalid!");
@@ -108,7 +110,7 @@ bool VideoSourceEncoder::CreateEncoder(const VideoSourceConfigure &configure)
     }
     encoderCb_ = std::make_shared<VideoEncodeCallback>(shared_from_this());
     int32_t ret = videoEncoder_->SetCallback(encoderCb_);
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCodecServiceErrCode::AVCS_ERR_OK) {
         SHARING_LOGE("Set encoder callback failed!");
         ReleaseEncoder();
         return false;
@@ -124,7 +126,7 @@ bool VideoSourceEncoder::ConfigEncoder(const VideoSourceConfigure &configure)
         SHARING_LOGE("Encoder is null!");
         return false;
     }
-    Media::Format videoFormat;
+    MediaAVCodec::Format videoFormat;
     switch (configure.codecType_) {
         case CodecId::CODEC_H264:
             videoFormat.PutStringValue("codec_mime", "video/avc");
@@ -143,7 +145,7 @@ bool VideoSourceEncoder::ConfigEncoder(const VideoSourceConfigure &configure)
     videoFormat.PutIntValue("frame_rate", configure.frameRate_);
     videoFormat.PutIntValue("bitrate", SCREEN_CAPTURE_ENCODE_BITRATE);
     int32_t ret = videoEncoder_->Configure(videoFormat);
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCodecServiceErrCode::AVCS_ERR_OK) {
         SHARING_LOGE("Configure encoder failed!");
         return false;
     }
@@ -166,13 +168,13 @@ bool VideoSourceEncoder::StartEncoder()
     }
 
     int32_t ret = videoEncoder_->Prepare();
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCodecServiceErrCode::AVCS_ERR_OK) {
         SHARING_LOGE("Prepare encoder failed!");
         return false;
     }
 
     ret = videoEncoder_->Start();
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCodecServiceErrCode::AVCS_ERR_OK) {
         SHARING_LOGE("Start encoder failed!");
         return false;
     }
@@ -189,12 +191,12 @@ bool VideoSourceEncoder::StopEncoder()
     }
 
     int32_t ret = videoEncoder_->Flush();
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCodecServiceErrCode::AVCS_ERR_OK) {
         SHARING_LOGE("Flush encoder failed!");
     }
 
     ret = videoEncoder_->Stop();
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCodecServiceErrCode::AVCS_ERR_OK) {
         SHARING_LOGE("Stop encoder failed!");
         return false;
     }
@@ -210,7 +212,7 @@ bool VideoSourceEncoder::ReleaseEncoder()
         return false;
     }
     int32_t ret = videoEncoder_->Release();
-    if (ret != Media::MSERR_OK) {
+    if (ret != MediaAVCodec::AVCodecServiceErrCode::AVCS_ERR_OK) {
         SHARING_LOGE("Release encoder failed.");
         return false;
     }
@@ -219,8 +221,9 @@ bool VideoSourceEncoder::ReleaseEncoder()
     return true;
 }
 
-void VideoSourceEncoder::OnOutputBufferAvailable(uint32_t index, Media::AVCodecBufferInfo info,
-                                                 Media::AVCodecBufferFlag flag)
+void VideoSourceEncoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::AVCodecBufferInfo info,
+                                                 MediaAVCodec::AVCodecBufferFlag flag,
+                                                 std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
 {
     SHARING_LOGI("index: %{public}u, size:%{public}u, pts: %{public}" PRIi64 ".", index, info.size,
                  info.presentationTimeUs);
@@ -229,8 +232,7 @@ void VideoSourceEncoder::OnOutputBufferAvailable(uint32_t index, Media::AVCodecB
         return;
     }
 
-    auto videoSharedMemory = videoEncoder_->GetOutputBuffer(index);
-    if (videoSharedMemory == nullptr || videoSharedMemory->GetBase() == nullptr) {
+    if (buffer == nullptr || buffer->GetBase() == nullptr) {
         SHARING_LOGE("Get output buffer null!");
         return;
     }
@@ -240,7 +242,7 @@ void VideoSourceEncoder::OnOutputBufferAvailable(uint32_t index, Media::AVCodecB
         return;
     }
 
-    const char *data = reinterpret_cast<const char *>(videoSharedMemory->GetBase());
+    const char *data = reinterpret_cast<const char *>(buffer->GetBase());
     if (auto listener = listener_.lock()) {
         SplitH264(data, dataSize, 0, [&](const char *buf, size_t len, size_t prefix) {
             if ((*(buf + prefix) & 0x1f) == 0x07) {
@@ -270,12 +272,13 @@ void VideoSourceEncoder::OnOutputBufferAvailable(uint32_t index, Media::AVCodecB
         SHARING_LOGE("listener_ is null, call OnFrame failed!");
     }
 
-    if (videoEncoder_->ReleaseOutputBuffer(index) != Media::MSERR_OK) {
+    if (videoEncoder_->ReleaseOutputBuffer(index) != MediaAVCodec::AVCodecServiceErrCode::AVCS_ERR_OK) {
         SHARING_LOGW("release output buffer failed!");
     }
 }
 
-void VideoSourceEncoder::OnInputBufferAvailable(uint32_t index)
+
+void VideoSourceEncoder::OnInputBufferAvailable(uint32_t index, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
 {
     SHARING_LOGI("index:%{public}u.", index);
     if (auto listener = listener_.lock()) {
@@ -283,13 +286,13 @@ void VideoSourceEncoder::OnInputBufferAvailable(uint32_t index)
     }
 }
 
-void VideoSourceEncoder::OnOutputFormatChanged(const Media::Format &format)
+void VideoSourceEncoder::OnOutputFormatChanged(const MediaAVCodec::Format &format)
 {
     SHARING_LOGD("trace.");
     (void)format;
 }
 
-void VideoSourceEncoder::OnError(Media::AVCodecErrorType errorType, int32_t errorCode)
+void VideoSourceEncoder::OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t errorCode)
 {
     SHARING_LOGD("Encoder error, errorType(%{public}d), errorCode(%{public}d)!", errorType, errorCode);
 }

@@ -29,6 +29,8 @@
       "components": [
         "ipc",
         "safwk",
+        "media_foundation",
+        "av_codec",
         "audio_framework",
         "player_framework",
         "camera_framework",

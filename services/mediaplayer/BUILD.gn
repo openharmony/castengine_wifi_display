@@ -52,9 +52,9 @@ ohos_source_set("sharing_media_player_srcs") {
 
   external_deps = [
     "audio_framework:audio_renderer",
+    "av_codec:av_codec_client",
     "graphic_surface:surface",
     "hilog:libhilog",
-    "player_framework:media_client",
   ]
 
   subsystem_name = "castplus"

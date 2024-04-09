@@ -14,14 +14,6 @@
 import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
-config("codec_external_include") {
-  include_dirs = [
-    "//foundation/multimedia/multimedia",
-    "//foundation/multimedia/player_framework/interfaces/inner_api/native",
-    "//foundation/multimedia/player_framework/services/utils/include",
-  ]
-}
-
 ohos_shared_library("sharing_codec") {
   install_enable = true
 
@@ -30,8 +22,6 @@ ohos_shared_library("sharing_codec") {
     cfi_cross_dso = true
     debug = false
   }
-
-  public_configs = [ ":codec_external_include" ]
 
   include_dirs = [
     "$SHARING_ROOT_DIR/services/codec/include",
@@ -58,12 +48,12 @@ ohos_shared_library("sharing_codec") {
   ]
 
   external_deps = [
+    "av_codec:av_codec_client",
     "c_utils:utilsbase",
     "graphic_surface:surface",
     "hilog:libhilog",
     "ipc:ipc_core",
-    "player_framework:media_client",
-    "player_framework:media_service_utils",
+    "media_foundation:media_foundation",
     "safwk:system_ability_fwk",
   ]
 

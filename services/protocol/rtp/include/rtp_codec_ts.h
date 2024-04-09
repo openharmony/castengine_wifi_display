@@ -20,6 +20,7 @@
 #include <queue>
 #include <thread>
 #include "frame/frame.h"
+#include "frame/frame_merger.h"
 #include "rtp_codec.h"
 #include "rtp_maker.h"
 extern "C" {
@@ -65,11 +66,37 @@ class RtpEncoderTs : public RtpEncoder,
 public:
     using Ptr = std::shared_ptr<RtpEncoderTs>;
 
+    void Release();
+
     RtpEncoderTs(uint32_t ssrc, uint32_t mtuSize, uint32_t sampleRate, uint8_t payloadType, uint16_t seq = 0);
     ~RtpEncoderTs();
 
     void InputFrame(const Frame::Ptr &frame) override;
     void SetOnRtpPack(const OnRtpPack &cb) override;
+
+private:
+    void StartEncoding();
+    void RemoveFrameAfterMuxing();
+    int ReadFrame(AVPacket *packet);
+    void SaveFrame(Frame::Ptr frame);
+    static int WritePacket(void *opaque, uint8_t *buf, int buf_size);
+
+private:
+    bool exit_ = false;
+    uint8_t *avioCtxBuffer_ = nullptr;
+
+    bool keyFrame_;
+    uint32_t timeStamp_;
+    FrameMerger merger_;
+
+    std::mutex queueMutex_;
+    std::mutex cbLockMutex_;
+    std::queue<Frame::Ptr> dataQueue_;
+    std::unique_ptr<std::thread> encodeThread_;
+
+    AVStream *out_stream = nullptr;
+    AVIOContext *avioContext_ = nullptr;
+    AVFormatContext *avFormatContext_ = nullptr;
 };
 } // namespace Sharing
 } // namespace OHOS

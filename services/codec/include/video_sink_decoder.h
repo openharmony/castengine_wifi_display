@@ -37,7 +37,7 @@ public:
     virtual void OnVideoDataDecoded(DataBuffer::Ptr decodedData) = 0;
 };
 
-class VideoSinkDecoder : public Media::AVCodecCallback,
+class VideoSinkDecoder : public MediaAVCodec::AVCodecCallback,
                          public std::enable_shared_from_this<VideoSinkDecoder> {
 public:
     explicit VideoSinkDecoder(uint32_t controlId, bool forceSWDecoder = false);
@@ -47,17 +47,17 @@ public:
     void Stop();
     void Release();
     bool Init(CodecId videoCodecId = CODEC_H264);
-    bool DecodeVideoData(const char *data, int32_t size, const int32_t bufferIndex);
+    bool DecodeVideoData(const char *data, int32_t size);
 
     bool SetSurface(sptr<OHOS::Surface> surface);
     bool SetDecoderFormat(const VideoTrack &track);
     void SetVideoDecoderListener(VideoSinkDecoderListener::Ptr listener);
 
-protected:
-    void OnInputBufferAvailable(uint32_t index) override;
-    void OnOutputFormatChanged(const Media::Format &format) override;
-    void OnError(Media::AVCodecErrorType errorType, int32_t errorCode) override;
-    void OnOutputBufferAvailable(uint32_t index, Media::AVCodecBufferInfo info, Media::AVCodecBufferFlag flag) override;
+    void OnOutputFormatChanged(const MediaAVCodec::Format &format) override;
+    void OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t errorCode) override;
+    void OnInputBufferAvailable(uint32_t index, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer) override;
+    void OnOutputBufferAvailable(uint32_t index, MediaAVCodec::AVCodecBufferInfo info,
+        MediaAVCodec::AVCodecBufferFlag flag, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer) override;
 
 private:
     bool InitDecoder();
@@ -70,12 +70,14 @@ public:
     bool forceSWDecoder_ = false;
     uint32_t controlId_ = -1;
 
-    std::mutex inMutex_;
     std::queue<int32_t> inQueue_;
+    std::queue<std::shared_ptr<MediaAVCodec::AVSharedMemory>> inBufferQueue_;
+
+    std::mutex inMutex_;
     std::condition_variable inCond_;
     std::atomic_bool isRunning_ = false;
     std::weak_ptr<VideoSinkDecoderListener> videoDecoderListener_;
-    std::shared_ptr<OHOS::Media::AVCodecVideoDecoder> videoDecoder_ = nullptr;
+    std::shared_ptr<OHOS::MediaAVCodec::AVCodecVideoDecoder> videoDecoder_ = nullptr;
 
     VideoTrack videoTrack_;
     CodecId videoCodecId_ = CODEC_NONE;

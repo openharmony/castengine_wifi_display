@@ -14,13 +14,12 @@
  */
 
 #include "kv_operator.h"
-#include "include/media_log.h"
 #include "directory_ex.h"
+#include "media_log.h"
 
 namespace {
     const OHOS::DistributedKv::AppId KVSTORE_APPID = {"com.ohos.sharing.codec"};
     const OHOS::DistributedKv::StoreId KVSTORE_STOREID = {"media_sharingcodec"};
-    constexpr OHOS::HiviewDFX::HiLogLabel LABEL = {LOG_CORE, LOG_DOMAIN, "KVOperator"};
 }
 
 static constexpr int32_t FILE_PERMISSION = 0777;

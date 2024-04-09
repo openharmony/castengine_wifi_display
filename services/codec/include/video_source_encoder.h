@@ -36,8 +36,10 @@ public:
     uint32_t videoWidth_ = DEFAULT_VIDEO_WIDTH;
     uint32_t videoHeight_ = DEFAULT_VIDEO_HEIGHT;
     uint32_t frameRate_ = DEFAULT_FRAME_RATE;
+
     int32_t codecType_ = CodecId::CODEC_H264;
-    int32_t pixleFormat_ = Media::VideoPixelFormat::RGBA;
+    int32_t pixleFormat_ = static_cast<int32_t>(OHOS::MediaAVCodec::VideoPixelFormat::RGBA);
+
     uint64_t srcScreenId_ = 0;
 };
 
@@ -51,16 +53,16 @@ public:
 
 class VideoSourceEncoder : public std::enable_shared_from_this<VideoSourceEncoder> {
 public:
-    class VideoEncodeCallback : public Media::AVCodecCallback {
+    class VideoEncodeCallback : public MediaAVCodec::AVCodecCallback {
     public:
         VideoEncodeCallback(std::shared_ptr<VideoSourceEncoder> parent) : parent_(parent) {}
         ~VideoEncodeCallback() = default;
 
-        void OnInputBufferAvailable(uint32_t index);
-        void OnOutputFormatChanged(const Media::Format &format);
-        void OnError(Media::AVCodecErrorType errorType, int32_t errorCode);
-        void OnOutputBufferAvailable(uint32_t index, Media::AVCodecBufferInfo info, Media::AVCodecBufferFlag flag);
-
+        void OnOutputFormatChanged(const MediaAVCodec::Format &format);
+        void OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t errorCode);
+        void OnInputBufferAvailable(uint32_t index, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer);
+        void OnOutputBufferAvailable(uint32_t index, MediaAVCodec::AVCodecBufferInfo info,
+            MediaAVCodec::AVCodecBufferFlag flag, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer);
     private:
         std::weak_ptr<VideoSourceEncoder> parent_;
     };
@@ -76,10 +78,11 @@ public:
     sptr<Surface> &GetEncoderSurface();
 
 protected:
-    void OnInputBufferAvailable(uint32_t index);
-    void OnOutputFormatChanged(const Media::Format &format);
-    void OnError(Media::AVCodecErrorType errorType, int32_t errorCode);
-    void OnOutputBufferAvailable(uint32_t index, Media::AVCodecBufferInfo info, Media::AVCodecBufferFlag flag);
+    void OnOutputFormatChanged(const MediaAVCodec::Format &format);
+    void OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t errorCode);
+    void OnInputBufferAvailable(uint32_t index, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer);
+    void OnOutputBufferAvailable(uint32_t index, MediaAVCodec::AVCodecBufferInfo info,
+        MediaAVCodec::AVCodecBufferFlag flag, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer);
 
 private:
     bool CreateEncoder(const VideoSourceConfigure &configure);
@@ -89,7 +92,7 @@ private:
     sptr<OHOS::Surface> videoEncoderSurface_;
     std::shared_ptr<VideoEncodeCallback> encoderCb_;
     std::weak_ptr<VideoSourceEncoderListener> listener_;
-    std::shared_ptr<OHOS::Media::AVCodecVideoEncoder> videoEncoder_;
+    std::shared_ptr<OHOS::MediaAVCodec::AVCodecVideoEncoder> videoEncoder_;
 };
 } // namespace Sharing
 } // namespace OHOS

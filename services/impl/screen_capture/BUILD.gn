@@ -46,12 +46,12 @@ ohos_source_set("sharing_screen_capture_srcs") {
   ]
 
   external_deps = [
+    "av_codec:av_codec_client",
     "c_utils:utils",
     "drivers_peripheral_display:hdi_gralloc_client",
     "graphic_surface:surface",
     "graphic_surface:sync_fence",
     "hilog:libhilog",
-    "player_framework:media_client",
     "window_manager:libdm",
   ]
 

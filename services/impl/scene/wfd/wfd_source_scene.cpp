@@ -192,9 +192,15 @@ void WfdSourceScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pL
     scene->OnP2pPeerConnected(connectionInfo);
 }
 
-void WfdSourceScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &info) {}
+void WfdSourceScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &info)
+{
+    SHARING_LOGD("trace.");
+}
 
-void WfdSourceScene::WfdP2pCallback::OnP2pGcLeaveGroup(const OHOS::Wifi::GcInfo &info) {}
+void WfdSourceScene::WfdP2pCallback::OnP2pGcLeaveGroup(const OHOS::Wifi::GcInfo &info)
+{
+    SHARING_LOGD("trace.");
+}
 
 void WfdSourceScene::WfdP2pCallback::OnP2pDiscoveryChanged(bool isChange)
 {
@@ -293,7 +299,13 @@ void WfdSourceScene::Initialize()
     p2pInstance_ = Wifi::WifiP2p::GetInstance(WIFI_P2P_ABILITY_ID);
     sptr<WfdP2pCallback> wfdP2pCallback(new WfdP2pCallback(shared_from_this()));
 
-    p2pInstance_->RegisterCallBack(wfdP2pCallback, {});
+    std::vector<std::string> event = {  EVENT_P2P_PEER_DEVICE_CHANGE,
+                                        EVENT_P2P_DEVICE_STATE_CHANGE,
+                                        EVENT_P2P_CONN_STATE_CHANGE,
+                                        EVENT_P2P_STATE_CHANGE,
+                                        EVENT_P2P_SERVICES_CHANGE,
+                                        EVENT_P2P_DISCOVERY_CHANGE};
+    p2pInstance_->RegisterCallBack(wfdP2pCallback, event);
 }
 
 void WfdSourceScene::Release()
@@ -479,6 +491,7 @@ int32_t WfdSourceScene::HandleAddDevice(std::shared_ptr<WfdSourceAddDeviceReq> &
 
     Wifi::WifiP2pConfig config;
     config.SetDeviceAddress(msg->deviceId);
+    config.SetDeviceAddressType(OHOS::Wifi::RANDOM_DEVICE_ADDRESS);
     screenId_ = msg->screenId;
     int32_t ret = p2pInstance_->P2pConnect(config);
     SHARING_LOGD("connect device: %s, ret = %d", msg->deviceId.c_str(), ret);
