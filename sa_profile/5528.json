@@ -2,10 +2,10 @@
     "process": "sharing_service",
     "systemability": [
         {
-            "name": 65547,
+            "name": 5528,
             "libpath": "libsharing_service.z.so",
             "run-on-create": true,
-            "distributed": false,
+            "distributed": true,
             "dump_level": 1
         }
     ]

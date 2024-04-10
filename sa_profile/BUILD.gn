@@ -15,8 +15,8 @@ import("//build/ohos/sa_profile/sa_profile.gni")
 
 ohos_sa_profile("sharing_sa_profile") {
   sources = [
-    "65547.json",
-    "65548.json",
+    "5527.json",
+    "5528.json",
   ]
   part_name = "sharing_framework"
 }
