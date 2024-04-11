@@ -40,6 +40,9 @@ ohos_shared_library("sharingwfd_client") {
     debug = false
   }
 
+  branch_protector_ret = "pac_ret"
+  stack_protector_ret = true
+
   include_dirs = [ "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include" ]
 
   sources = [

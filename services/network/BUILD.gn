@@ -23,6 +23,9 @@ ohos_shared_library("sharing_network") {
     debug = false
   }
 
+  branch_protector_ret = "pac_ret"
+  stack_protector_ret = true
+
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
     "//utils/native/base/include",
