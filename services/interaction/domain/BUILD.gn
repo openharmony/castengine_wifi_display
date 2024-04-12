@@ -20,9 +20,6 @@ ohos_shared_library("domain_manager") {
     debug = false
   }
 
-  branch_protector_ret = "pac_ret"
-  stack_protector_ret = true
-
   include_dirs = [
     ".",
     "//foundation/CastEngine/castengine_wifi_display/services",

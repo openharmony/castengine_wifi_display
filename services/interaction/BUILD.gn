@@ -49,9 +49,6 @@ ohos_source_set("sharing_interaction_srcs") {
     debug = false
   }
 
-  branch_protector_ret = "pac_ret"
-  stack_protector_ret = true
-
   sources = [
     "domain/domain_manager.cpp",
     "domain/rpc/domain_rpc_client.cpp",

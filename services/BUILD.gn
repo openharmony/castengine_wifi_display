@@ -35,9 +35,6 @@ ohos_shared_library("sharing_service") {
     debug = false
   }
 
-  branch_protector_ret = "pac_ret"
-  stack_protector_ret = true
-
   deps = [
     "agent:sharing_agent_srcs",
     "configuration:sharing_configure_srcs",
