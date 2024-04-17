@@ -13,9 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_SHARING_WFD_MUTE_FUZZER_H
-#define OHOS_SHARING_WFD_MUTE_FUZZER_H
+#ifndef OHOS_SHARING_WFD_SOURCE_SET_LISTENER_FUZZER_H
+#define OHOS_SHARING_WFD_SOURCE_SET_LISTENER_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "wfdmute_fuzzer"
+#include "wfd_source.h"
+
+#define FUZZ_PROJECT_NAME "wfdsourcesetlistener_fuzzer"
+
+namespace OHOS {
+namespace Sharing {
+class WfdListener : public IWfdEventListener {
+public:
+    void OnInfo(std::shared_ptr<BaseMsg> &msg) override;
+};
+} // namespace sharing
+} // namespace OHOS
 
 #endif

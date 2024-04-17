@@ -20,31 +20,41 @@
 namespace OHOS {
 namespace Sharing {
 
+std::shared_ptr<WfdSource> WfdSourceFactory::wfdSourceImpl_ = nullptr;
+
 std::shared_ptr<WfdSource> OHOS::Sharing::WfdSourceFactory::CreateSource(int32_t type, const std::string key)
 {
     SHARING_LOGD("trace.");
-    auto client = std::static_pointer_cast<InterIpcClient>(
-        ClientFactory::GetInstance().CreateClient(key, "WfdSourceImpl", "WfdSourceScene"));
-    if (client == nullptr) {
-        SHARING_LOGE("failed to get client.");
-        return nullptr;
+
+    if (!wfdSourceImpl_) {
+        auto client = std::static_pointer_cast<InterIpcClient>(
+            ClientFactory::GetInstance().CreateClient(key, "WfdSourceImpl", "WfdSourceScene"));
+        if (client == nullptr) {
+            SHARING_LOGE("failed to get client.");
+            return nullptr;
+        }
+
+        auto adapter = client->GetMsgAdapter();
+        if (adapter == nullptr) {
+            SHARING_LOGE("failed to get adapter.");
+        }
+
+        std::shared_ptr<WfdSourceImpl> impl = std::make_shared<WfdSourceImpl>();
+        if (impl == nullptr) {
+            SHARING_LOGE("failed to new WfdSourceImpl.");
+            return nullptr;
+        }
+
+        impl->SetIpcClient(client);
+        impl->SetIpcAdapter(adapter);
+        wfdSourceImpl_ = impl;
     }
 
-    auto adapter = client->GetMsgAdapter();
-    if (adapter == nullptr) {
-        SHARING_LOGE("failed to get adapter.");
+    if (wfdSourceImpl_ == nullptr) {
+        SHARING_LOGE("failed to Get wfdSourceImpl.");
     }
 
-    std::shared_ptr<WfdSourceImpl> impl = std::make_shared<WfdSourceImpl>();
-    if (impl == nullptr) {
-        SHARING_LOGE("failed to new WfdSourceImpl.");
-        return nullptr;
-    }
-
-    impl->SetIpcClient(client);
-    impl->SetIpcAdapter(adapter);
-
-    return impl;
+    return wfdSourceImpl_;
 }
 
 WfdSourceImpl::WfdSourceImpl()

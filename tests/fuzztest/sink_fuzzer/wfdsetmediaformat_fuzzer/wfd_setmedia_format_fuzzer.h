@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef CODECGETCONFIG_FUZZER
-#define CODECGETCONFIG_FUZZER
+#ifndef OHOS_SHARING_WFD_SET_MEDIA_FORMAT_FUZZER_H
+#define OHOS_SHARING_WFD_SET_MEDIA_FORMAT_FUZZER_H
 
 #define FUZZ_PROJECT_NAME "wfdsetmediaformat_fuzzer"
 

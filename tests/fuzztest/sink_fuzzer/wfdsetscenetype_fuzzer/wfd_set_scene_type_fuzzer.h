@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef CODECGETCONFIG_FUZZER
-#define CODECGETCONFIG_FUZZER
+#ifndef OHOS_SHARING_WFD_SET_SCENE_TYPE_FUZZER_H
+#define OHOS_SHARING_WFD_SET_SCENE_TYPE_FUZZER_H
 
 #define FUZZ_PROJECT_NAME "wfdsetscenetype_fuzzer"
 

@@ -39,6 +39,7 @@ public:
 private:
     WfdSourceFactory() = default;
     ~WfdSourceFactory() = default;
+    static std::shared_ptr<WfdSource> wfdSourceImpl_;
 };
 
 } // namespace Sharing

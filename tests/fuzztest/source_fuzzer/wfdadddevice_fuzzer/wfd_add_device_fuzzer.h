@@ -13,9 +13,12 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_SHARING_WFD_MUTE_FUZZER_H
-#define OHOS_SHARING_WFD_MUTE_FUZZER_H
+#ifndef OHOS_SHARING_WFD_ADD_DEVICE_FUZZER_H
+#define OHOS_SHARING_WFD_ADD_DEVICE_FUZZER_H
 
-#define FUZZ_PROJECT_NAME "wfdmute_fuzzer"
+#include "wfd_source.h"
+
+#define FUZZ_PROJECT_NAME "wfdadddevice_fuzzer"
+
 
 #endif
