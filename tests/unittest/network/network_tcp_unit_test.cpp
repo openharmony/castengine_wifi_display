@@ -22,6 +22,8 @@
 #include "network/interfaces/inetwork_session_callback.h"
 #include "network/interfaces/iserver_callback.h"
 #include "network/network_factory.h"
+#include "network/server/tcp_server.h"
+#include "network/client/tcp_client.h"
 
 using namespace std;
 using namespace OHOS::Sharing;
@@ -85,10 +87,8 @@ public:
         session->Start();
         static int index = 0;
         DataBuffer::Ptr buf = std::make_shared<DataBuffer>();
-        const DataBuffer::Ptr &bufRefs = buf;
         string msg = "tcp server accept send message=" + std::to_string(index++);
         buf->PushData(msg.c_str(), msg.size());
-        session->Send(bufRefs, bufRefs->Size());
         sessionPtrVec_.push_back(session);
     }
 
@@ -97,12 +97,10 @@ public:
         SHARING_LOGD("===[TcpTestAgent] OnServerReadData");
         static int index = 0;
         DataBuffer::Ptr bufSend = std::make_shared<DataBuffer>();
-        const DataBuffer::Ptr &bufRefs = bufSend;
         string msg = "tcp server message.index=" + std::to_string(index++);
         bufSend->PushData(msg.c_str(), msg.size());
         size_t nSize = sessionPtrVec_.size();
         for (size_t i = 0; i < nSize; i++) {
-            sessionPtrVec_[i]->Send(bufRefs, bufRefs->Size());
             sleep(2);
         }
     }
@@ -134,7 +132,6 @@ public:
         size_t nSize = sessionPtrVec_.size();
         for (size_t i = 0; i < nSize; i++) {
             if (sessionPtrVec_[i]->GetSocketInfo()->GetPeerFd() == fd) {
-                sessionPtrVec_[i]->Send(bufSend, bufSend->Size());
                 break;
             }
         }
@@ -166,7 +163,6 @@ public:
             bufSend->PushData(msg.c_str(), msg.size());
             if (clientPtr_ != nullptr) {
                 SHARING_LOGD("===[TcpTestAgent] OnClientConnect send");
-                clientPtr_->Send(bufSend, bufSend->Size());
             } else {
                 SHARING_LOGD("===[TcpTestAgent] OnClientConnect nullptr");
             }
@@ -185,7 +181,6 @@ public:
         string msg = "tcp client message.index=" + std::to_string(index++);
         DataBuffer::Ptr bufSend = std::make_shared<DataBuffer>();
         bufSend->PushData(msg.c_str(), msg.size());
-        clientPtr_->Send(bufSend, bufSend->Size());
         sleep(3);
     }
 
@@ -213,19 +208,266 @@ private:
 };
 
 namespace {
-HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_001, TestSize.Level0)
-{
-    auto tcpAgent = std::make_shared<TcpTestAgent>();
-    ASSERT_TRUE(tcpAgent != nullptr);
-}
 
-HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_002, TestSize.Level0)
-{
-    auto tcpAgent = std::make_shared<TcpTestAgent>();
-    ASSERT_TRUE(tcpAgent != nullptr);
-    auto ret = tcpAgent->StartTcpServer(8888);
-    ASSERT_TRUE(ret);
-}
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_001, TestSize.Level0)
+    {
+        auto tcpServer = std::make_shared<TcpServer>();
+        ASSERT_TRUE(tcpServer != nullptr);
+        auto ret = tcpServer->Start(8888, "127.0.0.1");
+        ASSERT_TRUE(ret);
+    }
+
+    // 测试服务器在端口已被占用时的start
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_002, TestSize.Level0)
+    {
+        auto tcpServer = std::make_shared<TcpServer>();
+        ASSERT_TRUE(tcpServer != nullptr);
+        auto ret = tcpServer->Start(8888, "127.0.0.1", false);
+        auto tcpServer1 = std::make_shared<TcpServer>();
+        ASSERT_TRUE(tcpServer1 != nullptr);
+        ret = tcpServer1->Start(8888, "127.0.0.1", false);
+        ASSERT_FALSE(ret);
+    }
+
+    // 测试server和client对连
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_003, TestSize.Level0)
+    {
+        auto tcpServer = std::make_shared<TcpServer>();
+        ASSERT_TRUE(tcpServer != nullptr);
+        auto tcpClient = std::make_shared<TcpClient>();
+        ASSERT_TRUE(tcpClient != nullptr);
+        auto ret = tcpServer->Start(8888, "127.0.0.1");
+        ASSERT_TRUE(ret);
+        ret = tcpClient->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+        ASSERT_TRUE(ret);
+    }
+
+    // 测试client的disconnect
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_004, TestSize.Level0)
+    {
+        auto tcpServer = std::make_shared<TcpServer>();
+        ASSERT_TRUE(tcpServer != nullptr);
+        auto ret = tcpServer->Start(8888, "127.0.0.1");
+        ASSERT_TRUE(ret);
+        auto clientPtr = std::make_shared<TcpClient>();
+        ASSERT_TRUE(clientPtr != nullptr);
+        ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+        ASSERT_TRUE(ret);
+        clientPtr->Disconnect();
+    }
+
+    // 测试server的disconnect
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_005, TestSize.Level0)
+    {
+        auto tcpServer = std::make_shared<TcpServer>();
+        ASSERT_TRUE(tcpServer != nullptr);
+        auto ret = tcpServer->Start(8888, "127.0.0.1");
+        ASSERT_TRUE(ret);
+        auto clientPtr = std::make_shared<TcpClient>();
+        ASSERT_TRUE(clientPtr != nullptr);
+        ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+        ASSERT_TRUE(ret);
+        tcpServer->CloseClientSocket(tcpServer->GetSocketInfo()->GetLocalFd());
+    }
+
+    // 测试ip地址不合法时的连接
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_006, TestSize.Level0)
+    {
+        auto tcpClient = std::make_shared<TcpClient>();
+        ASSERT_TRUE(tcpClient != nullptr);
+        auto ret = tcpClient->Connect("192.55.1", 8888, "192.55.1", 8889);
+        ASSERT_FALSE(ret);
+    }
+
+    // 测试端口未被监听时的连接
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_007, TestSize.Level0)
+    {
+        auto tcpClient = std::make_shared<TcpClient>();
+        ASSERT_TRUE(tcpClient != nullptr);
+        auto ret = tcpClient->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+        ASSERT_FALSE(ret);
+    }
+
+
+    // 测试没有连接时的disconnect
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_008, TestSize.Level0)
+    {
+        auto tcpClient = std::make_shared<TcpClient>();
+        ASSERT_TRUE(tcpClient != nullptr);
+        tcpClient->Disconnect();
+    }
+
+    // 测试连接时的Send(const std::string &msg)
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_009, TestSize.Level0)
+    {
+        auto tcpServer = std::make_shared<TcpServer>();
+        ASSERT_TRUE(tcpServer != nullptr);
+        auto ret = tcpServer->Start(8888, "127.0.0.1");
+        ASSERT_TRUE(ret);
+        auto clientPtr = std::make_shared<TcpClient>();
+        ASSERT_TRUE(clientPtr != nullptr);
+        ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+        ASSERT_TRUE(ret);
+        ret = clientPtr->Send(std::string("hello world"));
+        ASSERT_TRUE(ret);
+    }
+
+    // 测试连接时的Send(const char *buf, int32_t nSize)
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_010, TestSize.Level0)
+    {
+        auto tcpServer = std::make_shared<TcpServer>();
+        ASSERT_TRUE(tcpServer != nullptr);
+        auto ret = tcpServer->Start(8888, "127.0.0.1");
+        ASSERT_TRUE(ret);
+        auto clientPtr = std::make_shared<TcpClient>();
+        ASSERT_TRUE(clientPtr != nullptr);
+        ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+        ASSERT_TRUE(ret);
+        char testString[] = "hello world";
+        size_t testStringLen = strlen(testString);
+        ret = clientPtr->Send(testString, testStringLen);
+        ASSERT_TRUE(ret);
+    }
+
+    // 测试连接时的Send(const DataBuffer::Ptr &buf, int32_t nSize)
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_011, TestSize.Level0)
+    {
+        auto tcpServer = std::make_shared<TcpServer>();
+        ASSERT_TRUE(tcpServer != nullptr);
+        auto ret = tcpServer->Start(8888, "127.0.0.1");
+        ASSERT_TRUE(ret);
+        auto clientPtr = std::make_shared<TcpClient>();
+        ASSERT_TRUE(clientPtr != nullptr);
+        ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+        ASSERT_TRUE(ret);
+        auto buf = std::make_shared<DataBuffer>();
+        ASSERT_TRUE(buf != nullptr);
+        char testString[] = "hello world";
+        size_t testStringLen = strlen(testString);
+        buf->PushData(testString, testStringLen);
+        ret = clientPtr->Send(buf, testStringLen);
+        ASSERT_TRUE(ret);
+    }
+
+    // 测试尚未连接时的Send(const std::string &msg)
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_012, TestSize.Level0)
+    {
+        auto clientPtr = std::make_shared<TcpClient>();
+        ASSERT_TRUE(clientPtr != nullptr);
+        auto ret = clientPtr->Send(std::string("hello world"));
+        ASSERT_FALSE(ret);
+    }
+
+    // 测试尚未连接时的Send(const char *buf, int32_t nSize)
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_013, TestSize.Level0)
+    {
+        auto clientPtr = std::make_shared<TcpClient>();
+        ASSERT_TRUE(clientPtr != nullptr);
+        char testString[] = "hello world";
+        size_t testStringLen = strlen(testString);
+        auto ret = clientPtr->Send(testString, testStringLen);
+        ASSERT_FALSE(ret);
+    }
+
+    // 测试尚未连接时的Send(const DataBuffer::Ptr &buf, int32_t nSize)
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_014, TestSize.Level0)
+    {
+        auto clientPtr = std::make_shared<TcpClient>();
+        ASSERT_TRUE(clientPtr != nullptr);
+        auto buf = std::make_shared<DataBuffer>();
+        ASSERT_TRUE(buf != nullptr);
+        char testString[] = "hello world";
+        size_t testStringLen = strlen(testString);
+        buf->PushData(testString, testStringLen);
+        auto ret = clientPtr->Send(buf, testStringLen);
+        ASSERT_FALSE(ret);
+    }
+
+    // 测试连接后client是否可获取SocketInfo
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_015, TestSize.Level0)
+    {
+        auto tcpServer = std::make_shared<TcpServer>();
+        ASSERT_TRUE(tcpServer != nullptr);
+        auto ret = tcpServer->Start(8888, "127.0.0.1");
+        ASSERT_TRUE(ret);
+        auto clientPtr = std::make_shared<TcpClient>();
+        ASSERT_TRUE(clientPtr != nullptr);
+        ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+        ASSERT_TRUE(ret);
+        auto socketInfo = clientPtr->GetSocketInfo();
+        ASSERT_TRUE(socketInfo != nullptr);
+    }
+
+    // 测试连接后server是否可获取SocketInfo
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_016, TestSize.Level0)
+    {
+        auto tcpServer = std::make_shared<TcpServer>();
+        ASSERT_TRUE(tcpServer != nullptr);
+        auto ret = tcpServer->Start(8888, "127.0.0.1");
+        ASSERT_TRUE(ret);
+        auto clientPtr = std::make_shared<TcpClient>();
+        ASSERT_TRUE(clientPtr != nullptr);
+        ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+        ASSERT_TRUE(ret);
+        auto socketInfo = tcpServer->GetSocketInfo();
+        ASSERT_TRUE(socketInfo != nullptr);
+    }
+
+    // 测试连接后client获取的SocketInfo是否正确
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_017, TestSize.Level0)
+    {
+        auto tcpServer = std::make_shared<TcpServer>();
+        ASSERT_TRUE(tcpServer != nullptr);
+        auto ret = tcpServer->Start(8888, "127.0.0.1");
+        ASSERT_TRUE(ret);
+        auto clientPtr = std::make_shared<TcpClient>();
+        ASSERT_TRUE(clientPtr != nullptr);
+        ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+        ASSERT_TRUE(ret);
+        auto socketInfo = clientPtr->GetSocketInfo();
+        ASSERT_TRUE(socketInfo != nullptr);
+        EXPECT_EQ(socketInfo->GetLocalIp(), "127.0.0.1");
+        EXPECT_EQ(socketInfo->GetLocalPort(), 8889);
+        EXPECT_NE(socketInfo->GetLocalFd(), -1);
+        EXPECT_EQ(socketInfo->GetPeerIp(), "127.0.0.1");
+        EXPECT_EQ(socketInfo->GetPeerPort(), 8888);
+    }
+
+    // 测试连接后Server获取的SocketInfo是否正确
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_018, TestSize.Level0)
+    {
+        auto tcpServer = std::make_shared<TcpServer>();
+        ASSERT_TRUE(tcpServer != nullptr);
+        auto ret = tcpServer->Start(8888, "127.0.0.1");
+        ASSERT_TRUE(ret);
+        auto clientPtr = std::make_shared<TcpClient>();
+        ASSERT_TRUE(clientPtr != nullptr);
+        ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+        ASSERT_TRUE(ret);
+        auto socketInfo = tcpServer->GetSocketInfo();
+        ASSERT_TRUE(socketInfo != nullptr);
+        EXPECT_EQ(socketInfo->GetLocalIp(), "127.0.0.1");
+        EXPECT_EQ(socketInfo->GetLocalPort(), 8888);
+        EXPECT_NE(socketInfo->GetLocalFd(), -1);
+    }
+
+    // 测试未连接时client是否能获取SocketInfo
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_019, TestSize.Level0)
+    {
+        auto clientPtr = std::make_shared<TcpClient>();
+        ASSERT_TRUE(clientPtr != nullptr);
+        auto socketInfo = clientPtr->GetSocketInfo();
+        ASSERT_TRUE(socketInfo == nullptr);
+    }
+
+    // 测试未监听时server是否可获取SocketInfo
+    HWTEST_F(NetworkTcpUnitTest, NetworkTcpUnitTest_020, TestSize.Level0)
+    {
+        auto tcpServer = std::make_shared<TcpServer>();
+        ASSERT_TRUE(tcpServer != nullptr);
+        auto socketInfo = tcpServer->GetSocketInfo();
+        ASSERT_TRUE(socketInfo == nullptr);
+    }
 
 } // namespace
 } // namespace Sharing

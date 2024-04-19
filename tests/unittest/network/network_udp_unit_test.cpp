@@ -22,6 +22,8 @@
 #include "network/interfaces/inetwork_session_callback.h"
 #include "network/interfaces/iserver_callback.h"
 #include "network/network_factory.h"
+#include "network/server/udp_server.h"
+#include "network/client/udp_client.h"
 
 using namespace std;
 using namespace OHOS::Sharing;
@@ -87,12 +89,10 @@ public:
             sessionPtrVec_.push_back(session);
         }
         DataBuffer::Ptr bufSend = std::make_shared<DataBuffer>();
-        const DataBuffer::Ptr &bufRefs = bufSend;
         string msg = "udp server message.index=" + std::to_string(index++);
         bufSend->PushData(msg.c_str(), msg.size());
         size_t nSize = sessionPtrVec_.size();
         for (size_t i = 0; i < nSize; i++) {
-            sessionPtrVec_[i]->Send(bufRefs, bufRefs->Size());
             sleep(2);
         }
     }
@@ -124,7 +124,6 @@ public:
         size_t nSize = sessionPtrVec_.size();
         for (size_t i = 0; i < nSize; i++) {
             if (sessionPtrVec_[i]->GetSocketInfo()->GetPeerFd() == fd) {
-                sessionPtrVec_[i]->Send(bufSend, bufSend->Size());
                 break;
             }
         }
@@ -156,7 +155,6 @@ public:
             bufSend->PushData(msg.c_str(), msg.size());
             if (clientPtr_ != nullptr) {
                 SHARING_LOGD("===[UdpTestAgent] OnClientConnect send");
-                clientPtr_->Send(bufSend, bufSend->Size());
             } else {
                 SHARING_LOGD("===[UdpTestAgent] OnClientConnect nullptr");
             }
@@ -175,7 +173,6 @@ public:
         string msg = "udp client message.index=" + std::to_string(index++);
         DataBuffer::Ptr bufSend = std::make_shared<DataBuffer>();
         bufSend->PushData(msg.c_str(), msg.size());
-        clientPtr_->Send(bufSend, bufSend->Size());
         sleep(3);
     }
 
@@ -203,19 +200,268 @@ private:
 };
 
 namespace {
+
+//测试服务器start
 HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_001, TestSize.Level0)
 {
-    auto udpAgent = std::make_shared<UdpTestAgent>();
-    ASSERT_TRUE(udpAgent != nullptr);
-}
-
-HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_002, TestSize.Level0)
-{
-    auto udpAgent = std::make_shared<UdpTestAgent>();
-    ASSERT_TRUE(udpAgent != nullptr);
-    auto ret = udpAgent->StartUdpServer(8888, "");
+    auto udpServer = std::make_shared<UdpServer>();
+    ASSERT_TRUE(udpServer != nullptr);
+    auto ret = udpServer->Start(8888, "127.0.0.1");
     ASSERT_TRUE(ret);
 }
+
+// 测试服务器在端口已被占用时的start
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_002, TestSize.Level0)
+{
+    auto udpServer = std::make_shared<UdpServer>();
+    ASSERT_TRUE(udpServer != nullptr);
+    auto ret = udpServer->Start(8888, "127.0.0.1", false);
+    auto udpServer1 = std::make_shared<UdpServer>();
+    ASSERT_TRUE(udpServer1 != nullptr);
+    ret = udpServer1->Start(8888, "127.0.0.1", false);
+    ASSERT_FALSE(ret);
+}
+
+// 测试server和client对连
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_003, TestSize.Level0)
+{
+    auto udpServer = std::make_shared<UdpServer>();
+    ASSERT_TRUE(udpServer != nullptr);
+    auto udpClient = std::make_shared<UdpClient>();
+    ASSERT_TRUE(udpClient != nullptr);
+    auto ret = udpServer->Start(8888, "127.0.0.1");
+    ASSERT_TRUE(ret);
+    ret = udpClient->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+    ASSERT_TRUE(ret);
+}
+
+// 测试client的disconnect
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_004, TestSize.Level0)
+{
+    auto udpServer = std::make_shared<UdpServer>();
+    ASSERT_TRUE(udpServer != nullptr);
+    auto ret = udpServer->Start(8888, "127.0.0.1");
+    ASSERT_TRUE(ret);
+    auto clientPtr = std::make_shared<UdpClient>();
+    ASSERT_TRUE(clientPtr != nullptr);
+    ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+    ASSERT_TRUE(ret);
+    clientPtr->Disconnect();
+}
+
+// 测试server的disconnect
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_005, TestSize.Level0)
+{
+    auto udpServer = std::make_shared<UdpServer>();
+    ASSERT_TRUE(udpServer != nullptr);
+    auto ret = udpServer->Start(8888, "127.0.0.1");
+    ASSERT_TRUE(ret);
+    auto clientPtr = std::make_shared<UdpClient>();
+    ASSERT_TRUE(clientPtr != nullptr);
+    ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+    ASSERT_TRUE(ret);
+    udpServer->CloseClientSocket(udpServer->GetSocketInfo()->GetLocalFd());
+}
+
+// 测试端口没有被监听时的连接
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_006, TestSize.Level0)
+{
+    auto udpClient = std::make_shared<UdpClient>();
+    ASSERT_TRUE(udpClient != nullptr);
+    auto ret = udpClient->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+    ASSERT_FALSE(ret);
+}
+
+
+// 测试ip地址不合法时的连接
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_007, TestSize.Level0)
+{
+    auto udpClient = std::make_shared<UdpClient>();
+    ASSERT_TRUE(udpClient != nullptr);
+    auto ret = udpClient->Connect("192.55.1", 28888, "192.55.1.2", 8889);
+    ASSERT_FALSE(ret);
+}
+
+// 测试没有连接时的disconnect
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_008, TestSize.Level0)
+{
+    auto udpClient = std::make_shared<UdpClient>();
+    ASSERT_TRUE(udpClient != nullptr);
+    udpClient->Disconnect();
+}
+
+// 测试连接时的Send(const std::string &msg)
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_009, TestSize.Level0)
+{
+    auto udpServer = std::make_shared<UdpServer>();
+    ASSERT_TRUE(udpServer != nullptr);
+    auto ret = udpServer->Start(8888, "127.0.0.1");
+    ASSERT_TRUE(ret);
+    auto clientPtr = std::make_shared<UdpClient>();
+    ASSERT_TRUE(clientPtr != nullptr);
+    ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+    ASSERT_TRUE(ret);
+    ret = clientPtr->Send(std::string("hello world"));
+    ASSERT_TRUE(ret);
+}
+
+// 测试连接时的Send(const char *buf, int32_t nSize)
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_010, TestSize.Level0)
+{
+    auto udpServer = std::make_shared<UdpServer>();
+    ASSERT_TRUE(udpServer != nullptr);
+    auto ret = udpServer->Start(8888, "127.0.0.1");
+    ASSERT_TRUE(ret);
+    auto clientPtr = std::make_shared<UdpClient>();
+    ASSERT_TRUE(clientPtr != nullptr);
+    ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+    ASSERT_TRUE(ret);
+    char testString[] = "hello world";
+    size_t testStringLen = strlen(testString);
+    ret = clientPtr->Send(testString, testStringLen);
+    ASSERT_TRUE(ret);
+}
+
+// 测试连接时的Send(const DataBuffer::Ptr &buf, int32_t nSize)
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_011, TestSize.Level0)
+{
+    auto udpServer = std::make_shared<UdpServer>();
+    ASSERT_TRUE(udpServer != nullptr);
+    auto ret = udpServer->Start(8888, "127.0.0.1");
+    ASSERT_TRUE(ret);
+    auto clientPtr = std::make_shared<UdpClient>();
+    ASSERT_TRUE(clientPtr != nullptr);
+    ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+    ASSERT_TRUE(ret);
+    auto buf = std::make_shared<DataBuffer>();
+    ASSERT_TRUE(buf != nullptr);
+    char testString[] = "hello world";
+    size_t testStringLen = strlen(testString);
+    buf->PushData(testString, testStringLen);
+    ret = clientPtr->Send(buf, testStringLen);
+    ASSERT_TRUE(ret);
+}
+
+// 测试尚未连接时的Send(const std::string &msg)
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_012, TestSize.Level0)
+{
+    auto clientPtr = std::make_shared<UdpClient>();
+    ASSERT_TRUE(clientPtr != nullptr);
+    auto ret = clientPtr->Send(std::string("hello world"));
+    ASSERT_FALSE(ret);
+}
+
+// 测试尚未连接时的Send(const char *buf, int32_t nSize)
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_013, TestSize.Level0)
+{
+    auto clientPtr = std::make_shared<UdpClient>();
+    ASSERT_TRUE(clientPtr != nullptr);
+    char testString[] = "hello world";
+    size_t testStringLen = strlen(testString);
+    auto ret = clientPtr->Send(testString, testStringLen);
+    ASSERT_FALSE(ret);
+}
+
+// 测试尚未连接时的Send(const DataBuffer::Ptr &buf, int32_t nSize)
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_014, TestSize.Level0)
+{
+    auto clientPtr = std::make_shared<UdpClient>();
+    ASSERT_TRUE(clientPtr != nullptr);
+    auto buf = std::make_shared<DataBuffer>();
+    ASSERT_TRUE(buf != nullptr);
+    char testString[] = "hello world";
+    size_t testStringLen = strlen(testString);
+    buf->PushData(testString, testStringLen);
+    auto ret = clientPtr->Send(buf, testStringLen);
+    ASSERT_FALSE(ret);
+}
+
+// 测试连接后client是否可获取SocketInfo
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_015, TestSize.Level0)
+{
+    auto udpServer = std::make_shared<UdpServer>();
+    ASSERT_TRUE(udpServer != nullptr);
+    auto ret = udpServer->Start(8888, "127.0.0.1");
+    ASSERT_TRUE(ret);
+    auto clientPtr = std::make_shared<UdpClient>();
+    ASSERT_TRUE(clientPtr != nullptr);
+    ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+    ASSERT_TRUE(ret);
+    auto socketInfo = clientPtr->GetSocketInfo();
+    ASSERT_TRUE(socketInfo != nullptr);
+}
+
+// 测试连接后server是否可获取SocketInfo
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_016, TestSize.Level0)
+{
+    auto udpServer = std::make_shared<UdpServer>();
+    ASSERT_TRUE(udpServer != nullptr);
+    auto ret = udpServer->Start(8888, "127.0.0.1");
+    ASSERT_TRUE(ret);
+    auto clientPtr = std::make_shared<UdpClient>();
+    ASSERT_TRUE(clientPtr != nullptr);
+    ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+    ASSERT_TRUE(ret);
+    auto socketInfo = udpServer->GetSocketInfo();
+    ASSERT_TRUE(socketInfo != nullptr);
+}
+
+// 测试连接后client获取的SocketInfo是否正确
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_017, TestSize.Level0)
+{
+    auto udpServer = std::make_shared<UdpServer>();
+    ASSERT_TRUE(udpServer != nullptr);
+    auto ret = udpServer->Start(8888, "127.0.0.1");
+    ASSERT_TRUE(ret);
+    auto clientPtr = std::make_shared<UdpClient>();
+    ASSERT_TRUE(clientPtr != nullptr);
+    ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+    ASSERT_TRUE(ret);
+    auto socketInfo = clientPtr->GetSocketInfo();
+    ASSERT_TRUE(socketInfo != nullptr);
+    EXPECT_EQ(socketInfo->GetLocalIp(), "127.0.0.1");
+    EXPECT_EQ(socketInfo->GetLocalPort(), 8889);
+    EXPECT_NE(socketInfo->GetLocalFd(), -1);
+    EXPECT_EQ(socketInfo->GetPeerIp(), "127.0.0.1");
+    EXPECT_EQ(socketInfo->GetPeerPort(), 8888);
+}
+
+// 测试连接后Server获取的SocketInfo是否正确
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_018, TestSize.Level0)
+{
+    auto udpServer = std::make_shared<UdpServer>();
+    ASSERT_TRUE(udpServer != nullptr);
+    auto ret = udpServer->Start(8888, "127.0.0.1");
+    ASSERT_TRUE(ret);
+    auto clientPtr = std::make_shared<UdpClient>();
+    ASSERT_TRUE(clientPtr != nullptr);
+    ret = clientPtr->Connect("127.0.0.1", 8888, "127.0.0.1", 8889);
+    ASSERT_TRUE(ret);
+    auto socketInfo = udpServer->GetSocketInfo();
+    ASSERT_TRUE(socketInfo != nullptr);
+    EXPECT_EQ(socketInfo->GetLocalIp(), "127.0.0.1");
+    EXPECT_EQ(socketInfo->GetLocalPort(), 8888);
+    EXPECT_NE(socketInfo->GetLocalFd(), -1);
+}
+
+// 测试未连接时client是否能获取SocketInfo
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_019, TestSize.Level0)
+{
+    auto clientPtr = std::make_shared<UdpClient>();
+    ASSERT_TRUE(clientPtr != nullptr);
+    auto socketInfo = clientPtr->GetSocketInfo();
+    ASSERT_TRUE(socketInfo == nullptr);
+}
+
+// 测试未监听时server是否可获取SocketInfo
+HWTEST_F(NetworkUdpUnitTest, NetworkUdpUnitTest_020, TestSize.Level0)
+{
+    auto udpServer = std::make_shared<UdpServer>();
+    ASSERT_TRUE(udpServer != nullptr);
+    auto socketInfo = udpServer->GetSocketInfo();
+    ASSERT_TRUE(socketInfo == nullptr);
+}
+
 
 } // namespace
 } // namespace Sharing
