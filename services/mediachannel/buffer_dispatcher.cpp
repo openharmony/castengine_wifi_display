@@ -591,7 +591,7 @@ MediaData::Ptr BufferDispatcher::RequestDataBuffer(MediaType type, uint32_t size
 
                 return retData;
             }
-            if (retData->buff->Size() < size) {
+            if (retData->buff->Size() < static_cast<int>(size)) {
                 retData->buff->Resize(size);
             }
             return retData;
@@ -775,13 +775,48 @@ int32_t BufferDispatcher::DetachReceiver(BufferReceiver::Ptr receiver)
     return 0;
 }
 
+int32_t BufferDispatcher::DetachReceiver(uint32_t receiverId, DataNotifier::Ptr notifier)
+{
+    SHARING_LOGI("buffer dispatcher: Detach notifier in.");
+    if (notifier == nullptr) {
+        SHARING_LOGE("buffer dispatcher: Detach receiver failed - null notifier.");
+        return -1;
+    }
+    notifier->SetBlock();
+    SetReceiverReadRef(receiverId, MEDIA_TYPE_AUDIO, false);
+    SetReceiverReadRef(receiverId, MEDIA_TYPE_VIDEO, false);
+
+    readRefFlag_ &= ~(RECV_FLAG_BASE << notifier->GetReadIndex());
+    notifiers_.erase(receiverId);
+    SHARING_LOGI("now refFlag: %{public}d.", readRefFlag_);
+    return 0;
+}
+
 void BufferDispatcher::ReleaseAllReceiver()
 {
     SHARING_LOGD("trace.");
     std::lock_guard<std::mutex> locker(notifyMutex_);
-    for (auto &[recvId, notifier] : notifiers_) {
-        if (notifier != nullptr && notifier->GetBufferReceiver() != nullptr) {
-            DetachReceiver(notifier->GetBufferReceiver());
+    for (auto it = notifiers_.begin(); it != notifiers_.end();) {
+        auto notifier = it->second;
+        if (notifier == nullptr) {
+            ++it;
+            continue;
+        }
+
+        auto receiver = notifier->GetBufferReceiver();
+        if (receiver == nullptr) {
+            ++it;
+            continue;
+        }
+
+        auto receiverId = receiver->GetReceiverId();
+        if (notifiers_.find(receiverId) != notifiers_.end()) {
+            auto notifierFind = notifiers_[receiverId];
+            ++it;
+            DetachReceiver(receiverId, notifierFind);
+        } else {
+            ++it;
+            SHARING_LOGE("buffer dispatcher: Detach receiver failed - no find receiver in notifiers.");
         }
     }
 
@@ -810,6 +845,9 @@ void BufferDispatcher::SetBufferDispatcherListener(BufferDispatcherListener::Ptr
 DataNotifier::Ptr BufferDispatcher::GetNotifierByReceiverPtr(BufferReceiver::Ptr receiver)
 {
     SHARING_LOGD("trace.");
+    if (receiver == nullptr) {
+        return nullptr;
+    }
     return GetNotifierByReceiverId(receiver->GetReceiverId());
 }
 
@@ -1192,7 +1230,7 @@ uint32_t BufferDispatcher::FindNextDeleteVideoIndex()
 {
     MEDIA_LOGD("trace.");
     for (size_t i = 0; i < circularBuffer_.size(); i++) {
-        if (circularBuffer_[i]->mediaData->mediaType == MEDIA_TYPE_VIDEO) {
+        if (circularBuffer_[i]->mediaData != nullptr && circularBuffer_[i]->mediaData->mediaType == MEDIA_TYPE_VIDEO) {
             return i;
         }
     }

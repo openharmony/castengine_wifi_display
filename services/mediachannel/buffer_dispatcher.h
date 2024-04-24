@@ -242,6 +242,7 @@ public:
     void ReleaseAllReceiver();
     int32_t AttachReceiver(BufferReceiver::Ptr receiver);
     int32_t DetachReceiver(BufferReceiver::Ptr receiver);
+    int32_t DetachReceiver(uint32_t receiverId, DataNotifier::Ptr notifier);
     void SetBufferDispatcherListener(BufferDispatcherListener::Ptr listener);
 
     void SetSpsNalu(MediaData::Ptr spsbuf);
