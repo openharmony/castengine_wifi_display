@@ -14,13 +14,13 @@
  */
 
 #include "inter_ipc_service_stub.h"
-#include "ipc_skeleton.h"
-#include "interaction/interaction_manager.h"
-#include "interaction/interaction.h"
-#include "interaction/scene/base_scene.h"
-#include "interaction/interprocess/ipc_msg_adapter.h"
-#include "interaction/interprocess/inter_ipc_sub_stub.h"
 #include "inter_ipc_service_death_listener.h"
+#include "interaction/interaction.h"
+#include "interaction/interaction_manager.h"
+#include "interaction/interprocess/inter_ipc_sub_stub.h"
+#include "interaction/interprocess/ipc_msg_adapter.h"
+#include "interaction/scene/base_scene.h"
+#include "ipc_skeleton.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -50,7 +50,7 @@ sptr<IRemoteObject> InterIpcServiceStub::GetSubSystemAbility(std::string key, st
         return nullptr;
     }
 
-    sptr<InterIpcStub> adapterStub = new(std::nothrow) InterIpcSubStub();
+    sptr<InterIpcStub> adapterStub = new (std::nothrow) InterIpcSubStub();
     sptr<IRemoteObject> object = adapterStub->AsObject();
 
     auto adapter = std::make_shared<IpcMsgAdapter>();
@@ -78,7 +78,11 @@ void InterIpcServiceStub::CreateDeathListener(std::string key)
     if (deathRecipients_.find(key) != deathRecipients_.end()) {
         SHARING_LOGI("key: %{public}s.", key.c_str());
         auto listener = std::make_shared<InterIpcServiceDeathListener>();
-        listener->SetService(this);
+        if (sharedFromThis_ == nullptr) {
+            sharedFromThis_ = InterIpcStub::Ptr(this, [](InterIpcStub *) { SHARING_LOGD("trace."); });
+        }
+        auto service = std::static_pointer_cast<InterIpcServiceStub>(sharedFromThis_);
+        listener->SetService(service);
         deathRecipients_[key]->SetDeathListener(listener);
     } else {
         SHARING_LOGE("key not find %{public}s.", key.c_str());
@@ -131,5 +135,5 @@ int32_t InterIpcServiceStub::SetListenerObject(std::string key, const sptr<IRemo
     return ERR_NONE;
 }
 
-}
-}
+} // namespace Sharing
+} // namespace OHOS

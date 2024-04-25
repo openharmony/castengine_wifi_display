@@ -14,6 +14,7 @@
  */
 
 #include "domain_manager.h"
+#include "common/common_macro.h"
 #include "common/sharing_log.h"
 #include "interaction/domain/rpc/domain_rpc_manager.h"
 #include "interaction/interaction_manager.h"
@@ -21,7 +22,7 @@
 
 namespace OHOS {
 namespace Sharing {
-    
+
 DomainManager::DomainManager()
 {
     SHARING_LOGD("trace.");
@@ -36,12 +37,12 @@ DomainManager::~DomainManager()
     std::unique_lock lock(mutex_);
     transmitMgrs_.clear();
     peerTypeMap_.clear();
-    listener_ = nullptr;
 }
 
 int32_t DomainManager::SendDomainRequest(std::string remoteId, std::shared_ptr<BaseDomainMsg> BaseMsg)
 {
     SHARING_LOGD("trace.");
+    RETURN_INVALID_IF_NULL(BaseMsg);
     auto mgr = FindMgrByRemoteId(BaseMsg->toDevId);
     if (mgr != nullptr) {
         SHARING_LOGD("mgr exist.");
@@ -63,8 +64,10 @@ int32_t DomainManager::SendDomainRequest(std::string remoteId, std::shared_ptr<B
 void DomainManager::OnDomainRequest(std::string remoteId, std::shared_ptr<BaseDomainMsg> BaseMsg)
 {
     SHARING_LOGD("redirect to interactionMgr.");
-    if (listener_!= nullptr) {
-        listener_->OnDomainMsg(BaseMsg);
+    RETURN_IF_NULL(BaseMsg);
+    auto listener = listener_.lock();
+    if (listener != nullptr) {
+        listener->OnDomainMsg(BaseMsg);
     } else {
         SHARING_LOGE("listener is null.");
     }
@@ -73,6 +76,7 @@ void DomainManager::OnDomainRequest(std::string remoteId, std::shared_ptr<BaseDo
 int32_t DomainManager::AddServiceManager(std::shared_ptr<ITransmitMgr> mgr)
 {
     SHARING_LOGD("trace.");
+    RETURN_INVALID_IF_NULL(mgr);
     std::unique_lock lock(mutex_);
     mgr->SetListener(shared_from_this());
     transmitMgrs_.insert(std::make_pair(mgr->GetDomainType(), mgr));
@@ -82,6 +86,8 @@ int32_t DomainManager::AddServiceManager(std::shared_ptr<ITransmitMgr> mgr)
 
 int32_t DomainManager::AddPeer(std::shared_ptr<ITransmitMgr> mgr, std::shared_ptr<IDomainPeer> caller)
 {
+    RETURN_INVALID_IF_NULL(mgr);
+    RETURN_INVALID_IF_NULL(caller);
     SHARING_LOGD("trace, remoteId: %{public}s.", caller->GetRemoteId().c_str());
     std::unique_lock lock(mutex_);
     peerTypeMap_.insert(std::make_pair(caller->GetRemoteId(), caller->GetDomainType()));
@@ -122,7 +128,7 @@ std::shared_ptr<ITransmitMgr> DomainManager::FindMgrByRemoteId(std::string remot
     return nullptr;
 }
 
-void DomainManager::SetListener(DomainManagerListener *listener)
+void DomainManager::SetListener(DomainManagerListener::Ptr listener)
 {
     listener_ = listener;
 }

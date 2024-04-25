@@ -55,7 +55,9 @@ void IpcMsgAdapter::SetLocalStub(sptr<InterIpcStub> stub)
 {
     SHARING_LOGD("trace.");
     localStub_ = stub;
-    localStub_->SetStubListener(shared_from_this());
+    if (localStub_) {
+        localStub_->SetStubListener(shared_from_this());
+    }
 }
 
 void IpcMsgAdapter::SetPeerProxy(sptr<IInterIpc> proxy)

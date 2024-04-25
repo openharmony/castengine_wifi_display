@@ -22,35 +22,30 @@
 
 namespace OHOS {
 namespace Sharing {
-    
+
 class InterIpcServiceDeathListener : public InterIpcDeathListener {
 public:
     explicit InterIpcServiceDeathListener() = default;
 
-    ~InterIpcServiceDeathListener() override
-    {
-        SHARING_LOGD("trace.");
-        if (service_!= nullptr) {
-            service_ = nullptr;
-        }
-    }
+    ~InterIpcServiceDeathListener() override = default;
 
     void OnRemoteDied(std::string key) final
     {
         SHARING_LOGD("on IpcService remote died.");
-        if (service_!= nullptr) {
-            service_->DelPeerProxy(key);
+        auto service = service_.lock();
+        if (service != nullptr) {
+            service->DelPeerProxy(key);
         }
     }
 
-    void SetService(sptr<InterIpcServiceStub> service)
+    void SetService(InterIpcServiceStub::Ptr service)
     {
         SHARING_LOGD("trace.");
         service_ = service;
     }
 
 private:
-    wptr<InterIpcServiceStub> service_ = nullptr;
+    std::weak_ptr<InterIpcServiceStub> service_;
 };
 
 } // namespace Sharing

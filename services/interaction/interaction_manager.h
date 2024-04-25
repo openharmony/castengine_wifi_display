@@ -17,12 +17,12 @@
 #define OHOS_SHARING_INTERACTION_MANAGER_H
 
 #include <unordered_map>
+#include "domain/domain_manager.h"
 #include "event/event_base.h"
 #include "event/handle_event_base.h"
 #include "interaction.h"
 #include "interaction/interprocess/ipc_msg_adapter.h"
 #include "singleton.h"
-#include "domain/domain_manager.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -47,6 +47,7 @@ class InteractionManager final : public Singleton<InteractionManager>,
     friend class Singleton<InteractionManager>;
 
 public:
+    using Ptr = std::shared_ptr<InteractionManager>;
     InteractionManager();
     ~InteractionManager() override;
 
@@ -62,12 +63,13 @@ public:
 
     int32_t SendDomainMsg(std::shared_ptr<BaseDomainMsg> msg);
     int32_t OnDomainMsg(std::shared_ptr<BaseDomainMsg> msg) override;
-    
+
     Interaction::Ptr GetInteraction(const std::string &key);
     Interaction::Ptr GetInteraction(uint32_t interactionId);
 
 private:
     std::mutex mutex_;
+    Ptr sharedFromThis_ = nullptr;
     std::unordered_map<std::string, uint32_t> interactionKeys_;
     std::unordered_map<uint32_t, Interaction::Ptr> interactions_;
 };

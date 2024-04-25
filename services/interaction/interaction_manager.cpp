@@ -40,12 +40,16 @@ InteractionManager::~InteractionManager()
     SHARING_LOGD("trace.");
     std::lock_guard<std::mutex> lock(mutex_);
     interactions_.clear();
+    sharedFromThis_.reset();
 }
 
 void InteractionManager::Init()
 {
     SHARING_LOGD("trace.");
-    DomainManager::GetInstance()->SetListener(this);
+    if (sharedFromThis_ == nullptr) {
+        sharedFromThis_ = Ptr(this, [](InteractionManager *) { SHARING_LOGD("trace."); });
+    }
+    DomainManager::GetInstance()->SetListener(sharedFromThis_);
 }
 
 int32_t InteractionManager::HandleEvent(SharingEvent &event)
@@ -256,7 +260,7 @@ Interaction::Ptr InteractionManager::GetInteraction(const std::string &key)
             return itr->second;
         }
     }
-    
+
     return nullptr;
 }
 

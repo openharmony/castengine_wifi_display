@@ -20,35 +20,30 @@
 
 namespace OHOS {
 namespace Sharing {
-    
+
 class InterIpcStubDeathListener : public InterIpcDeathListener {
 public:
-    explicit InterIpcStubDeathListener(sptr<InterIpcStub> stub)
+    explicit InterIpcStubDeathListener(InterIpcStub::Ptr stub)
     {
         SHARING_LOGD("trace.");
         stub_ = stub;
     }
 
-    virtual ~InterIpcStubDeathListener()
-    {
-        SHARING_LOGD("trace.");
-        if (stub_ != nullptr) {
-            stub_ = nullptr;
-        }
-    }
+    ~InterIpcStubDeathListener() override = default;
 
-    virtual void OnRemoteDied(std::string key)
+    void OnRemoteDied(std::string key) override
     {
         SHARING_LOGD("on IpcStub remote died.");
-        if (stub_ != nullptr) {
-            stub_->OnRemoteDied();
+        auto stub = stub_.lock();
+        if (stub != nullptr) {
+            stub->OnRemoteDied();
         }
     }
 
 private:
-    wptr<InterIpcStub> stub_;
+    std::weak_ptr<InterIpcStub> stub_;
 };
 
-}
-}
+} // namespace Sharing
+} // namespace OHOS
 #endif
