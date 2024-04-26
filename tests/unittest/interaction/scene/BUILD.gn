@@ -1,0 +1,90 @@
+# Copyright (c) 2024 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//build/test.gni")
+import("//foundation/CastEngine/castengine_wifi_display/config.gni")
+
+module_out_path = "sharing/interaction"
+
+ohos_unittest("interaction_scene_unit_test") {
+  module_out_path = module_out_path
+
+  include_dirs = [
+    "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/interaction",
+    "$SHARING_ROOT_DIR/frameworks/innerkitsimpl",
+    "$SHARING_ROOT_DIR/services/utils/native/base/include",
+    "$SHARING_ROOT_DIR/services/interaction/ipc_codec",
+    "$SHARING_ROOT_DIR/services/interaction/device_kit",
+    "$SHARING_ROOT_DIR/services/interaction/domain",
+    "$SHARING_ROOT_DIR/services/interaction/domain/rpc",
+    "$SHARING_ROOT_DIR/services/interaction/interprocess",
+    "$SHARING_ROOT_DIR/services/interaction/scene",
+  ]
+
+  sources = [ "scene_unit_test.cpp" ]
+
+  cflags = [
+    "-Wall",
+    "-fno-rtti",
+    "-fno-exceptions",
+    "-fno-common",
+    "-fstack-protector-strong",
+    "-Wshadow",
+    "-FPIC",
+    "-FS",
+    "-O2",
+    "-D_FORTIFY_SOURCE=2",
+    "-fvisibility=hidden",
+    "-Wformat=2",
+    "-Wdate-time",
+    "-Werror",
+    "-Wextra",
+    "-Wmissing-field-initializers",
+    "-Wimplicit-fallthrough",
+    "-Wsign-compare",
+    "-Wno-unused-parameter",
+    "-Wno-deprecated-declarations",
+    "-Dprivate=public",
+    "-Dprotected=public",
+    "-Wno-c++20-extensions",
+  ]
+
+  cflags_cc = cflags
+  cflags_cc += [ "-std=c++17" ]
+
+  deps = [
+    "$SHARING_ROOT_DIR/services:sharing_service",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_runtime:ability_manager",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "c_utils:utilsbase",
+    "device_manager:devicemanagersdk",
+    "graphic_surface:surface",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "kv_store:distributeddata_inner",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+    "wifi:wifi_sdk",
+  ]
+}
