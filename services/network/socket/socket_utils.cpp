@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include "common/const_def.h"
 #include "common/media_log.h"
+#include "utils.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -528,7 +529,7 @@ bool SocketUtils::GetIpPortInfo(int32_t fd, std::string &strLocalAddr, std::stri
     localPort = ntohs(localAddr.sin_port);
     remotePort = ntohs(remoteAddr.sin_port);
     SHARING_LOGD("localAddr: %{public}s localPort: %{public}d remoteAddr: %{public}s remotePort: %{public}d",
-        strLocalAddr.c_str(), localPort, strRemoteAddr.c_str(), remotePort);
+                 GetAnonyString(strLocalAddr).c_str(), localPort, GetAnonyString(strRemoteAddr).c_str(), remotePort);
     return true;
 }
 } // namespace Sharing

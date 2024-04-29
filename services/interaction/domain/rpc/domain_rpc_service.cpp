@@ -83,7 +83,8 @@ sptr<IRemoteObject> DomainRpcService::GetSubSystemAbility(int32_t type)
 
 int32_t DomainRpcService::DoRpcCommand(std::shared_ptr<BaseDomainMsg> msg, std::shared_ptr<BaseDomainMsg> replyMsg)
 {
-    SHARING_LOGD("msg from %{public}s -> to %{public}s.", msg->fromDevId.c_str(), msg->toDevId.c_str());
+    SHARING_LOGD("msg from %{public}s -> to %{public}s.", GetAnonyString(msg->fromDevId).c_str(),
+                 GetAnonyString(msg->toDevId).c_str());
     auto listener = peerListener_.lock();
     if (listener) {
         listener->OnDomainRequest(msg->fromDevId, msg);
@@ -96,13 +97,13 @@ int32_t DomainRpcService::DoRpcCommand(std::shared_ptr<BaseDomainMsg> msg, std::
 
 void DomainRpcService::CreateDeathListener(std::string deviceId)
 {
-    SHARING_LOGD("deviceId: %{public}s.", deviceId.c_str());
+    SHARING_LOGD("deviceId: %{public}s.", GetAnonyString(deviceId).c_str());
     if (deathRecipients_.find(deviceId) != deathRecipients_.end()) {
         auto listener = std::make_shared<DomainRpcServiceDeathListener>();
         listener->SetService(this);
         deathRecipients_[deviceId]->SetDeathListener(listener);
     } else {
-        SHARING_LOGE("deviceId not find: %{public}s.", deviceId.c_str());
+        SHARING_LOGE("deviceId not find: %{public}s.", GetAnonyString(deviceId).c_str());
     }
 }
 
@@ -114,7 +115,8 @@ void DomainRpcService::SetPeerListener(std::weak_ptr<IDomainPeerListener> listen
 
 int32_t DomainRpcService::SendDomainRequest(std::string remoteId, std::shared_ptr<BaseDomainMsg> msg)
 {
-    SHARING_LOGD("msg from %{public}s -> to %{public}s.", msg->fromDevId.c_str(), msg->toDevId.c_str());
+    SHARING_LOGD("msg from %{public}s -> to %{public}s.", GetAnonyString(msg->fromDevId).c_str(),
+                 GetAnonyString(msg->toDevId).c_str());
     return 0;
 }
 

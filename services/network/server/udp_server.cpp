@@ -17,8 +17,8 @@
 #include <algorithm>
 #include <arpa/inet.h>
 #include <iostream>
-#include <unistd.h>
 #include <securec.h>
+#include <unistd.h>
 #include "common/media_log.h"
 #include "network/session/udp_session.h"
 #include "network/socket/socket_utils.h"
@@ -28,7 +28,8 @@ namespace OHOS {
 namespace Sharing {
 bool UdpServer::Start(uint16_t port, const std::string &host, bool enableReuse, uint32_t backlog)
 {
-    SHARING_LOGD("server ip:%{public}s, Port:%{public}d, thread_id: %{public}llu.", host.c_str(), port, GetThreadId());
+    SHARING_LOGD("server ip:%{public}s, Port:%{public}d, thread_id: %{public}llu.", GetAnonyString(host).c_str(), port,
+                 GetThreadId());
     std::unique_lock<std::shared_mutex> lk(mutex_);
     socket_ = std::make_unique<UdpSocket>();
     if (socket_) {
@@ -142,7 +143,7 @@ void UdpServer::OnServerReadable(int32_t fd)
         retCode = ::recvfrom(fd, buf->Data(), DEAFULT_READ_BUFFER_SIZE, 0, (struct sockaddr *)&clientAddr, &len);
         MEDIA_LOGD("recvSocket len: %{public}d,address: %{public}s,port: %{public}d,socklen: %{public}d.", retCode,
                    inet_ntoa(clientAddr.sin_addr), clientAddr.sin_port, len);
-        
+
         if (retCode < 0) {
             if (errno != EAGAIN) {
                 MEDIA_LOGD("on read data error %{public}d : %{public}s!", errno, strerror(errno));
@@ -151,8 +152,8 @@ void UdpServer::OnServerReadable(int32_t fd)
             }
 
             if (firstRead && retry < 5) { // 5: retry 5 times
-                SHARING_LOGE("first read error %{public}d : %{public}s retry: %{public}d",
-                    errno, strerror(errno), retry);
+                SHARING_LOGE("first read error %{public}d : %{public}s retry: %{public}d", errno, strerror(errno),
+                             retry);
                 usleep(1000 * 5); // 1000 * 5: sleep 1000 * 5 millionseconds
                 retry++;
                 continue;
@@ -171,7 +172,7 @@ void UdpServer::OnServerReadable(int32_t fd)
             SHARING_LOGE("onReadable error: %{public}s!", strerror(errno));
             break;
         }
-        
+
         if (retCode == 0) {
             SHARING_LOGE("onReadable error: %{public}s!", strerror(errno));
             reading = false;
@@ -188,7 +189,7 @@ std::shared_ptr<BaseNetworkSession> UdpServer::FindOrCreateSession(const struct 
     auto it = std::find_if(addrToFdMap_.begin(), addrToFdMap_.end(),
         [&addr](std::pair<std::shared_ptr<struct sockaddr_in>, int32_t> value) {
             return value.first->sin_addr.s_addr == addr.sin_addr.s_addr && value.first->sin_port == addr.sin_port;
-            });
+        });
     if (it != addrToFdMap_.end()) {
         MEDIA_LOGD("find session.");
         return sessionMap_[it->second];

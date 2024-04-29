@@ -16,14 +16,15 @@
 #include "wfd_source_scene.h"
 #include <display_manager.h>
 #include <unistd.h>
-#include "extend/magic_enum/magic_enum.hpp"
 #include "common/common_macro.h"
 #include "common/const_def.h"
 #include "common/reflect_registration.h"
 #include "common/sharing_log.h"
 #include "configuration/include/config.h"
+#include "extend/magic_enum/magic_enum.hpp"
 #include "network/socket/socket_utils.h"
 #include "screen_capture_def.h"
+#include "utils/utils.h"
 #include "wfd_session_def.h"
 
 namespace OHOS {
@@ -114,8 +115,9 @@ void WfdSourceScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::W
     std::vector<WfdCastDeviceInfo> foundedDevices;
     for (auto itDev : device) {
         auto status = itDev.GetP2pDeviceStatus();
-        SHARING_LOGI("device name: %{public}s, mac: %{private}s, status: %{public}d.", itDev.GetDeviceName().c_str(),
-                     itDev.GetDeviceAddress().c_str(), status);
+        SHARING_LOGI("device name: %{public}s, mac: %{private}s, status: %{public}d.",
+                     GetAnonyString(itDev.GetDeviceName()).c_str(), GetAnonyString(itDev.GetDeviceAddress()).c_str(),
+                     status);
         if (status == Wifi::P2pDeviceStatus::PDS_AVAILABLE) {
             std::string subelement;
             Wifi::WifiP2pWfdInfo wfdInfo(itDev.GetWfdInfo());
@@ -161,7 +163,7 @@ void WfdSourceScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pL
         return;
     }
 
-    SHARING_LOGD("goip: %{private}s.", info.GetGroupOwnerAddress().c_str());
+    SHARING_LOGD("goip: %{private}s.", GetAnonyString(info.GetGroupOwnerAddress()).c_str());
     if (info.GetGroupOwnerAddress() == "") {
         return;
     }
@@ -174,7 +176,8 @@ void WfdSourceScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pL
 
     Wifi::WifiP2pDevice goDevice = group.GetOwner();
     if (info.GetGroupOwnerAddress() == "0.0.0.0") {
-        SHARING_LOGE("goDevice: %{private}s leased ip is: 0.0.0.0.", goDevice.GetDeviceAddress().c_str());
+        SHARING_LOGE("goDevice: %{private}s leased ip is: 0.0.0.0.",
+                     GetAnonyString(goDevice.GetDeviceAddress()).c_str());
         return;
     }
 
@@ -187,8 +190,9 @@ void WfdSourceScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pL
     connectionInfo.ctrlPort = goDevice.GetWfdInfo().GetCtrlPort();
     connectionInfo.state = ConnectionState::CONNECTED;
 
-    SHARING_LOGD("device connected, mac: %{private}s, ip: %{private}s, port: %{private}d.", connectionInfo.mac.c_str(),
-                 connectionInfo.ip.c_str(), connectionInfo.ctrlPort);
+    SHARING_LOGD("device connected, mac: %{private}s, ip: %{private}s, port: %{private}d.",
+                 GetAnonyString(connectionInfo.mac).c_str(), GetAnonyString(connectionInfo.ip).c_str(),
+                 connectionInfo.ctrlPort);
     scene->OnP2pPeerConnected(connectionInfo);
 }
 
@@ -494,7 +498,7 @@ int32_t WfdSourceScene::HandleAddDevice(std::shared_ptr<WfdSourceAddDeviceReq> &
     config.SetDeviceAddressType(OHOS::Wifi::RANDOM_DEVICE_ADDRESS);
     screenId_ = msg->screenId;
     int32_t ret = p2pInstance_->P2pConnect(config);
-    SHARING_LOGD("connect device: %s, ret = %d", msg->deviceId.c_str(), ret);
+    SHARING_LOGD("connect device: %s, ret = %d", GetAnonyString(msg->deviceId).c_str(), ret);
     return ret;
 }
 
@@ -507,7 +511,7 @@ int32_t WfdSourceScene::HandleRemoveDevice(std::shared_ptr<WfdSourceRemoveDevice
 
     std::lock_guard<std::mutex> lock(mutex_);
     if ((connDev_ == nullptr) || (connDev_->mac != msg->deviceId)) {
-        SHARING_LOGE("can not find dev, mac: %{public}s.", msg->deviceId.c_str());
+        SHARING_LOGE("can not find dev, mac: %{public}s.", GetAnonyString(msg->deviceId).c_str());
         return -1;
     }
     auto sessionMsg = std::make_shared<WfdSourceSessionEventMsg>();
@@ -585,7 +589,7 @@ int32_t WfdSourceScene::AppendCast(const std::string &deviceId)
 
     std::unique_lock<std::mutex> lock(mutex_);
     if ((connDev_ == nullptr) || (connDev_->mac != deviceId)) {
-        SHARING_LOGE("can not find dev, mac: %{private}s.", deviceId.c_str());
+        SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonyString(deviceId).c_str());
         OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "AppendCast can't find the dev");
         return -1;
     }
@@ -704,7 +708,7 @@ void WfdSourceScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
     if (sharingAdapter != nullptr) {
         std::lock_guard<std::mutex> lock(mutex_);
         if ((connDev_ != nullptr) && (connDev_->mac == connectionInfo.mac)) {
-            SHARING_LOGW("devcie is alerady connected, mac: %s.", connectionInfo.mac.c_str());
+            SHARING_LOGW("devcie is alerady connected, mac: %s.", GetAnonyString(connectionInfo.mac).c_str());
             return;
         }
         connectionInfo.videoCodecId = videoCodecId_;
@@ -713,7 +717,8 @@ void WfdSourceScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
         connectionInfo.audioFormatId = audioFormat_;
 
         connDev_ = std::make_unique<ConnectionInfo>(connectionInfo);
-        SHARING_LOGI("connected, devMac: %s, devIp: %s.", connectionInfo.mac.c_str(), connectionInfo.ip.c_str());
+        SHARING_LOGI("connected, devMac: %s, devIp: %s.", GetAnonyString(connectionInfo.mac).c_str(),
+                     GetAnonyString(connectionInfo.ip).c_str());
     }
 
     OnConnectionChanged(connectionInfo);
@@ -731,7 +736,7 @@ void WfdSourceScene::OnP2pPeerDisconnected(const std::string &mac)
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if ((connDev_ == nullptr) || (connDev_->mac != mac)) {
-            SHARING_LOGW("can not find dev, mac: %s.", mac.c_str());
+            SHARING_LOGW("can not find dev, mac: %s.", GetAnonyString(mac).c_str());
             return;
         }
         connDev_->state = ConnectionState::DISCONNECTED;
@@ -838,7 +843,8 @@ void WfdSourceScene::OnInnerEvent(SharingEvent &event)
             if (msg) {
                 std::lock_guard<std::mutex> lock(mutex_);
                 if ((connDev_ == nullptr) || (connDev_->mac != msg->mac)) {
-                    SHARING_LOGE("connDev_ is nullptr or mac:%{private}s doesn't match.", msg->mac.c_str());
+                    SHARING_LOGE("connDev_ is nullptr or mac:%{private}s doesn't match.",
+                                 GetAnonyString(msg->mac).c_str());
                     return;
                 }
                 connDev_->state = ConnectionState::PLAYING;

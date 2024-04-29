@@ -15,12 +15,12 @@
 
 #include "utils.h"
 #include <cstdlib>
-#include <fstream>
-#include <sstream>
 #include <cstring>
+#include <fstream>
+#include <securec.h>
+#include <sstream>
 #include <sys/time.h>
 #include <thread>
-#include <securec.h>
 #include "common/media_log.h"
 
 namespace OHOS {
@@ -289,6 +289,31 @@ void SetLE32(void *p, uint32_t val)
     data[1] = val >> 8; //  8: byte offset
     data[2] = val >> 16; // 2: transformed position, 16: byte offset
     data[3] = val >> 24; // 3: transformed position, 24: byte offset
+}
+
+std::string GetAnonyString(const std::string &value)
+{
+    constexpr size_t INT32_SHORT_ID_LENGTH = 20;
+    constexpr size_t INT32_MIN_ID_LENGTH = 3;
+    std::string result;
+    std::string tmpStr("******");
+    size_t strLen = value.length();
+    if (strLen < INT32_MIN_ID_LENGTH) {
+        return tmpStr;
+    }
+
+    if (strLen <= INT32_SHORT_ID_LENGTH) {
+        result += value[0];
+        result += tmpStr;
+        result += value[strLen - 1];
+    } else {
+        constexpr size_t INT32_PLAINTEXT_LENGTH = 4;
+        result.append(value, 0, INT32_PLAINTEXT_LENGTH);
+        result += tmpStr;
+        result.append(value, strLen - INT32_PLAINTEXT_LENGTH, INT32_PLAINTEXT_LENGTH);
+    }
+
+    return result;
 }
 
 } // namespace Sharing

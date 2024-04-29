@@ -18,6 +18,7 @@
 #include "common/common_macro.h"
 #include "interaction/interprocess/client_factory.h"
 #include "surface_utils.h"
+#include "utils/utils.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -102,7 +103,8 @@ int32_t WfdSinkImpl::GetSinkConfig(SinkConfig &sinkConfig)
 
 int32_t WfdSinkImpl::AppendSurface(std::string deviceId, uint64_t surfaceId)
 {
-    SHARING_LOGD("add device: %{public}s, surfaceId: %{public}" PRIx64 ".", deviceId.c_str(), surfaceId);
+    SHARING_LOGD("add device: %{public}s, surfaceId: %{public}" PRIx64 ".", GetAnonyString(deviceId).c_str(),
+                 surfaceId);
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
@@ -141,7 +143,8 @@ int32_t WfdSinkImpl::AppendSurface(std::string deviceId, uint64_t surfaceId)
 
 int32_t WfdSinkImpl::RemoveSurface(std::string deviceId, uint64_t surfaceId)
 {
-    SHARING_LOGD("delete device: %{public}s, surfaceId:%{public}" PRIx64 ".", deviceId.c_str(), surfaceId);
+    SHARING_LOGD("delete device: %{public}s, surfaceId:%{public}" PRIx64 ".", GetAnonyString(deviceId).c_str(),
+                 surfaceId);
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
@@ -283,8 +286,8 @@ int32_t WfdSinkImpl::Close(std::string deviceId)
 
 int32_t WfdSinkImpl::SetSceneType(std::string deviceId, uint64_t surfaceId, SceneType sceneType)
 {
-    SHARING_LOGD("set device: %{public}s, surfaceId: %{public}" PRIx64 ", sceneType: %{public}d.", deviceId.c_str(),
-                 surfaceId, sceneType);
+    SHARING_LOGD("set device: %{public}s, surfaceId: %{public}" PRIx64 ", sceneType: %{public}d.",
+                 GetAnonyString(deviceId).c_str(), surfaceId, sceneType);
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
@@ -306,7 +309,7 @@ int32_t WfdSinkImpl::SetSceneType(std::string deviceId, uint64_t surfaceId, Scen
 
 int32_t WfdSinkImpl::Mute(std::string deviceId)
 {
-    SHARING_LOGD("device: %{public}s.", deviceId.c_str());
+    SHARING_LOGD("device: %{public}s.", GetAnonyString(deviceId).c_str());
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
@@ -326,7 +329,7 @@ int32_t WfdSinkImpl::Mute(std::string deviceId)
 
 int32_t WfdSinkImpl::UnMute(std::string deviceId)
 {
-    SHARING_LOGD("device: %{public}s.", deviceId.c_str());
+    SHARING_LOGD("device: %{public}s.", GetAnonyString(deviceId).c_str());
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
