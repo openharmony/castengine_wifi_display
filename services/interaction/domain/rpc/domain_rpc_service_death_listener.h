@@ -22,7 +22,7 @@
 
 namespace OHOS {
 namespace Sharing {
-    
+
 class DomainRpcServiceDeathListener : public DomainRpcDeathListener {
 public:
     explicit DomainRpcServiceDeathListener() = default;
@@ -30,19 +30,20 @@ public:
     void OnRemoteDied(std::string deviceId) final
     {
         SHARING_LOGD("on RPC remote died deviceId: %{public}s.", deviceId.c_str());
-        if (service_ != nullptr) {
-            service_->DelPeerProxy(deviceId);
+        auto service = service_.lock();
+        if (service != nullptr) {
+            service->DelPeerProxy(deviceId);
         }
     }
 
-    void SetService(sptr<DomainRpcService> service)
+    void SetService(DomainRpcService::Ptr service)
     {
         SHARING_LOGD("trace.");
         service_ = service;
     }
 
 private:
-    wptr<DomainRpcService> service_ = nullptr;
+    std::weak_ptr<DomainRpcService> service_;
 };
 
 } // namespace Sharing

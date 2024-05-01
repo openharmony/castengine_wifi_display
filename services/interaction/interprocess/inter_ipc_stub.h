@@ -18,12 +18,12 @@
 
 #include <unordered_map>
 #include <vector>
-#include "inter_ipc_death_recipient.h"
 #include "i_inter_ipc.h"
+#include "inter_ipc_death_recipient.h"
 
 namespace OHOS {
 namespace Sharing {
-    
+
 class IInterIpcStubListener {
 public:
     virtual ~IInterIpcStubListener() = default;
@@ -34,15 +34,16 @@ public:
 
 class InterIpcStubDeathListener;
 class InterIpcStub : public IRemoteStub<IInterIpc>,
-                                public NoCopyable {
+                     public NoCopyable {
 public:
+    using Ptr = std::shared_ptr<InterIpcStub>;
     InterIpcStub();
     virtual ~InterIpcStub();
-    
+
     virtual void OnRemoteDied();
     virtual void SetStubListener(std::weak_ptr<IInterIpcStubListener> listener);
     virtual int32_t SendIpcRequest(std::string tokenId, std::shared_ptr<BaseMsg> msg, std::shared_ptr<BaseMsg> &reply);
-    
+
     int32_t SetListenerObject(std::string key, const sptr<IRemoteObject> &object) override;
     int32_t DoIpcCommand(std::shared_ptr<BaseMsg> msg, std::shared_ptr<BaseMsg> &replyMsg) override;
     int32_t OnRemoteRequest(uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
@@ -58,6 +59,7 @@ protected:
 
 protected:
     std::mutex mutex_;
+    Ptr sharedFromThis_ = nullptr;
     std::weak_ptr<IInterIpcStubListener> stubListener_;
     std::unordered_map<std::string, sptr<IInterIpc>> peerProxys_;
     std::unordered_map<std::string, sptr<InterIpcDeathRecipient>> deathRecipients_;

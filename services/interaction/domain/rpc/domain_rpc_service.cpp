@@ -39,6 +39,7 @@ DomainRpcService::~DomainRpcService()
     SHARING_LOGD("trace.");
     std::unique_lock<std::mutex> lock(mutex_);
     DomainRpcStubs_.clear();
+    shared_from_this_.reset();
 }
 
 void DomainRpcService::OnDump()
@@ -99,7 +100,10 @@ void DomainRpcService::CreateDeathListener(std::string deviceId)
     SHARING_LOGD("deviceId: %{public}s.", deviceId.c_str());
     if (deathRecipients_.find(deviceId) != deathRecipients_.end()) {
         auto listener = std::make_shared<DomainRpcServiceDeathListener>();
-        listener->SetService(this);
+        if (shared_from_this_ == nullptr) {
+            shared_from_this_ = Ptr(this, [](DomainRpcService *) { SHARING_LOGD("trace."); });
+        }
+        listener->SetService(shared_from_this_);
         deathRecipients_[deviceId]->SetDeathListener(listener);
     } else {
         SHARING_LOGE("deviceId not find: %{public}s.", deviceId.c_str());

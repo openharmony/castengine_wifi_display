@@ -31,6 +31,7 @@ InterIpcStub::InterIpcStub()
 InterIpcStub::~InterIpcStub()
 {
     SHARING_LOGD("trace.");
+    sharedFromThis_.reset();
     for (auto deathRecipient : deathRecipients_) {
         if (deathRecipient.second != nullptr) {
             deathRecipient.second->SetDeathListener(nullptr);
@@ -137,7 +138,10 @@ void InterIpcStub::CreateDeathListener(std::string key)
 {
     if (deathRecipients_.find(key) != deathRecipients_.end()) {
         SHARING_LOGI("key: %{public}s.", key.c_str());
-        deathRecipients_[key]->SetDeathListener(std::make_shared<InterIpcStubDeathListener>(this));
+        if (sharedFromThis_ == nullptr) {
+            sharedFromThis_ = Ptr(this, [](InterIpcStub *) { SHARING_LOGD("traces."); });
+        }
+        deathRecipients_[key]->SetDeathListener(std::make_shared<InterIpcStubDeathListener>(sharedFromThis_));
     } else {
         SHARING_LOGE("key not find %{public}s.", key.c_str());
     }

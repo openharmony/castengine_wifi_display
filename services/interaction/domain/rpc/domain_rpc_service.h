@@ -33,6 +33,7 @@ class DomainRpcService final : public SystemAbility,
     DECLARE_SYSTEM_ABILITY(DomainRpcService);
 
 public:
+    using Ptr = std::shared_ptr<DomainRpcService>;
     explicit DomainRpcService(int32_t systemAbilityId, bool runOnCreate = true);
     ~DomainRpcService() override;
 
@@ -52,6 +53,7 @@ protected:
 
 private:
     std::mutex mutex_;
+    Ptr shared_from_this_ = nullptr;
     std::unordered_map<std::string, sptr<IRemoteObject>> DomainRpcStubs_;
 };
 

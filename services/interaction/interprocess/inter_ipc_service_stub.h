@@ -22,6 +22,7 @@ namespace Sharing {
 
 class InterIpcServiceStub : public InterIpcStub {
 public:
+    using Ptr = std::shared_ptr<InterIpcServiceStub>;
     InterIpcServiceStub();
     ~InterIpcServiceStub() override;
 

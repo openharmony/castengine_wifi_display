@@ -18,16 +18,17 @@
 
 #include <mutex>
 #include "dm_kit.h"
+#include "domain_def.h"
+#include "ipc_msg.h"
 #include "nocopyable.h"
 #include "singleton.h"
-#include "ipc_msg.h"
-#include "domain_def.h"
 
 namespace OHOS {
 namespace Sharing {
 
 class DomainManagerListener {
 public:
+    using Ptr = std::shared_ptr<DomainManagerListener>;
     virtual ~DomainManagerListener() = default;
 
     virtual int32_t OnDomainMsg(std::shared_ptr<BaseDomainMsg> msg) = 0;
@@ -39,12 +40,12 @@ class DomainManager : public DelayedSingleton<DomainManager>,
     DECLARE_DELAYED_SINGLETON(DomainManager);
 
 public:
-    //impl ITransmitMgrListener
+    // impl ITransmitMgrListener
     int32_t DelPeer(std::string remoteId) override;
     int32_t AddPeer(std::shared_ptr<ITransmitMgr> mgr, std::shared_ptr<IDomainPeer> caller) override;
     void OnDomainRequest(std::string remoteId, std::shared_ptr<BaseDomainMsg> BaseMsg) override;
 
-    void SetListener(DomainManagerListener *listener);
+    void SetListener(DomainManagerListener::Ptr listener);
     virtual int32_t AddServiceManager(std::shared_ptr<ITransmitMgr> mgr);
     int32_t SendDomainRequest(std::string remoteId, std::shared_ptr<BaseDomainMsg> BaseMsg);
 
@@ -56,8 +57,7 @@ private:
     std::map<std::string, DomainType> peerTypeMap_;
     std::map<DomainType, std::shared_ptr<ITransmitMgr>> transmitMgrs_;
     std::vector<OHOS::DistributedHardware::DmDeviceInfo> trustedDeviceInfos_;
-
-    DomainManagerListener *listener_ = nullptr;
+    std::weak_ptr<DomainManagerListener> listener_;
     OHOS::DistributedHardware::DmDeviceInfo localDeviceInfo_;
 };
 
