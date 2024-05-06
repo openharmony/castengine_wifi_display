@@ -78,6 +78,7 @@ void SinkAgent::NotifyConsumer(SessionStatusMsg::Ptr &statusMsg, EventType type)
     auto listener = agentListener_.lock();
     if (listener) {
         auto channelMsg = std::make_shared<ChannelEventMsg>();
+        RETURN_IF_NULL(channelMsg);
         channelMsg->agentId = GetId();
         channelMsg->toMgr = ModuleType::MODULE_MEDIACHANNEL;
         channelMsg->dstId = mediaChannelId_;

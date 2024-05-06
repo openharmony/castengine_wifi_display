@@ -47,6 +47,7 @@ void AudioG711Encoder::OnFrame(const Frame::Ptr &frame)
     Encode((int16_t *)payload, outLength, outBuffer_.data());
 
     auto g711Frame = FrameImpl::Create();
+    RETURN_IF_NULL(g711Frame);
     g711Frame->codecId_ = type_ == G711_ALAW ? CODEC_G711A : CODEC_G711U;
     g711Frame->Assign((char *)outBuffer_.data(), outBuffer_.size());
     DeliverFrame(g711Frame);
@@ -91,11 +92,12 @@ void AudioG711Decoder::OnFrame(const Frame::Ptr &frame)
     auto payload = frame->Data();
     int32_t length = frame->Size();
     if ((int32_t)outBuffer_.size() != length * 2) { // 2: double size
-        outBuffer_.resize(length * 2); // 2: double size
+        outBuffer_.resize(length * 2);              // 2: double size
     }
 
     Decode((uint8_t *)payload, length, (int16_t *)outBuffer_.data());
     auto pcmFrame = FrameImpl::Create();
+    RETURN_IF_NULL(pcmFrame);
     pcmFrame->codecId_ = CODEC_PCM;
     pcmFrame->Assign((char *)outBuffer_.data(), outBuffer_.size());
     DeliverFrame(pcmFrame);

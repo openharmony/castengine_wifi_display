@@ -122,6 +122,7 @@ int32_t Config::SetConfig(const std::string &module, const std::string &tag, con
                           const SharingValue::Ptr &value)
 {
     SHARING_LOGD("trace.");
+    RETURN_INVALID_IF_NULL(datas_);
     if (!datas_->HasModule(module)) {
         auto modelValue = std::make_shared<SharingDataGroupByModule>(module);
         modelValue->PutSharingValue(tag, key, value);

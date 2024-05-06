@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "common/common_macro.h"
 #include "common/const_def.h"
 #include "common/sharing_log.h"
@@ -26,7 +26,9 @@ std::shared_ptr<WifiDisplay> MiracastFactory::GetInstance(WfdMode mode)
 {
     SHARING_LOGD("trace.");
     auto wifiDisplay = std::make_shared<WifiDisplay>(mode);
-    wifiDisplay->Init();
+    if (wifiDisplay) {
+        wifiDisplay->Init();
+    }
     return wifiDisplay;
 }
 

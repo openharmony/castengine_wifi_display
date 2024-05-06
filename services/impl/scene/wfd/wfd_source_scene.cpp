@@ -16,12 +16,12 @@
 #include "wfd_source_scene.h"
 #include <display_manager.h>
 #include <unistd.h>
-#include "extend/magic_enum/magic_enum.hpp"
 #include "common/common_macro.h"
 #include "common/const_def.h"
 #include "common/reflect_registration.h"
 #include "common/sharing_log.h"
 #include "configuration/include/config.h"
+#include "extend/magic_enum/magic_enum.hpp"
 #include "network/socket/socket_utils.h"
 #include "screen_capture_def.h"
 #include "wfd_session_def.h"
@@ -52,8 +52,7 @@ void WfdSourceScene::WfdP2pCallback::OnP2pStateChanged(int32_t state)
                 if (scene->isSourceRunning_) {
                     scene->isSourceRunning_ = false;
                     scene->WfdP2pStop();
-                    scene->OnInnerError(0, 0, SharingErrorCode::ERR_NETWORK_ERROR,
-                                         "NETWORK ERROR, P2P MODULE STOPPED");
+                    scene->OnInnerError(0, 0, SharingErrorCode::ERR_NETWORK_ERROR, "NETWORK ERROR, P2P MODULE STOPPED");
                 }
                 break;
             default:
@@ -297,14 +296,12 @@ void WfdSourceScene::Initialize()
     }
 
     p2pInstance_ = Wifi::WifiP2p::GetInstance(WIFI_P2P_ABILITY_ID);
+    RETURN_IF_NULL(p2pInstance_);
     sptr<WfdP2pCallback> wfdP2pCallback(new WfdP2pCallback(shared_from_this()));
 
-    std::vector<std::string> event = {  EVENT_P2P_PEER_DEVICE_CHANGE,
-                                        EVENT_P2P_DEVICE_STATE_CHANGE,
-                                        EVENT_P2P_CONN_STATE_CHANGE,
-                                        EVENT_P2P_STATE_CHANGE,
-                                        EVENT_P2P_SERVICES_CHANGE,
-                                        EVENT_P2P_DISCOVERY_CHANGE};
+    std::vector<std::string> event = {EVENT_P2P_PEER_DEVICE_CHANGE, EVENT_P2P_DEVICE_STATE_CHANGE,
+                                      EVENT_P2P_CONN_STATE_CHANGE,  EVENT_P2P_STATE_CHANGE,
+                                      EVENT_P2P_SERVICES_CHANGE,    EVENT_P2P_DISCOVERY_CHANGE};
     p2pInstance_->RegisterCallBack(wfdP2pCallback, event);
 }
 
@@ -403,6 +400,8 @@ int32_t WfdSourceScene::HandleStartDiscovery(std::shared_ptr<WfdSourceStartDisco
                                              std::shared_ptr<WfdCommonRsp> &reply)
 {
     SHARING_LOGD("trace.");
+    (void)msg;
+    (void)reply;
     int32_t ret = 0;
     if (p2pInstance_ == nullptr) {
         SHARING_LOGW("p2pInstance is nullptr.");
@@ -447,6 +446,8 @@ int32_t WfdSourceScene::HandleStopDiscovery(std::shared_ptr<WfdSourceStopDiscove
                                             std::shared_ptr<WfdCommonRsp> &reply)
 {
     SHARING_LOGD("trace.");
+    (void)msg;
+    (void)reply;
     if (!isSourceRunning_) {
         SHARING_LOGW("p2p source is not running.");
         return -1;
@@ -466,6 +467,7 @@ int32_t WfdSourceScene::HandleAddDevice(std::shared_ptr<WfdSourceAddDeviceReq> &
                                         std::shared_ptr<WfdCommonRsp> &reply)
 {
     SHARING_LOGD("trace.");
+    (void)reply;
     if (!isSourceRunning_) {
         SHARING_LOGW("p2p source is not running.");
         return -1;
@@ -502,6 +504,7 @@ int32_t WfdSourceScene::HandleRemoveDevice(std::shared_ptr<WfdSourceRemoveDevice
                                            std::shared_ptr<WfdCommonRsp> &reply)
 {
     SHARING_LOGD("trace.");
+    (void)reply;
     auto sharingAdapter = sharingAdapter_.lock();
     RETURN_INVALID_IF_NULL(sharingAdapter);
 
@@ -570,6 +573,7 @@ int32_t WfdSourceScene::CreateScreenCapture()
 int32_t WfdSourceScene::HandleDestroyScreenCapture(std::shared_ptr<DestroyScreenCaptureReq> &msg)
 {
     SHARING_LOGD("trace.");
+    (void)msg;
     auto sharingAdapter = sharingAdapter_.lock();
     if (sharingAdapter != nullptr) {
         sharingAdapter->DestroyAgent(contextId_, agentId_);

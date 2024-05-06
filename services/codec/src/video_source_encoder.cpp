@@ -11,7 +11,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*/
+ */
 
 #include "video_source_encoder.h"
 #include "avcodec_errors.h"
@@ -39,8 +39,8 @@ void VideoSourceEncoder::VideoEncodeCallback::OnOutputFormatChanged(const MediaA
     }
 }
 
-void VideoSourceEncoder::VideoEncodeCallback::OnInputBufferAvailable(uint32_t index,
-    std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
+void VideoSourceEncoder::VideoEncodeCallback::OnInputBufferAvailable(
+    uint32_t index, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
 {
     SHARING_LOGD("trace.");
     if (auto parent = parent_.lock()) {
@@ -48,8 +48,8 @@ void VideoSourceEncoder::VideoEncodeCallback::OnInputBufferAvailable(uint32_t in
     }
 }
 
-void VideoSourceEncoder::VideoEncodeCallback::OnOutputBufferAvailable(uint32_t index,
-    MediaAVCodec::AVCodecBufferInfo info, MediaAVCodec::AVCodecBufferFlag flag,
+void VideoSourceEncoder::VideoEncodeCallback::OnOutputBufferAvailable(
+    uint32_t index, MediaAVCodec::AVCodecBufferInfo info, MediaAVCodec::AVCodecBufferFlag flag,
     std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
 {
     SHARING_LOGD("trace.");
@@ -243,11 +243,13 @@ void VideoSourceEncoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::A
     }
 
     const char *data = reinterpret_cast<const char *>(buffer->GetBase());
+    RETURN_IF_NULL(data);
     if (auto listener = listener_.lock()) {
         SplitH264(data, dataSize, 0, [&](const char *buf, size_t len, size_t prefix) {
             if ((*(buf + prefix) & 0x1f) == 0x07) {
                 SHARING_LOGD("get sps, size:%{public}zu.", len);
                 Frame::Ptr videoFrame = FrameImpl::Create();
+                RETURN_IF_NULL(videoFrame);
                 videoFrame->Assign(buf, len);
                 listener->OnFrame(videoFrame, SPS_FRAME, false);
                 videoFrame = nullptr;
@@ -256,6 +258,7 @@ void VideoSourceEncoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::A
             if ((*(buf + prefix) & 0x1f) == 0x08) {
                 SHARING_LOGD("get pps, size:%{public}zu.", len);
                 Frame::Ptr videoFrame = FrameImpl::Create();
+                RETURN_IF_NULL(videoFrame);
                 videoFrame->Assign(buf, len);
                 listener->OnFrame(videoFrame, PPS_FRAME, false);
                 videoFrame = nullptr;
@@ -264,6 +267,7 @@ void VideoSourceEncoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::A
             SHARING_LOGD("get frame , size:%{public}zu.", len);
             bool keyFrame = (*(buf + prefix) & 0x1f) == 0x05 ? true : false;
             Frame::Ptr videoFrame = FrameImpl::Create();
+            RETURN_IF_NULL(videoFrame);
             videoFrame->Assign(buf, len);
             listener->OnFrame(videoFrame, IDR_FRAME, keyFrame);
             videoFrame = nullptr;
@@ -276,7 +280,6 @@ void VideoSourceEncoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::A
         SHARING_LOGW("release output buffer failed!");
     }
 }
-
 
 void VideoSourceEncoder::OnInputBufferAvailable(uint32_t index, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
 {

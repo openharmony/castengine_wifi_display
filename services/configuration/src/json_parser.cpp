@@ -137,6 +137,7 @@ int32_t JsonParser::ReadModuleConfig(Json::Value &modules, SharingData::Ptr &val
 int32_t JsonParser::SaveModuleConfig(Json::Value &module, const SharingDataGroupByModule::Ptr &moduleValue)
 {
     SHARING_LOGD("trace.");
+    RETURN_INVALID_IF_NULL(moduleValue);
     moduleValue->ForEach([&](const std::string &tagName, const SharingDataGroupByTag::Ptr &tagValue) {
         Json::Value tagObject(Json::ValueType::objectValue);
         tagObject["tag"] = tagName;

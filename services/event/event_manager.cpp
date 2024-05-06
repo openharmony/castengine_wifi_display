@@ -49,6 +49,7 @@ int32_t EventManager::StartEventLoop()
     }
 
     eventThread_ = std::make_unique<std::thread>(&EventManager::ProcessEvent, this);
+    RETURN_INVALID_IF_NULL(eventThread_);
     std::string name = "eventmgr";
     pthread_setname_np(eventThread_->native_handle(), name.c_str());
     return 0;
@@ -86,6 +87,7 @@ int32_t EventManager::AddListener(std::shared_ptr<EventListener> listener)
 int32_t EventManager::DelListener(std::shared_ptr<EventListener> listener)
 {
     SHARING_LOGD("trace.");
+    (void)listener;
     return 0;
 }
 

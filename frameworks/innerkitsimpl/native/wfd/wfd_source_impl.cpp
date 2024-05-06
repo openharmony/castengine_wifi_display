@@ -73,7 +73,9 @@ int32_t WfdSourceImpl::StartDiscover()
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
     auto msg = std::make_shared<WfdSourceStartDiscoveryReq>();
+    RETURN_INVALID_IF_NULL(msg);
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -91,8 +93,9 @@ int32_t WfdSourceImpl::StopDiscover()
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
     auto msgStopDiscoveryReq = std::make_shared<WfdSourceStopDiscoveryReq>();
+    RETURN_INVALID_IF_NULL(msgStopDiscoveryReq);
     auto replyStopDiscoveryReq = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
-
+    RETURN_INVALID_IF_NULL(replyStopDiscoveryReq);
     auto retStopDiscoveryReq = ipcAdapter->SendRequest(msgStopDiscoveryReq, replyStopDiscoveryReq);
     if (retStopDiscoveryReq != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", retStopDiscoveryReq);
@@ -115,10 +118,11 @@ int32_t WfdSourceImpl::AddDevice(uint64_t screenId, WfdCastDeviceInfo &deviceInf
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
     auto msg = std::make_shared<WfdSourceAddDeviceReq>();
+    RETURN_INVALID_IF_NULL(msg);
     msg->deviceId = deviceInfo.deviceId;
     msg->screenId = screenId;
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
-
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -139,9 +143,10 @@ int32_t WfdSourceImpl::RemoveDevice(std::string deviceId)
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
     auto msg = std::make_shared<WfdSourceRemoveDeviceReq>();
+    RETURN_INVALID_IF_NULL(msg);
     msg->deviceId = deviceId;
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
-
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -167,7 +172,7 @@ void WfdSourceImpl::OnRequest(std::shared_ptr<BaseMsg> msg, std::shared_ptr<Base
 {
     SHARING_LOGD("trace.");
     RETURN_IF_NULL(msg);
-
+    (void)reply;
     SHARING_LOGD("Recv msg: %{public}d.", msg->GetMsgId());
     if (auto listener = listener_.lock()) {
         listener->OnInfo(msg);
@@ -180,6 +185,7 @@ void WfdSourceImpl::OnRemoteDied()
 {
     SHARING_LOGD("trace.");
     auto msg = std::make_shared<WfdErrorMsg>();
+    RETURN_IF_NULL(msg);
     msg->errorCode = ERR_REMOTE_DIED;
     msg->message = "OnRemoteDied.";
 
