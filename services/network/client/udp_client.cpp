@@ -35,8 +35,8 @@ UdpClient::UdpClient()
 
 bool UdpClient::Connect(const std::string &peerHost, uint16_t peerPort, const std::string &localIp, uint16_t localPort)
 {
-    SHARING_LOGD("peerIp:%{public}s, peerPort:%{public}d, thread_id: %{public}llu.", peerHost.c_str(), peerPort,
-                 GetThreadId());
+    SHARING_LOGD("peerIp:%{public}s, peerPort:%{public}d, thread_id: %{public}llu.", GetAnonyString(peerHost).c_str(),
+                 peerPort, GetThreadId());
     std::unique_lock<std::shared_mutex> lk(mutex_);
     int32_t retCode = 0;
     socket_ = std::make_unique<UdpSocket>();
@@ -99,8 +99,9 @@ bool UdpClient::Send(const char *buf, int32_t nSize)
             return true;
         } else {
             if (socket_) {
-                MEDIA_LOGE("send [%{public}s:%{public}d]Failed, %{public}s.", socket_->GetPeerIp().c_str(),
-                           (int32_t)socket_->GetPeerPort(), strerror(errno));
+                MEDIA_LOGE("send [%{public}s:%{public}d]Failed, %{public}s.",
+                           GetAnonyString(socket_->GetPeerIp()).c_str(), (int32_t)socket_->GetPeerPort(),
+                           strerror(errno));
             }
 
             return false;

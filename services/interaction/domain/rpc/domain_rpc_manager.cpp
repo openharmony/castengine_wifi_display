@@ -42,7 +42,8 @@ int32_t DomainRpcManager::SendDomainRequest(std::string remoteId, std::shared_pt
 {
     SHARING_LOGD("trace.");
     BaseMsg->fromDevId = DmKit::GetLocalDevicesInfo().deviceId;
-    SHARING_LOGD("msg from %{public}s -> to %{public}s.", BaseMsg->fromDevId.c_str(), BaseMsg->toDevId.c_str());
+    SHARING_LOGD("msg from %{public}s -> to %{public}s.", GetAnonyString(BaseMsg->fromDevId).c_str(),
+                 GetAnonyString(BaseMsg->toDevId).c_str());
 
     if (rpcClients_.find(BaseMsg->toDevId) != rpcClients_.end()) {
         rpcClients_[BaseMsg->toDevId]->SendDomainRequest(remoteId, BaseMsg);

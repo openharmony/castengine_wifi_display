@@ -18,10 +18,11 @@
 
 #include "common/identifier.h"
 #include "common/sharing_log.h"
-#include "ipc_msg.h"
 #include "interaction/scene/scene_format.h"
+#include "ipc_msg.h"
 #include "iremote_object.h"
 #include "singleton.h"
+#include "utils/utils.h"
 
 namespace OHOS {
 namespace Sharing {

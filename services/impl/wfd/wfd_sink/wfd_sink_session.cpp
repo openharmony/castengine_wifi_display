@@ -21,6 +21,7 @@
 #include "common/sharing_log.h"
 #include "extend/magic_enum/magic_enum.hpp"
 #include "mediachannel/media_channel_def.h"
+#include "utils/utils.h"
 #include "wfd_media_def.h"
 #include "wfd_message.h"
 
@@ -274,7 +275,8 @@ bool WfdSinkSession::StartWfdSession()
 {
     SHARING_LOGD("trace.");
     if (NetworkFactory::CreateTcpClient(remoteRtspIp_, remoteRtspPort_, shared_from_this(), rtspClient_)) {
-        SHARING_LOGI("sessionId: %{public}u, wfds session connected ip: %{public}s.", GetId(), remoteRtspIp_.c_str());
+        SHARING_LOGI("sessionId: %{public}u, wfds session connected ip: %{public}s.", GetId(),
+                     GetAnonyString(remoteRtspIp_).c_str());
     } else {
         // try connect again
         for (int32_t i = 0; i < 5; i++) { // 5: retry time
@@ -291,11 +293,11 @@ bool WfdSinkSession::StartWfdSession()
             if (rtspClient_) {
                 if (rtspClient_->Connect(remoteRtspIp_, remoteRtspPort_, "::", 0)) {
                     SHARING_LOGW("sessionId: %{public}u, reconnected successfully, ip: %{public}s, times: %{public}d.",
-                                 GetId(), remoteRtspIp_.c_str(), i);
+                                 GetId(), GetAnonyString(remoteRtspIp_).c_str(), i);
                     break;
                 } else {
                     SHARING_LOGE("sessionId: %{public}u, Failed to connect wfd rtsp server %{public}s:%{public}d.",
-                                 GetId(), remoteRtspIp_.c_str(), remoteRtspPort_);
+                                 GetId(), GetAnonyString(remoteRtspIp_).c_str(), remoteRtspPort_);
                     if (i == 4) { // 4: stop try
                         return false;
                     }

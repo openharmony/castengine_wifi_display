@@ -14,11 +14,11 @@
  */
 
 #include "scheduler.h"
-#include "extend/magic_enum/magic_enum.hpp"
 #include "common/common_macro.h"
 #include "common/sharing_log.h"
 #include "context/context_manager.h"
 #include "event/event_manager.h"
+#include "extend/magic_enum/magic_enum.hpp"
 #include "interaction/interaction_manager.h"
 #include "mediachannel/channel_manager.h"
 

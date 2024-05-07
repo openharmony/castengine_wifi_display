@@ -16,6 +16,7 @@
 #include "tcp_socket.h"
 #include "common/media_log.h"
 #include "network/socket/socket_utils.h"
+#include "utils.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -93,10 +94,12 @@ bool TcpSocket::Connect(const std::string &peerIp, uint16_t peerPort, int32_t &r
     setsockopt(fd, IPPROTO_IP, IP_TOS, &value, sizeof(value));
 
     if (!SocketUtils::ConnectSocket(fd, isAsync, peerIp, peerPort, retCode)) {
-        SHARING_LOGE("connect socket failed, ip: %{public}s, port: %{public}d.", peerIp.c_str(), peerPort);
+        SHARING_LOGE("connect socket failed, ip: %{public}s, port: %{public}d.", GetAnonyString(peerIp).c_str(),
+                     peerPort);
         return false;
     } else {
-        SHARING_LOGI("connect socket success, ip: %{public}s, port: %{public}d.", peerIp.c_str(), peerPort);
+        SHARING_LOGI("connect socket success, ip: %{public}s, port: %{public}d.", GetAnonyString(peerIp).c_str(),
+                     peerPort);
     }
 
     localIp_ = localIp;
