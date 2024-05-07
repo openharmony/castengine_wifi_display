@@ -160,7 +160,6 @@ bool LoopBackDemo::GetPermission()
         .aplStr = "system_basic",
     };
     tokenId = GetAccessTokenId(&infoInstance);
-    AUDIO_INFO_LOG("GetCameraPermission tokenId = %{public}llu", tokenId);
     if (tokenId == 0) {
         AUDIO_INFO_LOG("GetCameraPermission GetAccessTokenId failed");
         return false;
