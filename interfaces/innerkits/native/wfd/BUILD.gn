@@ -63,6 +63,7 @@ ohos_shared_library("sharingwfd_client") {
   deps = [
     "$SHARING_ROOT_DIR/services/common:sharing_common",
     "$SHARING_ROOT_DIR/services/interaction/ipc_codec:ipc_codec_srcs",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
   external_deps = [

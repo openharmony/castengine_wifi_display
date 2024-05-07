@@ -21,6 +21,7 @@ namespace Sharing {
 
 void AdtsHeader::DumpAdtsHeader(const AdtsHeader &hed, uint8_t *out)
 {
+    RETURN_IF_NULL(out);
     out[0] = ((hed.syncword_ >> 4) & 0xFF);                      // 8bit, 4:byte offset
     out[1] = ((hed.syncword_ << 4) & 0xF0);                      // 4 bit, 4:byte offset
     out[1] |= ((hed.id_ << 3) & 0x08);                           // 1 bit, 3:byte offset
@@ -75,6 +76,7 @@ void AdtsHeader::ParseAacConfig(const std::string &config, AdtsHeader &adts)
 
 int32_t AdtsHeader::DumpAacConfig(const std::string &config, size_t length, uint8_t *out, size_t outSize)
 {
+    RETURN_INVALID_IF_NULL(out);
     AdtsHeader header;
     ParseAacConfig(config, header);
     header.aacFrameLength_ = (decltype(header.aacFrameLength_))(ADTS_HEADER_LEN + length);

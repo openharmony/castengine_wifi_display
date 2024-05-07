@@ -236,6 +236,7 @@ void MediaController::SetKeyRedirect(uint64_t surfaceId, bool keyRedirect)
 void MediaController::OnPlayControllerNotify(ProsumerStatusMsg::Ptr &statusMsg)
 {
     SHARING_LOGD("trace.");
+    RETURN_IF_NULL(statusMsg);
     auto mediaChannel = mediaChannel_.lock();
     RETURN_IF_NULL(mediaChannel);
 

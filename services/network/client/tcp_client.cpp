@@ -14,6 +14,7 @@
  */
 
 #include "tcp_client.h"
+#include "common/common_macro.h"
 #include "common/media_log.h"
 #include "common/sharing_log.h"
 #include "network/socket/socket_utils.h"
@@ -34,8 +35,8 @@ TcpClient::TcpClient()
 
 bool TcpClient::Connect(const std::string &peerIp, uint16_t peerPort, const std::string &localIp, uint16_t localPort)
 {
-    SHARING_LOGD("peerIp:%{public}s, peerPort:%{public}d, thread_id: %{public}llu.", peerIp.c_str(), peerPort,
-                 GetThreadId());
+    SHARING_LOGD("peerIp:%{public}s, peerPort:%{public}d, thread_id: %{public}llu.", GetAnonyString(peerIp).c_str(),
+                 peerPort, GetThreadId());
 
     int32_t retCode = 0;
     socket_ = std::make_unique<TcpSocket>();
@@ -97,6 +98,7 @@ void TcpClient::Disconnect()
 bool TcpClient::Send(const DataBuffer::Ptr &buf, int32_t nSize)
 {
     SHARING_LOGD("trace.");
+    RETURN_FALSE_IF_NULL(buf);
     return Send(buf->Peek(), nSize);
 }
 

@@ -70,7 +70,9 @@ bool VideoPlayController::Init(VideoTrack &videoTrack)
     }
 
     videoSinkDecoder_->SetVideoDecoderListener(shared_from_this());
-    bufferReceiver_->SetBufferReceiverListener(shared_from_this());
+    if (bufferReceiver_) {
+        bufferReceiver_->SetBufferReceiverListener(shared_from_this());
+    }
     return true;
 }
 

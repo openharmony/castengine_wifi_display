@@ -14,12 +14,17 @@
  */
 
 #include "h264_frame.h"
+#include "common/common_macro.h"
 #include "common/sharing_log.h"
 
 namespace OHOS {
 namespace Sharing {
 size_t PrefixSize(const char *ptr, size_t len)
 {
+    if (ptr == nullptr) {
+        return 0;
+    }
+
     if (len < 4) { // 4:byte offset
         return 0;
     }
@@ -38,6 +43,10 @@ size_t PrefixSize(const char *ptr, size_t len)
 
 static const char *MemFind(const char *buf, ssize_t len, const char *subBuf, ssize_t subLen)
 {
+    if (buf == nullptr || subBuf == nullptr) {
+        return NULL;
+    }
+
     for (auto i = 0; i < len - subLen; ++i) {
         if (memcmp(buf + i, subBuf, subLen) == 0) {
             return buf + i;
@@ -49,6 +58,7 @@ static const char *MemFind(const char *buf, ssize_t len, const char *subBuf, ssi
 
 void SplitH264(const char *ptr, size_t len, size_t prefix, const std::function<void(const char *, size_t, size_t)> &cb)
 {
+    RETURN_IF_NULL(ptr);
     if (prefix <= 0) {
         prefix = PrefixSize(ptr, len);
     }

@@ -16,6 +16,7 @@
 #include "rtsp_sdp.h"
 #include <cmath>
 #include <securec.h>
+#include "common/common_macro.h"
 #include "rtsp_common.h"
 #include "utils/base64.h"
 
@@ -108,6 +109,7 @@ std::vector<uint8_t> MediaDescription::GetVideoPps()
 
 int32_t MediaDescription::GetUe(const uint8_t *buf, uint32_t nLen, uint32_t &pos)
 {
+    RETURN_INVALID_IF_NULL(buf);
     uint32_t nZeroNum = 0;
     while (pos < nLen * 8) {                      // 8:unit
         if (buf[pos / 8] & (0x80 >> (pos % 8))) { // 8:unit
@@ -132,6 +134,7 @@ int32_t MediaDescription::GetUe(const uint8_t *buf, uint32_t nLen, uint32_t &pos
 
 int32_t MediaDescription::GetSe(uint8_t *buf, uint32_t nLen, uint32_t &pos)
 {
+    RETURN_INVALID_IF_NULL(buf);
     int32_t UeVal = GetUe(buf, nLen, pos);
     double k = UeVal;
     int32_t nValue = ceil(k / 2); // 2:unit
@@ -144,6 +147,7 @@ int32_t MediaDescription::GetSe(uint8_t *buf, uint32_t nLen, uint32_t &pos)
 
 int32_t MediaDescription::GetU(uint8_t bitCount, const uint8_t *buf, uint32_t &pos)
 {
+    RETURN_INVALID_IF_NULL(buf);
     int32_t value = 0;
     for (uint32_t i = 0; i < bitCount; i++) {
         value <<= 1;
@@ -158,6 +162,8 @@ int32_t MediaDescription::GetU(uint8_t bitCount, const uint8_t *buf, uint32_t &p
 
 void MediaDescription::ExtractNaluRbsp(uint8_t *buf, uint32_t *bufSize)
 {
+    RETURN_IF_NULL(buf);
+    RETURN_IF_NULL(bufSize);
     uint8_t *tmpPtr = buf;
     uint32_t tmpBufSize = *bufSize;
     for (uint32_t i = 0; i < (tmpBufSize - 2); i++) {             // 2:unit

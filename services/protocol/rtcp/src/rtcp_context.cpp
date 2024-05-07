@@ -178,9 +178,17 @@ void RtcpReceiverContext::OnRtcp(RtcpHeader *rtcp)
 DataBuffer::Ptr RtcpReceiverContext::CreateRtcpRR(uint32_t rtcpSSRC, uint32_t rtpSSRC)
 {
     auto rtcp = RtcpRR::Create(1);
+    if (rtcp == nullptr) {
+        return nullptr;
+    }
+
     rtcp->ssrc_ = htonl(rtcpSSRC);
 
     ReportItem *item = (ReportItem *)&rtcp->items_;
+    if (item == nullptr) {
+        return nullptr;
+    }
+
     item->ssrc_ = htonl(rtpSSRC);
 
     uint8_t fraction = 0;

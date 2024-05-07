@@ -69,6 +69,8 @@ sptr<IRemoteObject> InterIpcServiceStub::GetSubSystemAbility(std::string key, st
 int32_t InterIpcServiceStub::DoIpcCommand(std::shared_ptr<BaseMsg> msg, std::shared_ptr<BaseMsg> &replyMsg)
 {
     SHARING_LOGD("trace.");
+    (void)msg;
+    (void)replyMsg;
     return 0;
 }
 

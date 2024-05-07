@@ -108,6 +108,7 @@ void SetBE24(void *p, uint32_t val);
 void SetBE32(void *p, uint32_t val);
 void SetLE32(void *p, uint32_t val);
 
+std::string GetAnonyString(const std::string &value);
 } // namespace Sharing
 } // namespace OHOS
 #endif

@@ -92,7 +92,7 @@ bool VideoSinkDecoder::SetDecoderFormat(const VideoTrack &track)
 bool VideoSinkDecoder::SetVideoCallback()
 {
     SHARING_LOGD("trace.");
-    RETURN_IF_NULL(videoDecoder_);
+    RETURN_FALSE_IF_NULL(videoDecoder_);
     auto ret = videoDecoder_->SetCallback(shared_from_this());
     if (ret != MediaAVCodec::AVCS_ERR_OK) {
         SHARING_LOGE("set video decoder callback failed!");

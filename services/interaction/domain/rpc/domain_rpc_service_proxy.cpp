@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 
-#include "common/sharing_log.h"
 #include "domain_rpc_service_proxy.h"
-#include "ipc_msg_encoder.h"
+#include "common/common_macro.h"
+#include "common/sharing_log.h"
 #include "ipc_msg_decoder.h"
+#include "ipc_msg_encoder.h"
 namespace OHOS {
 namespace Sharing {
-    
+
 DomainRpcServiceProxy::DomainRpcServiceProxy(const sptr<IRemoteObject> &impl) : IRemoteProxy<IDomainRpcService>(impl)
 {
     SHARING_LOGD("trace.");
@@ -31,7 +32,7 @@ int32_t DomainRpcServiceProxy::SetListenerObject(const sptr<IRemoteObject> &obje
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
-
+    RETURN_INVALID_IF_NULL(object);
     (void)data.WriteRemoteObject(object);
 
     int error = Remote()->SendRequest(DomainServiceMsg::SET_LISTENER_OBJ, data, reply, option);
@@ -61,7 +62,6 @@ sptr<IRemoteObject> DomainRpcServiceProxy::GetSubSystemAbility(int32_t type)
     return reply.ReadRemoteObject();
 }
 
-
 int32_t DomainRpcServiceProxy::DoRpcCommand(std::shared_ptr<BaseDomainMsg> msg, std::shared_ptr<BaseDomainMsg> replyMsg)
 {
     SHARING_LOGD("trace.");
@@ -79,6 +79,5 @@ int32_t DomainRpcServiceProxy::DoRpcCommand(std::shared_ptr<BaseDomainMsg> msg, 
     return reply.ReadInt32();
 }
 
-}
-}
-
+} // namespace Sharing
+} // namespace OHOS

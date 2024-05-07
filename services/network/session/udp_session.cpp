@@ -81,7 +81,8 @@ bool UdpSession::Send(const char *buf, int32_t nSize)
         return false;
     }
     MEDIA_LOGD("fd: %{public}d, address: %{public}s, port: %{public}d, len: %{public}d.", socket_->GetLocalFd(),
-               inet_ntoa(socket_->udpClientAddr_.sin_addr), socket_->udpClientAddr_.sin_port, socket_->udpClientLen_);
+               GetAnonyString(inet_ntoa(socket_->udpClientAddr_.sin_addr)).c_str(), socket_->udpClientAddr_.sin_port,
+               socket_->udpClientLen_);
     RETURN_FALSE_IF_NULL(buf);
 
     int32_t retCode = ::sendto(socket_->GetLocalFd(), buf, nSize, 0, (struct sockaddr *)&socket_->udpClientAddr_,
@@ -113,7 +114,7 @@ void UdpSession::OnSessionReadble(int32_t fd)
             socklen_t len = sizeof(struct sockaddr_in);
             retCode = ::recvfrom(fd, buf->Data(), DEAFULT_READ_BUFFER_SIZE, 0, (struct sockaddr *)&clientAddr, &len);
             MEDIA_LOGD("recvSocket len: %{public}d, address: %{public}s, port: %{public}d.", retCode,
-                       inet_ntoa(clientAddr.sin_addr), clientAddr.sin_port);
+                       GetAnonyString(inet_ntoa(clientAddr.sin_addr)).c_str(), clientAddr.sin_port);
 
             if (retCode > 0) {
                 buf->UpdateSize(retCode);

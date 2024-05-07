@@ -16,6 +16,7 @@
 #include "wfd_source_impl.h"
 #include "common/common_macro.h"
 #include "interaction/interprocess/client_factory.h"
+#include "utils/utils.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -108,7 +109,8 @@ int32_t WfdSourceImpl::StopDiscover()
 
 int32_t WfdSourceImpl::AddDevice(uint64_t screenId, WfdCastDeviceInfo &deviceInfo)
 {
-    SHARING_LOGD("Add deviceId: %{public}s, screenId: %{public}" PRIx64 ".", deviceInfo.deviceId.c_str(), screenId);
+    SHARING_LOGD("Add deviceId: %{public}s, screenId: %{public}" PRIx64 ".",
+                 GetAnonyString(deviceInfo.deviceId).c_str(), screenId);
     std::lock_guard<std::mutex> lock(mutex_);
     if (deviceAdded_) {
         return 0;
@@ -134,7 +136,7 @@ int32_t WfdSourceImpl::AddDevice(uint64_t screenId, WfdCastDeviceInfo &deviceInf
 
 int32_t WfdSourceImpl::RemoveDevice(std::string deviceId)
 {
-    SHARING_LOGD("device: %{public}s.", deviceId.c_str());
+    SHARING_LOGD("device: %{public}s.", GetAnonyString(deviceId).c_str());
     std::lock_guard<std::mutex> lock(mutex_);
     if (!deviceAdded_) {
         return 0;

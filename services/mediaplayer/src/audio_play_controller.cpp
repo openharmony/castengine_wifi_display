@@ -58,6 +58,7 @@ bool AudioPlayController::Init(AudioTrack &audioTrack)
 bool AudioPlayController::Start(BufferDispatcher::Ptr &dispatcher)
 {
     SHARING_LOGD("trace.");
+    RETURN_FALSE_IF_NULL(dispatcher);
     if (nullptr == audioPlayer_) {
         SHARING_LOGE("audio play need init first.");
         return false;

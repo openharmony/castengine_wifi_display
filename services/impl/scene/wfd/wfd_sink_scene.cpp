@@ -22,6 +22,7 @@
 #include "const_def.h"
 #include "extend/magic_enum/magic_enum.hpp"
 #include "network/socket/socket_utils.h"
+#include "utils/utils.h"
 #include "wfd_session_def.h"
 
 namespace OHOS {
@@ -78,7 +79,8 @@ void WfdSinkScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::Wif
         SHARING_LOGI("device size: %{public}zu.", device.size());
         for (auto itDev : device) {
             auto status = itDev.GetP2pDeviceStatus();
-            SHARING_LOGI("device mac: %{public}s, status: %{public}d.", itDev.GetDeviceAddress().c_str(), status);
+            SHARING_LOGI("device mac: %{public}s, status: %{public}d.",
+                         GetAnonyString(itDev.GetDeviceAddress()).c_str(), status);
             switch (status) {
                 case Wifi::P2pDeviceStatus::PDS_AVAILABLE: {
                     ConnectionInfo connectionInfo;
@@ -120,10 +122,11 @@ void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &in
             SHARING_LOGE("QueryP2pDevices failed");
             return;
         }
-        SHARING_LOGI("QueryP2pDevices ip:%{private}s addr: %{private}s host: %{private}s.", info.ip.c_str(),
-                     info.mac.c_str(), info.host.c_str());
+        SHARING_LOGI("QueryP2pDevices ip:%{private}s addr: %{private}s host: %{private}s.",
+                     GetAnonyString(info.ip).c_str(), GetAnonyString(info.mac).c_str(),
+                     GetAnonyString(info.host).c_str());
         if (info.ip == "0.0.0.0" || info.ip == "") {
-            SHARING_LOGE("device: %{private}s leased ip is: 0.0.0.0.", info.mac.c_str());
+            SHARING_LOGE("device: %{private}s leased ip is: 0.0.0.0.", GetAnonyString(info.mac).c_str());
             parent->OnInnerError(info.mac.c_str(), ERR_P2P_DHCP_INVALID_IP, "ip is: 0.0.0.0.");
             return;
         }
@@ -463,7 +466,7 @@ int32_t WfdSinkScene::HandleAppendSurface(std::shared_ptr<WfdAppendSurfaceReq> &
         auto itemDev = devConnectionMap_.find(msg->deviceId);
         if (itemDev == devConnectionMap_.end() || itemDev->second == nullptr) {
             lock.unlock();
-            SHARING_LOGE("can not find dev, mac: %{private}s.", msg->deviceId.c_str());
+            SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonyString(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleAppendSurface can't find the dev");
             return -1;
         }
@@ -554,7 +557,7 @@ int32_t WfdSinkScene::HandleRemoveSurface(std::shared_ptr<WfdRemoveSurfaceReq> &
         auto itemDev = devConnectionMap_.find(msg->deviceId);
         if (itemDev == devConnectionMap_.end() || itemDev->second == nullptr) {
             lock.unlock();
-            SHARING_LOGE("can not find dev, mac: %{private}s.", msg->deviceId.c_str());
+            SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonyString(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleRemoveSurface can't find the dev");
             return -1;
         }
@@ -585,7 +588,7 @@ int32_t WfdSinkScene::HandleSetMediaFormat(std::shared_ptr<SetMediaFormatReq> &m
         auto itemDev = devConnectionMap_.find(msg->deviceId);
         if (itemDev == devConnectionMap_.end() || itemDev->second == nullptr) {
             lock.unlock();
-            SHARING_LOGE("can not find dev, mac: %{private}s.", msg->deviceId.c_str());
+            SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonyString(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleSetMediaFormat can not find dev");
             return -1;
         }
@@ -613,7 +616,7 @@ int32_t WfdSinkScene::HandleSetSceneType(std::shared_ptr<SetSceneTypeReq> &msg, 
         auto itemDev = devConnectionMap_.find(msg->deviceId);
         if (itemDev == devConnectionMap_.end() || itemDev->second == nullptr) {
             lock.unlock();
-            SHARING_LOGE("can not find dev, mac: %{private}s.", msg->deviceId.c_str());
+            SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonyString(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleSetSceneType can not find dev");
             return -1;
         }
@@ -682,7 +685,7 @@ int32_t WfdSinkScene::HandlePlay(std::shared_ptr<WfdPlayReq> &msg, std::shared_p
         auto itemDev = devConnectionMap_.find(msg->deviceId);
         if (itemDev == devConnectionMap_.end() || itemDev->second == nullptr) {
             lock.unlock();
-            SHARING_LOGE("can not find dev, mac: %{private}s.", msg->deviceId.c_str());
+            SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonyString(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandlePlay can not find dev");
             return -1;
         }
@@ -691,7 +694,8 @@ int32_t WfdSinkScene::HandlePlay(std::shared_ptr<WfdPlayReq> &msg, std::shared_p
         uint32_t agentId = itemDev->second->agentId;
         if (contextId == INVALID_ID || agentId == INVALID_ID) {
             lock.unlock();
-            SHARING_LOGE("connected, create sink agent failed, devMac: %{private}s.", msg->deviceId.c_str());
+            SHARING_LOGE("connected, create sink agent failed, devMac: %{private}s.",
+                         GetAnonyString(msg->deviceId).c_str());
             return -1;
         }
 
@@ -751,7 +755,7 @@ int32_t WfdSinkScene::HandlePause(std::shared_ptr<WfdPauseReq> &msg, std::shared
         auto itemDev = devConnectionMap_.find(msg->deviceId);
         if (itemDev == devConnectionMap_.end() || itemDev->second == nullptr) {
             lock.unlock();
-            SHARING_LOGE("can not find dev, mac: %{private}s.", msg->deviceId.c_str());
+            SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonyString(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandlePause can not find dev");
             return -1;
         }
@@ -782,7 +786,7 @@ int32_t WfdSinkScene::HandleMute(std::shared_ptr<MuteReq> &msg, std::shared_ptr<
         auto itemDev = devConnectionMap_.find(msg->deviceId);
         if (itemDev == devConnectionMap_.end() || itemDev->second == nullptr) {
             lock.unlock();
-            SHARING_LOGE("can not find dev, mac: %{private}s.", msg->deviceId.c_str());
+            SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonyString(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleMute can not find dev");
             return -1;
         }
@@ -813,7 +817,7 @@ int32_t WfdSinkScene::HandleUnMute(std::shared_ptr<UnMuteReq> &msg, std::shared_
         auto itemDev = devConnectionMap_.find(msg->deviceId);
         if (itemDev == devConnectionMap_.end() || itemDev->second == nullptr) {
             lock.unlock();
-            SHARING_LOGE("can not find dev, mac: %{private}s.", msg->deviceId.c_str());
+            SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonyString(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleUnMute can not find dev");
             return -1;
         }
@@ -845,7 +849,7 @@ int32_t WfdSinkScene::HandleClose(std::shared_ptr<WfdCloseReq> &msg, std::shared
         auto itemDev = devConnectionMap_.find(msg->deviceId);
         if (itemDev == devConnectionMap_.end() || itemDev->second == nullptr) {
             lock.unlock();
-            SHARING_LOGE("can not find dev, mac: %{private}s.", msg->deviceId.c_str());
+            SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonyString(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleClose can not find dev");
             return -1;
         }
@@ -1010,7 +1014,7 @@ void WfdSinkScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
     {
         std::unique_lock<std::mutex> lock(mutex_);
         if (devConnectionMap_.count(connectionInfo.mac)) {
-            SHARING_LOGW("devcie is alerady connected, mac: %{private}s.", connectionInfo.mac.c_str());
+            SHARING_LOGW("devcie is alerady connected, mac: %{private}s.", GetAnonyString(connectionInfo.mac).c_str());
             return;
         }
 
@@ -1020,7 +1024,8 @@ void WfdSinkScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
         sharingAdapter->CreateAgent(contextId, agentId, AgentType::SINK_AGENT, "WfdSinkSession");
         if (contextId == INVALID_ID || agentId == INVALID_ID) {
             lock.unlock();
-            SHARING_LOGE("connected, create sink agent failed, devMac: %{private}s.", connectionInfo.mac.c_str());
+            SHARING_LOGE("connected, create sink agent failed, devMac: %{private}s.",
+                         GetAnonyString(connectionInfo.mac).c_str());
             return;
         } else {
             SHARING_LOGI("connected, create sink agent, contextId: %{public}u, "
@@ -1037,8 +1042,8 @@ void WfdSinkScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
 
         std::shared_ptr<ConnectionInfo> connectionInfoPtr = std::make_shared<ConnectionInfo>(connectionInfo);
         devConnectionMap_.emplace(connectionInfo.mac, connectionInfoPtr);
-        SHARING_LOGI("connected, devMac: %{private}s, devIp: %{private}s.", connectionInfo.mac.c_str(),
-                     connectionInfo.ip.c_str());
+        SHARING_LOGI("connected, devMac: %{private}s, devIp: %{private}s.", GetAnonyString(connectionInfo.mac).c_str(),
+                     GetAnonyString(connectionInfo.ip).c_str());
     }
 
     OnConnectionChanged(connectionInfo);
@@ -1057,7 +1062,7 @@ void WfdSinkScene::OnP2pPeerDisconnected(ConnectionInfo &connectionInfo)
         auto itemDev = devConnectionMap_.find(connectionInfo.mac);
         if (itemDev == devConnectionMap_.end()) {
             lock.unlock();
-            SHARING_LOGW("can not find dev, mac: %{private}s.", connectionInfo.mac.c_str());
+            SHARING_LOGW("can not find dev, mac: %{private}s.", GetAnonyString(connectionInfo.mac).c_str());
             return;
         }
 
@@ -1109,7 +1114,7 @@ void WfdSinkScene::OnP2pPeerDisconnected(std::string &mac)
         auto itemDev = devConnectionMap_.find(mac);
         if (itemDev == devConnectionMap_.end()) {
             lock.unlock();
-            SHARING_LOGW("can not find dev, mac: %{private}s.", mac.c_str());
+            SHARING_LOGW("can not find dev, mac: %{private}s.", GetAnonyString(mac).c_str());
             return;
         }
 
@@ -1278,7 +1283,7 @@ void WfdSinkScene::OnInnerEvent(SharingEvent &event)
             if (msg) {
                 std::unique_lock<std::mutex> lock(mutex_);
                 auto itConnection = devConnectionMap_.find(msg->mac);
-                if (itConnection == devConnectionMap_.end() || itConnection->second == nullptr) {
+                if (itConnection == devConnectionMap_.end()) {
                     SHARING_LOGD("can't find dev %{private}s.", msg->mac.c_str());
                     break;
                 }
@@ -1356,7 +1361,7 @@ void WfdSinkScene::OnConnectionChanged(ConnectionInfo &connectionInfo)
 
 void WfdSinkScene::P2pRemoveClient(ConnectionInfo &connectionInfo)
 {
-    SHARING_LOGI("p2p remove client: %{private}s.", connectionInfo.mac.c_str());
+    SHARING_LOGI("p2p remove client: %{private}s.", GetAnonyString(connectionInfo.mac).c_str());
     if (!p2pInstance_) {
         SHARING_LOGE("p2p instance is null");
         return;
@@ -1381,8 +1386,9 @@ void WfdSinkScene::OnDecoderAccelerationDone(ConnectionInfo &connectionInfo)
 
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
     ipcAdapter->SendRequest(msg, reply);
-    SHARING_LOGD("device ip: %{private}s, mac: %{private}s, state: %{public}s.", connectionInfo.ip.c_str(),
-                 connectionInfo.mac.c_str(), std::string(magic_enum::enum_name(connectionInfo.state)).c_str());
+    SHARING_LOGD("device ip: %{private}s, mac: %{private}s, state: %{public}s.",
+                 GetAnonyString(connectionInfo.ip).c_str(), GetAnonyString(connectionInfo.mac).c_str(),
+                 std::string(magic_enum::enum_name(connectionInfo.state)).c_str());
 }
 
 void WfdSinkScene::OnDecoderDied(ConnectionInfo &connectionInfo)

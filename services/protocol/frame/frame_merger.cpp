@@ -15,6 +15,7 @@
 
 #include "frame_merger.h"
 #include <arpa/inet.h>
+#include "common/common_macro.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -36,12 +37,14 @@ bool FrameMerger::InputFrame(const Frame::Ptr &frame, DataBuffer::Ptr &buffer, c
     if (buffer == nullptr) {
         return false;
     }
+    RETURN_FALSE_IF_NULL(buffer);
 
     if (WillFlush(frame)) {
         if (frameCache_.empty()) {
             return false;
         }
         Frame::Ptr back = frameCache_.back();
+        RETURN_FALSE_IF_NULL(back);
         bool haveKeyFrame = back->KeyFrame();
         if (frameCache_.size() != 1 || type_ == MP4_NAL_SIZE || buffer) {
             DataBuffer::Ptr &merged = buffer;
@@ -111,6 +114,8 @@ bool FrameMerger::WillFlush(const Frame::Ptr &frame) const
 
 void FrameMerger::DoMerge(DataBuffer::Ptr &merged, const Frame::Ptr &frame) const
 {
+    RETURN_IF_NULL(merged);
+    RETURN_IF_NULL(frame);
     switch (type_) {
         case NONE: {
             merged->Append(frame->Data(), frame->Size());

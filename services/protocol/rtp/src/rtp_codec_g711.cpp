@@ -27,7 +27,7 @@ RtpDecoderG711::RtpDecoderG711()
 void RtpDecoderG711::InputRtp(const RtpPacket::Ptr &rtp)
 {
     RETURN_IF_NULL(rtp);
-
+    RETURN_IF_NULL(frame_);
     auto payload_size = rtp->GetPayloadSize();
     if (payload_size <= 0) {
         return;
@@ -83,6 +83,7 @@ RtpEncoderG711::RtpEncoderG711(uint32_t ssrc, uint32_t mtuSize, uint32_t sampleR
 void RtpEncoderG711::InputFrame(const Frame::Ptr &frame)
 {
     RETURN_IF_NULL(frame);
+    RETURN_IF_NULL(cacheFrame_);
     MEDIA_LOGD("rtpEncoderG711::InputFrame enter.");
     auto dur = (cacheFrame_->Size() - cacheFrame_->PrefixSize()) / (8 * channels_);
     auto next_pts = cacheFrame_->Pts() + dur;

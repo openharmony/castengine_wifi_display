@@ -19,6 +19,7 @@
 #include "common/reflect_registration.h"
 #include "common/sharing_log.h"
 #include "mediachannel/media_channel_def.h"
+#include "utils/utils.h"
 #include "wfd_media_def.h"
 #include "wfd_message.h"
 
@@ -218,8 +219,8 @@ void WfdSourceSession::NotifyProsumerInit(SessionStatusMsg::Ptr &statusMsg)
     eventMsg->ip = sinkIp_;
     eventMsg->localPort = sourceRtpPort_;
     eventMsg->localIp = sourceIp_;
-    SHARING_LOGD("sinkRtpPort %{public}d, sinkIp %{public}s sourceRtpPort %{public}d.", sinkRtpPort_, sinkIp_.c_str(),
-                 sourceRtpPort_);
+    SHARING_LOGD("sinkRtpPort %{public}d, sinkIp %{public}s sourceRtpPort %{public}d.", sinkRtpPort_,
+                 GetAnonyString(sinkIp_).c_str(), sourceRtpPort_);
     statusMsg->msg = std::move(eventMsg);
     statusMsg->status = NOTIFY_SESSION_PRIVATE_EVENT;
 
@@ -298,8 +299,8 @@ void WfdSourceSession::HandleSessionInit(SharingEvent &event)
         videoFormat_ = inputMsg->videoFormat;
         audioFormat_ = inputMsg->audioFormat;
         SHARING_LOGD("sourceIp %s, sourceMac %s controlPort %d sourceRtpPort %d videoFormat %d audioFormat %d.",
-                     sourceIp_.c_str(), sourceMac_.c_str(), wfdDefaultPort_, sourceRtpPort_, videoFormat_,
-                     audioFormat_);
+                     GetAnonyString(sourceIp_).c_str(), GetAnonyString(sourceMac_).c_str(), wfdDefaultPort_,
+                     sourceRtpPort_, videoFormat_, audioFormat_);
     } else {
         SHARING_LOGE("unknow event msg.");
     }
@@ -340,7 +341,8 @@ void WfdSourceSession::OnAccept(std::weak_ptr<INetworkSession> session)
         rtspServerFd_ = sessionPtr->GetSocketInfo()->GetPeerFd();
         sourceIp_ = sessionPtr->GetSocketInfo()->GetLocalIp();
         sinkIp_ = sessionPtr->GetSocketInfo()->GetPeerIp();
-        SHARING_LOGD("primarySinkIp %s ,sourceIp %s.", sinkIp_.c_str(), sourceIp_.c_str());
+        SHARING_LOGD("primarySinkIp %s ,sourceIp %s.", GetAnonyString(sinkIp_).c_str(),
+                     GetAnonyString(sourceIp_).c_str());
         auto sa = std::make_shared<WfdSourceNetworkSession>(session, shared_from_this());
         sessionPtr->RegisterCallback(std::move(sa));
         sessionPtr->Start();

@@ -19,8 +19,10 @@
 #include <iostream>
 #include <netinet/tcp.h>
 #include <unistd.h>
+#include "common/common_macro.h"
 #include "common/const_def.h"
 #include "common/media_log.h"
+#include "utils.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -30,6 +32,7 @@ uint16_t SocketUtils::maxPort_ = MAX_PORT;
 bool SocketUtils::CreateTcpServer(const char *ip, unsigned port, int32_t &fd)
 {
     SHARING_LOGD("trace.");
+    RETURN_FALSE_IF_NULL(ip);
     return CreateSocket(SOCK_STREAM, fd) && SetReuseAddr(fd, true) && SetNoDelay(fd, true) &&
            BindSocket(fd, ip, port) && ListenSocket(fd);
 }
@@ -96,6 +99,7 @@ bool SocketUtils::IsUdpPortAvailable(uint16_t port)
 bool SocketUtils::CreateTcpClient(const char *ip, unsigned port, int32_t &fd, int32_t &ret)
 {
     SHARING_LOGD("trace.");
+    RETURN_FALSE_IF_NULL(ip);
     return CreateSocket(SOCK_STREAM, fd) && ConnectSocket(fd, true, ip, port, ret);
 }
 
@@ -198,8 +202,8 @@ bool SocketUtils::CheckAsyncConnect(int32_t fd)
 {
     SHARING_LOGD("trace.");
     struct timeval timeout;
-    timeout.tv_sec = 2;          // 2: wait +2 second
-    timeout.tv_usec = 500 * 1000;  // 500 * 1000: wait +0.5 second
+    timeout.tv_sec = 2;           // 2: wait +2 second
+    timeout.tv_usec = 500 * 1000; // 500 * 1000: wait +0.5 second
 
     fd_set fdr;
     fd_set fdw;
@@ -313,7 +317,7 @@ void SocketUtils::SetKeepAlive(int32_t sockfd)
 {
     SHARING_LOGD("trace.");
     int32_t on = 1;
-    setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, reinterpret_cast<char*>(&on), sizeof(on));
+    setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, reinterpret_cast<char *>(&on), sizeof(on));
 }
 
 bool SocketUtils::SetNonBlocking(int32_t fd, bool isNonBlock, uint32_t writeTimeout)
@@ -326,7 +330,7 @@ bool SocketUtils::SetNonBlocking(int32_t fd, bool isNonBlock, uint32_t writeTime
         flags = fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) & ~O_NONBLOCK);
         if (writeTimeout > 0) {
             struct timeval tv = {writeTimeout / 1000, (writeTimeout % 1000) * 1000};
-            setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<char*>(&tv), sizeof tv);
+            setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<char *>(&tv), sizeof tv);
         }
     }
 
@@ -403,6 +407,8 @@ int32_t SocketUtils::SendSocket(int32_t fd, const char *buf, int32_t len)
 
 int32_t SocketUtils::Sendto(int32_t fd, const char *buf, size_t len, const char *ip, int32_t nPort)
 {
+    RETURN_INVALID_IF_NULL(buf);
+    RETURN_INVALID_IF_NULL(ip);
     SHARING_LOGD("trace: \r\n%{public}s.", buf);
     struct sockaddr_in addr = {};
     addr.sin_family = AF_INET;
@@ -496,6 +502,8 @@ int32_t SocketUtils::RecvSocket(int32_t fd, char *buf, uint32_t len, int32_t fla
 int32_t SocketUtils::AcceptSocket(int32_t fd, struct sockaddr_in *clientAddr, socklen_t *addrLen)
 {
     SHARING_LOGD("trace.");
+    RETURN_INVALID_IF_NULL(clientAddr);
+    RETURN_INVALID_IF_NULL(addrLen);
     int32_t clientFd = accept(fd, reinterpret_cast<struct sockaddr *>(clientAddr), addrLen);
     if (clientFd < 0) {
         SHARING_LOGE("accept error: %{public}s!", strerror(errno));
@@ -528,7 +536,7 @@ bool SocketUtils::GetIpPortInfo(int32_t fd, std::string &strLocalAddr, std::stri
     localPort = ntohs(localAddr.sin_port);
     remotePort = ntohs(remoteAddr.sin_port);
     SHARING_LOGD("localAddr: %{public}s localPort: %{public}d remoteAddr: %{public}s remotePort: %{public}d",
-        strLocalAddr.c_str(), localPort, strRemoteAddr.c_str(), remotePort);
+                 GetAnonyString(strLocalAddr).c_str(), localPort, GetAnonyString(strRemoteAddr).c_str(), remotePort);
     return true;
 }
 } // namespace Sharing

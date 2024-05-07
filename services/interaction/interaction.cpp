@@ -115,7 +115,7 @@ int32_t Interaction::HandleEvent(SharingEvent &event)
             if (scene_) {
                 scene_->OnInnerError(contextId, agentId, errorCode);
                 if (errorCode == ERR_NETWORK_ERROR || errorCode == ERR_CONNECTION_FAILURE ||
-                    errorCode == ERR_INTERACTION_FAILURE || errorCode ==  ERR_PROTOCOL_INTERACTION_TIMEOUT ||
+                    errorCode == ERR_INTERACTION_FAILURE || errorCode == ERR_PROTOCOL_INTERACTION_TIMEOUT ||
                     errorCode == ERR_INTAKE_TIMEOUT) {
                     SHARING_LOGD("on inner destroy network error.");
                     scene_->OnInnerDestroy(contextId, agentId, agentType);
@@ -146,6 +146,7 @@ int32_t Interaction::HandleEvent(SharingEvent &event)
 int32_t Interaction::NotifyEvent(EventMsg::Ptr eventMsg)
 {
     SHARING_LOGD("trace.");
+    RETURN_INVALID_IF_NULL(eventMsg);
     SharingEvent event;
     event.eventMsg = std::move(eventMsg);
     event.eventMsg->fromMgr = ModuleType::MODULE_INTERACTION;
@@ -464,48 +465,63 @@ int32_t Interaction::RemoveSurface(uint32_t contextId, uint32_t agentId, uint64_
 int32_t Interaction::DestroyWindow(int32_t windowId)
 {
     SHARING_LOGD("trace.");
+    (void)windowId;
     return 0;
 }
 
 int32_t Interaction::CreateWindow(int32_t &windowId, WindowProperty &windowProperty)
 {
     SHARING_LOGD("trace.");
+    (void)windowId;
+    (void)windowProperty;
     return 0;
 }
 
 int32_t Interaction::Hide(int32_t windowId)
 {
     SHARING_LOGD("trace.");
+    (void)windowId;
     return 0;
 }
 
 int32_t Interaction::Show(int32_t windowId)
 {
     SHARING_LOGD("trace.");
+    (void)windowId;
     return 0;
 }
 
 int32_t Interaction::SetFullScreen(int32_t windowId, bool isFull)
 {
     SHARING_LOGD("trace.");
+    (void)windowId;
+    (void)isFull;
     return 0;
 }
 
 int32_t Interaction::MoveTo(int32_t windowId, int32_t x, int32_t y)
 {
     SHARING_LOGD("trace.");
+    (void)windowId;
+    (void)x;
+    (void)y;
     return 0;
 }
 
 int32_t Interaction::GetSurface(int32_t windowId, sptr<Surface> &surface)
 {
     SHARING_LOGD("trace.");
+    (void)windowId;
+    (void)surface;
     return 0;
 }
 
 int32_t Interaction::ReSize(int32_t windowId, int32_t width, int32_t height)
 {
     SHARING_LOGD("trace.");
+    (void)windowId;
+    (void)width;
+    (void)height;
     return 0;
 }
 

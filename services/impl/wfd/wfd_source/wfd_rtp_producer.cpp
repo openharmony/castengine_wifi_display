@@ -21,15 +21,14 @@
 #include "extend/magic_enum/magic_enum.hpp"
 #include "protocol/frame/aac_frame.h"
 #include "protocol/frame/h264_frame.h"
+#include "utils/utils.h"
 #include "wfd_media_def.h"
 #include "wfd_session_def.h"
 
 namespace OHOS {
 namespace Sharing {
 
-WfdRtpProducer::UdpClient::UdpClient(bool rtcp) : rtcp_(rtcp)
-{
-}
+WfdRtpProducer::UdpClient::UdpClient(bool rtcp) : rtcp_(rtcp) {}
 
 WfdRtpProducer::UdpClient::~UdpClient()
 {
@@ -443,8 +442,8 @@ void WfdRtpProducer::HandleMediaInit(std::shared_ptr<WfdProducerEventMsg> msg)
     primarySinkIp_ = msg->ip;
     localPort_ = msg->localPort;
     localIp_ = msg->localIp;
-    SHARING_LOGD("primarySinkIp:%s port:%d localIp:%s localPort:%d.", primarySinkIp_.c_str(), primarySinkPort_,
-                 localIp_.c_str(), localPort_);
+    SHARING_LOGD("primarySinkIp:%s port:%d localIp:%s localPort:%d.", GetAnonyString(primarySinkIp_).c_str(),
+                 primarySinkPort_, GetAnonyString(localIp_).c_str(), localPort_);
     SharingErrorCode errCode = ERR_OK;
     if (!ProducerInit()) {
         errCode = ERR_PROSUMER_INIT;

@@ -212,6 +212,7 @@ void RtpEncoderAAC::SetOnRtpPack(const OnRtpPack &cb)
 void RtpEncoderAAC::MakeAACRtp(const void *data, size_t len, bool mark, uint32_t stamp)
 {
     MEDIA_LOGD("rtpEncoderAAC::MakeAACRtp len: %{public}zu, stamp: %{public}d.", len, stamp);
+    RETURN_IF_NULL(data);
     auto rtp = MakeRtp(data, len, mark, stamp);
     if (onRtpPack_) {
         onRtpPack_(rtp);

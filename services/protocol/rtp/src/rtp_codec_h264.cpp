@@ -87,6 +87,7 @@ void RtpDecoderH264::SetOnFrame(const OnFrame &cb)
 bool RtpDecoderH264::UnpackSingle(const RtpPacket::Ptr &rtp, const uint8_t *ptr, ssize_t size, uint32_t stamp)
 {
     RETURN_FALSE_IF_NULL(frame_);
+    RETURN_FALSE_IF_NULL(ptr);
     MEDIA_LOGD("rtpDecoderH264::UnpackSingle.");
     frame_->Assign("\x00\x00\x00\x01", 4); // 4:avc start code size
     frame_->Append((char *)ptr, size);
@@ -98,6 +99,7 @@ bool RtpDecoderH264::UnpackSingle(const RtpPacket::Ptr &rtp, const uint8_t *ptr,
 
 bool RtpDecoderH264::UnpackStapA(const RtpPacket::Ptr &rtp, const uint8_t *ptr, ssize_t size, uint32_t stamp)
 {
+    RETURN_FALSE_IF_NULL(rtp);
     RETURN_FALSE_IF_NULL(ptr);
 
     auto haveKeyFrame = false;
@@ -121,7 +123,9 @@ bool RtpDecoderH264::UnpackStapA(const RtpPacket::Ptr &rtp, const uint8_t *ptr, 
 bool RtpDecoderH264::UnpackFuA(const RtpPacket::Ptr &rtp, const uint8_t *ptr, ssize_t size, uint32_t stamp,
                                uint16_t seq)
 {
+    RETURN_FALSE_IF_NULL(rtp);
     RETURN_FALSE_IF_NULL(ptr);
+    RETURN_FALSE_IF_NULL(frame_);
     auto nalSuffix = *ptr & (~0x1F);
     FuFlags *fu = (FuFlags *)(ptr + 1);
     if (fu->startBit_) {
@@ -163,6 +167,7 @@ H264Frame::Ptr RtpDecoderH264::ObtainFrame()
 
 void RtpDecoderH264::OutputFrame(const RtpPacket::Ptr &rtp, const H264Frame::Ptr &frame)
 {
+    RETURN_IF_NULL(rtp);
     RETURN_IF_NULL(frame);
     if (frame->KeyFrame() && gopDropped_) {
         gopDropped_ = false;
@@ -231,6 +236,7 @@ bool RtpEncoderH264::InputFrame(const Frame::Ptr &frame, bool isMark)
 
 void RtpEncoderH264::PackRtp(const uint8_t *data, size_t len, uint32_t pts, bool isMark, bool gopPos)
 {
+    RETURN_IF_NULL(data);
     if (len <= GetMaxSize()) {
         PackSingle(data, len, pts, isMark, gopPos);
     } else {
@@ -298,6 +304,7 @@ void RtpEncoderH264::PackRtpStapA(const uint8_t *data, size_t len, uint32_t pts,
 
 void RtpEncoderH264::PackSingle(const uint8_t *data, size_t len, uint32_t pts, bool isMark, bool gopPos)
 {
+    RETURN_IF_NULL(data);
     // single NAl unit packet
     auto rtp = MakeRtp(data, len, isMark, pts);
     onRtpPack_(rtp);

@@ -33,6 +33,7 @@ ohos_shared_library("domain_rpc_manager") {
     "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include/",
     "//foundation/communication/ipc/ipc/native/c/ipc/include",
     "//foundation/systemabilitymgr/safwk/services/safwk/include",
+    "$SHARING_ROOT_DIR/services/utils",
     "//utils/native/base/include",
     "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
@@ -51,6 +52,7 @@ ohos_shared_library("domain_rpc_manager") {
   ]
 
   deps = [
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
     "//foundation/CastEngine/castengine_wifi_display/services/interaction/device_kit:dmkit",
     "//foundation/CastEngine/castengine_wifi_display/services/interaction/ipc_codec:ipc_codec_srcs",
   ]
