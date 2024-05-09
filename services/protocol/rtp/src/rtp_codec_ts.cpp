@@ -268,7 +268,6 @@ void RtpEncoderTs::SetOnRtpPack(const OnRtpPack &cb)
 void RtpEncoderTs::StartEncoding()
 {
     SHARING_LOGD("trace.");
-    av_register_all();
     avformat_alloc_output_context2(&avFormatContext_, NULL, "mpegts", NULL);
     if (avFormatContext_ == nullptr) {
         SHARING_LOGE("avformat_alloc_output_context2 failed.");
