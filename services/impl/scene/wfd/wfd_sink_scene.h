@@ -51,7 +51,6 @@ public:
         void OnP2pConnectionChanged(const Wifi::WifiP2pLinkedInfo &info) override;
         void OnConfigChanged(Wifi::CfgType type, char *data, int32_t dataLen) override;
         void OnP2pPeersChanged(const std::vector<Wifi::WifiP2pDevice> &device) override;
-        void OnP2pPrivatePeersChanged(const std::string &priWfdInfo) override;
         void OnP2pActionResult(Wifi::P2pActionCallback action, Wifi::ErrCode code) override;
         void OnP2pServicesChanged(const std::vector<Wifi::WifiP2pServiceInfo> &srvInfo) override;
 
