@@ -52,3 +52,39 @@ ohos_unittest("wfd_source_scene_test") {
     "wifi:wifi_sdk",
   ]
 }
+
+ohos_unittest("wfd_sink_scene_test") {
+  module_out_path = module_out_path
+
+  include_dirs = [
+    "$SHARING_ROOT_DIR/frameworks/innerkitsimpl",
+    "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/common",
+    "$SHARING_ROOT_DIR/services/impl/scene/wfd",
+    "$SHARING_ROOT_DIR/services/impl/wfd",
+    "$SHARING_ROOT_DIR/services/interaction",
+    "$SHARING_ROOT_DIR/services/interaction/interprocess",
+    "$SHARING_ROOT_DIR/services/interaction/ipc_codec",
+    "./mock",
+  ]
+
+  sources = [
+    "./mock/mock_wfd_sink_scene.cpp",
+    "./mock/mock_wifi_p2p.cpp",
+    "wfd_sink_scene_test.cpp",
+  ]
+
+  deps = [
+    "$SHARING_ROOT_DIR/services:sharing_service",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "//third_party/googletest:gmock",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "graphic_surface:surface",
+    "hilog:libhilog",
+    "wifi:wifi_sdk",
+  ]
+}
