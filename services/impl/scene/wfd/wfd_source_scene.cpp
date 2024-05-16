@@ -142,6 +142,11 @@ void WfdSourceScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::W
     }
 }
 
+void WfdSourceScene::WfdP2pCallback::OnP2pPrivatePeersChanged(const std::string &priWfdInfo)
+{
+    SHARING_LOGD("trace.");
+}
+
 void WfdSourceScene::WfdP2pCallback::OnP2pServicesChanged(const std::vector<Wifi::WifiP2pServiceInfo> &srvInfo)
 {
     SHARING_LOGD("trace.");
