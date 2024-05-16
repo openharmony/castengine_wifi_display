@@ -128,9 +128,14 @@ void TcpServer::OnServerReadable(int32_t fd)
         if (socket_) {
             socket_->socketPeerFd_ = clientFd;
 
-            SocketInfo::Ptr socketInfo = std::make_shared<SocketInfo>(
-                socket_->GetLocalIp(), inet_ntoa(clientAddr.sin_addr), socket_->GetLocalFd(), clientFd,
-                socket_->GetLocalPort(), clientAddr.sin_port);
+            std::string strLocalAddr = "";
+            std::string strRemoteAddr = "";
+            uint16_t localPort = 0;
+            uint16_t remotePort = 0;
+            SocketUtils::GetIpPortInfo(clientFd, strLocalAddr, strRemoteAddr, localPort, remotePort);
+
+            SocketInfo::Ptr socketInfo =
+                std::make_shared<SocketInfo>(strLocalAddr, strRemoteAddr, fd, clientFd, localPort, remotePort);
             if (socketInfo) {
                 socketInfo->SetSocketType(SOCKET_TYPE_TCP);
                 BaseNetworkSession::Ptr session = std::make_shared<TcpSession>(std::move(socketInfo));

@@ -162,7 +162,7 @@ void WfdSourceScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pL
     }
 
     auto scene = scene_.lock();
-    if (scene == nullptr) {
+    if (scene == nullptr || scene->p2pInstance_ == nullptr) {
         SHARING_LOGW("scene is nullptr.");
         return;
     }
@@ -306,6 +306,10 @@ void WfdSourceScene::Initialize()
 
     p2pInstance_ = Wifi::WifiP2p::GetInstance(WIFI_P2P_ABILITY_ID);
     RETURN_IF_NULL(p2pInstance_);
+    if (shared_from_this() == nullptr) {
+        SHARING_LOGE("trace*********************WfdSourceScene NULL.");
+    }
+
     sptr<WfdP2pCallback> wfdP2pCallback(new WfdP2pCallback(shared_from_this()));
 
     std::vector<std::string> event = {EVENT_P2P_PEER_DEVICE_CHANGE, EVENT_P2P_DEVICE_STATE_CHANGE,

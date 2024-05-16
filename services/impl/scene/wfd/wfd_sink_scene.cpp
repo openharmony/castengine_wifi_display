@@ -121,7 +121,7 @@ void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &in
 {
     SHARING_LOGD("trace.");
     auto parent = parent_.lock();
-    if (parent) {
+    if (parent && parent->p2pInstance_) {
         std::vector<Wifi::WifiP2pDevice> devices;
         if (Wifi::ErrCode::WIFI_OPT_SUCCESS != parent->p2pInstance_->QueryP2pDevices(devices)) {
             SHARING_LOGE("QueryP2pDevices failed");
@@ -237,6 +237,7 @@ void WfdSinkScene::Initialize()
     }
 
     p2pInstance_ = Wifi::WifiP2p::GetInstance(WIFI_P2P_ABILITY_ID);
+    RETURN_IF_NULL(p2pInstance_);
     sptr<WfdP2pCallback> wfdP2pCallback(new WfdP2pCallback(shared_from_this()));
     std::vector<std::string> event = {EVENT_P2P_PEER_DEVICE_CHANGE, EVENT_P2P_CONN_STATE_CHANGE,
                                       EVENT_P2P_GC_JOIN_GROUP, EVENT_P2P_GC_LEAVE_GROUP};
@@ -540,10 +541,9 @@ int32_t WfdSinkScene::HandleAppendSurface(std::shared_ptr<WfdAppendSurfaceReq> &
             event.eventMsg = std::move(startSessionMsg);
             if (sharingAdapter) {
                 sharingAdapter->ForwardEvent(contextId, agentId, event, false);
+                sharingAdapter->AppendSurface(itemDev->second->contextId, itemDev->second->agentId, surfacePtr,
+                                              devSurfaceItem->sceneType);
             }
-
-            sharingAdapter->AppendSurface(itemDev->second->contextId, itemDev->second->agentId, surfacePtr,
-                                          devSurfaceItem->sceneType);
         }
     }
     return 0;
