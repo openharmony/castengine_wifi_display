@@ -18,6 +18,7 @@
 #include <iostream>
 #include <limits>
 #include <securec.h>
+#include "common/common_macro.h"
 #include "common/media_log.h"
 
 namespace OHOS {
@@ -28,6 +29,7 @@ RtpPacketSortor::RtpPacketSortor(int32_t sampleRate, size_t kMax, size_t kMin)
 
 void RtpPacketSortor::InputRtp(TrackType type, uint8_t *ptr, size_t len)
 {
+    RETURN_IF_NULL(ptr);
     if (len < RtpPacket::RTP_HEADER_SIZE) {
         // hilog rtp packet is too small
         return;
@@ -94,6 +96,7 @@ size_t RtpPacketSortor::GetCycleCount() const
 
 void RtpPacketSortor::SortPacket(uint16_t seq, RtpPacket::Ptr packet)
 {
+    RETURN_IF_NULL(packet);
     if (seq < nextSeqOut_) {
         if (nextSeqOut_ < seq + kMax_) {
             return;
@@ -122,6 +125,10 @@ uint32_t RtpPacketSortor::GetSSRC() const
 
 void RtpPacketSortor::PopPacket()
 {
+    if (pktSortCacheMap_.empty()) {
+        return;
+    }
+
     auto it = pktSortCacheMap_.begin();
     if (it->first >= nextSeqOut_) {
         PopIterator(it);

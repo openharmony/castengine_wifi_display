@@ -16,6 +16,7 @@
 #include "domain_rpc_manager.h"
 #include "access_token.h"
 #include "accesstoken_kit.h"
+#include "common/common_macro.h"
 #include "hap_token_info.h"
 #include "interaction/device_kit/dm_kit.h"
 #include "interaction/domain/domain_manager.h"
@@ -41,6 +42,7 @@ DomainRpcManager::~DomainRpcManager()
 int32_t DomainRpcManager::SendDomainRequest(std::string remoteId, std::shared_ptr<BaseDomainMsg> BaseMsg)
 {
     SHARING_LOGD("trace.");
+    RETURN_INVALID_IF_NULL(BaseMsg);
     BaseMsg->fromDevId = DmKit::GetLocalDevicesInfo().deviceId;
     SHARING_LOGD("msg from %{public}s -> to %{public}s.", GetAnonyString(BaseMsg->fromDevId).c_str(),
                  GetAnonyString(BaseMsg->toDevId).c_str());
@@ -67,6 +69,7 @@ bool DomainRpcManager::IsPeerExist(std::string peerId)
 int32_t DomainRpcManager::AddDomainRpcService(DomainRpcService *service)
 {
     SHARING_LOGD("trace.");
+    RETURN_INVALID_IF_NULL(service);
     localService_ = service;
     localService_->SetPeerListener(shared_from_this());
     DomainManager::GetInstance()->AddServiceManager(shared_from_this());

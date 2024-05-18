@@ -332,6 +332,7 @@ bool WfdSinkSession::StopWfdSession()
 void WfdSinkSession::OnClientReadData(int32_t fd, DataBuffer::Ptr buf)
 {
     SHARING_LOGD("trace.");
+    RETURN_IF_NULL(buf);
     if (interrupting_) {
         if (status_ == SESSION_INTERRUPT) {
             SHARING_LOGE("session: %{public}u, to notify be interrupted.", GetId());
@@ -490,7 +491,10 @@ void WfdSinkSession::HandleSetParamRequest(const RtspRequest &request, const std
     }
 
     // M4 request
-    timeoutTimer_->StopTimer();
+    if (timeoutTimer_) {
+        timeoutTimer_->StopTimer();
+    }
+
     bool ret = HandleM4Request(message);
     if (ret) {
         SessionStatusMsg::Ptr statusMsg = std::make_shared<SessionStatusMsg>();
@@ -508,9 +512,10 @@ void WfdSinkSession::HandleSetParamRequest(const RtspRequest &request, const std
 void WfdSinkSession::HandleM2Response(const RtspResponse &response, const std::string &message)
 {
     SHARING_LOGD("trace.");
-
-    timeoutTimer_->StopTimer();
-    timeoutTimer_->StartTimer(WFD_TIMEOUT_6_SECOND, "Waiting for M3/GET_PARAMETER request");
+    if (timeoutTimer_) {
+        timeoutTimer_->StopTimer();
+        timeoutTimer_->StartTimer(WFD_TIMEOUT_6_SECOND, "Waiting for M3/GET_PARAMETER request");
+    }
 
     if (response.GetStatus() != RTSP_STATUS_OK) {
         SHARING_LOGE("WFD source peer handle 'OPTIONS' method error.");
@@ -532,7 +537,9 @@ void WfdSinkSession::HandleM2Response(const RtspResponse &response, const std::s
 void WfdSinkSession::HandleM6Response(const RtspResponse &response, const std::string &message)
 {
     SHARING_LOGD("trace.");
-    timeoutTimer_->StopTimer();
+    if (timeoutTimer_) {
+        timeoutTimer_->StopTimer();
+    }
 
     if (response.GetStatus() != RTSP_STATUS_OK) {
         SHARING_LOGE("WFD source peer handle 'SETUP' method error.");
@@ -553,7 +560,9 @@ void WfdSinkSession::HandleM7Response(const RtspResponse &response, const std::s
 {
     SHARING_LOGD("trace.");
 
-    timeoutTimer_->StopTimer();
+    if (timeoutTimer_) {
+        timeoutTimer_->StopTimer();
+    }
 
     if (response.GetStatus() != RTSP_STATUS_OK) {
         SHARING_LOGE("WFD source peer handle 'PLAY' method error.");
@@ -566,7 +575,9 @@ void WfdSinkSession::HandleM7Response(const RtspResponse &response, const std::s
 
     // Cause the interaction has already been completed,
     // then set a new callback for the next operations.
-    timeoutTimer_->SetTimeoutCallback([this]() { NotifyServiceError(ERR_NETWORK_ERROR); });
+    if (timeoutTimer_) {
+        timeoutTimer_->SetTimeoutCallback([this]() { NotifyServiceError(ERR_NETWORK_ERROR); });
+    }
 
     keepAliveTimer_ = std::make_unique<TimeoutTimer>();
     keepAliveTimer_->SetTimeoutCallback([this]() { NotifyServiceError(ERR_NETWORK_ERROR); });
@@ -599,7 +610,10 @@ void WfdSinkSession::HandleCommonResponse(const RtspResponse &response, const st
 {
     SHARING_LOGD("trace.");
 
-    timeoutTimer_->StopTimer();
+    if (timeoutTimer_) {
+        timeoutTimer_->StopTimer();
+    }
+
     if (response.GetStatus() != RTSP_STATUS_OK) {
         SHARING_LOGI("WFD source peer handle method error.");
         NotifyServiceError();
@@ -639,7 +653,9 @@ bool WfdSinkSession::SendM2Request()
     responseHandlers_[cseq_] = [this](auto &&PH1, auto &&PH2) {
         HandleM2Response(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2));
     };
-    timeoutTimer_->StartTimer(WFD_TIMEOUT_5_SECOND, "Waiting for M2/OPTIONS response");
+    if (timeoutTimer_) {
+        timeoutTimer_->StartTimer(WFD_TIMEOUT_5_SECOND, "Waiting for M2/OPTIONS response");
+    }
 
     SHARING_LOGI("sessionId: %{public}d send M2 request, cseq: %{public}d.", GetId(), cseq_);
     std::string m2Req(m2Request.Stringify());
@@ -647,7 +663,9 @@ bool WfdSinkSession::SendM2Request()
     if (!ret) {
         SHARING_LOGE("Failed to send M2 request, cseq: %{public}d", cseq_);
         responseHandlers_.erase(cseq_);
-        timeoutTimer_->StopTimer();
+        if (timeoutTimer_) {
+            timeoutTimer_->StopTimer();
+        }
         NotifyServiceError();
         return false;
     }
@@ -688,15 +706,18 @@ bool WfdSinkSession::SendM3Response(int32_t cseq, std::list<std::string> &params
     }
 
     m3Response.SetCustomParam("wfd_connector_type", "5");
-
-    timeoutTimer_->StartTimer(WFD_TIMEOUT_6_SECOND, "Waiting for M4/SET_PARAMETER request");
+    if (timeoutTimer_) {
+        timeoutTimer_->StartTimer(WFD_TIMEOUT_6_SECOND, "Waiting for M4/SET_PARAMETER request");
+    }
 
     SHARING_LOGI("sessionId: %{public}d send M3 response, cseq: %{public}d.", GetId(), cseq);
     std::string m3Req(m3Response.Stringify());
     bool ret = rtspClient_->Send(m3Req.data(), m3Req.length());
     if (!ret) {
         SHARING_LOGE("Failed to send M3 response, cseq: %{public}d", cseq);
-        timeoutTimer_->StopTimer();
+        if (timeoutTimer_) {
+            timeoutTimer_->StopTimer();
+        }
         NotifyServiceError();
         return ret;
     }
@@ -713,12 +734,14 @@ bool WfdSinkSession::HandleM4Request(const std::string &message)
     rtspUrl_ = m4Request.GetPresentationUrl();
 
     int incomingCSeq = m4Request.GetCSeq();
-
-    timeoutTimer_->StartTimer(WFD_TIMEOUT_6_SECOND, "Waiting for M5/SET_PARAMETER Triger request");
-
+    if (timeoutTimer_) {
+        timeoutTimer_->StartTimer(WFD_TIMEOUT_6_SECOND, "Waiting for M5/SET_PARAMETER Triger request");
+    }
     // Send M4 response
     if (!SendCommonResponse(incomingCSeq)) {
-        timeoutTimer_->StopTimer();
+        if (timeoutTimer_) {
+            timeoutTimer_->StopTimer();
+        }
         NotifyServiceError();
         return false;
     }
@@ -750,7 +773,9 @@ bool WfdSinkSession::HandleTriggerMethod(int32_t cseq, const std::string &method
     SHARING_LOGD("trace.");
     if (method == RTSP_METHOD_SETUP) {
         // this is M5 request
-        timeoutTimer_->StopTimer();
+        if (timeoutTimer_) {
+            timeoutTimer_->StopTimer();
+        }
         SendCommonResponse(cseq);
         SendM6Request();
     } else if (method == RTSP_METHOD_TEARDOWN) {
@@ -777,7 +802,9 @@ bool WfdSinkSession::SendM6Request()
     responseHandlers_[cseq_] = [this](auto &&PH1, auto &&PH2) {
         HandleM6Response(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2));
     };
-    timeoutTimer_->StartTimer(WFD_TIMEOUT_5_SECOND, "Waiting for M6/SETUP response");
+    if (timeoutTimer_) {
+        timeoutTimer_->StartTimer(WFD_TIMEOUT_5_SECOND, "Waiting for M6/SETUP response");
+    }
 
     SHARING_LOGI("sessionId: %{public}d send M6 request, cseq: %{public}d.", GetId(), cseq_);
     std::string m6Req(m6Request.Stringify());
@@ -785,7 +812,10 @@ bool WfdSinkSession::SendM6Request()
     if (!ret) {
         SHARING_LOGE("Failed to send M6 request, cseq: %{public}d.", cseq_);
         responseHandlers_.erase(cseq_);
-        timeoutTimer_->StopTimer();
+        if (timeoutTimer_) {
+            timeoutTimer_->StopTimer();
+        }
+
         NotifyServiceError();
         return false;
     }
@@ -809,15 +839,19 @@ bool WfdSinkSession::SendM7Request()
     responseHandlers_[cseq_] = [this](auto &&PH1, auto &&PH2) {
         HandleM7Response(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2));
     };
-    timeoutTimer_->StartTimer(WFD_TIMEOUT_5_SECOND, "Waiting for M7/PLAY response");
 
+    if (timeoutTimer_) {
+        timeoutTimer_->StartTimer(WFD_TIMEOUT_5_SECOND, "Waiting for M7/PLAY response");
+    }
     SHARING_LOGI("sessionId: %{public}d send M7 request, cseq: %{public}d.", GetId(), cseq_);
     std::string m7Req(m7Request.Stringify());
     bool ret = rtspClient_->Send(m7Req.data(), m7Req.length());
     if (!ret) {
         SHARING_LOGE("Failed to send M7 request cseq: %{public}d.", cseq_);
         responseHandlers_.erase(cseq_);
-        timeoutTimer_->StopTimer();
+        if (timeoutTimer_) {
+            timeoutTimer_->StopTimer();
+        }
         NotifyServiceError();
         return false;
     }
@@ -879,7 +913,9 @@ bool WfdSinkSession::SendIDRRequest()
     responseHandlers_[cseq_] = [this](auto &&PH1, auto &&PH2) {
         HandleCommonResponse(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2));
     };
-    timeoutTimer_->StartTimer(WFD_TIMEOUT_6_SECOND, "Waiting for WFD SET_PARAMETER/wfd_idr_request response");
+    if (timeoutTimer_) {
+        timeoutTimer_->StartTimer(WFD_TIMEOUT_6_SECOND, "Waiting for WFD SET_PARAMETER/wfd_idr_request response");
+    }
 
     std::string idrReq(idrRequest.Stringify());
     bool ret = rtspClient_->Send(idrReq.data(), idrReq.length());

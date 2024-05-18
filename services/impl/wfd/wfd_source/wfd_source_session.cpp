@@ -289,7 +289,6 @@ bool WfdSourceSession::StopWfdSession()
 void WfdSourceSession::HandleSessionInit(SharingEvent &event)
 {
     SHARING_LOGD("trace.");
-    RETURN_IF_NULL(event.eventMsg);
     auto inputMsg = ConvertEventMsg<WfdSourceSessionEventMsg>(event);
     if (inputMsg) {
         sourceMac_ = inputMsg->mac;

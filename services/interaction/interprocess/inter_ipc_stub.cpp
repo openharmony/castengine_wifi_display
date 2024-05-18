@@ -112,6 +112,8 @@ int32_t InterIpcStub::GetSystemAbility(MessageParcel &data, MessageParcel &reply
 int32_t InterIpcStub::SetListenerObject(std::string key, const sptr<IRemoteObject> &object)
 {
     SHARING_LOGD("trace.");
+    (void)key;
+    (void)object;
     return ERR_NONE;
 }
 
@@ -131,6 +133,8 @@ int32_t InterIpcStub::DoIpcCommand(std::shared_ptr<BaseMsg> msg, std::shared_ptr
 sptr<IRemoteObject> InterIpcStub::GetSubSystemAbility(std::string key, std::string className)
 {
     SHARING_LOGD("traces.");
+    (void)key;
+    (void)className;
     return nullptr;
 }
 

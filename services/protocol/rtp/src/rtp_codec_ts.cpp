@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#include <securec.h>
 #include "rtp_codec_ts.h"
+#include <securec.h>
 #include "common/common_macro.h"
 #include "common/media_log.h"
 #include "frame/aac_frame.h"
@@ -160,6 +160,8 @@ void RtpDecoderTs::StartDecoding()
 
 int RtpDecoderTs::StaticReadPacket(void *opaque, uint8_t *buf, int buf_size)
 {
+    RETURN_INVALID_IF_NULL(opaque);
+    RETURN_INVALID_IF_NULL(buf);
     RtpDecoderTs *decoder = (RtpDecoderTs *)opaque;
     if (decoder == nullptr) {
         SHARING_LOGE("decoder is nullptr.");
@@ -170,6 +172,7 @@ int RtpDecoderTs::StaticReadPacket(void *opaque, uint8_t *buf, int buf_size)
 
 int RtpDecoderTs::ReadPacket(uint8_t *buf, int buf_size)
 {
+    RETURN_INVALID_IF_NULL(buf);
     while (dataQueue_.empty()) {
         if (exit_ == true) {
             SHARING_LOGI("read packet exit.");
@@ -280,8 +283,8 @@ void RtpEncoderTs::StartEncoding()
     out_stream->codecpar->codec_tag = 0;
 
     avioCtxBuffer_ = (uint8_t *)av_malloc(MAX_RTP_PAYLOAD_SIZE);
-    avioContext_ = avio_alloc_context(avioCtxBuffer_, MAX_RTP_PAYLOAD_SIZE, 1, this,
-                                      NULL, &RtpEncoderTs::WritePacket, NULL);
+    avioContext_ =
+        avio_alloc_context(avioCtxBuffer_, MAX_RTP_PAYLOAD_SIZE, 1, this, NULL, &RtpEncoderTs::WritePacket, NULL);
     if (avioContext_ == nullptr) {
         SHARING_LOGE("avio_alloc_context failed.");
         return;
@@ -307,12 +310,14 @@ void RtpEncoderTs::StartEncoding()
 
 void RtpEncoderTs::SaveFrame(Frame::Ptr frame)
 {
+    RETURN_IF_NULL(frame);
     std::lock_guard<std::mutex> lock(queueMutex_);
     dataQueue_.emplace(frame);
 }
 
 int RtpEncoderTs::ReadFrame(AVPacket *packet)
 {
+    RETURN_INVALID_IF_NULL(packet);
     while (dataQueue_.empty()) {
         if (exit_ == true) {
             SHARING_LOGI("exit when read frame.");
@@ -341,11 +346,13 @@ void RtpEncoderTs::RemoveFrameAfterMuxing()
 
 int RtpEncoderTs::WritePacket(void *opaque, uint8_t *buf, int buf_size)
 {
+    RETURN_INVALID_IF_NULL(opaque);
+    RETURN_INVALID_IF_NULL(buf);
     RtpEncoderTs *encoder = (RtpEncoderTs *)opaque;
     std::lock_guard<std::mutex> lock(encoder->cbLockMutex_);
     if (encoder->onRtpPack_) {
-        auto rtp = encoder->MakeRtp(reinterpret_cast<const void *>(buf), buf_size,
-                                    encoder->keyFrame_, encoder->timeStamp_);
+        auto rtp =
+            encoder->MakeRtp(reinterpret_cast<const void *>(buf), buf_size, encoder->keyFrame_, encoder->timeStamp_);
         encoder->onRtpPack_(rtp);
     }
 

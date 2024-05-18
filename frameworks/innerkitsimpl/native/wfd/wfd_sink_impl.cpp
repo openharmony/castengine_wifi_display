@@ -78,8 +78,9 @@ int32_t WfdSinkImpl::GetSinkConfig(SinkConfig &sinkConfig)
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
     auto msg = std::make_shared<GetSinkConfigReq>();
+    RETURN_INVALID_IF_NULL(msg);
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<GetSinkConfigRsp>());
-
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -127,10 +128,11 @@ int32_t WfdSinkImpl::AppendSurface(std::string deviceId, uint64_t surfaceId)
     }
 
     auto msg = std::make_shared<WfdAppendSurfaceReq>();
+    RETURN_INVALID_IF_NULL(msg);
     msg->surface = object;
     msg->deviceId = deviceId;
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
-
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -149,10 +151,11 @@ int32_t WfdSinkImpl::RemoveSurface(std::string deviceId, uint64_t surfaceId)
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
     auto msg = std::make_shared<WfdRemoveSurfaceReq>();
+    RETURN_INVALID_IF_NULL(msg);
     msg->surfaceId = surfaceId;
     msg->deviceId = deviceId;
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
-
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -170,8 +173,9 @@ int32_t WfdSinkImpl::Start()
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
     auto msg = std::make_shared<WfdSinkStartReq>();
+    RETURN_INVALID_IF_NULL(msg);
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
-
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -189,8 +193,9 @@ int32_t WfdSinkImpl::Stop()
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
     auto msg = std::make_shared<WfdSinkStopReq>();
+    RETURN_INVALID_IF_NULL(msg);
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
-
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -209,11 +214,12 @@ int32_t WfdSinkImpl::SetMediaFormat(std::string deviceId, CodecAttr videoAttr, C
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
     auto msg = std::make_shared<SetMediaFormatReq>();
+    RETURN_INVALID_IF_NULL(msg);
     msg->deviceId = deviceId;
     msg->videoAttr = videoAttr;
     msg->audioAttr = audioAttr;
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
-
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -231,9 +237,10 @@ int32_t WfdSinkImpl::Play(std::string deviceId)
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
     auto msg = std::make_shared<WfdPlayReq>();
+    RETURN_INVALID_IF_NULL(msg);
     msg->deviceId = deviceId;
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
-
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -251,9 +258,10 @@ int32_t WfdSinkImpl::Pause(std::string deviceId)
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
     auto msg = std::make_shared<WfdPauseReq>();
+    RETURN_INVALID_IF_NULL(msg);
     msg->deviceId = deviceId;
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
-
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -271,9 +279,10 @@ int32_t WfdSinkImpl::Close(std::string deviceId)
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
     auto msg = std::make_shared<WfdCloseReq>();
+    RETURN_INVALID_IF_NULL(msg);
     msg->deviceId = deviceId;
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
-
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -292,11 +301,12 @@ int32_t WfdSinkImpl::SetSceneType(std::string deviceId, uint64_t surfaceId, Scen
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
     auto msg = std::make_shared<SetSceneTypeReq>();
+    RETURN_INVALID_IF_NULL(msg);
     msg->deviceId = deviceId;
     msg->surfaceId = surfaceId;
     msg->sceneType = sceneType;
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
-
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -314,9 +324,10 @@ int32_t WfdSinkImpl::Mute(std::string deviceId)
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
     auto msg = std::make_shared<MuteReq>();
+    RETURN_INVALID_IF_NULL(msg);
     msg->deviceId = deviceId;
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
-
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -334,9 +345,10 @@ int32_t WfdSinkImpl::UnMute(std::string deviceId)
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
     auto msg = std::make_shared<UnMuteReq>();
+    RETURN_INVALID_IF_NULL(msg);
     msg->deviceId = deviceId;
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
-
+    RETURN_INVALID_IF_NULL(reply);
     auto ret = ipcAdapter->SendRequest(msg, reply);
     if (ret != 0) {
         SHARING_LOGE("ipc sendRequest failed: %{public}d.", ret);
@@ -360,7 +372,7 @@ void WfdSinkImpl::OnRequest(std::shared_ptr<BaseMsg> msg, std::shared_ptr<BaseMs
 {
     SHARING_LOGD("trace.");
     RETURN_IF_NULL(msg);
-
+    (void)reply;
     SHARING_LOGD("Recv msg: %{public}d.", msg->GetMsgId());
     auto listener = listener_.lock();
     if (listener) {
@@ -374,6 +386,7 @@ void WfdSinkImpl::OnRemoteDied()
 {
     SHARING_LOGD("trace.");
     auto msg = std::make_shared<WfdErrorMsg>();
+    RETURN_IF_NULL(msg);
     msg->errorCode = ERR_REMOTE_DIED;
     msg->message = "OnRemoteDied.";
 

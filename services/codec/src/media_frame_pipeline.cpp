@@ -24,7 +24,7 @@ inline bool IsAudioFrame(const Frame::Ptr &frame)
 {
     RETURN_FALSE_IF_NULL(frame);
     return frame->GetCodecId() == CODEC_G711A || frame->GetCodecId() == CODEC_G711U ||
-        frame->GetCodecId() == CODEC_AAC || frame->GetCodecId() == CODEC_PCM;
+           frame->GetCodecId() == CODEC_AAC || frame->GetCodecId() == CODEC_PCM;
 }
 
 FrameSource::~FrameSource()
@@ -32,7 +32,9 @@ FrameSource::~FrameSource()
     SHARING_LOGD("trace.");
     std::unique_lock<std::shared_mutex> alock(audioDstsMutex_);
     for (auto &audioDst : audioDsts_) {
-        audioDst->UnsetAudioSource();
+        if (audioDst != nullptr) {
+            audioDst->UnsetAudioSource();
+        }
     }
     alock.unlock();
     audioDsts_.clear();

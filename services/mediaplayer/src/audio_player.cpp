@@ -89,8 +89,12 @@ void AudioPlayer::Stop()
 {
     SHARING_LOGD("trace.");
     if (isRunning_) {
-        audioDecoder_->RemoveAudioDestination(audioDecoderReceiver_);
-        audioSink_->Stop();
+        if (audioDecoder_) {
+            audioDecoder_->RemoveAudioDestination(audioDecoderReceiver_);
+        }
+        if (audioSink_) {
+            audioSink_->Stop();
+        }
         isRunning_ = false;
     }
 }

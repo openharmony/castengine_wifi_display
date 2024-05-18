@@ -21,6 +21,7 @@
 #include <sstream>
 #include <sys/time.h>
 #include <thread>
+#include "common/common_macro.h"
 #include "common/media_log.h"
 
 namespace OHOS {
@@ -37,6 +38,10 @@ unsigned long long GetThreadId()
 std::vector<std::string> Split(const std::string &s, const char *delim)
 {
     std::vector<std::string> ret;
+    if (delim == nullptr) {
+        return ret;
+    }
+
     size_t last = 0;
     auto index = s.find(delim, last);
     while (index != std::string::npos) {
@@ -56,6 +61,9 @@ std::vector<std::string> Split(const std::string &s, const char *delim)
 std::vector<std::string> SplitOnce(const std::string &s, const char *delim)
 {
     std::vector<std::string> ret;
+    if (delim == nullptr) {
+        return ret;
+    }
     size_t last = 0;
     auto index = s.find(delim, last);
     if (index != std::string::npos) {
@@ -173,13 +181,15 @@ void Split(std::string str, std::string separator, std::vector<std::string> &res
 
 uint64_t GetCurrentMillisecond()
 {
-    struct timeval tv {};
+    struct timeval tv {
+    };
     gettimeofday(&tv, nullptr);
     return tv.tv_sec * 1000 + tv.tv_usec / 1000; // 1000: time base conversion.
 }
 
 void SaveFile(const char *data, int32_t dataSize, const std::string &fileName)
 {
+    RETURN_IF_NULL(data);
     std::ofstream out(fileName, std::ios::out | std::ios::binary);
     if (!out.is_open()) {
         SHARING_LOGD("failed to opne file: %{public}s", fileName.c_str());
@@ -229,7 +239,7 @@ uint16_t SwapEndian16(uint16_t value)
 uint32_t SwapEndian32(uint32_t value)
 {
     uint8_t res[4];
-    for (int i = 0; i < 4; ++i) { // 4: swap endian
+    for (int i = 0; i < 4; ++i) {            // 4: swap endian
         res[i] = ((uint8_t *)&value)[3 - i]; // 3: swap endian
     }
     return *(uint32_t *)res;
@@ -238,7 +248,7 @@ uint32_t SwapEndian32(uint32_t value)
 uint64_t SwapEndian64(uint64_t value)
 {
     uint8_t res[8];
-    for (int i = 0; i < 8; ++i) { // 8: swap endian
+    for (int i = 0; i < 8; ++i) {            // 8: swap endian
         res[i] = ((uint8_t *)&value)[7 - i]; // 7: swap endian
     }
     return *(uint64_t *)res;
@@ -246,47 +256,54 @@ uint64_t SwapEndian64(uint64_t value)
 
 uint16_t LoadBE16(const uint8_t *p)
 {
+    RETURN_INVALID_IF_NULL(p);
     return SwapEndian16(*(uint16_t *)p);
 }
 
 uint32_t LoadBE24(const uint8_t *p)
 {
+    RETURN_INVALID_IF_NULL(p);
     uint8_t res[4] = {0, p[0], p[1], p[2]};
     return SwapEndian32(*(uint32_t *)res);
 }
 
 uint32_t LoadBE32(const uint8_t *p)
 {
+    RETURN_INVALID_IF_NULL(p);
     return SwapEndian32(*(uint32_t *)p);
 }
 
 uint64_t LoadBE64(const uint8_t *p)
 {
+    RETURN_INVALID_IF_NULL(p);
     return SwapEndian64(*(uint64_t *)p);
 }
 
 void SetBE24(void *p, uint32_t val)
 {
+    RETURN_IF_NULL(p);
     uint8_t *data = (uint8_t *)p;
     data[0] = val >> 16; // 16: byte offset
-    data[1] = val >> 8; // 8: byte offset
-    data[2] = val; // 2: transformed position
+    data[1] = val >> 8;  // 8: byte offset
+    data[2] = val;       // 2: transformed position
 }
 
 void SetBE32(void *p, uint32_t val)
 {
+    RETURN_IF_NULL(p);
     uint8_t *data = (uint8_t *)p;
-    data[3] = val; // 3: transformed position
-    data[2] = val >> 8; // 2: transformed position, 8: byte offset
+    data[3] = val;       // 3: transformed position
+    data[2] = val >> 8;  // 2: transformed position, 8: byte offset
     data[1] = val >> 16; // 16: byte offset
     data[0] = val >> 24; // 24: byte offset
 }
 
 void SetLE32(void *p, uint32_t val)
 {
+    RETURN_IF_NULL(p);
     uint8_t *data = (uint8_t *)p;
     data[0] = val;
-    data[1] = val >> 8; //  8: byte offset
+    data[1] = val >> 8;  //  8: byte offset
     data[2] = val >> 16; // 2: transformed position, 16: byte offset
     data[3] = val >> 24; // 3: transformed position, 24: byte offset
 }

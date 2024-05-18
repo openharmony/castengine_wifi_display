@@ -16,6 +16,7 @@
 #include "rtp_maker.h"
 #include <arpa/inet.h>
 #include <securec.h>
+#include "common/common_macro.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -41,6 +42,10 @@ uint32_t RtpMaker::GetSsrc() const
 
 RtpPacket::Ptr RtpMaker::MakeRtp(const void *data, size_t len, bool mark, uint32_t stamp)
 {
+    if (data == nullptr) {
+        return nullptr;
+    }
+
     uint16_t size = (uint16_t)(len + RtpPacket::RTP_HEADER_SIZE);
     auto rtp = std::make_shared<RtpPacket>();
     rtp->SetCapacity(size);

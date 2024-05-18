@@ -14,6 +14,7 @@
  */
 
 #include "tcp_client.h"
+#include "common/common_macro.h"
 #include "common/media_log.h"
 #include "common/sharing_log.h"
 #include "network/socket/socket_utils.h"
@@ -97,6 +98,7 @@ void TcpClient::Disconnect()
 bool TcpClient::Send(const DataBuffer::Ptr &buf, int32_t nSize)
 {
     SHARING_LOGD("trace.");
+    RETURN_FALSE_IF_NULL(buf);
     return Send(buf->Peek(), nSize);
 }
 

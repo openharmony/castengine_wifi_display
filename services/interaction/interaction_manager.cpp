@@ -151,6 +151,7 @@ Interaction::Ptr InteractionManager::GetInteraction(uint32_t interactionId)
 
 int32_t InteractionManager::OnDomainMsg(std::shared_ptr<BaseDomainMsg> msg)
 {
+    RETURN_INVALID_IF_NULL(msg);
     SHARING_LOGD("Finding target key: %{public}s, msgId: %{public}d, pullup app: %{public}d.", msg->toRpcKey.c_str(),
                  msg->GetMsgId(), msg->pullUpApp);
     if (interactionKeys_.find(msg->toRpcKey) != interactionKeys_.end()) {
@@ -208,7 +209,7 @@ int32_t InteractionManager::OnDomainMsg(std::shared_ptr<BaseDomainMsg> msg)
 int32_t InteractionManager::SendDomainMsg(std::shared_ptr<BaseDomainMsg> msg)
 {
     SHARING_LOGD("trace.");
-
+    RETURN_INVALID_IF_NULL(msg);
     std::async(std::launch::async, [this, msg] { DomainManager::GetInstance()->SendDomainRequest(msg->toDevId, msg); });
 
     return 0;

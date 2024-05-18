@@ -56,12 +56,16 @@ bool BaseNetworkSession::Start()
 bool BaseNetworkSession::Send(const DataBuffer::Ptr &buf, int32_t nSize)
 {
     SHARING_LOGD("trace.");
+    (void)buf;
+    (void)nSize;
     return false;
 }
 
 bool BaseNetworkSession::Send(const char *buf, int32_t nSize)
 {
     SHARING_LOGD("trace.");
+    (void)buf;
+    (void)nSize;
     return false;
 }
 

@@ -28,6 +28,7 @@ void ScreenCaptureConsumer::OnFrameBufferUsed()
 
 void ScreenCaptureConsumer::HandleSpsFrame(BufferDispatcher::Ptr dispatcher, const Frame::Ptr &frame)
 {
+    RETURN_IF_NULL(dispatcher);
     auto spsOld = dispatcher->GetSPS();
     if (spsOld != nullptr && spsOld->buff != nullptr) {
         return;
@@ -41,6 +42,7 @@ void ScreenCaptureConsumer::HandleSpsFrame(BufferDispatcher::Ptr dispatcher, con
 
 void ScreenCaptureConsumer::HandlePpsFrame(BufferDispatcher::Ptr dispatcher, const Frame::Ptr &frame)
 {
+    RETURN_IF_NULL(dispatcher);
     auto ppsOld = dispatcher->GetPPS();
     if (ppsOld != nullptr && ppsOld->buff != nullptr) {
         return;
