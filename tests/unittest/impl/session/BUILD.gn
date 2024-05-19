@@ -1,0 +1,156 @@
+# Copyright (c) 2024 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//build/test.gni")
+import("//foundation/CastEngine/castengine_wifi_display/config.gni")
+
+module_out_path = "sharing/impl"
+
+ohos_unittest("wfd_sink_session_test") {
+  module_out_path = module_out_path
+
+  include_dirs = [
+    "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/agent/session",
+    "$SHARING_ROOT_DIR/services/common",
+    "$SHARING_ROOT_DIR/services/mediachannel",
+    "$SHARING_ROOT_DIR/services/network/interfaces",
+    "$SHARING_ROOT_DIR/services/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/impl/wfd",
+    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink",
+    "$SHARING_ROOT_DIR/services/protocol",
+    "$SHARING_ROOT_DIR/services/protocol/frame",
+    "$SHARING_ROOT_DIR/services/protocol/rtp/include",
+    "./mock",
+  ]
+
+  sources = [
+    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_message.cpp",
+    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink/wfd_sink_session.cpp",
+    "./mock/mock_wfd_sink_session.cpp",
+    "wfd_sink_session_test.cpp",
+  ]
+
+  deps = [
+    "$SHARING_ROOT_DIR/services/agent:sharing_agent_srcs",
+    "$SHARING_ROOT_DIR/services/common:kv_operator",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/configuration:sharing_configure_srcs",
+    "$SHARING_ROOT_DIR/services/context:sharing_context_srcs",
+    "$SHARING_ROOT_DIR/services/event:sharing_event_srcs",
+    "$SHARING_ROOT_DIR/services/network:sharing_network",
+    "$SHARING_ROOT_DIR/services/protocol/rtp:sharing_rtp",
+    "$SHARING_ROOT_DIR/services/protocol/rtsp:sharing_rtsp",
+    "//third_party/googletest:gmock",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "av_codec:av_codec_client",
+    "c_utils:utils",
+    "c_utils:utilsbase",
+    "graphic_surface:surface",
+    "graphic_surface:sync_fence",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "window_manager:libdm",
+  ]
+}
+
+ohos_unittest("wfd_source_session_test") {
+  module_out_path = module_out_path
+
+  include_dirs = [
+    "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/agent/session",
+    "$SHARING_ROOT_DIR/services/common",
+    "$SHARING_ROOT_DIR/services/mediachannel",
+    "$SHARING_ROOT_DIR/services/network/interfaces",
+    "$SHARING_ROOT_DIR/services/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/impl/wfd",
+    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_source",
+    "$SHARING_ROOT_DIR/services/protocol",
+    "$SHARING_ROOT_DIR/services/protocol/frame",
+    "$SHARING_ROOT_DIR/services/protocol/rtp/include",
+    "./mock",
+  ]
+
+  sources = [
+    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_message.cpp",
+    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_source/wfd_source_session.cpp",
+    "./mock/mock_wfd_source_session.cpp",
+    "wfd_source_session_test.cpp",
+  ]
+
+  deps = [
+    "$SHARING_ROOT_DIR/services/agent:sharing_agent_srcs",
+    "$SHARING_ROOT_DIR/services/common:kv_operator",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/configuration:sharing_configure_srcs",
+    "$SHARING_ROOT_DIR/services/context:sharing_context_srcs",
+    "$SHARING_ROOT_DIR/services/event:sharing_event_srcs",
+    "$SHARING_ROOT_DIR/services/network:sharing_network",
+    "$SHARING_ROOT_DIR/services/protocol/rtp:sharing_rtp",
+    "$SHARING_ROOT_DIR/services/protocol/rtsp:sharing_rtsp",
+    "//third_party/googletest:gmock",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "av_codec:av_codec_client",
+    "c_utils:utils",
+    "c_utils:utilsbase",
+    "graphic_surface:surface",
+    "graphic_surface:sync_fence",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "window_manager:libdm",
+  ]
+}
+
+ohos_unittest("wfd_message_test") {
+  module_out_path = module_out_path
+
+  include_dirs = [
+    "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/agent/session",
+    "$SHARING_ROOT_DIR/services/common",
+    "$SHARING_ROOT_DIR/services/impl/wfd",
+    "$SHARING_ROOT_DIR/services/protocol/rtp/include",
+    "./mock",
+  ]
+
+  sources = [
+    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_message.cpp",
+    "wfd_message_test.cpp",
+  ]
+
+  deps = [
+    "$SHARING_ROOT_DIR/services/protocol/rtp:sharing_rtp",
+    "$SHARING_ROOT_DIR/services/protocol/rtsp:sharing_rtsp",
+    "//third_party/googletest:gmock",
+    "//third_party/googletest:gtest_main",
+  ]
+
+  external_deps = [
+    "av_codec:av_codec_client",
+    "c_utils:utils",
+    "c_utils:utilsbase",
+    "graphic_surface:surface",
+    "graphic_surface:sync_fence",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "window_manager:libdm",
+  ]
+}
