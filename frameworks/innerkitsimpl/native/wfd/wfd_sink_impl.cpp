@@ -40,6 +40,7 @@ std::shared_ptr<WfdSink> OHOS::Sharing::WfdSinkFactory::CreateSink(int32_t type,
         auto adapter = client->GetMsgAdapter();
         if (adapter == nullptr) {
             SHARING_LOGE("failed to get adapter.");
+            return nullptr;
         }
 
         std::shared_ptr<WfdSinkImpl> impl = std::make_shared<WfdSinkImpl>();
