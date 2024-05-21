@@ -934,12 +934,12 @@ int32_t BufferDispatcher::ReadBufferData(uint32_t receiverId, MediaType type,
 
 int32_t BufferDispatcher::InputData(const MediaData::Ptr &data)
 {
-    MEDIA_LOGD("inputmediatype: %{public}d, keyFrame: %{public}d, pts: %{public}" PRIu64 ".", data->mediaType,
-               data->keyFrame, data->pts);
     if (data == nullptr || data->buff == nullptr) {
         SHARING_LOGE("data nullptr.");
         return -1;
     }
+    MEDIA_LOGD("inputmediatype: %{public}d, keyFrame: %{public}d, pts: %{public}" PRIu64 ".", data->mediaType,
+               data->keyFrame, data->pts);
 
     if (!writing_) {
         writing_ = true;

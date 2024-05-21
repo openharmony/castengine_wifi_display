@@ -38,6 +38,7 @@ std::shared_ptr<WfdSource> OHOS::Sharing::WfdSourceFactory::CreateSource(int32_t
         auto adapter = client->GetMsgAdapter();
         if (adapter == nullptr) {
             SHARING_LOGE("failed to get adapter.");
+            return nullptr;
         }
 
         std::shared_ptr<WfdSourceImpl> impl = std::make_shared<WfdSourceImpl>();
