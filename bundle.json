@@ -51,7 +51,8 @@
         "access_token",
         "drivers_interface_camera",
         "eventhandler",
-        "window_manager"
+        "window_manager",
+        "bounds_checking_function"
       ],
       "third_party": [
         "cJSON",

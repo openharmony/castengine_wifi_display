@@ -41,6 +41,9 @@ ohos_static_library("sharing_rtsp") {
     "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
-  external_deps = [ "hilog:libhilog" ]
+  external_deps = [
+    "bounds_checking_function:libsec_static",
+    "hilog:libhilog",
+  ]
   part_name = "sharing_framework"
 }
