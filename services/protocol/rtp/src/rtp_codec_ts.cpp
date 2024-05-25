@@ -196,7 +196,7 @@ int RtpDecoderTs::ReadPacket(uint8_t *buf, int buf_size)
 }
 
 RtpEncoderTs::RtpEncoderTs(uint32_t ssrc, uint32_t mtuSize, uint32_t sampleRate, uint8_t payloadType, uint16_t seq)
-    : RtpMaker(ssrc, mtuSize, sampleRate, payloadType, seq)
+    : RtpMaker(ssrc, mtuSize, payloadType, sampleRate, seq)
 {
     SHARING_LOGD("RtpEncoderTs CTOR IN");
     merger_.SetType(FrameMerger::H264_PREFIX);
