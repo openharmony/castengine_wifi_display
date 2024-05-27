@@ -163,7 +163,7 @@ int32_t InteractionManager::OnDomainMsg(std::shared_ptr<BaseDomainMsg> msg)
             SHARING_LOGE("interaction null interactionId: %{public}d.", interactionId);
         }
     } else {
-        SHARING_LOGW("interactionKeys_ not find fromDevId: %{public}s.", msg->fromDevId.c_str());
+        SHARING_LOGW("interactionKeys_ not find fromDevId: %{public}s.", GetAnonyString(msg->fromDevId).c_str());
         if (!msg->pullUpApp) {
             SHARING_LOGW("msgId: %{public}d, don't need to pull up the app.", msg->GetMsgId());
             return -1;
