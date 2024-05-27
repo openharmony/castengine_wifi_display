@@ -31,7 +31,10 @@ ohos_source_set("sharing_rtcp_srcs") {
     "src/rtcp_context.cpp",
   ]
 
-  external_deps = [ "hilog:libhilog" ]
+  external_deps = [
+    "bounds_checking_function:libsec_shared",
+    "hilog:libhilog",
+  ]
 
   subsystem_name = "castplus"
   part_name = "sharing_framework"
