@@ -19,14 +19,14 @@ module_out_path = "sharing/event"
 
 ohos_unittest("event_unit_test") {
   module_out_path = module_out_path
-
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/frameworks/innerkitsimpl",
-    "//utils/native/base/include",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include",
-    "//foundation/communication/wifi/interfaces/innerkits/native_cpp/wifi_standard/include",
-    "//foundation/communication/wifi/interfaces/innerkits/native_cpp/wifi_standard/interfaces",
   ]
 
   sources = [ "event_unit_test.cpp" ]
@@ -49,4 +49,14 @@ ohos_unittest("event_unit_test") {
   } else {
     external_deps = [ "hilog:libhilog" ]
   }
+  cflags = [
+    "-Dprivate=public",
+    "-Dprotected=public",
+  ]
+  cflags_cc = cflags
+  cflags_cc += [ "-std=c++17" ]
+}
+group("event_unittest") {
+  testonly = true
+  deps = [ ":event_unit_test" ]
 }
