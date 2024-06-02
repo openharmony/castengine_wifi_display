@@ -23,7 +23,7 @@
 namespace OHOS {
 namespace Sharing {
 constexpr int32_t FF_BUFFER_SIZE = 1500;
-constexpr int32_t MAX_RTP_PAYLOAD_SIZE = 188;
+constexpr int32_t MAX_RTP_PAYLOAD_SIZE = 1316;
 static std::mutex frameLock;
 
 RtpDecoderTs::RtpDecoderTs()
