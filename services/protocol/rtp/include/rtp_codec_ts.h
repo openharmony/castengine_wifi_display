@@ -94,7 +94,8 @@ private:
     std::queue<Frame::Ptr> dataQueue_;
     std::unique_ptr<std::thread> encodeThread_;
 
-    AVStream *out_stream = nullptr;
+    AVStream *videoStream = nullptr;
+    AVStream *audioStream = nullptr;
     AVIOContext *avioContext_ = nullptr;
     AVFormatContext *avFormatContext_ = nullptr;
 };

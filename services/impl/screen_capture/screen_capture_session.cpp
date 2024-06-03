@@ -66,8 +66,9 @@ void ScreenCaptureSession::HandleSessionInit(SharingEvent &event)
         videoFormat_ = inputMsg->videoFormat;
         audioFormat_ = inputMsg->audioFormat;
         screenId_ = inputMsg->screenId;
-        SHARING_LOGI("videoFormat_: %{public}d, type: %{public}d, screenId: %{public}" SCNu64 ".", videoFormat_,
-                     captureType_, screenId_);
+        SHARING_LOGI("videoFormat_: %{public}d, type: %{public}d, screenId: %{public}" SCNu64
+                     ", audioFormat_: %{public}d.",
+                     videoFormat_, captureType_, screenId_, audioFormat_);
     } else {
         SHARING_LOGE("unknow event msg.");
     }

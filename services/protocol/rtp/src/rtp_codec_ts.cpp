@@ -125,7 +125,6 @@ void RtpDecoderTs::StartDecoding()
     }
 
     AVPacket *packet = av_packet_alloc();
-
     while (!exit_ && av_read_frame(avFormatContext_, packet) >= 0) {
         if (exit_) {
             SHARING_LOGI("ignore av read frame.");
@@ -277,10 +276,21 @@ void RtpEncoderTs::StartEncoding()
         return;
     }
 
-    out_stream = avformat_new_stream(avFormatContext_, NULL);
-    out_stream->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
-    out_stream->codecpar->codec_id = AV_CODEC_ID_H264;
-    out_stream->codecpar->codec_tag = 0;
+    videoStream = avformat_new_stream(avFormatContext_, NULL);
+    videoStream->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
+    videoStream->codecpar->codec_id = AV_CODEC_ID_H264;
+    videoStream->codecpar->codec_tag = 0;
+
+    audioStream = avformat_new_stream(avFormatContext_, NULL);
+    audioStream->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
+    audioStream->codecpar->codec_id = AV_CODEC_ID_AAC;
+    audioStream->codecpar->codec_tag = 0;
+    audioStream->codecpar->channel_layout = av_get_default_channel_layout(AUDIO_CHANNEL_STEREO);
+    audioStream->codecpar->channels = AUDIO_CHANNEL_STEREO;
+    audioStream->codecpar->sample_rate = AUDIO_SAMPLE_RATE_48000;
+
+    SHARING_LOGD("audio stream id: %{public}d, video stream id: %{public}d.",
+        audioStream->index, videoStream->index);
 
     avioCtxBuffer_ = (uint8_t *)av_malloc(MAX_RTP_PAYLOAD_SIZE);
     avioContext_ =
@@ -292,14 +302,14 @@ void RtpEncoderTs::StartEncoding()
     avFormatContext_->pb = avioContext_;
     avFormatContext_->flags |= AVFMT_FLAG_CUSTOM_IO;
 
-    if (avformat_write_header(avFormatContext_, NULL) < 0) {
-        SHARING_LOGE("avformat_write_header to output failed.");
+    int32_t ret = avformat_write_header(avFormatContext_, NULL);
+    if (ret < 0) {
+        SHARING_LOGE("avformat_write_header to output failed, ret: %{public}d.", ret);
         return;
     }
 
     while (!exit_) {
         AVPacket *packet = av_packet_alloc();
-        packet->stream_index = out_stream->index;
         ReadFrame(packet);
         av_write_frame(avFormatContext_, packet);
         RemoveFrameAfterMuxing();
@@ -335,6 +345,11 @@ int RtpEncoderTs::ReadFrame(AVPacket *packet)
     keyFrame_ = frame->KeyFrame();
     timeStamp_ = frame->Dts();
 
+    if (frame->GetTrackType() == TRACK_VIDEO) {
+        packet->stream_index = videoStream->index;
+    } else if (frame->GetTrackType() == TRACK_AUDIO) {
+        packet->stream_index = audioStream->index;
+    }
     return 0;
 }
 

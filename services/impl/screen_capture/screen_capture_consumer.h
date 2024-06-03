@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+ * Copyright (c) 2023-2024 Shenzhen Kaihong Digital Industry Development Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,6 +17,9 @@
 #define OHOS_SHARING_SCREEN_CAPTURE_CONSUMER_H
 
 #include <mutex>
+#include "audio_aac_codec.h"
+#include "audio_capturer.h"
+#include "codec_factory.h"
 #include "magic_enum.hpp"
 #include "mediachannel/base_consumer.h"
 #include "video_source_encoder.h"
@@ -28,6 +31,16 @@ class ScreenCaptureConsumer : public BaseConsumer,
                               public VideoSourceEncoderListener,
                               public std::enable_shared_from_this<ScreenCaptureConsumer> {
 public:
+    class AudioEncoderReceiver : public FrameDestination {
+    public:
+        explicit AudioEncoderReceiver(std::weak_ptr<ScreenCaptureConsumer> parent) : parent_(parent){};
+
+        void OnFrame(const Frame::Ptr &frame) override;
+
+    private:
+        std::weak_ptr<ScreenCaptureConsumer> parent_;
+    };
+
     ScreenCaptureConsumer();
     ~ScreenCaptureConsumer();
 
@@ -45,10 +58,17 @@ private:
     bool IsPaused();
     bool StopCapture();
     bool StartCapture();
+    bool StopAudioCapture();
+    bool StopVideoCapture();
+    bool StartAudioCapture();
     bool StartVideoCapture();
+
+    bool InitAudioCapture();
+    bool InitAudioEncoder();
     bool Init(uint64_t screenId);
-    bool InitAudioCapture() const;
     bool InitVideoCapture(uint64_t screenId);
+
+    void AudioCaptureThreadWorker();
 
     void HandleProsumerInitState(SharingEvent &event);
     void HandleSpsFrame(BufferDispatcher::Ptr dispatcher, const Frame::Ptr &frame);
@@ -58,8 +78,16 @@ private:
     bool paused_ = false;
 
     std::mutex mutex_;
+
     std::shared_ptr<VideoSourceScreen> videoSourceScreen_ = nullptr;
     std::shared_ptr<VideoSourceEncoder> videoSourceEncoder_ = nullptr;
+
+    size_t audioBufferLen_ = 0;
+
+    std::shared_ptr<AudioEncoder> audioEncoder_ = nullptr;
+    std::unique_ptr<std::thread> audioCaptureThread_ = nullptr;
+    std::shared_ptr<AudioEncoderReceiver> audioEncoderReceiver_ = nullptr;
+    std::unique_ptr<AudioStandard::AudioCapturer> audioCapturer_ = nullptr;
 };
 
 } // namespace Sharing
