@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+ * Copyright (c) 2023-2024 Shenzhen Kaihong Digital Industry Development Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,8 +27,13 @@ std::shared_ptr<AudioEncoder> CodecFactory::CreateAudioEncoder(CodecId format)
 
     switch (format) {
         case CODEC_G711A:
+            encoder.reset(new AudioG711Encoder(G711_TYPE::G711_ALAW));
             break;
         case CODEC_G711U:
+            encoder.reset(new AudioG711Encoder(G711_TYPE::G711_ULAW));
+            break;
+        case CODEC_AAC:
+            encoder.reset(new AudioAACEncoder());
             break;
         default:
             SHARING_LOGE("unsupported codec format %{public}d.", (int32_t)format);

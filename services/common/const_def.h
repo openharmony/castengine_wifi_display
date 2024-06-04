@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+ * Copyright (c) 2023-2024 Shenzhen Kaihong Digital Industry Development Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -65,6 +65,13 @@ enum AudioFormat {
     AUDIO_48000_16_2,
     AUDIO_48000_16_4
 };
+
+constexpr uint32_t AUDIO_SAMPLE_BIT_U8 = 8;
+constexpr uint32_t AUDIO_SAMPLE_BIT_S16LE = 16;
+constexpr uint32_t AUDIO_CHANNEL_STEREO = 2;
+constexpr uint32_t AUDIO_SAMPLE_RATE_44100 = 44100;
+constexpr uint32_t AUDIO_SAMPLE_RATE_48000 = 48000;
+constexpr uint32_t AUDIO_BIT_RATE_12800 = 128000;
 
 constexpr uint32_t INVALID_ID = 0;
 constexpr int32_t DEFAULT_CHANNEL = 2;

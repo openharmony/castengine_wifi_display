@@ -179,8 +179,10 @@ void WfdRtpProducer::PublishOneFrame(const MediaData::Ptr &mediaData)
     auto buff = mediaData->buff;
     if (isRunning_ && !isPaused_) { // paused check at this pos or in DispatchMediaData
         if (mediaData->mediaType == MEDIA_TYPE_AUDIO) {
+            MEDIA_LOGD("audio frame pts:%{public}" PRId64 ".", mediaData->pts);
             auto aacFrame = FrameImpl::CreateFrom(std::move(*buff));
             aacFrame->codecId_ = CodecId::CODEC_AAC;
+            aacFrame->dts_ = aacFrame->pts_ = static_cast<uint32_t>(mediaData->pts);
             tsPacker_->InputFrame(aacFrame);
         } else if (mediaData->mediaType == MEDIA_TYPE_VIDEO) {
             MEDIA_LOGD("video frame pts:%{public}" PRId64 ".", mediaData->pts);

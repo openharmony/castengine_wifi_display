@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+ * Copyright (c) 2023-2024 Shenzhen Kaihong Digital Industry Development Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,7 +29,6 @@ namespace Sharing {
 #define VIDEO_FRAME_RATE_25 25
 #define VIDEO_FRAME_RATE_30 30
 
-#define AUDIO_SAMPLE_RATE 48000
 #define AUDIO_SAMPLE_BIT 16
 #define AUDIO_SAMEPLE_CHANNEL 2
 
@@ -77,10 +76,14 @@ void Common::SetAudioTrack(AudioTrack &audioTrack, AudioFormat audioFormat)
     switch (audioFormat) {
         case AudioFormat::AUDIO_44100_8_2:
         case AudioFormat::AUDIO_44100_16_2:
+            audioTrack.codecId = CodecId::CODEC_AAC;
+            audioTrack.sampleRate = AUDIO_SAMPLE_RATE_44100;
+            audioTrack.sampleBit = AUDIO_SAMPLE_BIT;
+            audioTrack.channels = AUDIO_SAMEPLE_CHANNEL;
             break;
         case AudioFormat::AUDIO_48000_16_2:
             audioTrack.codecId = CodecId::CODEC_AAC;
-            audioTrack.sampleRate = AUDIO_SAMPLE_RATE;
+            audioTrack.sampleRate = AUDIO_SAMPLE_RATE_48000;
             audioTrack.sampleBit = AUDIO_SAMPLE_BIT;
             audioTrack.channels = AUDIO_SAMEPLE_CHANNEL;
             break;

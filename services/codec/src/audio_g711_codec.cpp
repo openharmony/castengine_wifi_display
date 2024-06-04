@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+ * Copyright (c) 2023-2024 Shenzhen Kaihong Digital Industry Development Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,7 +24,7 @@ AudioG711Encoder::AudioG711Encoder(G711_TYPE type) : type_(type) {}
 
 AudioG711Encoder::~AudioG711Encoder() {}
 
-int32_t AudioG711Encoder::Init()
+int32_t AudioG711Encoder::Init(uint32_t channels, uint32_t sampleBit, uint32_t sampleRate)
 {
     SHARING_LOGD("trace.");
     inited_ = true;
