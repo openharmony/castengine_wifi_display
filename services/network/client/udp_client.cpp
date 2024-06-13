@@ -52,8 +52,10 @@ bool UdpClient::Connect(const std::string &peerHost, uint16_t peerPort, const st
 
             eventListener_ = std::make_shared<UdpClientEventListener>();
             eventListener_->SetClient(shared_from_this());
-
-            bool ret = eventListener_->AddFdListener(socket_->GetLocalFd(), eventListener_, eventHandler_);
+            uint32_t events =
+                FILE_DESCRIPTOR_OUTPUT_EVENT | FILE_DESCRIPTOR_SHUTDOWN_EVENT | FILE_DESCRIPTOR_EXCEPTION_EVENT;
+            bool ret = eventListener_->AddFdListener(socket_->GetLocalFd(), eventListener_, eventHandler_, DUMMY_EMPTY,
+                                                     events);
 
             auto callback = callback_.lock();
             if (callback) {

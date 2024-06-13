@@ -21,7 +21,9 @@
 
 namespace OHOS {
 namespace Sharing {
-
+constexpr uint32_t g_defaultEvents = AppExecFwk::FILE_DESCRIPTOR_EVENTS_MASK |
+                                     AppExecFwk::FILE_DESCRIPTOR_SHUTDOWN_EVENT |
+                                     AppExecFwk::FILE_DESCRIPTOR_EXCEPTION_EVENT;
 class DataBuffer;
 class EventDescriptorListener : public OHOS::AppExecFwk::FileDescriptorListener {
 public:
@@ -38,7 +40,7 @@ public:
     void RemoveFdListener(int32_t fd, const std::shared_ptr<OHOS::AppExecFwk::EventHandler> &handler = nullptr);
     bool AddFdListener(int32_t fd, const std::shared_ptr<FileDescriptorListener> &listener,
                        const std::shared_ptr<OHOS::AppExecFwk::EventHandler> &handler = nullptr,
-                       const std::string &taskName = DUMMY_EMPTY);
+                       const std::string &taskName = DUMMY_EMPTY, uint32_t events = g_defaultEvents);
 
     virtual int32_t GetSocketFd();
 
