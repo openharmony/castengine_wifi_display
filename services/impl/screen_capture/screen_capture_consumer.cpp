@@ -39,10 +39,9 @@ void ScreenCaptureConsumer::AudioEncoderReceiver::OnFrame(const Frame::Ptr &fram
             mediaData->isRaw = false;
             mediaData->keyFrame = false;
             mediaData->pts = pts;
-            mediaData->buff->ReplaceData((char *)frame->Data(), frame->Size());
             MEDIA_LOGD("recv audio encode data: %{public}p size: %{public}d & put it into dispatcher: %{public}u.",
                        frame->Data(), frame->Size(), dispatcher->GetDispatcherId());
-
+            mediaData->buff = move(frame);
             dispatcher->InputData(mediaData);
         }
     }
