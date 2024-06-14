@@ -59,6 +59,7 @@ void RtpDecoderTs::Release()
     }
 
     if (avioCtxBuffer_) {
+        av_free(avioCtxBuffer_);
         avioCtxBuffer_ = nullptr;
     }
 }
@@ -220,12 +221,25 @@ void RtpEncoderTs::Release()
         encodeThread_ = nullptr;
     }
 
+    {
+        std::lock_guard<std::mutex> lock(queueMutex_);
+        while (!dataQueue_.empty()) {
+            dataQueue_.pop();
+        }
+    }
+
     if (avioContext_) {
         avio_context_free(&avioContext_);
     }
 
     if (avioCtxBuffer_) {
+        av_free(avioCtxBuffer_);
         avioCtxBuffer_ = nullptr;
+    }
+
+    if (avFormatContext_) {
+        avformat_free_context(avFormatContext_);
+        avFormatContext_ = nullptr;
     }
 }
 
@@ -310,7 +324,9 @@ void RtpEncoderTs::StartEncoding()
 
     while (!exit_) {
         AVPacket *packet = av_packet_alloc();
-        ReadFrame(packet);
+        if (ReadFrame(packet) < 0) {
+            break;
+        }
         av_write_frame(avFormatContext_, packet);
         RemoveFrameAfterMuxing();
     }
@@ -331,7 +347,7 @@ int RtpEncoderTs::ReadFrame(AVPacket *packet)
     while (dataQueue_.empty()) {
         if (exit_ == true) {
             SHARING_LOGI("exit when read frame.");
-            return 0;
+            return -1;
         }
         std::this_thread::sleep_for(std::chrono::microseconds(100)); // 100: wait times
     }
