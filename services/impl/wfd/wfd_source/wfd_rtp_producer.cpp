@@ -236,13 +236,10 @@ int32_t WfdRtpProducer::InitTsRtpPacker(uint32_t ssrc, size_t mtuSize, uint32_t 
         SHARING_LOGE("createRtpPacker failed.");
         return -1;
     }
-    DataBuffer::Ptr buffer = std::make_shared<DataBuffer>();
     tsPacker_->SetOnRtpPack([=](const RtpPacket::Ptr &rtp) {
         MEDIA_LOGD("rtp packed seq: %{public}d timestamp: %{public}d size: %{public}d.", rtp->GetSeq(), rtp->GetStamp(),
                    rtp->Size());
-        // Reset ori data, data len is 188, maybe use the data ori instead.
-        buffer->ReplaceData(rtp->Peek(), rtp->Size());
-        SendDataBuffer(buffer);
+        SendDataBuffer(rtp);
     });
     return 0;
 }

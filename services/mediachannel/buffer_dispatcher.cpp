@@ -570,16 +570,9 @@ MediaData::Ptr BufferDispatcher::RequestDataBuffer(MediaType type, uint32_t size
             SHARING_LOGD("video From idle.");
             retData = idleVideoBuffer_.front();
             idleVideoBuffer_.pop_front();
-            if (retData == nullptr || retData->buff == nullptr) {
+            if (retData == nullptr) {
                 MEDIA_LOGW("video From alloc when idle nullptr.");
                 retData = std::make_shared<MediaData>();
-                retData->buff = std::make_shared<DataBuffer>();
-                retData->buff->Resize(size);
-
-                return retData;
-            }
-            if (retData->buff->Size() < static_cast<int>(size)) {
-                retData->buff->Resize(size);
             }
             return retData;
         }
@@ -588,25 +581,16 @@ MediaData::Ptr BufferDispatcher::RequestDataBuffer(MediaType type, uint32_t size
             SHARING_LOGD("Audio From idle.");
             retData = idleAudioBuffer_.front();
             idleAudioBuffer_.pop_front();
-            if (retData == nullptr || retData->buff == nullptr) {
+            if (retData == nullptr) {
                 MEDIA_LOGW("Audio From alloc when idle nullptr.");
                 retData = std::make_shared<MediaData>();
-                retData->buff = std::make_shared<DataBuffer>();
-                retData->buff->Resize(size);
-
-                return retData;
-            }
-            if (retData->buff->Size() < static_cast<int>(size)) {
-                retData->buff->Resize(size);
             }
             return retData;
         }
     }
 
-    SHARING_LOGD("Audio From alloc.");
+    SHARING_LOGD("Audio/Video From alloc.");
     retData = std::make_shared<MediaData>();
-    retData->buff = std::make_shared<DataBuffer>();
-    retData->buff->Resize(size);
     return retData;
 }
 
