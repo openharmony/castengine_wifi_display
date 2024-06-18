@@ -48,7 +48,7 @@ int32_t EventDescriptorListener::GetSocketFd()
 
 bool EventDescriptorListener::AddFdListener(int32_t fd, const std::shared_ptr<FileDescriptorListener> &listener,
                                             const std::shared_ptr<OHOS::AppExecFwk::EventHandler> &handler,
-                                            const std::string &taskName)
+                                            const std::string &taskName, uint32_t events)
 {
     SHARING_LOGD("fd: %{public}d.", fd);
     auto existHandler = EventHandlerManager::GetInstance().GetEventHandler(fd);
@@ -64,9 +64,7 @@ bool EventDescriptorListener::AddFdListener(int32_t fd, const std::shared_ptr<Fi
         EventHandlerManager::GetInstance().AddEventHandler(fd, eventHandler);
         EventHandlerManager::GetInstance().AddFdListener(fd, listener);
     }
-    return ERR_OK == eventHandler->AddFileDescriptorListener(fd,
-        FILE_DESCRIPTOR_EVENTS_MASK | FILE_DESCRIPTOR_SHUTDOWN_EVENT | FILE_DESCRIPTOR_EXCEPTION_EVENT,
-        listener, taskName);
+    return ERR_OK == eventHandler->AddFileDescriptorListener(fd, events, listener, taskName);
 }
 
 void EventDescriptorListener::RemoveFdListener(int32_t fd,
