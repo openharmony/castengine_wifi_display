@@ -157,16 +157,17 @@ void WfdSourceScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pL
     SHARING_LOGD("trace.");
     Wifi::P2pConnectedState state = info.GetConnectState();
     SHARING_LOGD("ConnectState: %{public}d.", state);
-    if (state != Wifi::P2pConnectedState::P2P_CONNECTED) {
-        return;
-    }
 
     auto scene = scene_.lock();
     if (scene == nullptr || scene->p2pInstance_ == nullptr) {
         SHARING_LOGW("scene is nullptr.");
         return;
     }
-
+    if (state != Wifi::P2pConnectedState::P2P_CONNECTED) {
+        scene->p2pSysEvent_->ReportEnd(__func__, BIZSceneStage::P2P_DISCONNECT_DEVICE);
+        return;
+    }
+    scene->p2pSysEvent_->ReportEnd(__func__, BIZSceneStage::P2P_CONNECT_DEVICE);
     SHARING_LOGD("goip: %{private}s.", GetAnonyString(info.GetGroupOwnerAddress()).c_str());
     if (info.GetGroupOwnerAddress() == "") {
         return;
@@ -231,6 +232,7 @@ void WfdSourceScene::WfdP2pCallback::OnConfigChanged(Wifi::CfgType type, char *d
 WfdSourceScene::WfdSourceScene()
 {
     SHARING_LOGD("id: %{public}u.", GetId());
+    p2pSysEvent_ = std::make_shared<SharingHiSysEvent>(BIZSceneType::P2P_START_DISCOVERY, P2P_PKG);
 }
 
 WfdSourceScene::~WfdSourceScene()
@@ -421,6 +423,7 @@ int32_t WfdSourceScene::HandleStartDiscovery(std::shared_ptr<WfdSourceStartDisco
         return -1;
     }
     if (!isSourceRunning_) {
+        p2pSysEvent_->ReportStart(__func__, BIZSceneStage::P2P_START_DISCOVERY);
         int32_t status = 0;
         p2pInstance_->GetP2pEnableStatus(status);
         switch (static_cast<Wifi::P2pState>(status)) {
@@ -451,6 +454,8 @@ int32_t WfdSourceScene::HandleStartDiscovery(std::shared_ptr<WfdSourceStartDisco
     if (ret == 0) {
         ret = p2pInstance_->DiscoverDevices();
         isSourceDiscovering = true;
+    } else {
+        p2pSysEvent_->ReportEnd(__func__, BIZSceneStage::P2P_START_DISCOVERY, BlzErrorCode::ERROR_FAIL);
     }
     return ret;
 }
@@ -503,7 +508,9 @@ int32_t WfdSourceScene::HandleAddDevice(std::shared_ptr<WfdSourceAddDeviceReq> &
         SHARING_LOGE("can't find screenId %{public}" PRIu64, msg->screenId);
         return ERR_BAD_PARAMETER;
     }
-
+    p2pSysEvent_->ReportEnd(__func__, BIZSceneStage::P2P_DEVICE_FOUND);
+    p2pSysEvent_->ChangeScene(BIZSceneType::P2P_CONNECT_DEVICE);
+    p2pSysEvent_->ReportStart(__func__, BIZSceneStage::P2P_CONNECT_DEVICE);
     Wifi::WifiP2pConfig config;
     config.SetDeviceAddress(msg->deviceId);
     config.SetDeviceAddressType(OHOS::Wifi::RANDOM_DEVICE_ADDRESS);
@@ -539,6 +546,8 @@ int32_t WfdSourceScene::HandleRemoveDevice(std::shared_ptr<WfdSourceRemoveDevice
     connDev_.reset();
     int ret = sharingAdapter->DestroyAgent(contextId_, agentId_);
     if (p2pInstance_) {
+        p2pSysEvent_->ChangeScene(BIZSceneType::P2P_DISCONNECT_DEVICE);
+        p2pSysEvent_->ReportStart(__func__, BIZSceneStage::P2P_DISCONNECT_DEVICE);
         p2pInstance_->RemoveGroup();
     }
     return ret;
@@ -701,9 +710,14 @@ void WfdSourceScene::OnDeviceFound(const std::vector<WfdCastDeviceInfo> &deviceI
     SHARING_LOGD("trace.");
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_IF_NULL(ipcAdapter);
-
     auto msg = std::make_shared<WfdSourceDeviceFoundMsg>();
     msg->deviceInfos = deviceInfos;
+    if (p2pSysEvent_->GetScene() == static_cast<int>(BIZSceneType::P2P_START_DISCOVERY)) {
+        for (auto &deviceInfo : deviceInfos) {
+            p2pSysEvent_->Report(__func__, BIZSceneStage::P2P_DEVICE_FOUND, StageResType::STAGE_RES_SUCCESS,
+                                 GetAnonyString(deviceInfo.deviceId));
+        }
+    }
 
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
     ipcAdapter->SendRequest(msg, reply);

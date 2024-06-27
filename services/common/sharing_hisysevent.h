@@ -21,29 +21,89 @@
 
 namespace OHOS {
 namespace Sharing {
-const std::string SHARING_INIT = "SHARING_INIT";
-const std::string SHARING_OPERATION_FAIL = "SHARING_OPERATION_FAIL";
-const std::string SHARING_FORWARD_EVENT = "SHARING_FORWARD_EVENT";
-
-enum HisyseventErrorCode {
-    ERR = -1,
-    SUC
+constexpr char WFD_SOURCE[] = "wfdSourceSession";
+constexpr char P2P_PKG[] = "WIFI_P2P";
+enum class BIZSceneType : int32_t {
+    WFD_SOURCE_PLAY,
+    P2P_START_DISCOVERY,
+    P2P_CONNECT_DEVICE,
+    P2P_DISCONNECT_DEVICE,
 };
 
-enum FrameworkModules {
-    INTERACTIONMANAGER,
-    INTERACTION,
-    AGENT,
-    SCENE,
-    EVENT_MEDIA_CHANNEL
+enum class StageResType : int32_t {
+    STAGE_RES_IDLE = 0,
+    STAGE_RES_SUCCESS,
+    STAGE_RES_FAILED,
+    STAGE_RES_CANCEL,
+    STAGE_RES_UNKNOWN
 };
 
-std::string CreateMsg(const char *format, ...) __attribute__((__format__(printf, 1, 2)));
+enum class BIZStateType : int32_t {
+    BIZ_STATE_BEGIN = 1,
+    BIZ_STATE_END,
+    BIZ_STATE_IDLE,
+};
 
-void ReportSaEvent(int32_t saId, const std::string &errMsg);
-void ReportSaFail(int32_t errCode, int32_t saId, const std::string &errMsg);
-void ReportForwardSharingEvent(const std::string &sharingEvent, const std::string &errMsg);
-void ReportOptFail(int32_t errCode, const std::string &operation, const std::string &errMsg);
+enum class BIZSceneStage : int32_t {
+    // scene5
+    WFD_SOURCE_PLAY_TCP_SERVER = 1,
+    WFD_SOURCE_PLAY_SEND_M1_REQ, // OPTIONS
+    WFD_SOURCE_PLAY_RECV_M1_RSP,
+    WFD_SOURCE_PLAY_RECV_M2_REQ, // OPTIONS
+    WFD_SOURCE_PLAY_SEND_M2_RSP,
+    WFD_SOURCE_PLAY_SEND_M3_REQ, // GET_PARAMETER
+    WFD_SOURCE_PLAY_RECV_M3_RSP,
+    WFD_SOURCE_PLAY_SEND_M4_REQ, // SET_PARAMETER
+    WFD_SOURCE_PLAY_RECV_M4_RSP,
+    WFD_SOURCE_PLAY_SEND_M5_REQ, // SET_PARAMETER wfd_trigger_method: SETUP
+    WFD_SOURCE_PLAY_RECV_M5_RSP,
+    WFD_SOURCE_PLAY_RECV_M6_REQ, // SETUP
+    WFD_SOURCE_PLAY_SEND_M6_RSP,
+    WFD_SOURCE_PLAY_RECV_M7_REQ, // PLAY
+    WFD_SOURCE_PLAY_SEND_M7_RSP,
+    WFD_SOURCE_PLAY_RECV_M8_REQ, // TEARDOWN
+    WFD_SOURCE_PLAY_SEND_M8_RSP,
+    // scene2  P2P_START_DISCOVERY
+    P2P_START_DISCOVERY = 1,
+    P2P_DEVICE_FOUND,
+    // scene P2P_CONNECT_DEVICE
+    P2P_CONNECT_DEVICE = 1,
+
+    // scene P2P_DISCONNECT_DEVICE
+    P2P_DISCONNECT_DEVICE = 1,
+
+    WFD_SOURCE_SCENE_REMOVE_DEVICE,
+    WFD_SOUCE_SCENE_STOP_DISCOVERY,
+};
+
+enum class BlzErrorCode : int32_t {
+    ERROR_NONE = 0,
+    ERROR_FAIL,
+};
+
+class SharingHiSysEvent {
+public:
+    using Ptr = std::shared_ptr<SharingHiSysEvent>;
+    explicit SharingHiSysEvent(BIZSceneType scene, std::string callPkg);
+    ~SharingHiSysEvent();
+    void ReportStart(std::string funcName, BIZSceneStage stage);
+    void ReportEnd(std::string funcName, BIZSceneStage stage, BlzErrorCode error = BlzErrorCode::ERROR_NONE);
+    void Report(std::string funcName, BIZSceneStage stage, StageResType resType = StageResType::STAGE_RES_SUCCESS,
+                std::string peerMac = "");
+    void SetCallPkg(const std::string callPkg);
+    void SetLocalMac(const std::string mac);
+    void SetPeerMac(const std::string mac);
+    void ChangeScene(BIZSceneType scene);
+    int32_t GetScene() const;
+
+private:
+    int32_t bizScene_ = 0;
+    std::string toCallPkg_ = "";
+    std::string localMac_ = "";
+    std::string peerMac_ = "";
+    BIZSceneStage lastStage_;
+    bool sceneDisposed = false;
+};
 
 } // namespace Sharing
 } // namespace OHOS
