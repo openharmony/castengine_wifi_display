@@ -506,14 +506,14 @@ void BufferDispatcher::ReleaseIdleBuffer()
     SHARING_LOGD("BufferDispatcher idle Release Start.");
     std::unique_lock<std::mutex> locker(idleMutex_);
     for (auto &data : idleAudioBuffer_) {
-        if (data != nullptr || data->buff != nullptr) {
+        if (data != nullptr && data->buff != nullptr) {
             data->buff.reset();
         }
     }
 
     idleAudioBuffer_.clear();
     for (auto &data : idleVideoBuffer_) {
-        if (data != nullptr || data->buff != nullptr) {
+        if (data != nullptr && data->buff != nullptr) {
             data->buff.reset();
         }
     }

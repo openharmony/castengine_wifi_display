@@ -214,6 +214,7 @@ void WfdSourceDemoListener::OnInfo(std::shared_ptr<BaseMsg> &msg)
             auto listener = listener_.lock();
             if (!listener) {
                 printf("no listener.\n");
+                break;
             }
             listener->RemoveCastDevice(g_deviceId);
             break;

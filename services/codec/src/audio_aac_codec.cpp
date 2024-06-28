@@ -262,6 +262,7 @@ int32_t AudioAACEncoder::Init(uint32_t channels, uint32_t sampleBit, uint32_t sa
     encFrame_ = av_frame_alloc();
     if (!encFrame_) {
         SHARING_LOGE("Could not allocate audio encode in frame");
+        return 1;
     }
     encFrame_->format = enc_->sample_fmt;
     encFrame_->nb_samples = enc_->frame_size;

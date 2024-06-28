@@ -100,12 +100,13 @@ bool UdpSession::Send(const char *buf, int32_t nSize)
 
 void UdpSession::OnSessionReadble(int32_t fd)
 {
-    SHARING_LOGD("fd: %{public}d, local_fd:%{public}d, thread_id: %{public}llu.", fd, socket_->GetLocalFd(),
-                 GetThreadId());
     if (socket_ == nullptr) {
         MEDIA_LOGE("socket nullptr!");
         return;
     }
+    SHARING_LOGD("fd: %{public}d, local_fd:%{public}d, thread_id: %{public}llu.", fd, socket_->GetLocalFd(),
+                 GetThreadId());
+
     if (fd == socket_->GetLocalFd()) {
         int32_t retCode = 0;
         do {

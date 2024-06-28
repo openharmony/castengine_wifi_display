@@ -179,11 +179,12 @@ void VideoPlayController::StartVideoThread()
     }
 
     videoPlayThread_ = std::make_shared<std::thread>(&VideoPlayController::VideoPlayThread, this);
-    std::string name = "videoplay";
-    pthread_setname_np(videoPlayThread_->native_handle(), name.c_str());
     if (videoPlayThread_ == nullptr) {
         SHARING_LOGE("play start create thread error, mediachannelId: %{public}u!", mediachannelId_);
+        return;
     }
+    std::string name = "videoplay";
+    pthread_setname_np(videoPlayThread_->native_handle(), name.c_str());
 }
 
 void VideoPlayController::StopVideoThread()

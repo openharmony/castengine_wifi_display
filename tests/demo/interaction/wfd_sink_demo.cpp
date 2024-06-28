@@ -67,7 +67,7 @@ bool WfdSinkDemo::CreateClient()
 
 bool WfdSinkDemo::SetDiscoverable(bool enable)
 {
-    if (!client_) {
+    if (client_) {
         int ret = 0;
         if (enable) {
             ret = client_->Start();
@@ -436,6 +436,7 @@ void WfdSinkDemoListener::OnConnectionChanged(const ConnectionInfo &info)
     auto listener = listener_.lock();
     if (!listener) {
         printf("no listener");
+        return;
     }
     switch (info.state) {
         case ConnectionState::CONNECTED: {

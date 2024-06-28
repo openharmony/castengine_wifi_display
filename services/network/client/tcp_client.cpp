@@ -49,10 +49,12 @@ bool TcpClient::Connect(const std::string &peerIp, uint16_t peerPort, const std:
             eventHandler_->SetEventRunner(eventRunner);
             eventRunner->Run();
 
+            bool ret = false;
             eventListener_ = std::make_shared<TcpClientEventListener>();
-            eventListener_->SetClient(shared_from_this());
-
-            bool ret = eventListener_->AddFdListener(socket_->GetLocalFd(), eventListener_, eventHandler_);
+            if (eventListener_) {
+                eventListener_->SetClient(shared_from_this());
+                ret = eventListener_->AddFdListener(socket_->GetLocalFd(), eventListener_, eventHandler_);
+            }
 
             auto callback = callback_.lock();
             if (callback) {
