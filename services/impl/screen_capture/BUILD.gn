@@ -33,6 +33,7 @@ ohos_source_set("sharing_screen_capture_srcs") {
   ]
 
   sources = [
+    "$SHARING_ROOT_DIR/services/impl/screen_capture/mediasource/audio_source_capturer.cpp",
     "$SHARING_ROOT_DIR/services/impl/screen_capture/mediasource/video_source_screen.cpp",
     "$SHARING_ROOT_DIR/services/impl/screen_capture/screen_capture_consumer.cpp",
     "$SHARING_ROOT_DIR/services/impl/screen_capture/screen_capture_session.cpp",
