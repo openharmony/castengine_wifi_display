@@ -24,7 +24,7 @@ static constexpr char ORG_PKG[] = "sharing_service";
 static constexpr char HOST_PKG[] = "cast_engine_service";
 static constexpr char EVENT_NAME[] = "MIRACAST_BEHAVIOR";
 
-static const uint8_t WIFI_DISPLAY_SYSTEM_ID = 209;
+static const uint8_t WIFI_DISPLAY_SYSTEM_ID = 227;
 static const uint8_t WIFI_DISPLAY_MODULE_ID = 11;
 
 SharingHiSysEvent::SharingHiSysEvent(BIZSceneType scene, std::string callPkg)
