@@ -21,6 +21,7 @@
 #include <unordered_set>
 #include "agent/agent_def.h"
 #include "interaction/scene/base_scene.h"
+#include "sharing_hisysevent.h"
 #include "timer.h"
 #include "wfd_def.h"
 #include "wfd_msg.h"
@@ -134,6 +135,7 @@ private:
     VideoFormat videoFormat_ = VideoFormat::VIDEO_1920X1080_25;
 
     std::mutex mutex_;
+    SharingHiSysEvent::Ptr p2pSysEvent_ = nullptr;
     std::shared_ptr<Wifi::WifiP2p> p2pInstance_;
     std::unique_ptr<ConnectionInfo> connDev_ = nullptr;
     std::unique_ptr<OHOS::Utils::Timer> timer_ = std::make_unique<OHOS::Utils::Timer>("WfdConnectTimeoutTimer");

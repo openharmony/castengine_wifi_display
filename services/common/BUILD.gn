@@ -30,8 +30,7 @@ ohos_static_library("sharing_common") {
   sources = [
     "common.cpp",
     "reflect_registration.cpp",
-
-    #  "sharing_hisysevent.cpp",
+    "sharing_hisysevent.cpp",
   ]
 
   external_deps = [

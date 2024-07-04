@@ -118,6 +118,7 @@ void WfdSourceSession::WfdSourceNetworkSession::OnSendKeepAlive() const
 WfdSourceSession::WfdSourceSession()
 {
     SHARING_LOGD("trace.");
+    sysEvent_ = std::make_shared<SharingHiSysEvent>(BIZSceneType::WFD_SOURCE_PLAY, WFD_SOURCE);
     std::stringstream ss;
     ss << std::setw(8) << std::setfill('f') << (int64_t)this; // width:8
     sessionID_ = ss.str();
@@ -265,14 +266,17 @@ void WfdSourceSession::NotifyAgentSessionStatus(SessionStatusMsg::Ptr &statusMsg
 
 bool WfdSourceSession::StartWfdSession()
 {
+    sysEvent_->ReportStart(__func__, BIZSceneStage::WFD_SOURCE_PLAY_TCP_SERVER);
     SHARING_LOGD("trace.");
     if (wfdDefaultPort_ > 0) {
         if (!NetworkFactory::CreateTcpServer(wfdDefaultPort_, shared_from_this(), rtspServerPtr_, "")) {
             SHARING_LOGE("start rtsp server [port:%{public}d] failed.", wfdDefaultPort_);
+            sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_TCP_SERVER, BlzErrorCode::ERROR_FAIL);
             return false;
         }
     }
     SHARING_LOGD("start reveiver server success.");
+    sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_TCP_SERVER, StageResType::STAGE_RES_SUCCESS);
     return true;
 }
 
@@ -293,6 +297,7 @@ void WfdSourceSession::HandleSessionInit(SharingEvent &event)
     if (inputMsg) {
         sourceMac_ = inputMsg->mac;
         sourceIp_ = inputMsg->ip;
+        sysEvent_->SetPeerMac(GetAnonyString(sourceMac_));
         wfdDefaultPort_ = inputMsg->remotePort != 0 ? inputMsg->remotePort : DEFAULT_WFD_CTRLPORT;
         sourceRtpPort_ = inputMsg->localPort;
         videoFormat_ = inputMsg->videoFormat;
@@ -450,6 +455,7 @@ bool WfdSourceSession::HandleIDRRequest(const RtspRequest &request, int32_t cseq
 bool WfdSourceSession::HandleOptionRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session)
 {
     SHARING_LOGD("trace.");
+    sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M2_REQ);
     if (SendM2Response(cseq, session)) {
         if (SendM3Request(session)) {
             return true;
@@ -461,12 +467,14 @@ bool WfdSourceSession::HandleOptionRequest(const RtspRequest &request, int32_t c
 bool WfdSourceSession::HandleSetupRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session)
 {
     SHARING_LOGD("trace.");
+    sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M6_REQ);
     return SendM6Response(session, cseq);
 }
 
 bool WfdSourceSession::HandlePlayRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session)
 {
     SHARING_LOGD("trace.");
+    sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M7_REQ);
     auto statusMsg = std::make_shared<SessionStatusMsg>();
     statusMsg->msg = std::make_shared<EventMsg>();
     statusMsg->msg->requestId = 0;
@@ -563,6 +571,7 @@ bool WfdSourceSession::HandleM1Response(const RtspResponse &response, const std:
     (void)session;
     if (response.GetStatus() != RTSP_STATUS_OK) {
         SHARING_LOGE("WFD source peer handle 'OPTIONS' method error.");
+        sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M1_RSP, BlzErrorCode::ERROR_FAIL);
         return false;
     }
 
@@ -571,11 +580,12 @@ bool WfdSourceSession::HandleM1Response(const RtspResponse &response, const std:
         publics.find(RTSP_METHOD_SET_PARAMETER) == std::string::npos ||
         publics.find(RTSP_METHOD_GET_PARAMETER) == std::string::npos) {
         SHARING_LOGE("WFD source peer do not support all methods.");
+        sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M1_RSP, BlzErrorCode::ERROR_FAIL);
         return false;
-    } else {
-        SHARING_LOGI("WFD RTSP M1 response ok.");
-        return true;
     }
+    SHARING_LOGI("WFD RTSP M1 response ok.");
+    sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M1_RSP);
+    return true;
 }
 
 bool WfdSourceSession::HandleM3Response(const RtspResponse &response, const std::string &message,
@@ -585,6 +595,7 @@ bool WfdSourceSession::HandleM3Response(const RtspResponse &response, const std:
     (void)message;
     if (response.GetStatus() != RTSP_STATUS_OK) {
         SHARING_LOGE("WFD source peer handle 'SETUP' method error.");
+        sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M3_RSP, BlzErrorCode::ERROR_FAIL);
         return false;
     }
 
@@ -605,11 +616,12 @@ bool WfdSourceSession::HandleM3Response(const RtspResponse &response, const std:
             SHARING_LOGE("send m4 request error.");
             return false;
         }
+        sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M3_RSP);
         return true;
-    } else {
-        SHARING_LOGE("WFD source parse 'SETUP' message error.");
-        return false;
     }
+    SHARING_LOGE("WFD source parse 'SETUP' message error.");
+    sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M3_RSP, BlzErrorCode::ERROR_FAIL);
+    return false;
 }
 
 bool WfdSourceSession::HandleM4Response(const RtspResponse &response, const std::string &message,
@@ -619,6 +631,7 @@ bool WfdSourceSession::HandleM4Response(const RtspResponse &response, const std:
     (void)message;
     if (response.GetStatus() != RTSP_STATUS_OK) {
         SHARING_LOGE("WFD source peer handle 'SETUP' method error.");
+        sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M4_RSP, BlzErrorCode::ERROR_FAIL);
         return false;
     }
 
@@ -637,6 +650,7 @@ bool WfdSourceSession::HandleM4Response(const RtspResponse &response, const std:
 
         NotifyAgentSessionStatus(statusMsg);
     }
+    sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M4_RSP);
     return true;
 }
 
@@ -648,14 +662,17 @@ bool WfdSourceSession::HandleM5Response(const RtspResponse &response, const std:
     (void)session;
     if (response.GetStatus() != RTSP_STATUS_OK) {
         SHARING_LOGE("WFD source peer handle 'SETUP' method error.");
+        sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M5_RSP, BlzErrorCode::ERROR_FAIL);
         return false;
     }
 
     WfdRtspM5Response m5Res;
     auto ret = m5Res.Parse(message);
     if (ret.code != RtspErrorType::OK) {
+        sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M5_RSP, BlzErrorCode::ERROR_FAIL);
         return false;
     }
+    sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M5_RSP);
     return true;
 }
 
@@ -698,7 +715,6 @@ bool WfdSourceSession::HandleM8Response(const RtspResponse &response, const std:
     statusMsg->msg = std::move(eventMsg);
     statusMsg->status = NOTIFY_SESSION_PRIVATE_EVENT;
     NotifyAgentSessionStatus(statusMsg);
-
     SHARING_LOGI("WFD RTSP TEARDOWN ok, stop recv the stream, disconnect socket.");
     return true;
 }
@@ -716,9 +732,11 @@ bool WfdSourceSession::SendM1Request(INetworkSession::Ptr &session)
     bool ret = session->Send(m1Req.c_str(), m1Req.size());
     if (!ret) {
         SHARING_LOGE("Failed to send M1 request.");
+        sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_SEND_M1_REQ, BlzErrorCode::ERROR_FAIL);
         return false;
     }
     wfdState_ = WfdSessionState::M1;
+    sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_SEND_M1_REQ, StageResType::STAGE_RES_SUCCESS);
     return ret;
 }
 
@@ -735,9 +753,11 @@ bool WfdSourceSession::SendM2Response(int32_t cseq, INetworkSession::Ptr &sessio
     bool ret = session->Send(m2Res.c_str(), m2Res.size());
     if (!ret) {
         SHARING_LOGE("Failed to send M2 response.");
+        sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_SEND_M2_RSP, BlzErrorCode::ERROR_FAIL);
         return false;
     }
     wfdState_ = WfdSessionState::M2;
+    sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_SEND_M2_RSP, StageResType::STAGE_RES_SUCCESS);
     return ret;
 }
 
@@ -754,9 +774,11 @@ bool WfdSourceSession::SendM3Request(INetworkSession::Ptr &session)
     bool ret = session->Send(m3Req.c_str(), m3Req.size());
     if (!ret) {
         SHARING_LOGE("Failed to send M3 request.");
+        sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_SEND_M3_REQ, BlzErrorCode::ERROR_FAIL);
         return false;
     }
     wfdState_ = WfdSessionState::M3;
+    sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_SEND_M3_REQ, StageResType::STAGE_RES_SUCCESS);
     return ret;
 }
 
@@ -778,9 +800,11 @@ bool WfdSourceSession::SendM4Request(INetworkSession::Ptr &session)
     bool ret = session->Send(m4Req.c_str(), m4Req.size());
     if (!ret) {
         SHARING_LOGE("Failed to send M4 request.");
+        sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_SEND_M4_REQ, BlzErrorCode::ERROR_FAIL);
         return false;
     }
     wfdState_ = WfdSessionState::M4;
+    sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_SEND_M4_REQ, StageResType::STAGE_RES_SUCCESS);
     return ret;
 }
 
@@ -798,9 +822,11 @@ bool WfdSourceSession::SendM5Request(INetworkSession::Ptr &session)
     bool ret = session->Send(m5Req.c_str(), m5Req.size());
     if (!ret) {
         SHARING_LOGE("Failed to send M5 request.");
+        sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_SEND_M5_REQ, BlzErrorCode::ERROR_FAIL);
         return false;
     }
     wfdState_ = WfdSessionState::M5;
+    sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_SEND_M5_REQ, StageResType::STAGE_RES_SUCCESS);
     return ret;
 }
 
@@ -819,8 +845,10 @@ bool WfdSourceSession::SendM6Response(INetworkSession::Ptr &session, int32_t cse
     bool ret = session->Send(m6Res.c_str(), m6Res.size());
     if (!ret) {
         SHARING_LOGE("Failed to send M6 response.");
+        sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_SEND_M6_RSP, BlzErrorCode::ERROR_FAIL);
     }
     wfdState_ = WfdSessionState::M7_WAIT;
+    sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_SEND_M6_RSP, StageResType::STAGE_RES_SUCCESS);
     return ret;
 }
 
@@ -839,8 +867,10 @@ bool WfdSourceSession::SendM7Response(INetworkSession::Ptr &session, int32_t cse
     bool ret = session->Send(m7Res.c_str(), m7Res.size());
     if (!ret) {
         SHARING_LOGE("Failed to send M7 response.");
+        sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_SEND_M7_RSP, BlzErrorCode::ERROR_FAIL);
     }
     wfdState_ = WfdSessionState::M7;
+    sysEvent_->ReportEnd(__func__, BIZSceneStage::WFD_SOURCE_PLAY_SEND_M7_RSP);
     return ret;
 }
 

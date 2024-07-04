@@ -24,6 +24,7 @@
 #include "network/network_factory.h"
 #include "protocol/rtsp/include/rtsp_request.h"
 #include "protocol/rtsp/include/rtsp_response.h"
+#include "sharing_hisysevent.h"
 #include "timer.h"
 #include "utils/utils.h"
 #include "wfd_message.h"
@@ -138,6 +139,8 @@ private:
     AudioFormat audioFormat_ = AUDIO_48000_16_2;
     VideoFormat videoFormat_ = VIDEO_1920X1080_30;
     WfdSessionState wfdState_ = WfdSessionState::M0;
+
+    SharingHiSysEvent::Ptr sysEvent_ = nullptr;
     NetworkFactory::ServerPtr rtspServerPtr_ = nullptr;
 };
 
