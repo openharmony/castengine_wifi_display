@@ -18,7 +18,7 @@
 
 #include <mutex>
 #include "audio_aac_codec.h"
-#include "audio_capturer.h"
+#include "audio_source_capturer.h"
 #include "codec_factory.h"
 #include "magic_enum.hpp"
 #include "mediachannel/base_consumer.h"
@@ -68,8 +68,6 @@ private:
     bool Init(uint64_t screenId);
     bool InitVideoCapture(uint64_t screenId);
 
-    void AudioCaptureThreadWorker();
-
     void HandleProsumerInitState(SharingEvent &event);
     void HandleSpsFrame(BufferDispatcher::Ptr dispatcher, const Frame::Ptr &frame);
     void HandlePpsFrame(BufferDispatcher::Ptr dispatcher, const Frame::Ptr &frame);
@@ -82,12 +80,9 @@ private:
     std::shared_ptr<VideoSourceScreen> videoSourceScreen_ = nullptr;
     std::shared_ptr<VideoSourceEncoder> videoSourceEncoder_ = nullptr;
 
-    size_t audioBufferLen_ = 0;
-
     std::shared_ptr<AudioEncoder> audioEncoder_ = nullptr;
-    std::unique_ptr<std::thread> audioCaptureThread_ = nullptr;
+    std::shared_ptr<AudioSourceCapturer> audioSourceCapturer_ = nullptr;
     std::shared_ptr<AudioEncoderReceiver> audioEncoderReceiver_ = nullptr;
-    std::unique_ptr<AudioStandard::AudioCapturer> audioCapturer_ = nullptr;
 };
 
 } // namespace Sharing

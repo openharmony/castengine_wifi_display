@@ -324,24 +324,12 @@ bool ScreenCaptureConsumer::InitAudioCapture()
 {
     SHARING_LOGD("trace.");
 
-    AudioStandard::AudioCapturerOptions options;
-    options.capturerInfo.capturerFlags = 0;
-    options.capturerInfo.sourceType = AudioStandard::SourceType::SOURCE_TYPE_PLAYBACK_CAPTURE;
-    options.streamInfo.channels = AudioStandard::AudioChannel::STEREO;
-    options.streamInfo.encoding = AudioStandard::AudioEncodingType::ENCODING_PCM;
-    options.streamInfo.format = AudioStandard::AudioSampleFormat::SAMPLE_S16LE;
-    options.streamInfo.samplingRate = AudioStandard::AudioSamplingRate::SAMPLE_RATE_48000;
-
-    AudioStandard::AppInfo appInfo;
-    appInfo.appUid = 0;
-
-    audioCapturer_ = AudioStandard::AudioCapturer::Create(options, appInfo);
-    if (audioCapturer_ == nullptr) {
-        SHARING_LOGE("create AudioCapturer failed! consumerId: %{public}u.", GetId());
+    if (audioEncoder_ == nullptr) {
+        SHARING_LOGE("InitAudioCapture failed, audioEncoder_ is null! %{public}u.", GetId());
         return false;
     }
-
-    return true;
+    audioSourceCapturer_ = std::make_shared<AudioSourceCapturer>(audioEncoder_);
+    return audioSourceCapturer_->InitAudioCapture();
 }
 
 bool ScreenCaptureConsumer::InitAudioEncoder()
@@ -385,26 +373,12 @@ bool ScreenCaptureConsumer::StartCapture()
 bool ScreenCaptureConsumer::StartAudioCapture()
 {
     SHARING_LOGD("trace.");
-    if (audioCapturer_ == nullptr) {
-        SHARING_LOGE("start capture fail - invalid capturer, consumerId: %{public}u.", GetId());
+
+    if (audioSourceCapturer_ == nullptr) {
+        SHARING_LOGE("start capture fail - capturer is null, consumerId: %{public}u.", GetId());
         return false;
     }
-
-    if (!audioCapturer_->Start()) {
-        SHARING_LOGE("audioCapturer Start() failed, consumerId: %{public}u.", GetId());
-        return false;
-    }
-
-    if (audioCapturer_->GetBufferSize(audioBufferLen_) != 0) {
-        audioBufferLen_ = 0;
-        SHARING_LOGE("audioCapturer GetBufferSize failed, consumerId: %{public}u.", GetId());
-        return false;
-    }
-
-    audioCaptureThread_ = std::make_unique<std::thread>(&ScreenCaptureConsumer::AudioCaptureThreadWorker, this);
-
-    SHARING_LOGD("consumerId: %{public}u, audio capture start successful.", GetId());
-    return true;
+    return audioSourceCapturer_->StartAudioCapture();
 }
 
 bool ScreenCaptureConsumer::StartVideoCapture()
@@ -438,19 +412,12 @@ bool ScreenCaptureConsumer::StopCapture()
 bool ScreenCaptureConsumer::StopAudioCapture()
 {
     SHARING_LOGD("trace.");
-    if (audioTrack_.codecId != CODEC_NONE) {
-        if (audioCaptureThread_ != nullptr && audioCaptureThread_->joinable()) {
-            audioCaptureThread_->join();
-            audioCaptureThread_.reset();
-            audioCaptureThread_ = nullptr;
-        }
 
-        if (audioCapturer_) {
-            audioCapturer_->Flush();
-            audioCapturer_->Stop();
-        }
+    if (audioSourceCapturer_ == nullptr) {
+        SHARING_LOGE("stop capture fail - capturer is null, consumerId: %{public}u.", GetId());
+        return false;
     }
-    return true;
+    return audioSourceCapturer_->StopAudioCapture();
 }
 
 bool ScreenCaptureConsumer::StopVideoCapture()
@@ -465,39 +432,6 @@ bool ScreenCaptureConsumer::StopVideoCapture()
         }
     }
     return true;
-}
-
-void ScreenCaptureConsumer::AudioCaptureThreadWorker()
-{
-    SHARING_LOGD("trace.");
-    int32_t bytesRead = 0;
-    bool isBlockingRead = true;
-
-    auto pcmFrame = FrameImpl::Create();
-    pcmFrame->codecId_ = CODEC_PCM;
-
-    uint8_t *frame = (uint8_t *)malloc(audioBufferLen_);
-    SHARING_LOGI("audio capture buffer size: %{public}zu.", audioBufferLen_);
-    if (!frame) {
-        SHARING_LOGE("malloc buffer failed.");
-        return;
-    }
-
-    while (isRunning_) {
-        SHARING_LOGD("audio capture thread get pcm data, size: %{public}u.", bytesRead);
-        bytesRead = audioCapturer_->Read(*frame, audioBufferLen_, isBlockingRead);
-        if (bytesRead > 0 && audioEncoder_) {
-            pcmFrame->Clear();
-            pcmFrame->Assign((char *)frame, static_cast<uint32_t>(bytesRead));
-            audioEncoder_->OnFrame(pcmFrame);
-        }
-    }
-
-    if (frame) {
-        free(frame);
-    }
-
-    SHARING_LOGD("audio capture thread exit.");
 }
 
 void ScreenCaptureConsumer::OnInitVideoCaptureError()
