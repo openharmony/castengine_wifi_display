@@ -116,7 +116,7 @@ void AudioSourceCapturer::AudioCaptureThreadWorker()
     auto pcmFrame = FrameImpl::Create();
     pcmFrame->codecId_ = CODEC_PCM;
 
-    SHARING_LOGI("audio capture buffer size: %{public}d.", audioBufferLen_);
+    SHARING_LOGI("audio capture buffer size: %{public}zu.", audioBufferLen_);
     uint8_t *frame = (uint8_t *)malloc(audioBufferLen_);
     if (!frame) {
         SHARING_LOGE("malloc buffer failed.");
