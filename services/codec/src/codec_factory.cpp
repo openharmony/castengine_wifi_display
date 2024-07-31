@@ -16,6 +16,7 @@
 #include "codec_factory.h"
 #include "audio_aac_codec.h"
 #include "audio_g711_codec.h"
+#include "audio_pcm_processor.h"
 #include "sharing_log.h"
 
 namespace OHOS {
@@ -34,6 +35,9 @@ std::shared_ptr<AudioEncoder> CodecFactory::CreateAudioEncoder(CodecId format)
             break;
         case CODEC_AAC:
             encoder.reset(new AudioAACEncoder());
+            break;
+        case CODEC_PCM:
+            encoder.reset(new AudioPcmProcessor());
             break;
         default:
             SHARING_LOGE("unsupported codec format %{public}d.", (int32_t)format);

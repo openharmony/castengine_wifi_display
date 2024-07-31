@@ -18,6 +18,7 @@
 #include <libswresample/swresample.h>
 #include <memory>
 #include <securec.h>
+#include "common_macro.h"
 #include "const_def.h"
 #include "sharing_log.h"
 
@@ -45,6 +46,9 @@ constexpr uint32_t ADTS_HEADER_INDEX_3 = 3;
 constexpr uint32_t ADTS_HEADER_INDEX_4 = 4;
 constexpr uint32_t ADTS_HEADER_INDEX_5 = 5;
 constexpr uint32_t ADTS_HEADER_INDEX_6 = 6;
+
+static std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+static uint64_t duration = 0;
 
 AudioAACDecoder::AudioAACDecoder()
 {
@@ -235,6 +239,13 @@ void AudioAACEncoder::InitEncoderCtx(uint32_t channels, uint32_t sampleBit, uint
     enc_->strict_std_compliance = FF_COMPLIANCE_EXPERIMENTAL;
 }
 
+void AudioAACEncoder::InitEncPacket()
+{
+    av_init_packet(encPacket_);
+    encPacket_->data = NULL;
+    encPacket_->size = 0;
+}
+
 int32_t AudioAACEncoder::Init(uint32_t channels, uint32_t sampleBit, uint32_t sampleRate)
 {
     SHARING_LOGD("trace.");
@@ -262,6 +273,7 @@ int32_t AudioAACEncoder::Init(uint32_t channels, uint32_t sampleBit, uint32_t sa
     encFrame_ = av_frame_alloc();
     if (!encFrame_) {
         SHARING_LOGE("Could not allocate audio encode in frame");
+        return 1;
     }
     encFrame_->format = enc_->sample_fmt;
     encFrame_->nb_samples = enc_->frame_size;
@@ -269,22 +281,23 @@ int32_t AudioAACEncoder::Init(uint32_t channels, uint32_t sampleBit, uint32_t sa
 
     if (av_frame_get_buffer(encFrame_, 0) < 0) {
         SHARING_LOGE("Could not get audio frame buffer");
+        return 1;
     }
     encPacket_ = av_packet_alloc();
     if (!encPacket_) {
         SHARING_LOGE("Could not allocate audio encode out packet");
+        return 1;
     }
     if (!(fifo_ = av_audio_fifo_alloc(enc_->sample_fmt, enc_->channels, enc_->frame_size))) {
         SHARING_LOGE("Could not allocate FIFO");
+        return 1;
     }
     auto bufferSize = av_samples_get_buffer_size(nullptr, encFrame_->channels, encFrame_->nb_samples,
                                                  AVSampleFormat(encFrame_->format), 0);
     outBuffer_ = (uint8_t *)av_malloc(bufferSize);
-
-    SHARING_LOGD("sample fmt: %{public}d, nb_samples: %{public}d, channels: %{public}d, outbuffer: %{public}d",
-                 int(encFrame_->format), int(enc_->frame_size), int(enc_->channels), int(bufferSize));
     if (outBuffer_ == nullptr) {
         SHARING_LOGE("outBuffer_ av_malloc failed!");
+        return 1;
     }
 
     return 0;
@@ -380,14 +393,16 @@ void AudioAACEncoder::DoSwr(const Frame::Ptr &frame)
 
 void AudioAACEncoder::OnFrame(const Frame::Ptr &frame)
 {
-    if (frame == nullptr) {
-        SHARING_LOGE("frame is nullptr!");
-        return;
+    RETURN_IF_NULL(frame);
+    if (duration == 0) {
+        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+        duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
     }
 
     int error = 0;
     if (!swr_ && (error = InitSwr()) != 0) {
         SHARING_LOGE("resample init failed!");
+        return;
     }
     DoSwr(frame);
 
@@ -404,13 +419,10 @@ void AudioAACEncoder::OnFrame(const Frame::Ptr &frame)
         nextOutPts_ += enc_->frame_size;
         error = avcodec_send_frame(enc_, encFrame_);
         if (error < 0) {
-            SHARING_LOGE("Error sending the frame to the encoder(%{public}d:%{public}s)", error,
-                         av_make_error_string(errBuf, AV_ERROR_MAX_STRING_SIZE, error));
+            SHARING_LOGE("send failed:%{public}s", av_make_error_string(errBuf, AV_ERROR_MAX_STRING_SIZE, error));
         }
 
-        av_init_packet(encPacket_);
-        encPacket_->data = NULL;
-        encPacket_->size = 0;
+        InitEncPacket();
         while (error >= 0) {
             error = avcodec_receive_packet(enc_, encPacket_);
             if (error == AVERROR(EAGAIN) || error == AVERROR_EOF) {
@@ -428,6 +440,7 @@ void AudioAACEncoder::OnFrame(const Frame::Ptr &frame)
             AddAdtsHeader((uint8_t *)outBuffer_, encPacket_->size);
             auto aacFrame = FrameImpl::Create();
             aacFrame->codecId_ = CODEC_AAC;
+            aacFrame->pts_ = duration + encPacket_->pts;
             aacFrame->Assign((char *)outBuffer_, encPacket_->size + 7); // 7: size offset
             DeliverFrame(aacFrame);
         }

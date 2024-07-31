@@ -25,6 +25,7 @@ class Common {
 public:
     static void SetVideoTrack(VideoTrack &videoTrack, VideoFormat videoFormat);
     static void SetAudioTrack(AudioTrack &audioTrack, AudioFormat audioFormat);
+    static void SetAudioTrack(AudioTrack &audioTrack, CodecId codecId, AudioFormat audioFormat);
 };
 
 } // namespace Sharing

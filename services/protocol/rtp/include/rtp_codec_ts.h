@@ -77,7 +77,7 @@ public:
 private:
     void StartEncoding();
     void RemoveFrameAfterMuxing();
-    int ReadFrame(AVPacket *packet);
+    Frame::Ptr ReadFrame(AVPacket *packet);
     void SaveFrame(Frame::Ptr frame);
     static int WritePacket(void *opaque, uint8_t *buf, int buf_size);
 
@@ -94,6 +94,7 @@ private:
     std::queue<Frame::Ptr> dataQueue_;
     std::unique_ptr<std::thread> encodeThread_;
 
+    AVCodecID audioCodeId_ = AV_CODEC_ID_NONE;
     AVStream *videoStream = nullptr;
     AVStream *audioStream = nullptr;
     AVIOContext *avioContext_ = nullptr;

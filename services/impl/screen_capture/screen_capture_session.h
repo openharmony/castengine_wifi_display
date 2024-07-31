@@ -35,6 +35,7 @@ protected:
     void NotifyAgentSessionStatus(SessionStatusMsg::Ptr &statusMsg);
 
 private:
+    void HandleRtspPlay(SharingEvent &event);
     void HandleSessionInit(SharingEvent &event);
     void HandleProsumerInitState(SharingEvent &event);
 

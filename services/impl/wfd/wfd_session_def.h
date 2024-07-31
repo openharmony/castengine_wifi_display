@@ -67,6 +67,7 @@ struct WfdSinkSessionEventMsg : public SessionEventMsg {
 struct WfdSourceSessionEventMsg : public SessionEventMsg {
     using Ptr = std::shared_ptr<WfdSourceSessionEventMsg>;
 
+    uint32_t sinkAgentId;
     uint16_t localPort = 0;
     uint16_t remotePort = 0;
 

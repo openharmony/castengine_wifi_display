@@ -263,6 +263,7 @@ void RtpEncoderTs::InputFrame(const Frame::Ptr &frame)
                 });
             break;
         case CODEC_AAC:
+        case CODEC_PCM:
             SaveFrame(frame);
             break;
         default:
@@ -270,7 +271,14 @@ void RtpEncoderTs::InputFrame(const Frame::Ptr &frame)
             break;
     }
 
-    if (encodeThread_ == nullptr) {
+    if (audioCodeId_ == AV_CODEC_ID_NONE) {
+        if (frame->GetCodecId() == CODEC_AAC) {
+            audioCodeId_ = AV_CODEC_ID_AAC;
+        } else if (frame->GetCodecId() == CODEC_PCM) {
+            audioCodeId_ = AV_CODEC_ID_PCM_S16BE;
+        }
+    }
+    if (encodeThread_ == nullptr && audioCodeId_ != AV_CODEC_ID_NONE) {
         encodeThread_ = std::make_unique<std::thread>(&RtpEncoderTs::StartEncoding, this);
     }
 }
@@ -294,17 +302,20 @@ void RtpEncoderTs::StartEncoding()
     videoStream->codecpar->codec_type = AVMEDIA_TYPE_VIDEO;
     videoStream->codecpar->codec_id = AV_CODEC_ID_H264;
     videoStream->codecpar->codec_tag = 0;
+    videoStream->time_base.num = 1;
+    videoStream->time_base.den = 90000; // 90000: video sample rate
 
     audioStream = avformat_new_stream(avFormatContext_, NULL);
     audioStream->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
-    audioStream->codecpar->codec_id = AV_CODEC_ID_AAC;
+    audioStream->codecpar->codec_id = audioCodeId_;
     audioStream->codecpar->codec_tag = 0;
     audioStream->codecpar->channel_layout = av_get_default_channel_layout(AUDIO_CHANNEL_STEREO);
     audioStream->codecpar->channels = AUDIO_CHANNEL_STEREO;
     audioStream->codecpar->sample_rate = AUDIO_SAMPLE_RATE_48000;
-
-    SHARING_LOGD("audio stream id: %{public}d, video stream id: %{public}d.",
-        audioStream->index, videoStream->index);
+    audioStream->time_base.num = 1;
+    audioStream->time_base.den = AUDIO_SAMPLE_RATE_48000;
+    SHARING_LOGI("audio stream id: %{public}d, video stream id: %{public}d, audio codecid: %{public}d.",
+        audioStream->index, videoStream->index, audioCodeId_);
 
     avioCtxBuffer_ = (uint8_t *)av_malloc(MAX_RTP_PAYLOAD_SIZE);
     avioContext_ =
@@ -324,11 +335,11 @@ void RtpEncoderTs::StartEncoding()
 
     while (!exit_) {
         AVPacket *packet = av_packet_alloc();
-        if (ReadFrame(packet) < 0) {
+        auto frame = ReadFrame(packet);
+        if (frame == nullptr) {
             break;
         }
         av_write_frame(avFormatContext_, packet);
-        RemoveFrameAfterMuxing();
     }
 
     av_write_trailer(avFormatContext_);
@@ -341,32 +352,39 @@ void RtpEncoderTs::SaveFrame(Frame::Ptr frame)
     dataQueue_.emplace(frame);
 }
 
-int RtpEncoderTs::ReadFrame(AVPacket *packet)
+Frame::Ptr RtpEncoderTs::ReadFrame(AVPacket *packet)
 {
-    RETURN_INVALID_IF_NULL(packet);
+    if (packet == nullptr) {
+        SHARING_LOGE("packet is null!");
+        return nullptr;
+    }
     while (dataQueue_.empty()) {
         if (exit_ == true) {
             SHARING_LOGI("exit when read frame.");
-            return -1;
+            return nullptr;
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(100)); // 100: wait times
+        std::this_thread::sleep_for(std::chrono::microseconds(100)); // 100: wait time
     }
 
     std::unique_lock<std::mutex> lock(queueMutex_);
     Frame::Ptr frame = dataQueue_.front();
+    dataQueue_.pop();
     packet->data = frame->Data();
     packet->size = frame->Size();
-    packet->pts = frame->Pts();
-    packet->dts = frame->Dts();
+    
     keyFrame_ = frame->KeyFrame();
-    timeStamp_ = frame->Dts();
-
     if (frame->GetTrackType() == TRACK_VIDEO) {
+        packet->dts = av_rescale(frame->Dts(), videoStream->time_base.den, WFD_MSEC_IN_SEC);
+        packet->pts = av_rescale(frame->Pts(), videoStream->time_base.den, WFD_MSEC_IN_SEC);
         packet->stream_index = videoStream->index;
+        timeStamp_ = frame->Dts();
     } else if (frame->GetTrackType() == TRACK_AUDIO) {
+        packet->dts = av_rescale(frame->Dts(), audioStream->time_base.den, WFD_MSEC_IN_SEC);
+        packet->pts = av_rescale(frame->Pts(), audioStream->time_base.den, WFD_MSEC_IN_SEC);
         packet->stream_index = audioStream->index;
+        timeStamp_ = frame->Dts();
     }
-    return 0;
+    return frame;
 }
 
 void RtpEncoderTs::RemoveFrameAfterMuxing()
@@ -379,6 +397,7 @@ int RtpEncoderTs::WritePacket(void *opaque, uint8_t *buf, int buf_size)
 {
     RETURN_INVALID_IF_NULL(opaque);
     RETURN_INVALID_IF_NULL(buf);
+
     RtpEncoderTs *encoder = (RtpEncoderTs *)opaque;
     std::lock_guard<std::mutex> lock(encoder->cbLockMutex_);
     if (encoder->onRtpPack_) {

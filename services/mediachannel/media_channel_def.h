@@ -61,6 +61,8 @@ struct MediaData {
     uint32_t ssrc;
     uint64_t pts;
     MediaType mediaType;
+    CodecId codecId;
+    AudioFormat format;
     DataBuffer::Ptr buff;
 };
 

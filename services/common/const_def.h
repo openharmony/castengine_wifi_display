@@ -66,6 +66,8 @@ enum AudioFormat {
     AUDIO_48000_16_4
 };
 
+constexpr uint32_t WFD_MSEC_IN_SEC = 1000;
+
 constexpr uint32_t AUDIO_SAMPLE_BIT_U8 = 8;
 constexpr uint32_t AUDIO_SAMPLE_BIT_S16LE = 16;
 constexpr uint32_t AUDIO_CHANNEL_STEREO = 2;

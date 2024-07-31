@@ -19,6 +19,7 @@
 #include "common/reflect_registration.h"
 #include "common/sharing_log.h"
 #include "mediachannel/media_channel_def.h"
+#include "screen_capture_def.h"
 #include "utils/utils.h"
 #include "wfd_media_def.h"
 #include "wfd_message.h"
@@ -295,6 +296,7 @@ void WfdSourceSession::HandleSessionInit(SharingEvent &event)
     SHARING_LOGD("trace.");
     auto inputMsg = ConvertEventMsg<WfdSourceSessionEventMsg>(event);
     if (inputMsg) {
+        sinkAgentId_ = inputMsg->sinkAgentId;
         sourceMac_ = inputMsg->mac;
         sourceIp_ = inputMsg->ip;
         sysEvent_->SetPeerMac(GetAnonyString(sourceMac_));
@@ -476,13 +478,19 @@ bool WfdSourceSession::HandlePlayRequest(const RtspRequest &request, int32_t cse
     SHARING_LOGD("trace.");
     sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M7_REQ);
     auto statusMsg = std::make_shared<SessionStatusMsg>();
-    statusMsg->msg = std::make_shared<EventMsg>();
+    auto eventMsg = std::make_shared<ScreenCaptureSessionEventMsg>();
+    eventMsg->agentId = sinkAgentId_;
+    eventMsg->codecId = wfdAudioCodec_.codecId;
+    eventMsg->audioFormat = wfdAudioCodec_.format;
+    statusMsg->msg = std::move(eventMsg);
+    statusMsg->msg->type = EVENT_WFD_NOTIFY_RTSP_PLAYED;
     statusMsg->msg->requestId = 0;
     statusMsg->msg->errorCode = ERR_OK;
+    statusMsg->msg->toMgr = MODULE_CONTEXT;
+    statusMsg->status = NOTIFY_SESSION_PRIVATE_EVENT;
     if (prosumerState_ == ERR_PROSUMER_PAUSE) {
-        statusMsg->status = NOTIFY_PROSUMER_RESUME;
+        prosumerState_ = ERR_PROSUMER_RESUME;
     } else {
-        statusMsg->status = NOTIFY_PROSUMER_START;
         if (session != nullptr) {
             auto sa = session->GetCallback();
             std::shared_ptr<WfdSourceNetworkSession> agent = std::static_pointer_cast<WfdSourceNetworkSession>(sa);
@@ -603,11 +611,11 @@ bool WfdSourceSession::HandleM3Response(const RtspResponse &response, const std:
     auto ret = m3Res.Parse(message);
     if (ret.code == RtspErrorType::OK) {
         sinkRtpPort_ = m3Res.GetClientRtpPorts();
-        audioFormat_ = m3Res.GetAudioCodecs();
+        audioFormat_ = m3Res.GetAudioCodecs(wfdAudioCodec_);
         videoFormat_ = m3Res.GetVideoFormats();
         wfdVideoFormatsInfo_ = m3Res.GetWfdVideoFormatsInfo();
-        SHARING_LOGD("sinkRtpPort:%{public}d audioFormat: %{public}d videoFormat: %{public}d.", sinkRtpPort_,
-                     audioFormat_, videoFormat_);
+        SHARING_LOGD("sinkRtpPort:%{public}d, audioFormat:%{public}d, audioCodec:%{public}d, videoFormat:%{public}d.",
+                     sinkRtpPort_, wfdAudioCodec_.format, wfdAudioCodec_.codecId, videoFormat_);
         std::string value = m3Res.GetContentProtection();
         if (value == "" || value == "none") {
             SHARING_LOGE("WFD sink doesn't support hdcp.");
@@ -792,7 +800,7 @@ bool WfdSourceSession::SendM4Request(INetworkSession::Ptr &session)
     WfdRtspM4Request m4Request(++cseq_, WFD_RTSP_URL_DEFAULT);
     m4Request.SetPresentationUrl(sourceIp_);
     m4Request.SetVideoFormats(wfdVideoFormatsInfo_, videoFormat_);
-    m4Request.SetAudioCodecs(audioFormat_);
+    m4Request.SetAudioCodecs(wfdAudioCodec_);
     m4Request.SetClientRtpPorts(sinkRtpPort_);
     std::string m4Req(m4Request.Stringify());
     SHARING_LOGD("%{public}s.", m4Req.c_str());

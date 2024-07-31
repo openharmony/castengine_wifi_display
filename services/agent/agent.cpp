@@ -384,7 +384,8 @@ uint32_t Agent::NotifyPrivateEvent(SessionStatusMsg::Ptr &statusMsg)
     SHARING_LOGI("agentId: %{public}u, send session event, type: %{public}s.", GetId(),
                  std::string(magic_enum::enum_name(statusMsg->msg->type)).c_str());
     auto toMgr = statusMsg->msg->toMgr;
-    if (toMgr != ModuleType::MODULE_MEDIACHANNEL && toMgr != ModuleType::MODULE_INTERACTION) {
+    if (toMgr != ModuleType::MODULE_MEDIACHANNEL && toMgr != ModuleType::MODULE_INTERACTION
+        && toMgr != ModuleType::MODULE_CONTEXT) {
         SHARING_LOGE("agentId: %{public}u, toMgr: %{public}d, eventType: %{public}s, error!", GetId(), toMgr,
                      std::string(magic_enum::enum_name(statusMsg->msg->type)).c_str());
         return ERR_GENERAL_ERROR;

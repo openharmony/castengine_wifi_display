@@ -41,6 +41,10 @@ int32_t ScreenCaptureSession::HandleEvent(SharingEvent &event)
     SHARING_LOGI("eventType: %{public}s, capture sessionId: %{public}u.",
                  std::string(magic_enum::enum_name(event.eventMsg->type)).c_str(), GetId());
     switch (event.eventMsg->type) {
+        case EventType::EVENT_WFD_NOTIFY_RTSP_PLAYED:
+            HandleRtspPlay(event);
+            SHARING_LOGI("get event EVENT_WFD_NOTIFY_RTSP_PLAYED");
+            break;
         case EventType::EVENT_SESSION_INIT:
             HandleSessionInit(event);
             break;
@@ -53,6 +57,38 @@ int32_t ScreenCaptureSession::HandleEvent(SharingEvent &event)
     }
 
     return 0;
+}
+
+void ScreenCaptureSession::HandleRtspPlay(SharingEvent &event)
+{
+    SHARING_LOGD("trace.");
+    auto inputMsg = ConvertEventMsg<ScreenCaptureSessionEventMsg>(event);
+    auto statusMsg = std::make_shared<SessionStatusMsg>();
+    auto eventMsg = std::make_shared<ScreenCaptureConsumerEventMsg>();
+    eventMsg->type = EventType::EVENT_WFD_NOTIFY_RTSP_PLAYED;
+    eventMsg->toMgr = ModuleType::MODULE_MEDIACHANNEL;
+    eventMsg->screenId = screenId_;
+    switch (captureType_) {
+        case MEDIA_TYPE_AV:
+            Common::SetVideoTrack(eventMsg->videoTrack, videoFormat_);
+            Common::SetAudioTrack(eventMsg->audioTrack, inputMsg->codecId, inputMsg->audioFormat);
+            break;
+        case MEDIA_TYPE_VIDEO:
+            Common::SetVideoTrack(eventMsg->videoTrack, videoFormat_);
+            break;
+        case MEDIA_TYPE_AUDIO:
+            Common::SetAudioTrack(eventMsg->audioTrack, inputMsg->codecId, inputMsg->audioFormat);
+            break;
+        default:
+            SHARING_LOGI("none process case.");
+            break;
+    }
+    SHARING_LOGI("after SetVideoTrack, vtype:%{public}d, vFormat:%{public}d, vcodecId:%{public}d.", captureType_,
+                 videoFormat_, eventMsg->videoTrack.codecId);
+    statusMsg->msg = std::move(eventMsg);
+    statusMsg->status = NOTIFY_SESSION_PRIVATE_EVENT;
+
+    NotifyAgentSessionStatus(statusMsg);
 }
 
 void ScreenCaptureSession::HandleSessionInit(SharingEvent &event)

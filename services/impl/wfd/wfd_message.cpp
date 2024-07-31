@@ -186,7 +186,7 @@ std::string WfdRtspM3Response::GetUibcCapability()
     return value;
 }
 
-AudioFormat WfdRtspM3Response::GetAudioCodecs()
+AudioFormat WfdRtspM3Response::GetAudioCodecs(WfdAudioCodec &codec)
 {
     std::string value = GetCustomParam(WFD_PARAM_AUDIO_CODECS);
     int32_t audioFormat0 = -1;
@@ -198,18 +198,21 @@ AudioFormat WfdRtspM3Response::GetAudioCodecs()
         std::stringstream ss(audioCap);
         ss >> format >> audioFormat0 >> audioFormat1;
         if (format == "LPCM") { // LPCM
-            continue;
-        } else if (format == "AAC") { // AAC
-            if (audioFormat0 == 1) {
-                return AUDIO_48000_16_2;
+            if (codec.codecId != CODEC_AAC && audioFormat0 > 1) {
+                codec.codecId = CODEC_PCM;
+                codec.format = AUDIO_48000_16_2;
             }
+        } else if (format == "AAC") { // AAC
+            codec.codecId = CODEC_AAC;
+            codec.format = AUDIO_48000_16_2;
         } else if (format == "AC3") { // AC3
             if (audioFormat0 == 1) {
             }
             continue;
         }
     }
-    return AUDIO_48000_8_2;
+
+    return codec.format;
 }
 
 std::string WfdRtspM3Response::GetCoupledSink()
@@ -349,24 +352,23 @@ void WfdRtspM4Request::SetClientRtpPorts(int32_t port)
     AddBodyItem(ss.str());
 }
 
-void WfdRtspM4Request::SetAudioCodecs(AudioFormat format)
+void WfdRtspM4Request::SetAudioCodecs(WfdAudioCodec &codec)
 {
     std::stringstream ss;
     ss << WFD_PARAM_AUDIO_CODECS << ":" << RTSP_SP;
-    switch (format) {
-        case AUDIO_44100_8_2:
-            ss << "LPCM" << RTSP_SP << "00000001 00";
-            break;
-        case AUDIO_44100_16_2:
+
+    switch (codec.codecId) {
+        case CODEC_PCM:
             ss << "LPCM" << RTSP_SP << "00000002 00";
             break;
-        case AUDIO_48000_16_2:
+        case CODEC_AAC:
             ss << "AAC" << RTSP_SP << "00000001 00";
             break;
         default:
             ss << "AAC" << RTSP_SP << "00000001 00";
             break;
     }
+
     AddBodyItem(ss.str());
 }
 

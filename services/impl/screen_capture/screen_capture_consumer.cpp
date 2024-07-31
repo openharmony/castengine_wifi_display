@@ -24,23 +24,19 @@ namespace Sharing {
 static std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 void ScreenCaptureConsumer::AudioEncoderReceiver::OnFrame(const Frame::Ptr &frame)
 {
-    MEDIA_LOGD("trace.");
-
     auto parent = parent_.lock();
     if (parent && !parent->listener_.expired()) {
-        MEDIA_LOGD("consumerId: %{public}u.", parent->GetId());
         auto listener = parent->listener_.lock();
         auto dispatcher = listener->GetDispatcher();
         if (dispatcher) {
-            std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-            uint64_t pts = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
             auto mediaData = dispatcher->RequestDataBuffer(MEDIA_TYPE_AUDIO, frame->Size());
             mediaData->mediaType = MEDIA_TYPE_AUDIO;
+            mediaData->codecId = frame->GetCodecId();
             mediaData->isRaw = false;
             mediaData->keyFrame = false;
-            mediaData->pts = pts;
-            MEDIA_LOGD("recv audio encode data: %{public}p size: %{public}d & put it into dispatcher: %{public}u.",
-                       frame->Data(), frame->Size(), dispatcher->GetDispatcherId());
+            mediaData->pts = frame->Pts();
+            MEDIA_LOGD("recv audio encode data: codec:%{public}d size: %{public}d & put into dispatcher: %{public}u.",
+                       mediaData->codecId, frame->Size(), dispatcher->GetDispatcherId());
             mediaData->buff = move(frame);
             dispatcher->InputData(mediaData);
         }
@@ -147,26 +143,7 @@ void ScreenCaptureConsumer::HandleProsumerInitState(SharingEvent &event)
     SHARING_LOGD("trace.");
     auto pPrivateMsg = std::make_shared<ScreenCaptureSessionEventMsg>();
     pPrivateMsg->errorCode = ERR_GENERAL_ERROR;
-
-    auto msg = ConvertEventMsg<ScreenCaptureConsumerEventMsg>(event);
-    if (msg) {
-        SHARING_LOGD("msg convert suc, vcodecId:%{public}d.", msg->videoTrack.codecId);
-        if (msg->audioTrack.codecId != CodecId::CODEC_NONE) {
-            audioTrack_ = msg->audioTrack;
-        }
-
-        if (msg->videoTrack.codecId != CodecId::CODEC_NONE) {
-            videoTrack_ = msg->videoTrack;
-        }
-
-        if (Init(msg->screenId)) {
-            pPrivateMsg->errorCode = ERR_OK;
-        }
-    } else {
-        SHARING_LOGE("msg convert fail!");
-        return;
-    }
-
+    pPrivateMsg->errorCode = ERR_OK;
     pPrivateMsg->type = EVENT_AGENT_STATE_PROSUMER_INIT;
     pPrivateMsg->toMgr = ModuleType::MODULE_CONTEXT;
     pPrivateMsg->fromMgr = ModuleType::MODULE_MEDIACHANNEL;
@@ -179,6 +156,39 @@ void ScreenCaptureConsumer::HandleProsumerInitState(SharingEvent &event)
     NotifyPrivateEvent(pPrivateMsg);
 }
 
+void ScreenCaptureConsumer::HandleProsumerPlay(SharingEvent &event)
+{
+    SHARING_LOGD("trace.");
+
+    auto msg = ConvertEventMsg<ScreenCaptureConsumerEventMsg>(event);
+    if (msg) {
+        SHARING_LOGI("msg convert suc, vcodecId:%{public}d, acodecId:%{public}d.",
+                     msg->videoTrack.codecId, msg->audioTrack.codecId);
+        if (msg->audioTrack.codecId != CodecId::CODEC_NONE) {
+            audioTrack_ = msg->audioTrack;
+        }
+
+        if (msg->videoTrack.codecId != CodecId::CODEC_NONE) {
+            videoTrack_ = msg->videoTrack;
+        }
+
+        if (isInit_) {
+            SHARING_LOGD("Capture already inited!");
+            return;
+        }
+        if (!InitCapture(msg->screenId)) {
+            SHARING_LOGD("InitCapture failed!");
+            return;
+        }
+        if (!StartCapture()) {
+            SHARING_LOGD("StartCapture failed!");
+            return;
+        }
+    } else {
+        SHARING_LOGE("msg convert fail!");
+    }
+}
+
 int32_t ScreenCaptureConsumer::HandleEvent(SharingEvent &event)
 {
     SHARING_LOGD("trace.");
@@ -189,6 +199,9 @@ int32_t ScreenCaptureConsumer::HandleEvent(SharingEvent &event)
     switch (event.eventMsg->type) {
         case EventType::EVENT_SCREEN_CAPTURE_INIT:
             HandleProsumerInitState(event);
+            break;
+        case EventType::EVENT_WFD_NOTIFY_RTSP_PLAYED:
+            HandleProsumerPlay(event);
             break;
         default:
             SHARING_LOGI("none process case.");
@@ -212,12 +225,7 @@ void ScreenCaptureConsumer::UpdateOperation(ProsumerStatusMsg::Ptr &statusMsg)
             break;
         case ProsumerOptRunningStatus::PROSUMER_START: {
             paused_ = false;
-            if (isInit_ && StartCapture()) {
-                statusMsg->status = PROSUMER_NOTIFY_START_SUCCESS;
-            } else {
-                statusMsg->status = PROSUMER_NOTIFY_ERROR;
-                statusMsg->errorCode = ERR_PROSUMER_START;
-            }
+            statusMsg->status = PROSUMER_NOTIFY_START_SUCCESS;
             break;
         }
         case ProsumerOptRunningStatus::PROSUMER_PAUSE: {
@@ -276,7 +284,7 @@ int32_t ScreenCaptureConsumer::ReleaseScreenBuffer()
     return videoSourceScreen_->ReleaseScreenBuffer();
 }
 
-bool ScreenCaptureConsumer::Init(uint64_t screenId)
+bool ScreenCaptureConsumer::InitCapture(uint64_t screenId)
 {
     SHARING_LOGD("capture consumerId: %{public}u, viddeo codecId: %{public}d, audio codecId: %{public}d.", GetId(),
                  videoTrack_.codecId, audioTrack_.codecId);
@@ -335,7 +343,7 @@ bool ScreenCaptureConsumer::InitAudioCapture()
 bool ScreenCaptureConsumer::InitAudioEncoder()
 {
     SHARING_LOGD("trace.");
-    audioEncoder_ = CodecFactory::CreateAudioEncoder(CODEC_AAC);
+    audioEncoder_ = CodecFactory::CreateAudioEncoder(audioTrack_.codecId);
     if (!audioEncoder_) {
         SHARING_LOGE("create audio encoder failed.");
         return false;
