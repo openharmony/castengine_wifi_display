@@ -38,6 +38,11 @@ struct WfdVideoFormatsInfo {
     uint16_t frameRateCtlSupport = 0;
 };
 
+struct WfdAudioCodec {
+    CodecId codecId;
+    AudioFormat format;
+};
+
 // WfdRtspM1Request
 class WfdRtspM1Request : public RtspRequestOptions {
 public:
@@ -96,7 +101,7 @@ public:
 
     int32_t GetClientRtpPorts();
     std::string GetUibcCapability();
-    AudioFormat GetAudioCodecs();
+    AudioFormat GetAudioCodecs(WfdAudioCodec &codec);
     std::string GetCoupledSink();
     std::string GetContentProtection();
     VideoFormat GetVideoFormats();
@@ -122,7 +127,7 @@ public:
     }
 
     void SetClientRtpPorts(int32_t port);
-    void SetAudioCodecs(AudioFormat format = AUDIO_48000_16_2);
+    void SetAudioCodecs(WfdAudioCodec &codec);
     void SetPresentationUrl(const std::string &ip);
     void SetVideoFormats(const WfdVideoFormatsInfo &wfdVideoFormatsInfo, VideoFormat format = VIDEO_1920X1080_30);
 

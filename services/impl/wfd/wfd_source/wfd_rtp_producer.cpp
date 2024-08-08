@@ -179,11 +179,11 @@ void WfdRtpProducer::PublishOneFrame(const MediaData::Ptr &mediaData)
     auto buff = mediaData->buff;
     if (isRunning_ && !isPaused_) { // paused check at this pos or in DispatchMediaData
         if (mediaData->mediaType == MEDIA_TYPE_AUDIO) {
-            MEDIA_LOGD("audio frame pts:%{public}" PRId64 ".", mediaData->pts);
-            auto aacFrame = FrameImpl::CreateFrom(std::move(*buff));
-            aacFrame->codecId_ = CodecId::CODEC_AAC;
-            aacFrame->dts_ = aacFrame->pts_ = static_cast<uint32_t>(mediaData->pts);
-            tsPacker_->InputFrame(aacFrame);
+            MEDIA_LOGD("audio frame codec:%{public}d, pts:%{public}" PRId64 ".", mediaData->codecId, mediaData->pts);
+            auto audioFrame = FrameImpl::CreateFrom(std::move(*buff));
+            audioFrame->codecId_ = mediaData->codecId;
+            audioFrame->dts_ = audioFrame->pts_ = static_cast<uint32_t>(mediaData->pts);
+            tsPacker_->InputFrame(audioFrame);
         } else if (mediaData->mediaType == MEDIA_TYPE_VIDEO) {
             MEDIA_LOGD("video frame pts:%{public}" PRId64 ".", mediaData->pts);
             auto h264Frame = std::make_shared<H264Frame>(std::move(*buff));
@@ -393,6 +393,8 @@ void WfdRtpProducer::DispatchMediaData()
             mediaData->mediaType = data->mediaType;
             mediaData->pts = data->pts;
             mediaData->isRaw = data->isRaw;
+            mediaData->codecId = data->codecId;
+            mediaData->format = data->format;
             mediaData->ssrc = data->ssrc;
         });
         if (ret != 0) {

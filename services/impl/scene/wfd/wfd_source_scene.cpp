@@ -640,6 +640,7 @@ int32_t WfdSourceScene::AppendCast(const std::string &deviceId)
 
     auto startSessionMsg = std::make_shared<WfdSourceSessionEventMsg>();
     startSessionMsg->type = EVENT_SESSION_INIT;
+    startSessionMsg->sinkAgentId = agentId_;
     startSessionMsg->toMgr = MODULE_CONTEXT;
     startSessionMsg->dstId = contextId;
     startSessionMsg->agentId = agentId;

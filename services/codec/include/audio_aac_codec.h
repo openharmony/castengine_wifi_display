@@ -67,6 +67,7 @@ private:
     void DoSwr(const Frame::Ptr &frame);
     int AddSamplesToFifo(uint8_t **samples, int frame_size);
     void InitEncoderCtx(uint32_t channels, uint32_t sampleBit, uint32_t sampleRate);
+    void InitEncPacket();
 private:
     uint32_t inChannels_ = 2;
     uint32_t inSampleBit_ = 16;

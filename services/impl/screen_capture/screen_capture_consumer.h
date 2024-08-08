@@ -65,10 +65,11 @@ private:
 
     bool InitAudioCapture();
     bool InitAudioEncoder();
-    bool Init(uint64_t screenId);
+    bool InitCapture(uint64_t screenId);
     bool InitVideoCapture(uint64_t screenId);
 
     void HandleProsumerInitState(SharingEvent &event);
+    void HandleProsumerPlay(SharingEvent &event);
     void HandleSpsFrame(BufferDispatcher::Ptr dispatcher, const Frame::Ptr &frame);
     void HandlePpsFrame(BufferDispatcher::Ptr dispatcher, const Frame::Ptr &frame);
 

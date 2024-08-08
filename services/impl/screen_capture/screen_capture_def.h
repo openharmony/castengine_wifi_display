@@ -27,6 +27,7 @@ struct ScreenCaptureSessionEventMsg : public SessionEventMsg {
 
     uint64_t screenId = 0;
     MediaType mediaType;
+    CodecId codecId;
     AudioFormat audioFormat = AUDIO_8000_8_1;
     VideoFormat videoFormat = VIDEO_1280X720_30;
 };
