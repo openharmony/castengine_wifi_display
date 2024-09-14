@@ -129,9 +129,6 @@ void Context::DistributeEvent(SharingEvent &event)
         auto agent = GetAgentById(eventMsg->agentId);
         if (agent) {
             agent->HandleEvent(event);
-        } else {
-            SHARING_LOGE("agent null, contextId: %{pulbic}u, agentId: %{public}u, event: %{public}s.", GetId(),
-                         eventMsg->agentId, std::string(magic_enum::enum_name(event.eventMsg->type)).c_str());
         }
     }
 }

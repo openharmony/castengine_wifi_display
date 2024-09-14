@@ -21,14 +21,14 @@ namespace Sharing {
     
 ClientFactory::ClientFactory()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("ClientFactory.");
     interIpcClient_ = std::make_shared<InterIpcClient>();
     interIpcClient_->Initialize(interIpcClient_->GetSharingProxy());
 }
 
 ClientFactory::~ClientFactory()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("~ClientFactory.");
     interIpcClient_.reset();
 }
 

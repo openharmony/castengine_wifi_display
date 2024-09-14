@@ -37,31 +37,31 @@ WfdRtpProducer::UdpClient::~UdpClient()
 
 void WfdRtpProducer::UdpClient::OnClientClose(int32_t fd)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)fd;
 }
 
 void WfdRtpProducer::UdpClient::OnClientWriteable(int32_t fd)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)fd;
 }
 
 void WfdRtpProducer::UdpClient::OnClientException(int32_t fd)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)fd;
 }
 
 void WfdRtpProducer::UdpClient::OnClientConnect(bool isSuccess)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)isSuccess;
 }
 
 void WfdRtpProducer::UdpClient::OnClientReadData(int32_t fd, DataBuffer::Ptr buf)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto listener = udpDataListener_.lock();
     if (listener && rtcp_) {
         listener->OnRtcpReadData(fd, buf);
@@ -70,13 +70,13 @@ void WfdRtpProducer::UdpClient::OnClientReadData(int32_t fd, DataBuffer::Ptr buf
 
 void WfdRtpProducer::UdpClient::SetUdpDataListener(std::weak_ptr<WfdRtpProducer> udpDataListener)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     udpDataListener_ = udpDataListener;
 }
 
 void WfdRtpProducer::UdpClient::Stop()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (networkClientPtr_ != nullptr) {
         networkClientPtr_->Disconnect();
         networkClientPtr_.reset();
@@ -85,14 +85,14 @@ void WfdRtpProducer::UdpClient::Stop()
 
 void WfdRtpProducer::UdpClient::Release()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     Stop();
 }
 
 bool WfdRtpProducer::UdpClient::Connect(const std::string &peerIp, uint16_t peerPort, const std::string &localIp,
                                         uint16_t localPort)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     return NetworkFactory::CreateUdpClient(peerIp, peerPort, localIp, localPort, shared_from_this(), networkClientPtr_);
 }
 
@@ -107,19 +107,19 @@ bool WfdRtpProducer::UdpClient::SendDataBuffer(const DataBuffer::Ptr &buf)
 
 WfdRtpProducer::WfdRtpProducer()
 {
-    SHARING_LOGD("ctor.");
+    SHARING_LOGI("ctor.");
 }
 
 WfdRtpProducer::~WfdRtpProducer()
 {
-    SHARING_LOGD("dtor producer Id: %{public}u.", GetId());
+    SHARING_LOGI("dtor producer Id: %{public}u.", GetId());
 }
 
 void WfdRtpProducer::UpdateOperation(ProsumerStatusMsg::Ptr &statusMsg)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     RETURN_IF_NULL(statusMsg);
-    SHARING_LOGD("status: %{public}s producerId: %{public}u.",
+    SHARING_LOGI("status: %{public}s producerId: %{public}u.",
                  std::string(magic_enum::enum_name(static_cast<ProsumerOptRunningStatus>(statusMsg->status))).c_str(),
                  GetId());
     switch (statusMsg->status) {
@@ -212,7 +212,7 @@ int32_t WfdRtpProducer::HandleEvent(SharingEvent &event)
 
 bool WfdRtpProducer::ProducerInit()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (InitTsRtpPacker(ssrc_) != 0) {
         SHARING_LOGE("init rtp packer failed.");
         return false;
@@ -230,7 +230,7 @@ bool WfdRtpProducer::ProducerInit()
 int32_t WfdRtpProducer::InitTsRtpPacker(uint32_t ssrc, size_t mtuSize, uint32_t sampleRate, uint8_t pt,
                                         RtpPayloadStream ps)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     tsPacker_ = RtpFactory::CreateRtpPack(ssrc, mtuSize, sampleRate, pt, ps, 0);
     if (tsPacker_ == nullptr) {
         SHARING_LOGE("createRtpPacker failed.");
@@ -246,7 +246,7 @@ int32_t WfdRtpProducer::InitTsRtpPacker(uint32_t ssrc, size_t mtuSize, uint32_t 
 
 int32_t WfdRtpProducer::InitUdpClients()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     tsUdpClient_ = std::make_shared<UdpClient>(false);
     tsRtcpUdpClient_ = std::make_shared<UdpClient>(true);
     tsRtcpUdpClient_->SetUdpDataListener(shared_from_this());
@@ -274,7 +274,7 @@ bool WfdRtpProducer::SendDataBuffer(const DataBuffer::Ptr &buf, bool audio)
 
 int32_t WfdRtpProducer::Connect()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (tsPacker_ == nullptr) {
         SHARING_LOGE("connect resource not useable.");
         return -1;
@@ -291,7 +291,7 @@ int32_t WfdRtpProducer::Connect()
         return -1;
     }
 
-    SHARING_LOGD("createNetworkClient success.");
+    SHARING_LOGI("createNetworkClient success.");
 
     isRunning_ = true;
     return 0;
@@ -299,7 +299,7 @@ int32_t WfdRtpProducer::Connect()
 
 int32_t WfdRtpProducer::Stop()
 {
-    SHARING_LOGD("producerId: %{public}u.", GetId());
+    SHARING_LOGI("producerId: %{public}u.", GetId());
     isRunning_ = false;
     if (tsUdpClient_ != nullptr) {
         tsUdpClient_->Stop();
@@ -320,7 +320,7 @@ int32_t WfdRtpProducer::Stop()
 
 int32_t WfdRtpProducer::Release()
 {
-    SHARING_LOGD("producerId: %{public}u.", GetId());
+    SHARING_LOGI("producerId: %{public}u.", GetId());
     if (tsUdpClient_ != nullptr) {
         tsUdpClient_.reset();
     }
@@ -375,14 +375,14 @@ void WfdRtpProducer::OnRtcpTimeOut()
 
 void WfdRtpProducer::StartDispatchThread()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     dispatching_ = true;
     dispatchThread_ = std::make_shared<std::thread>(&WfdRtpProducer::DispatchMediaData, this);
 }
 
 void WfdRtpProducer::DispatchMediaData()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     uint32_t rtpCount = 0;
     MediaData::Ptr mediaData = std::make_shared<MediaData>();
     mediaData->buff = std::make_shared<DataBuffer>();
@@ -443,7 +443,7 @@ void WfdRtpProducer::HandleMediaInit(std::shared_ptr<WfdProducerEventMsg> msg)
     primarySinkIp_ = msg->ip;
     localPort_ = msg->localPort;
     localIp_ = msg->localIp;
-    SHARING_LOGD("primarySinkIp:%s port:%d localIp:%s localPort:%d.", GetAnonyString(primarySinkIp_).c_str(),
+    SHARING_LOGI("primarySinkIp:%s port:%d localIp:%s localPort:%d.", GetAnonyString(primarySinkIp_).c_str(),
                  primarySinkPort_, GetAnonyString(localIp_).c_str(), localPort_);
     SharingErrorCode errCode = ERR_OK;
     if (!ProducerInit()) {

@@ -76,7 +76,7 @@ void Interaction::ReleaseScene(uint32_t sceneId)
 
 void Interaction::OnSceneNotifyDestroyed(uint32_t sceneId)
 {
-    SHARING_LOGD("scene destroyed will remove interactionId: %{public}u.", GetId());
+    SHARING_LOGE("scene destroyed will remove interactionId: %{public}u.", GetId());
     auto interactionMsg = std::make_shared<InteractionEventMsg>();
     interactionMsg->toMgr = ModuleType::MODULE_INTERACTION;
     interactionMsg->type = EVENT_INTERACTIONMGR_REMOVE_INTERACTION;
@@ -90,7 +90,7 @@ void Interaction::OnSceneNotifyDestroyed(uint32_t sceneId)
 
 void Interaction::Destroy()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGE("trace.");
     if (scene_) {
         scene_.reset();
     }
@@ -117,7 +117,7 @@ int32_t Interaction::HandleEvent(SharingEvent &event)
                 if (errorCode == ERR_NETWORK_ERROR || errorCode == ERR_CONNECTION_FAILURE ||
                     errorCode == ERR_INTERACTION_FAILURE || errorCode == ERR_PROTOCOL_INTERACTION_TIMEOUT ||
                     errorCode == ERR_INTAKE_TIMEOUT) {
-                    SHARING_LOGD("on inner destroy network error.");
+                    SHARING_LOGE("on inner destroy network error.");
                     scene_->OnInnerDestroy(contextId, agentId, agentType);
                     DestroyAgent(contextId, agentId);
                 }
@@ -310,7 +310,7 @@ int32_t Interaction::Resume(uint32_t contextId, uint32_t agentId, MediaType medi
 
 int32_t Interaction::ForwardEvent(uint32_t contextId, uint32_t agentId, SharingEvent &event, bool isSync)
 {
-    SHARING_LOGD("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
+    SHARING_LOGI("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
     RETURN_INVALID_IF_NULL(event.eventMsg);
     event.eventMsg->fromMgr = MODULE_INTERACTION;
     event.eventMsg->srcId = GetId();
@@ -325,7 +325,7 @@ int32_t Interaction::ForwardEvent(uint32_t contextId, uint32_t agentId, SharingE
 
 int32_t Interaction::Play(uint32_t contextId, uint32_t agentId)
 {
-    SHARING_LOGD("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
+    SHARING_LOGI("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
     auto agentMsg = std::make_shared<AgentEventMsg>();
     agentMsg->type = EventType::EVENT_AGENT_PLAY_START;
     agentMsg->toMgr = ModuleType::MODULE_CONTEXT;
@@ -343,7 +343,7 @@ int32_t Interaction::Play(uint32_t contextId, uint32_t agentId)
 
 int32_t Interaction::Close(uint32_t contextId, uint32_t agentId)
 {
-    SHARING_LOGD("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
+    SHARING_LOGI("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
     auto agentMsg = std::make_shared<AgentEventMsg>();
     agentMsg->type = EventType::EVENT_AGENT_PLAY_STOP;
     agentMsg->toMgr = ModuleType::MODULE_CONTEXT;

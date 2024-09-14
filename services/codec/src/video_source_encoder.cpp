@@ -25,7 +25,7 @@ namespace Sharing {
 
 void VideoSourceEncoder::VideoEncodeCallback::OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t errorCode)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (auto parent = parent_.lock()) {
         parent->OnError(errorType, errorCode);
     }
@@ -33,7 +33,7 @@ void VideoSourceEncoder::VideoEncodeCallback::OnError(MediaAVCodec::AVCodecError
 
 void VideoSourceEncoder::VideoEncodeCallback::OnOutputFormatChanged(const MediaAVCodec::Format &format)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (auto parent = parent_.lock()) {
         parent->OnOutputFormatChanged(format);
     }
@@ -42,7 +42,7 @@ void VideoSourceEncoder::VideoEncodeCallback::OnOutputFormatChanged(const MediaA
 void VideoSourceEncoder::VideoEncodeCallback::OnInputBufferAvailable(
     uint32_t index, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (auto parent = parent_.lock()) {
         parent->OnInputBufferAvailable(index, buffer);
     }
@@ -52,7 +52,7 @@ void VideoSourceEncoder::VideoEncodeCallback::OnOutputBufferAvailable(
     uint32_t index, MediaAVCodec::AVCodecBufferInfo info, MediaAVCodec::AVCodecBufferFlag flag,
     std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (auto parent = parent_.lock()) {
         parent->OnOutputBufferAvailable(index, info, flag, buffer);
     }
@@ -60,7 +60,7 @@ void VideoSourceEncoder::VideoEncodeCallback::OnOutputBufferAvailable(
 
 VideoSourceEncoder::~VideoSourceEncoder()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     StopEncoder();
     ReleaseEncoder();
     encoderCb_ = nullptr;
@@ -68,7 +68,7 @@ VideoSourceEncoder::~VideoSourceEncoder()
 
 bool VideoSourceEncoder::InitEncoder(const VideoSourceConfigure &configure)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (!CreateEncoder(configure)) {
         SHARING_LOGE("Create encoder failed!");
         return false;
@@ -92,7 +92,7 @@ bool VideoSourceEncoder::InitEncoder(const VideoSourceConfigure &configure)
 
 bool VideoSourceEncoder::CreateEncoder(const VideoSourceConfigure &configure)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     switch (configure.codecType_) {
         case CodecId::CODEC_H264:
             videoEncoder_ = OHOS::MediaAVCodec::VideoEncoderFactory::CreateByMime("video/avc");
@@ -121,7 +121,7 @@ bool VideoSourceEncoder::CreateEncoder(const VideoSourceConfigure &configure)
 
 bool VideoSourceEncoder::ConfigEncoder(const VideoSourceConfigure &configure)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (videoEncoder_ == nullptr) {
         SHARING_LOGE("Encoder is null!");
         return false;
@@ -155,13 +155,13 @@ bool VideoSourceEncoder::ConfigEncoder(const VideoSourceConfigure &configure)
 
 sptr<Surface> &VideoSourceEncoder::GetEncoderSurface()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     return videoEncoderSurface_;
 }
 
 bool VideoSourceEncoder::StartEncoder()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (videoEncoder_ == nullptr) {
         SHARING_LOGE("Encoder is null!");
         return false;
@@ -184,7 +184,7 @@ bool VideoSourceEncoder::StartEncoder()
 
 bool VideoSourceEncoder::StopEncoder()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (videoEncoder_ == nullptr) {
         SHARING_LOGE("Encoder is null!");
         return false;
@@ -206,7 +206,7 @@ bool VideoSourceEncoder::StopEncoder()
 
 bool VideoSourceEncoder::ReleaseEncoder()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (videoEncoder_ == nullptr) {
         SHARING_LOGE("encoder is null!");
         return false;
@@ -225,7 +225,7 @@ void VideoSourceEncoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::A
                                                  MediaAVCodec::AVCodecBufferFlag flag,
                                                  std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
 {
-    SHARING_LOGI("index: %{public}u, size:%{public}u, pts: %{public}" PRIi64 ".", index, info.size,
+    SHARING_LOGD("index: %{public}u, size:%{public}u, pts: %{public}" PRIi64 ".", index, info.size,
                  info.presentationTimeUs);
     if (!videoEncoder_) {
         SHARING_LOGE("encoder is null!");
@@ -247,7 +247,7 @@ void VideoSourceEncoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::A
     if (auto listener = listener_.lock()) {
         SplitH264(data, dataSize, 0, [&](const char *buf, size_t len, size_t prefix) {
             if ((*(buf + prefix) & 0x1f) == 0x07) {
-                SHARING_LOGD("get sps, size:%{public}zu.", len);
+                SHARING_LOGE("get sps, size:%{public}zu.", len);
                 Frame::Ptr videoFrame = FrameImpl::Create();
                 RETURN_IF_NULL(videoFrame);
                 videoFrame->Assign(buf, len);
@@ -256,7 +256,7 @@ void VideoSourceEncoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::A
                 return;
             }
             if ((*(buf + prefix) & 0x1f) == 0x08) {
-                SHARING_LOGD("get pps, size:%{public}zu.", len);
+                SHARING_LOGE("get pps, size:%{public}zu.", len);
                 Frame::Ptr videoFrame = FrameImpl::Create();
                 RETURN_IF_NULL(videoFrame);
                 videoFrame->Assign(buf, len);
@@ -291,7 +291,7 @@ void VideoSourceEncoder::OnInputBufferAvailable(uint32_t index, std::shared_ptr<
 
 void VideoSourceEncoder::OnOutputFormatChanged(const MediaAVCodec::Format &format)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)format;
 }
 
@@ -299,5 +299,6 @@ void VideoSourceEncoder::OnError(MediaAVCodec::AVCodecErrorType errorType, int32
 {
     SHARING_LOGD("Encoder error, errorType(%{public}d), errorCode(%{public}d)!", errorType, errorCode);
 }
+
 } // namespace Sharing
 } // namespace OHOS

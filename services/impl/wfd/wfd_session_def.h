@@ -24,9 +24,11 @@ namespace Sharing {
 constexpr uint16_t MAX_RTSP_TIMEOUT_COUNTS = 3;
 
 constexpr uint32_t WFD_SEC_TO_MSEC = 1000;
-constexpr uint32_t P2P_CONNECT_TIMEOUT = 180;
+constexpr uint32_t P2P_CONNECT_TIMEOUT = 60;
+constexpr uint32_t P2P_DISCONNECT_TIMEOUT = 3;
 constexpr uint32_t RTSP_SESSION_TIMEOUT = 30;
 constexpr uint32_t RTSP_INTERACTION_TIMEOUT = 10;
+constexpr uint32_t RTSP_TCP_CONNECT_TIMEOUT = 5;
 constexpr uint32_t MINIMAL_VIDEO_FORMAT_SIZE = 54;
 
 const std::string RTSP_METHOD_WFD = "org.wfa.wfd1.0";

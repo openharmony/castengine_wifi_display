@@ -74,6 +74,7 @@ constexpr uint32_t AUDIO_CHANNEL_STEREO = 2;
 constexpr uint32_t AUDIO_SAMPLE_RATE_44100 = 44100;
 constexpr uint32_t AUDIO_SAMPLE_RATE_48000 = 48000;
 constexpr uint32_t AUDIO_BIT_RATE_12800 = 128000;
+constexpr uint32_t SAMPLE_RATE_90K = 90000;
 
 constexpr uint32_t INVALID_ID = 0;
 constexpr int32_t DEFAULT_CHANNEL = 2;
@@ -104,6 +105,8 @@ constexpr float DEFAULT_SCREEN_DENSITY = 2.0;
 constexpr int32_t DEFAULT_SCREEN_FLAGS = 0;
 
 const std::string DUMMY_EMPTY = "";
+
+constexpr int32_t MAX_RTP_PAYLOAD_SIZE = 1316;
 
 enum TrackType { TRACK_INVALID = -1, TRACK_VIDEO = 0, TRACK_AUDIO, TRACK_TITLE, TRACK_APPLICATION, TRACK_MAX };
 

@@ -30,12 +30,12 @@ WfdSourceSession::WfdSourceNetworkSession::WfdSourceNetworkSession(std::weak_ptr
                                                                    std::weak_ptr<WfdSourceSession> serverPtr)
     : sessionPtr_(sessionPtr), serverPtr_(serverPtr)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
 }
 
 WfdSourceSession::WfdSourceNetworkSession::~WfdSourceNetworkSession()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (timer_ != nullptr) {
         timer_->Shutdown();
         timer_.reset();
@@ -63,7 +63,7 @@ void WfdSourceSession::WfdSourceNetworkSession::SetKeepAliveTimer()
 
 void WfdSourceSession::WfdSourceNetworkSession::OnSessionReadData(int32_t fd, DataBuffer::Ptr buf)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto server = serverPtr_.lock();
     if (server) {
         auto session = sessionPtr_.lock();
@@ -75,12 +75,12 @@ void WfdSourceSession::WfdSourceNetworkSession::OnSessionReadData(int32_t fd, Da
 
 void WfdSourceSession::WfdSourceNetworkSession::OnSessionWriteable(int32_t fd)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
 }
 
 void WfdSourceSession::WfdSourceNetworkSession::OnSessionClose(int32_t fd)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto server = serverPtr_.lock();
     if (server) {
         auto statusMsg = std::make_shared<SessionStatusMsg>();
@@ -93,7 +93,7 @@ void WfdSourceSession::WfdSourceNetworkSession::OnSessionClose(int32_t fd)
 
 void WfdSourceSession::WfdSourceNetworkSession::OnSessionException(int32_t fd)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto server = serverPtr_.lock();
     if (server) {
         auto statusMsg = std::make_shared<SessionStatusMsg>();
@@ -106,7 +106,7 @@ void WfdSourceSession::WfdSourceNetworkSession::OnSessionException(int32_t fd)
 
 void WfdSourceSession::WfdSourceNetworkSession::OnSendKeepAlive() const
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto session = sessionPtr_.lock();
     if (session) {
         auto server = serverPtr_.lock();
@@ -118,7 +118,7 @@ void WfdSourceSession::WfdSourceNetworkSession::OnSendKeepAlive() const
 
 WfdSourceSession::WfdSourceSession()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     sysEvent_ = std::make_shared<SharingHiSysEvent>(BIZSceneType::WFD_SOURCE_PLAY, WFD_SOURCE);
     std::stringstream ss;
     ss << std::setw(8) << std::setfill('f') << (int64_t)this; // width:8
@@ -127,13 +127,13 @@ WfdSourceSession::WfdSourceSession()
 
 WfdSourceSession::~WfdSourceSession()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     StopWfdSession();
 }
 
 void WfdSourceSession::NotifyServiceError()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto statusMsg = std::make_shared<SessionStatusMsg>();
     statusMsg->msg = std::make_shared<EventMsg>();
     statusMsg->status = STATE_SESSION_ERROR;
@@ -145,7 +145,7 @@ void WfdSourceSession::NotifyServiceError()
 
 void WfdSourceSession::UpdateOperation(SessionStatusMsg::Ptr &statusMsg)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     RETURN_IF_NULL(statusMsg);
     RETURN_IF_NULL(statusMsg->msg);
 
@@ -184,7 +184,7 @@ void WfdSourceSession::UpdateOperation(SessionStatusMsg::Ptr &statusMsg)
 
 void WfdSourceSession::UpdateMediaStatus(SessionStatusMsg::Ptr &statusMsg)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     RETURN_IF_NULL(statusMsg);
     RETURN_IF_NULL(statusMsg->msg);
 
@@ -210,7 +210,7 @@ void WfdSourceSession::UpdateMediaStatus(SessionStatusMsg::Ptr &statusMsg)
 
 void WfdSourceSession::NotifyProsumerInit(SessionStatusMsg::Ptr &statusMsg)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     RETURN_IF_NULL(statusMsg);
     RETURN_IF_NULL(statusMsg->msg);
 
@@ -231,7 +231,7 @@ void WfdSourceSession::NotifyProsumerInit(SessionStatusMsg::Ptr &statusMsg)
 
 int32_t WfdSourceSession::HandleEvent(SharingEvent &event)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     RETURN_INVALID_IF_NULL(event.eventMsg);
     SHARING_LOGI("event: type: %{public}s, from: %{public}u, sessionId: %{public}u.",
                  std::string(magic_enum::enum_name(event.eventMsg->type)).c_str(), event.eventMsg->fromMgr, GetId());
@@ -248,6 +248,8 @@ int32_t WfdSourceSession::HandleEvent(SharingEvent &event)
         case EventType::EVENT_AGENT_KEYMODE_STOP:
             break;
         case EventType::EVENT_SESSION_TEARDOWN:
+            // TODO
+            // SendTearDownRequest();
             break;
         default:
             break;
@@ -257,7 +259,7 @@ int32_t WfdSourceSession::HandleEvent(SharingEvent &event)
 
 void WfdSourceSession::NotifyAgentSessionStatus(SessionStatusMsg::Ptr &statusMsg)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     RETURN_IF_NULL(statusMsg);
     if (statusMsg->status == NOTIFY_PROSUMER_CREATE) {
         statusMsg->className = "WfdRtpProducer";
@@ -268,7 +270,7 @@ void WfdSourceSession::NotifyAgentSessionStatus(SessionStatusMsg::Ptr &statusMsg
 bool WfdSourceSession::StartWfdSession()
 {
     sysEvent_->ReportStart(__func__, BIZSceneStage::WFD_SOURCE_PLAY_TCP_SERVER);
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (wfdDefaultPort_ > 0) {
         if (!NetworkFactory::CreateTcpServer(wfdDefaultPort_, shared_from_this(), rtspServerPtr_, "")) {
             SHARING_LOGE("start rtsp server [port:%{public}d] failed.", wfdDefaultPort_);
@@ -283,7 +285,7 @@ bool WfdSourceSession::StartWfdSession()
 
 bool WfdSourceSession::StopWfdSession()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (rtspServerPtr_) {
         rtspServerPtr_->Stop();
         rtspServerPtr_.reset();
@@ -293,7 +295,7 @@ bool WfdSourceSession::StopWfdSession()
 
 void WfdSourceSession::HandleSessionInit(SharingEvent &event)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto inputMsg = ConvertEventMsg<WfdSourceSessionEventMsg>(event);
     if (inputMsg) {
         sinkAgentId_ = inputMsg->sinkAgentId;
@@ -314,7 +316,7 @@ void WfdSourceSession::HandleSessionInit(SharingEvent &event)
 
 void WfdSourceSession::HandleProsumerInitState(SharingEvent &event)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     RETURN_IF_NULL(event.eventMsg);
 
     auto inputMsg = ConvertEventMsg<WfdSourceSessionEventMsg>(event);
@@ -341,7 +343,7 @@ void WfdSourceSession::HandleProsumerInitState(SharingEvent &event)
 
 void WfdSourceSession::OnAccept(std::weak_ptr<INetworkSession> session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto sessionPtr = session.lock();
     if (sessionPtr) {
         rtspServerFd_ = sessionPtr->GetSocketInfo()->GetPeerFd();
@@ -360,8 +362,8 @@ void WfdSourceSession::OnAccept(std::weak_ptr<INetworkSession> session)
 
 void WfdSourceSession::OnServerReadData(int32_t fd, DataBuffer::Ptr buf, INetworkSession::Ptr session)
 {
-    SHARING_LOGD("trace.");
     if (rtspServerFd_ != fd || session == nullptr) {
+        SHARING_LOGW("OnServerReadData rtspServerFd_: %{public}d, fd: %{public}d.", rtspServerFd_, fd);
         return;
     }
 
@@ -415,7 +417,7 @@ void WfdSourceSession::OnServerReadData(int32_t fd, DataBuffer::Ptr buf, INetwor
 
 bool WfdSourceSession::HandleRequest(const RtspRequest &request, INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (!lastMessage_.empty()) {
         lastMessage_.clear();
     }
@@ -441,7 +443,7 @@ bool WfdSourceSession::HandleRequest(const RtspRequest &request, INetworkSession
 
 bool WfdSourceSession::HandleIDRRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (request.GetSession() == sessionID_) {
         std::list<std::string> params = request.GetBody();
         for (auto &param : params) {
@@ -456,7 +458,7 @@ bool WfdSourceSession::HandleIDRRequest(const RtspRequest &request, int32_t cseq
 
 bool WfdSourceSession::HandleOptionRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M2_REQ);
     if (SendM2Response(cseq, session)) {
         if (SendM3Request(session)) {
@@ -468,14 +470,14 @@ bool WfdSourceSession::HandleOptionRequest(const RtspRequest &request, int32_t c
 
 bool WfdSourceSession::HandleSetupRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M6_REQ);
     return SendM6Response(session, cseq);
 }
 
 bool WfdSourceSession::HandlePlayRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     sysEvent_->Report(__func__, BIZSceneStage::WFD_SOURCE_PLAY_RECV_M7_REQ);
     auto statusMsg = std::make_shared<SessionStatusMsg>();
     auto eventMsg = std::make_shared<ScreenCaptureSessionEventMsg>();
@@ -506,7 +508,7 @@ bool WfdSourceSession::HandlePlayRequest(const RtspRequest &request, int32_t cse
 
 bool WfdSourceSession::HandlePauseRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto statusMsg = std::make_shared<SessionStatusMsg>();
     statusMsg->msg = std::make_shared<EventMsg>();
     prosumerState_ = ERR_PROSUMER_PAUSE;
@@ -519,7 +521,7 @@ bool WfdSourceSession::HandlePauseRequest(const RtspRequest &request, int32_t cs
 
 bool WfdSourceSession::HandleTeardownRequest(const RtspRequest &request, int32_t cseq, INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto statusMsg = std::make_shared<SessionStatusMsg>();
     statusMsg->msg = std::make_shared<EventMsg>();
     statusMsg->status = NOTIFY_PROSUMER_DESTROY;
@@ -574,7 +576,7 @@ bool WfdSourceSession::HandleResponse(const RtspResponse &response, const std::s
 bool WfdSourceSession::HandleM1Response(const RtspResponse &response, const std::string &message,
                                         INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)message;
     (void)session;
     if (response.GetStatus() != RTSP_STATUS_OK) {
@@ -599,7 +601,7 @@ bool WfdSourceSession::HandleM1Response(const RtspResponse &response, const std:
 bool WfdSourceSession::HandleM3Response(const RtspResponse &response, const std::string &message,
                                         INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)message;
     if (response.GetStatus() != RTSP_STATUS_OK) {
         SHARING_LOGE("WFD source peer handle 'SETUP' method error.");
@@ -635,7 +637,7 @@ bool WfdSourceSession::HandleM3Response(const RtspResponse &response, const std:
 bool WfdSourceSession::HandleM4Response(const RtspResponse &response, const std::string &message,
                                         INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)message;
     if (response.GetStatus() != RTSP_STATUS_OK) {
         SHARING_LOGE("WFD source peer handle 'SETUP' method error.");
@@ -665,7 +667,7 @@ bool WfdSourceSession::HandleM4Response(const RtspResponse &response, const std:
 bool WfdSourceSession::HandleM5Response(const RtspResponse &response, const std::string &message,
                                         INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)message;
     (void)session;
     if (response.GetStatus() != RTSP_STATUS_OK) {
@@ -687,7 +689,7 @@ bool WfdSourceSession::HandleM5Response(const RtspResponse &response, const std:
 bool WfdSourceSession::HandleM7Response(const RtspResponse &response, const std::string &message,
                                         INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)message;
     (void)session;
     if (response.GetStatus() != RTSP_STATUS_OK) {
@@ -706,7 +708,7 @@ bool WfdSourceSession::HandleM7Response(const RtspResponse &response, const std:
 bool WfdSourceSession::HandleM8Response(const RtspResponse &response, const std::string &message,
                                         INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)message;
     (void)session;
     if (response.GetStatus() != RTSP_STATUS_OK) {
@@ -729,7 +731,7 @@ bool WfdSourceSession::HandleM8Response(const RtspResponse &response, const std:
 
 bool WfdSourceSession::SendM1Request(INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (!rtspServerPtr_ || !session) {
         return false;
     }
@@ -750,7 +752,7 @@ bool WfdSourceSession::SendM1Request(INetworkSession::Ptr &session)
 
 bool WfdSourceSession::SendM2Response(int32_t cseq, INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (!rtspServerPtr_ || !session) {
         return false;
     }
@@ -771,7 +773,7 @@ bool WfdSourceSession::SendM2Response(int32_t cseq, INetworkSession::Ptr &sessio
 
 bool WfdSourceSession::SendM3Request(INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (!rtspServerPtr_ || !session) {
         return false;
     }
@@ -792,7 +794,7 @@ bool WfdSourceSession::SendM3Request(INetworkSession::Ptr &session)
 
 bool WfdSourceSession::SendM4Request(INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (!rtspServerPtr_ || !session) {
         return false;
     }
@@ -818,7 +820,7 @@ bool WfdSourceSession::SendM4Request(INetworkSession::Ptr &session)
 
 bool WfdSourceSession::SendM5Request(INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (!rtspServerPtr_ || !session) {
         return false;
     }
@@ -840,7 +842,7 @@ bool WfdSourceSession::SendM5Request(INetworkSession::Ptr &session)
 
 bool WfdSourceSession::SendM6Response(INetworkSession::Ptr &session, int32_t cseq)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (!rtspServerPtr_ || !session) {
         return false;
     }
@@ -862,7 +864,7 @@ bool WfdSourceSession::SendM6Response(INetworkSession::Ptr &session, int32_t cse
 
 bool WfdSourceSession::SendM7Response(INetworkSession::Ptr &session, int32_t cseq)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (!rtspServerPtr_ || !session) {
         return false;
     }
@@ -884,7 +886,7 @@ bool WfdSourceSession::SendM7Response(INetworkSession::Ptr &session, int32_t cse
 
 bool WfdSourceSession::SendM8Response(INetworkSession::Ptr &session, int32_t cseq)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (!rtspServerPtr_ || !session) {
         return false;
     }
@@ -903,7 +905,7 @@ bool WfdSourceSession::SendM8Response(INetworkSession::Ptr &session, int32_t cse
 
 bool WfdSourceSession::SendCommonResponse(int32_t cseq, INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (!rtspServerPtr_ || !session) {
         return false;
     }
@@ -921,7 +923,7 @@ bool WfdSourceSession::SendCommonResponse(int32_t cseq, INetworkSession::Ptr &se
 
 bool WfdSourceSession::SendM16Request(INetworkSession::Ptr &session)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (rtspTimeoutCounts_ <= 0) {
         NotifyServiceError();
         return false;

@@ -20,13 +20,13 @@ namespace OHOS {
 namespace Sharing {
 EventHandlerManager::EventHandlerManager()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     Init();
 }
 
 EventHandlerManager::~EventHandlerManager()
 {
-    SHARING_LOGD("~EventHandlerManager.");
+    SHARING_LOGI("~EventHandlerManager.");
     std::unique_lock<std::mutex> lock(mutex);
     eventRunner_->Stop();
     listenerMap_.clear();
@@ -35,7 +35,7 @@ EventHandlerManager::~EventHandlerManager()
 
 void EventHandlerManager::Init()
 {
-    SHARING_LOGD("eventHandlerManager Init.");
+    SHARING_LOGI("eventHandlerManager Init.");
     std::unique_lock<std::mutex> lock(mutex);
     eventRunner_ = OHOS::AppExecFwk::EventRunner::Create(true);
     eventRunner_->Run();
@@ -43,13 +43,13 @@ void EventHandlerManager::Init()
 
 std::shared_ptr<OHOS::AppExecFwk::EventRunner> EventHandlerManager::GetEventRunner()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     return eventRunner_;
 }
 
 std::shared_ptr<OHOS::AppExecFwk::EventHandler> EventHandlerManager::GetEventHandler(int32_t fd)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     std::unique_lock<std::mutex> lock(mutex);
     if (handlerMap_.find(fd) != handlerMap_.end()) {
         auto handler = handlerMap_[fd].lock();
@@ -63,7 +63,7 @@ std::shared_ptr<OHOS::AppExecFwk::EventHandler> EventHandlerManager::GetEventHan
 
 int32_t EventHandlerManager::AddFdListener(int32_t fd, const std::shared_ptr<FileDescriptorListener> &listener)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     std::unique_lock<std::mutex> lock(mutex);
     if (listenerMap_.find(fd) != listenerMap_.end()) {
         auto listener = listenerMap_[fd].lock();
@@ -77,7 +77,7 @@ int32_t EventHandlerManager::AddFdListener(int32_t fd, const std::shared_ptr<Fil
 
 int32_t EventHandlerManager::AddEventHandler(int32_t fd, const std::shared_ptr<OHOS::AppExecFwk::EventHandler> &handler)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     std::unique_lock<std::mutex> lock(mutex);
     if (handlerMap_.find(fd) != handlerMap_.end()) {
         auto handler = handlerMap_[fd].lock();
@@ -91,7 +91,7 @@ int32_t EventHandlerManager::AddEventHandler(int32_t fd, const std::shared_ptr<O
 
 int32_t EventHandlerManager::DelFdListener(int32_t fd)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     std::unique_lock<std::mutex> lock(mutex);
     if (listenerMap_.find(fd) != listenerMap_.end()) {
         listenerMap_.erase(fd);
@@ -102,7 +102,7 @@ int32_t EventHandlerManager::DelFdListener(int32_t fd)
 
 int32_t EventHandlerManager::DelEventHandler(int32_t fd)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     std::unique_lock<std::mutex> lock(mutex);
     if (handlerMap_.find(fd) != handlerMap_.end()) {
         handlerMap_.erase(fd);

@@ -111,11 +111,10 @@ private:
     int32_t CreateScreenCapture();
     int32_t AppendCast(const std::string &deviceId);
     int32_t HandleDestroyScreenCapture(std::shared_ptr<DestroyScreenCaptureReq> &msg);
-    int32_t HandleStartDiscovery(std::shared_ptr<WfdSourceStartDiscoveryReq> &msg,
-                                 std::shared_ptr<WfdCommonRsp> &reply);
-    int32_t HandleStopDiscovery(std::shared_ptr<WfdSourceStopDiscoveryReq> &msg, std::shared_ptr<WfdCommonRsp> &reply);
-    int32_t HandleAddDevice(std::shared_ptr<WfdSourceAddDeviceReq> &msg, std::shared_ptr<WfdCommonRsp> &reply);
-    int32_t HandleRemoveDevice(std::shared_ptr<WfdSourceRemoveDeviceReq> &msg, std::shared_ptr<WfdCommonRsp> &reply);
+    int32_t HandleStartDiscovery(std::shared_ptr<BaseMsg> &baseMsg, std::shared_ptr<WfdCommonRsp> &reply);
+    int32_t HandleStopDiscovery(std::shared_ptr<BaseMsg> &baseMsg, std::shared_ptr<WfdCommonRsp> &reply);
+    int32_t HandleAddDevice(std::shared_ptr<BaseMsg> &baseMsg, std::shared_ptr<WfdCommonRsp> &reply);
+    int32_t HandleRemoveDevice(std::shared_ptr<BaseMsg> &baseMsg, std::shared_ptr<WfdCommonRsp> &reply);
 
 private:
     std::atomic_bool isSourceRunning_ = false;
