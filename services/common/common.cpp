@@ -73,16 +73,21 @@ void Common::SetVideoTrack(VideoTrack &videoTrack, VideoFormat videoFormat)
 
 void Common::SetAudioTrack(AudioTrack &audioTrack, AudioFormat audioFormat)
 {
+    SetAudioTrack(audioTrack, CodecId::CODEC_AAC, audioFormat);
+}
+
+void Common::SetAudioTrack(AudioTrack &audioTrack, CodecId codecId, AudioFormat audioFormat)
+{
     switch (audioFormat) {
         case AudioFormat::AUDIO_44100_8_2:
         case AudioFormat::AUDIO_44100_16_2:
-            audioTrack.codecId = CodecId::CODEC_AAC;
+            audioTrack.codecId = codecId;
             audioTrack.sampleRate = AUDIO_SAMPLE_RATE_44100;
             audioTrack.sampleBit = AUDIO_SAMPLE_BIT;
             audioTrack.channels = AUDIO_SAMEPLE_CHANNEL;
             break;
         case AudioFormat::AUDIO_48000_16_2:
-            audioTrack.codecId = CodecId::CODEC_AAC;
+            audioTrack.codecId = codecId;
             audioTrack.sampleRate = AUDIO_SAMPLE_RATE_48000;
             audioTrack.sampleBit = AUDIO_SAMPLE_BIT;
             audioTrack.channels = AUDIO_SAMEPLE_CHANNEL;

@@ -118,6 +118,8 @@ private:
     void NotifyServiceError();
 
 private:
+    uint32_t sinkAgentId_ = 0;
+
     uint16_t cseq_ = 0;
     uint16_t sinkRtpPort_ = 0;
     uint16_t sourceRtpPort_ = 0;
@@ -135,6 +137,7 @@ private:
     std::string sessionID_;
     std::string lastMessage_;
 
+    WfdAudioCodec wfdAudioCodec_ = {CODEC_DEFAULT, AUDIO_48000_16_2};
     WfdVideoFormatsInfo wfdVideoFormatsInfo_;
     AudioFormat audioFormat_ = AUDIO_48000_16_2;
     VideoFormat videoFormat_ = VIDEO_1920X1080_30;
