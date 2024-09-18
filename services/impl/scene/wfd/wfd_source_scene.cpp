@@ -118,8 +118,8 @@ void WfdSourceScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::W
     for (auto itDev : device) {
         auto status = itDev.GetP2pDeviceStatus();
         SHARING_LOGI("device name: %{public}s, mac: %{public}s, status: %{public}d.",
-                      GetAnonyString(itDev.GetDeviceName()).c_str(), GetAnonyString(itDev.GetDeviceAddress()).c_str(),
-                      status);
+                     GetAnonyString(itDev.GetDeviceName()).c_str(), GetAnonyString(itDev.GetDeviceAddress()).c_str(),
+                     status);
         if (status == Wifi::P2pDeviceStatus::PDS_AVAILABLE) {
             std::string subelement;
             Wifi::WifiP2pWfdInfo wfdInfo(itDev.GetWfdInfo());
@@ -451,7 +451,7 @@ int32_t WfdSourceScene::HandleStartDiscovery(std::shared_ptr<BaseMsg> &baseMsg,
     return ret;
 }
 
-int32_t WfdSourceScene::HandleStopDiscovery(std::shared_ptr<BaseMsg> &baseMsg, 
+int32_t WfdSourceScene::HandleStopDiscovery(std::shared_ptr<BaseMsg> &baseMsg,
                                             std::shared_ptr<WfdCommonRsp> &reply)
 {
     SHARING_LOGI("%{public}s.", __FUNCTION__);
@@ -472,7 +472,7 @@ int32_t WfdSourceScene::HandleStopDiscovery(std::shared_ptr<BaseMsg> &baseMsg,
     return ret;
 }
 
-int32_t WfdSourceScene::HandleAddDevice(std::shared_ptr<BaseMsg> &baseMsg, 
+int32_t WfdSourceScene::HandleAddDevice(std::shared_ptr<BaseMsg> &baseMsg,
                                         std::shared_ptr<WfdCommonRsp> &reply)
 {
     SHARING_LOGI("%{public}s.", __FUNCTION__);
@@ -718,9 +718,9 @@ void WfdSourceScene::OnDeviceFound(const std::vector<WfdCastDeviceInfo> &deviceI
 
 void WfdSourceScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
 {
-    SHARING_LOGE("OnP2pPeerConnected, deviceName: %{public}s, mac: %{public}s, ip: %{public}s, port: %{public}d.", 
-                  GetAnonyString(connectionInfo.deviceName).c_str(), GetAnonyString(connectionInfo.mac).c_str(), 
-                  GetAnonyString(connectionInfo.ip).c_str(), connectionInfo.ctrlPort);
+    SHARING_LOGE("OnP2pPeerConnected, deviceName: %{public}s, mac: %{public}s, ip: %{public}s, port: %{public}d.",
+                 GetAnonyString(connectionInfo.deviceName).c_str(), GetAnonyString(connectionInfo.mac).c_str(),
+                 GetAnonyString(connectionInfo.ip).c_str(), connectionInfo.ctrlPort);
 
     if (!isSourceRunning_) {
         SHARING_LOGW("source service is not running.");
