@@ -248,8 +248,6 @@ int32_t WfdSourceSession::HandleEvent(SharingEvent &event)
         case EventType::EVENT_AGENT_KEYMODE_STOP:
             break;
         case EventType::EVENT_SESSION_TEARDOWN:
-            // TODO
-            // SendTearDownRequest();
             break;
         default:
             break;
