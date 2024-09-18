@@ -36,7 +36,7 @@ UdpClient::UdpClient()
 
 bool UdpClient::Connect(const std::string &peerHost, uint16_t peerPort, const std::string &localIp, uint16_t localPort)
 {
-    SHARING_LOGI("peerIp:%{public}s, peerPort:%{public}d, localPort:%{public}d, thread_id: %{public}llu.", 
+    SHARING_LOGI("peerIp: %{public}s, peerPort: %{public}d, localPort: %{public}d, thread_id: %{public}llu.", 
                   GetAnonyString(peerHost).c_str(), peerPort, localPort, GetThreadId());
     std::unique_lock<std::shared_mutex> lk(mutex_);
     int32_t retCode = 0;
