@@ -944,10 +944,10 @@ int32_t BufferDispatcher::InputData(const MediaData::Ptr &data)
 
     if (data->keyFrame) {
         MEDIA_LOGD("dispatcherId: %{public}u, after InputData, current circularBuffer_ size: %{public}zu, "
-                "idleVideoBuffer_ size: %{public}zu, idle_audioBuffer_ size: %{public}zu, "
-                "keyFrame: %{public}s, data size: %{public}d, adataCount:%{public}d.",
-                GetDispatcherId(), circularBuffer_.size(), idleVideoBuffer_.size(), idleAudioBuffer_.size(),
-                data->keyFrame ? "true" : "false", data->buff->Size(), audioFrameCnt_);
+                   "idleVideoBuffer_ size: %{public}zu, idle_audioBuffer_ size: %{public}zu, "
+                   "keyFrame: %{public}s, data size: %{public}d, adataCount:%{public}d.",
+                   GetDispatcherId(), circularBuffer_.size(), idleVideoBuffer_.size(), idleAudioBuffer_.size(),
+                   data->keyFrame ? "true" : "false", data->buff->Size(), audioFrameCnt_);
     }
 
     return 0;
