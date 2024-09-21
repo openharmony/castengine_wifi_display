@@ -48,14 +48,11 @@ void RtpPacketSortor::InputRtp(TrackType type, uint8_t *ptr, size_t len)
     }
 
     auto rtp = std::make_shared<RtpPacket>();
-    rtp->SetCapacity(len);
-    rtp->SetSize(len);
+    rtp->ReplaceData(reinterpret_cast<char*>(ptr), len);
     rtp->sampleRate_ = sampleRate_;
     rtp->type_ = type;
 
-    auto data = rtp->Data();
-    auto ret = memcpy_s(data, len, ptr, len);
-    if (ret != EOK) {
+    if (rtp->Size() != len) {
         return;
     }
     MEDIA_LOGD("rtp payload size: %{public}zu.", rtp->GetPayloadSize());

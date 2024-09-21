@@ -847,7 +847,7 @@ HWTEST_F(RtpUnitTest, RtpUnitTest_066, Function | SmallTest | Level2)
 {
     auto rtpHeader = std::make_shared<RtpHeader>();
     EXPECT_NE(rtpHeader, nullptr);
-    auto ret = rtpHeader->GetExtData();
+    auto ret = rtpHeader->GetExtData(0);
     EXPECT_EQ(ret, nullptr);
 }
 
@@ -863,7 +863,7 @@ HWTEST_F(RtpUnitTest, RtpUnitTest_068, Function | SmallTest | Level2)
 {
     auto rtpHeader = std::make_shared<RtpHeader>();
     EXPECT_NE(rtpHeader, nullptr);
-    auto ret = rtpHeader->GetPayloadData();
+    auto ret = rtpHeader->GetPayloadData(0);
     EXPECT_NE(ret, nullptr);
 }
 
@@ -871,7 +871,7 @@ HWTEST_F(RtpUnitTest, RtpUnitTest_069, Function | SmallTest | Level2)
 {
     auto rtpHeader = std::make_shared<RtpHeader>();
     EXPECT_NE(rtpHeader, nullptr);
-    auto ret = rtpHeader->GetExtReserved();
+    auto ret = rtpHeader->GetExtReserved(0);
     EXPECT_EQ(ret, 0);
 }
 
@@ -879,7 +879,7 @@ HWTEST_F(RtpUnitTest, RtpUnitTest_070, Function | SmallTest | Level2)
 {
     auto rtpHeader = std::make_shared<RtpHeader>();
     EXPECT_NE(rtpHeader, nullptr);
-    auto ret = rtpHeader->GetExtSize();
+    auto ret = rtpHeader->GetExtSize(0);
     EXPECT_EQ(ret, 0);
 }
 
@@ -903,7 +903,7 @@ HWTEST_F(RtpUnitTest, RtpUnitTest_073, Function | SmallTest | Level2)
 {
     auto rtpHeader = std::make_shared<RtpHeader>();
     EXPECT_NE(rtpHeader, nullptr);
-    auto ret = rtpHeader->GetPayloadOffset();
+    auto ret = rtpHeader->GetPayloadOffset(0);
     EXPECT_EQ(ret, 0);
 }
 

@@ -59,7 +59,9 @@ void RtpUnpackImpl::ParseRtp(const char *data, size_t len)
         }
     }
 
-    rtpSort_[pt]->InputRtp(TRACK_VIDEO, (unsigned char *)data, len);
+    if (rtpSort_[pt]) {
+        rtpSort_[pt]->InputRtp(TRACK_VIDEO, (unsigned char *)data, len);
+    }
 }
 
 void RtpUnpackImpl::SetOnRtpUnpack(const OnRtpUnpack &cb)
@@ -116,8 +118,6 @@ void RtpUnpackImpl::CreateRtpDecoder(const RtpPlaylodParam &rpp)
             break;
         case RtpPayloadStream::MPEG2_TS:
             rtpDecoder_[rpp.pt_] = std::make_shared<RtpDecoderTs>();
-            break;
-        case RtpPayloadStream::MPEG2_PS:
             break;
         default:
             // todo log

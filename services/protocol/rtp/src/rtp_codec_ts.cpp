@@ -185,7 +185,10 @@ int RtpDecoderTs::ReadPacket(uint8_t *buf, int buf_size)
     auto &rtp = dataQueue_.front();
     auto data = rtp->GetPayload();
     int length = rtp->GetPayloadSize();
-
+    if (length > buf_size) {
+        SHARING_LOGE("rtp length exceed buf_size!");
+        return 0;
+    }
     auto ret = memcpy_s(buf, length, data, length);
     if (ret != EOK) {
         return 0;

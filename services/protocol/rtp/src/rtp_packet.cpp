@@ -35,26 +35,33 @@ uint8_t *RtpHeader::GetCsrcData()
     return &payload_;
 }
 
-size_t RtpHeader::GetExtSize() const
+size_t RtpHeader::GetExtSize(size_t rtp_size) const
 {
     if (!ext_) {
         return 0;
     }
-    auto ext_ptr = &payload_ + GetCsrcSize();
+    if (RtpPacket::RTP_HEADER_SIZE + GetCsrcSize() + 4 > rtp_size) { // 4:byte offset
+        return 0;
+    }
 
+    auto ext_ptr = &payload_ + GetCsrcSize();
     return AV_RB16(ext_ptr + 2) << 2; // 2:byte offset
 }
 
-uint16_t RtpHeader::GetExtReserved() const
+uint16_t RtpHeader::GetExtReserved(size_t rtp_size) const
 {
     if (!ext_) {
         return 0;
     }
+    if (RtpPacket::RTP_HEADER_SIZE + GetCsrcSize() + 2 > rtp_size) { // 2:byte offset
+        return 0;
+    }
+    
     auto ext_ptr = &payload_ + GetCsrcSize();
     return AV_RB16(ext_ptr);
 }
 
-uint8_t *RtpHeader::GetExtData()
+uint8_t *RtpHeader::GetExtData(size_t rtp_size)
 {
     if (!ext_) {
         return nullptr;
@@ -64,14 +71,14 @@ uint8_t *RtpHeader::GetExtData()
     return ext_ptr + 4; // 4:byte offset
 }
 
-size_t RtpHeader::GetPayloadOffset() const
+size_t RtpHeader::GetPayloadOffset(size_t rtp_size) const
 {
-    return GetCsrcSize() + (ext_ ? (4 + GetExtSize()) : 0); // 4:byte offset
+    return GetCsrcSize() + (ext_ ? (4 + GetExtSize(rtp_size)) : 0); // 4:byte offset
 }
 
-uint8_t *RtpHeader::GetPayloadData()
+uint8_t *RtpHeader::GetPayloadData(size_t rtp_size)
 {
-    return &payload_ + GetPayloadOffset();
+    return &payload_ + GetPayloadOffset(rtp_size);
 }
 
 size_t RtpHeader::GetPaddingSize(size_t rtp_size) const
@@ -80,12 +87,15 @@ size_t RtpHeader::GetPaddingSize(size_t rtp_size) const
         return 0;
     }
     auto end = (uint8_t *)this + rtp_size - 1;
+    if (*end + RtpPacket::RTP_HEADER_SIZE > rtp_size) {
+        return 0;
+    }
     return *end;
 }
 
 size_t RtpHeader::GetPayloadSize(size_t rtp_size) const
 {
-    auto invalid_size = GetPayloadOffset() + GetPaddingSize(rtp_size);
+    auto invalid_size = GetPayloadOffset(rtp_size) + GetPaddingSize(rtp_size);
     if (invalid_size + RtpPacket::RTP_HEADER_SIZE >= rtp_size) {
         return 0;
     }
@@ -120,7 +130,7 @@ uint32_t RtpPacket::GetSSRC()
 
 uint8_t *RtpPacket::GetPayload()
 {
-    return GetHeader()->GetPayloadData();
+    return GetHeader()->GetPayloadData(Size());
 }
 
 size_t RtpPacket::GetPayloadSize()
