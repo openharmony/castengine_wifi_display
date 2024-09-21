@@ -151,58 +151,6 @@ Interaction::Ptr InteractionManager::GetInteraction(uint32_t interactionId)
 
 int32_t InteractionManager::OnDomainMsg(std::shared_ptr<BaseDomainMsg> msg)
 {
-    RETURN_INVALID_IF_NULL(msg);
-    SHARING_LOGD("Finding target key: %{public}s, msgId: %{public}d, pullup app: %{public}d.", msg->toRpcKey.c_str(),
-                 msg->GetMsgId(), msg->pullUpApp);
-    if (interactionKeys_.find(msg->toRpcKey) != interactionKeys_.end()) {
-        uint32_t interactionId = GetInteractionId(msg->toRpcKey);
-        Interaction::Ptr interaction = GetInteraction(interactionId);
-        if (interaction) {
-            interaction->OnDomainMsg(msg);
-        } else {
-            SHARING_LOGE("interaction null interactionId: %{public}d.", interactionId);
-        }
-    } else {
-        SHARING_LOGW("interactionKeys_ not find fromDevId: %{public}s.", GetAnonyString(msg->fromDevId).c_str());
-        if (!msg->pullUpApp) {
-            SHARING_LOGW("msgId: %{public}d, don't need to pull up the app.", msg->GetMsgId());
-            return -1;
-        }
-
-        RpcKeyParser parser;
-        parser.ParseKey(msg->toRpcKey);
-        std::string bundleName = parser.GetBundleName();
-        std::string abilityName = parser.GetAbilityName();
-        AAFwk::Want want;
-        AppExecFwk::ElementName element("", bundleName.c_str(), abilityName.c_str());
-        want.SetElement(element);
-        auto ret = AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
-        if (ret) {
-            SHARING_LOGE("start app failed, bundleName: %{public}s, abilityName: %{public}s.", bundleName.c_str(),
-                         abilityName.c_str());
-            return -1;
-        }
-
-        uint32_t interactionId = 0;
-        uint32_t tryCount = 10;
-        while (tryCount--) {
-            interactionId = GetInteractionId(msg->toRpcKey);
-            if (interactionId != 0) {
-                break;
-            }
-            usleep(300000); // 300000:us
-        }
-
-        Interaction::Ptr interaction = GetInteraction(interactionId);
-        if (interaction) {
-            interaction->OnDomainMsg(msg);
-        } else {
-            SHARING_LOGE("find interaction failed afer app started, key: %{public}s.", msg->toRpcKey.c_str());
-            return -1;
-        }
-        return 0;
-    }
-
     return 0;
 }
 

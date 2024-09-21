@@ -25,17 +25,17 @@ namespace OHOS {
 namespace Sharing {
 class RtpHeader {
 public:
-    uint8_t *GetExtData();
+    uint8_t *GetExtData(size_t rtp_size);
     uint8_t *GetCsrcData();
-    uint8_t *GetPayloadData();
-    uint16_t GetExtReserved() const;
+    uint8_t *GetPayloadData(size_t rtp_size);
+    uint16_t GetExtReserved(size_t rtp_size) const;
 
-    size_t GetExtSize() const;
+    size_t GetExtSize(size_t rtp_size) const;
     size_t GetCsrcSize() const;
     size_t GetPayloadSize(size_t rtp_size) const;
 
 private:
-    size_t GetPayloadOffset() const;
+    size_t GetPayloadOffset(size_t rtp_size) const;
     size_t GetPaddingSize(size_t rtp_size) const;
 
 public:

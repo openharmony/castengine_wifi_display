@@ -108,7 +108,7 @@ RtspError RtspResponse::Parse(const std::string &response)
         auto authenticate = RtspCommon::Split(tokens_.at(RTSP_TOKEN_WWW_AUTHENTICATE), ", ");
         for (auto &item : authenticate) {
             auto separator = item.find('=');
-            if (separator != std::string::npos) {
+            if (separator != std::string::npos && item.length() >= separator + 2) { // 2:fixed size
                 auto key = item.substr(0, separator);
                 if (key == "Digest realm") {
                     auto value = item.substr(separator + 2); // 2:fixed size
