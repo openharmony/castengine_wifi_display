@@ -25,6 +25,7 @@
 
 namespace OHOS {
 namespace Sharing {
+const std::string DEFAULT_P2P_IPADDR = "192.168.49.1";
 
 WfdRtpConsumer::WfdRtpConsumer()
 {
@@ -341,7 +342,7 @@ void WfdRtpConsumer::OnServerReadData(int32_t fd, DataBuffer::Ptr buf, INetworkS
 bool WfdRtpConsumer::StartNetworkServer(uint16_t port, NetworkFactory::ServerPtr &server, int32_t &fd)
 {
     SHARING_LOGD("trace.");
-    if (!NetworkFactory::CreateUdpServer(port, "0.0.0.0", shared_from_this(), server)) {
+    if (!NetworkFactory::CreateUdpServer(port, DEFAULT_P2P_IPADDR, shared_from_this(), server)) {
         server.reset();
         return false;
     }
