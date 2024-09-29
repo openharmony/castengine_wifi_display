@@ -1217,7 +1217,7 @@ uint32_t BufferDispatcher::FindNextDeleteVideoIndex()
 {
     MEDIA_LOGD("trace.");
     for (size_t i = 0; i < circularBuffer_.size(); i++) {
-        if (circularBuffer_[i]->mediaData->mediaType == MEDIA_TYPE_VIDEO) {
+        if (circularBuffer_[i]->mediaData != nullptr && circularBuffer_[i]->mediaData->mediaType == MEDIA_TYPE_VIDEO) {
             return i;
         }
     }
