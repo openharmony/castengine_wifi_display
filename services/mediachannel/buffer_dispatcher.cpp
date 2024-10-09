@@ -1103,7 +1103,7 @@ int32_t BufferDispatcher::WriteDataIntoBuffer(const DataSpec::Ptr &data)
 
 void BufferDispatcher::EraseOldGopDatas()
 {
-    MEDIA_LOGE("BufferDispatcher Delete old datas In.");
+    MEDIA_LOGD("BufferDispatcher Delete old datas In.");
     if (dataMode_ == MEDIA_AUDIO_ONLY) {
         FlushBuffer();
         return;
@@ -1114,7 +1114,7 @@ void BufferDispatcher::EraseOldGopDatas()
     {
         std::lock_guard<std::mutex> lock(notifyMutex_);
         if (!keyIndexList_.empty() && keyIndexList_.back() > 0) {
-            MEDIA_LOGE("find next key listsize %{public}zu, back:%{public}d.", keyIndexList_.size(),
+            MEDIA_LOGD("find next key listsize %{public}zu, back:%{public}d.", keyIndexList_.size(),
                        keyIndexList_.back());
             nextKey = keyIndexList_.back();
             keyIndexList_.clear();
@@ -1122,19 +1122,19 @@ void BufferDispatcher::EraseOldGopDatas()
         }
     }
 
-    MEDIA_LOGE("erase between 0 to next Video Frame %{public}d.", nextKey);
+    MEDIA_LOGD("erase between 0 to next Video Frame %{public}d.", nextKey);
     DeleteHeadDatas(nextKey, false);
     nextKey = FindNextDeleteVideoIndex();
     DeleteHeadDatas(nextKey, true);
     std::string indexs;
 
-    MEDIA_LOGE("circularBuffer_ size: %{public}zu.", circularBuffer_.size());
+    MEDIA_LOGD("circularBuffer_ size: %{public}zu.", circularBuffer_.size());
     for (auto &keyIndex : keyIndexList_) {
         indexs += std::to_string(keyIndex) + ", ";
         MEDIA_LOGD("keyIndex update to %{public}d.", keyIndex);
     }
 
-    MEDIA_LOGE("current keyIndex: %{public}s.", indexs.c_str());
+    MEDIA_LOGD("current keyIndex: %{public}s.", indexs.c_str());
 }
 
 void BufferDispatcher::DeleteHeadDatas(uint32_t size, bool forceDelete)
@@ -1186,7 +1186,7 @@ void BufferDispatcher::UpdateIndex()
     std::lock_guard<std::mutex> locker(notifyMutex_);
     if (!keyIndexList_.empty() && keyIndexList_.front() == 0) {
         keyIndexList_.pop_front();
-        MEDIA_LOGE("BufferDispatcher pop out first  0 keyIndex after listsize %{public}zu.", keyIndexList_.size());
+        MEDIA_LOGD("BufferDispatcher pop out first  0 keyIndex after listsize %{public}zu.", keyIndexList_.size());
     }
 
     for (auto &keyIndex : keyIndexList_) {
