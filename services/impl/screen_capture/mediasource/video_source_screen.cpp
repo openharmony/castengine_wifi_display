@@ -27,13 +27,13 @@ void VideoSourceScreen::ScreenGroupListener::OnChange(const std::vector<uint64_t
     SHARING_LOGI("%{public}s.", __FUNCTION__);
     switch (event) {
         case Rosen::ScreenGroupChangeEvent::ADD_TO_GROUP:
-            SHARING_LOGE("ADD_TO_GROUP done!");
+            SHARING_LOGD("ADD_TO_GROUP done!");
             break;
         case Rosen::ScreenGroupChangeEvent::REMOVE_FROM_GROUP:
-            SHARING_LOGE("REMOVE_FROM_GROUP done!");
+            SHARING_LOGD("REMOVE_FROM_GROUP done!");
             break;
         case Rosen::ScreenGroupChangeEvent::CHANGE_GROUP:
-            SHARING_LOGE("CHANGE_GROUP done!");
+            SHARING_LOGD("CHANGE_GROUP done!");
             break;
         default:
             break;
