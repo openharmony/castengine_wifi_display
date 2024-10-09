@@ -142,7 +142,7 @@ void TcpClient::OnClientReadable(int32_t fd)
     do {
         DataBuffer::Ptr buf = std::make_shared<DataBuffer>(DEAFULT_READ_BUFFER_SIZE);
         retCode = SocketUtils::RecvSocket(fd, (char *)buf->Data(), DEAFULT_READ_BUFFER_SIZE, flags_, error);
-        SHARING_LOGI("recvSocket len: %{public}d.", retCode);
+        SHARING_LOGD("recvSocket len: %{public}d.", retCode);
         if (retCode > 0) {
             buf->UpdateSize(retCode);
             auto callback = callback_.lock();
