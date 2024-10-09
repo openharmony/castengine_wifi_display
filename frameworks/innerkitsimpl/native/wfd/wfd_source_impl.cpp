@@ -26,6 +26,9 @@ std::shared_ptr<WfdSource> WfdSourceFactory::wfdSourceImpl_ = nullptr;
 std::shared_ptr<WfdSource> OHOS::Sharing::WfdSourceFactory::CreateSource(int32_t type, const std::string key)
 {
     SHARING_LOGI("CreateSource.");
+    if (wfdSourceImpl_ == nullptr) {
+        SHARING_LOGE("failed to Get wfdSourceImpl.");
+    }
 
     auto client = std::static_pointer_cast<InterIpcClient>(
         ClientFactory::GetInstance().CreateClient(key, "WfdSourceImpl", "WfdSourceScene"));
@@ -48,8 +51,9 @@ std::shared_ptr<WfdSource> OHOS::Sharing::WfdSourceFactory::CreateSource(int32_t
 
     impl->SetIpcClient(client);
     impl->SetIpcAdapter(adapter);
+    wfdSourceImpl_ = impl;
 
-    return impl;
+    return wfdSourceImpl_;
 }
 
 WfdSourceImpl::WfdSourceImpl()
