@@ -70,7 +70,7 @@ void BaseClientEventListener::OnWritable(int32_t fd)
 
 void BaseClientEventListener::OnShutdown(int32_t fd)
 {
-    SHARING_LOGE("trace thread_id: %{public}llu.", GetThreadId());
+    SHARING_LOGD("trace thread_id: %{public}llu.", GetThreadId());
     auto client = client_.lock();
     if (client) {
         auto callback = client->GetCallback().lock();
@@ -82,7 +82,7 @@ void BaseClientEventListener::OnShutdown(int32_t fd)
 
 void BaseClientEventListener::OnException(int32_t fd)
 {
-    SHARING_LOGE("trace thread_id: %{public}llu.", GetThreadId());
+    SHARING_LOGD("trace thread_id: %{public}llu.", GetThreadId());
     auto client = client_.lock();
     if (client) {
         auto callback = client->GetCallback().lock();
