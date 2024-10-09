@@ -193,7 +193,7 @@ void WfdSourceScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pL
     connectionInfo.ctrlPort = goDevice.GetWfdInfo().GetCtrlPort();
     connectionInfo.state = ConnectionState::CONNECTED;
 
-    SHARING_LOGE("device connected, mac: %{private}s, ip: %{private}s, port: %{private}d.",
+    SHARING_LOGD("device connected, mac: %{private}s, ip: %{private}s, port: %{private}d.",
                  GetAnonyString(connectionInfo.mac).c_str(), GetAnonyString(connectionInfo.ip).c_str(),
                  connectionInfo.ctrlPort);
     scene->OnP2pPeerConnected(connectionInfo);
