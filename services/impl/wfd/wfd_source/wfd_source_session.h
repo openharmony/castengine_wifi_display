@@ -145,6 +145,7 @@ private:
 
     SharingHiSysEvent::Ptr sysEvent_ = nullptr;
     NetworkFactory::ServerPtr rtspServerPtr_ = nullptr;
+    std::weak_ptr<INetworkSession> sessionPtr_;
 };
 
 } // namespace Sharing

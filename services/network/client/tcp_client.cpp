@@ -35,24 +35,26 @@ TcpClient::TcpClient()
 
 bool TcpClient::Connect(const std::string &peerIp, uint16_t peerPort, const std::string &localIp, uint16_t localPort)
 {
-    SHARING_LOGD("peerIp:%{public}s, peerPort:%{public}d, thread_id: %{public}llu.", GetAnonyString(peerIp).c_str(),
+    SHARING_LOGI("peerIp:%{public}s, peerPort:%{public}d, thread_id: %{public}llu.", GetAnonyString(peerIp).c_str(),
                  peerPort, GetThreadId());
 
     int32_t retCode = 0;
     socket_ = std::make_unique<TcpSocket>();
     if (socket_) {
         if (socket_->Connect(peerIp, peerPort, retCode, true, true, localIp, localPort)) {
-            SHARING_LOGD("connect success.");
+            SHARING_LOGI("connect success.");
             auto eventRunner = OHOS::AppExecFwk::EventRunner::Create(true);
             eventHandler_ = std::make_shared<TcpClientEventHandler>();
             eventHandler_->SetClient(shared_from_this());
             eventHandler_->SetEventRunner(eventRunner);
             eventRunner->Run();
 
+            bool ret = false;
             eventListener_ = std::make_shared<TcpClientEventListener>();
-            eventListener_->SetClient(shared_from_this());
-
-            bool ret = eventListener_->AddFdListener(socket_->GetLocalFd(), eventListener_, eventHandler_);
+            if (eventListener_) {
+                eventListener_->SetClient(shared_from_this());
+                ret = eventListener_->AddFdListener(socket_->GetLocalFd(), eventListener_, eventHandler_);
+            }
 
             auto callback = callback_.lock();
             if (callback) {
@@ -134,13 +136,13 @@ SocketInfo::Ptr TcpClient::GetSocketInfo()
 
 void TcpClient::OnClientReadable(int32_t fd)
 {
-    MEDIA_LOGD("trace fd: %{public}d, thread_id: %{public}llu.", fd, GetThreadId());
+    SHARING_LOGI("trace fd: %{public}d, thread_id: %{public}llu.", fd, GetThreadId());
     int32_t error = 0;
     int32_t retCode = 0;
     do {
         DataBuffer::Ptr buf = std::make_shared<DataBuffer>(DEAFULT_READ_BUFFER_SIZE);
         retCode = SocketUtils::RecvSocket(fd, (char *)buf->Data(), DEAFULT_READ_BUFFER_SIZE, flags_, error);
-        MEDIA_LOGD("recvSocket len: %{public}d.", retCode);
+        SHARING_LOGD("recvSocket len: %{public}d.", retCode);
         if (retCode > 0) {
             buf->UpdateSize(retCode);
             auto callback = callback_.lock();

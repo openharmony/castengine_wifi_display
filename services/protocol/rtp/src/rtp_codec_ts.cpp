@@ -23,7 +23,6 @@
 namespace OHOS {
 namespace Sharing {
 constexpr int32_t FF_BUFFER_SIZE = 1500;
-constexpr int32_t MAX_RTP_PAYLOAD_SIZE = 1316;
 static std::mutex frameLock;
 
 RtpDecoderTs::RtpDecoderTs()
@@ -201,13 +200,13 @@ int RtpDecoderTs::ReadPacket(uint8_t *buf, int buf_size)
 RtpEncoderTs::RtpEncoderTs(uint32_t ssrc, uint32_t mtuSize, uint32_t sampleRate, uint8_t payloadType, uint16_t seq)
     : RtpMaker(ssrc, mtuSize, payloadType, sampleRate, seq)
 {
-    SHARING_LOGD("RtpEncoderTs CTOR IN");
+    SHARING_LOGI("RtpEncoderTs CTOR IN");
     merger_.SetType(FrameMerger::H264_PREFIX);
 }
 
 RtpEncoderTs::~RtpEncoderTs()
 {
-    SHARING_LOGD("RtpEncoderTs DTOR IN");
+    SHARING_LOGI("RtpEncoderTs DTOR IN");
     Release();
 }
 
@@ -306,7 +305,7 @@ void RtpEncoderTs::StartEncoding()
     videoStream->codecpar->codec_id = AV_CODEC_ID_H264;
     videoStream->codecpar->codec_tag = 0;
     videoStream->time_base.num = 1;
-    videoStream->time_base.den = 90000; // 90000: video sample rate
+    videoStream->time_base.den = SAMPLE_RATE_90K; // 90000: video sample rate
 
     audioStream = avformat_new_stream(avFormatContext_, NULL);
     audioStream->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;

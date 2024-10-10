@@ -50,7 +50,7 @@ bool EventDescriptorListener::AddFdListener(int32_t fd, const std::shared_ptr<Fi
                                             const std::shared_ptr<OHOS::AppExecFwk::EventHandler> &handler,
                                             const std::string &taskName, uint32_t events)
 {
-    SHARING_LOGD("fd: %{public}d.", fd);
+    SHARING_LOGI("fd: %{public}d.", fd);
     auto existHandler = EventHandlerManager::GetInstance().GetEventHandler(fd);
     if (existHandler == nullptr && handler == nullptr) {
         MEDIA_LOGE("eventHandler is nullptr!");
@@ -70,7 +70,7 @@ bool EventDescriptorListener::AddFdListener(int32_t fd, const std::shared_ptr<Fi
 void EventDescriptorListener::RemoveFdListener(int32_t fd,
                                                const std::shared_ptr<OHOS::AppExecFwk::EventHandler> &handler)
 {
-    SHARING_LOGD("fd: %{public}d.", fd);
+    SHARING_LOGI("fd: %{public}d.", fd);
     auto existHandler = EventHandlerManager::GetInstance().GetEventHandler(fd);
     if (existHandler == nullptr && handler == nullptr) {
         MEDIA_LOGE("eventHandler is nullptr!");
@@ -117,7 +117,7 @@ void EventDescriptorListener::OnWritable(int32_t fd)
 
 void EventDescriptorListener::OnShutdown(int32_t fd)
 {
-    SHARING_LOGD("fd: %{public}d.", fd);
+    SHARING_LOGI("fd: %{public}d.", fd);
     OnClose(fd);
 }
 
@@ -133,7 +133,7 @@ void EventDescriptorListener::OnReadData(int32_t fd, DataBuffer::Ptr &buf)
 
 void EventDescriptorListener::OnClose(int32_t fd)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
 }
 
 } // namespace Sharing

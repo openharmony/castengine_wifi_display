@@ -506,14 +506,14 @@ void BufferDispatcher::ReleaseIdleBuffer()
     SHARING_LOGD("BufferDispatcher idle Release Start.");
     std::unique_lock<std::mutex> locker(idleMutex_);
     for (auto &data : idleAudioBuffer_) {
-        if (data != nullptr || data->buff != nullptr) {
+        if (data != nullptr && data->buff != nullptr) {
             data->buff.reset();
         }
     }
 
     idleAudioBuffer_.clear();
     for (auto &data : idleVideoBuffer_) {
-        if (data != nullptr || data->buff != nullptr) {
+        if (data != nullptr && data->buff != nullptr) {
             data->buff.reset();
         }
     }
@@ -524,7 +524,7 @@ void BufferDispatcher::ReleaseIdleBuffer()
 
 void BufferDispatcher::FlushBuffer()
 {
-    SHARING_LOGD("BufferDispatcher Start flushing, dispatcherId: %{public}u.", GetDispatcherId());
+    SHARING_LOGI("BufferDispatcher Start flushing, dispatcherId: %{public}u.", GetDispatcherId());
     {
         std::lock_guard<std::mutex> lock(idleMutex_);
         idleAudioBuffer_.clear();
@@ -589,7 +589,7 @@ MediaData::Ptr BufferDispatcher::RequestDataBuffer(MediaType type, uint32_t size
         }
     }
 
-    SHARING_LOGD("Audio/Video From alloc.");
+    SHARING_LOGD("Audio/video from alloc.");
     retData = std::make_shared<MediaData>();
     return retData;
 }
@@ -838,9 +838,7 @@ void BufferDispatcher::SetBufferDispatcherListener(BufferDispatcherListener::Ptr
 DataNotifier::Ptr BufferDispatcher::GetNotifierByReceiverPtr(BufferReceiver::Ptr receiver)
 {
     SHARING_LOGD("trace.");
-    if (receiver == nullptr) {
-        return nullptr;
-    }
+
     return GetNotifierByReceiverId(receiver->GetReceiverId());
 }
 
@@ -944,11 +942,14 @@ int32_t BufferDispatcher::InputData(const MediaData::Ptr &data)
                    circularBuffer_[circularBuffer_.size() - 1]->mediaData->pts);
     }
 
-    MEDIA_LOGD("dispatcherId: %{public}u, after InputData, current circularBuffer_ size: %{public}zu, "
-               "idleVideoBuffer_ size: %{public}zu, idle_audioBuffer_ size: %{public}zu, "
-               "keyFrame: %{public}s, data size: %{public}d, adataCount:%{public}d.",
-               GetDispatcherId(), circularBuffer_.size(), idleVideoBuffer_.size(), idleAudioBuffer_.size(),
-               data->keyFrame ? "true" : "false", data->buff->Size(), audioFrameCnt_);
+    if (data->keyFrame) {
+        MEDIA_LOGD("dispatcherId: %{public}u, after InputData, current circularBuffer_ size: %{public}zu, "
+                   "idleVideoBuffer_ size: %{public}zu, idle_audioBuffer_ size: %{public}zu, "
+                   "keyFrame: %{public}s, data size: %{public}d, adataCount:%{public}d.",
+                   GetDispatcherId(), circularBuffer_.size(), idleVideoBuffer_.size(), idleAudioBuffer_.size(),
+                   data->keyFrame ? "true" : "false", data->buff->Size(), audioFrameCnt_);
+    }
+
     return 0;
 }
 
@@ -1138,7 +1139,7 @@ void BufferDispatcher::EraseOldGopDatas()
 
 void BufferDispatcher::DeleteHeadDatas(uint32_t size, bool forceDelete)
 {
-    MEDIA_LOGD("trace.");
+    SHARING_LOGI("%{public}s, size %{public}d.", __FUNCTION__, size);
     if (size <= 0) {
         MEDIA_LOGW("invalid Size, dispatcherId: %{public}u!", GetDispatcherId());
         return;
@@ -1162,7 +1163,7 @@ void BufferDispatcher::DeleteHeadDatas(uint32_t size, bool forceDelete)
                        retBuff->mediaData->keyFrame ? "true" : "false", retBuff->mediaData->pts);
         }
 
-        MEDIA_LOGW(
+        MEDIA_LOGD(
             "dispatcherId: %{public}u, delete data, mediaType: %{public}d, keyFrame: %{public}s, pts: %{public}" PRIu64
             ", reserveFlag: %{public}x.",
             GetDispatcherId(), int32_t(circularBuffer_.front()->mediaData->mediaType),
@@ -1174,7 +1175,7 @@ void BufferDispatcher::DeleteHeadDatas(uint32_t size, bool forceDelete)
     }
 
     if (circularBuffer_.size() < baseBufferCapacity_ && circularBuffer_.capacity() > baseBufferCapacity_) {
-        MEDIA_LOGD("capacity return to base %{public}d.", baseBufferCapacity_);
+        MEDIA_LOGE("capacity return to base %{public}d.", baseBufferCapacity_);
         circularBuffer_.set_capacity(baseBufferCapacity_);
     }
 }
@@ -1452,7 +1453,7 @@ void BufferDispatcher::ReCalculateCapacity(bool keyFrame)
         capacityEvaluating_ = gop_ > 0 ? false : true;
         SetBufferCapacity(baseBufferCapacity_);
         baseCounter_ = 0;
-        SHARING_LOGD(
+        SHARING_LOGI(
             "The gop is %{public}d and BufferDispatcher buffer Extended to %{public}d on base capacity confirmed.",
             GetCurrentGop(), baseBufferCapacity_);
     }
@@ -1512,7 +1513,7 @@ void BufferDispatcher::NotifyReadReady(uint32_t receiverId, MediaType type)
     }
 
     bool dataAvaliable = notifier->DataAvailable(type);
-    MEDIA_LOGW("receiverId %{public}d  MediaType %{public}d  dataAvaliable %{public}d.", receiverId, type,
+    MEDIA_LOGD("receiverId %{public}d  MediaType %{public}d  dataAvaliable %{public}d.", receiverId, type,
                dataAvaliable);
     if (type == MEDIA_TYPE_AV) {
         SetReceiverDataRef(receiverId, MEDIA_TYPE_VIDEO, dataAvaliable);
@@ -1735,7 +1736,7 @@ void BufferDispatcher::SetReceiverReadFlag(uint32_t receiverId, DataSpec::Ptr &d
     uint32_t index = FindReceiverIndex(receiverId);
     if (index != INVALID_INDEX) {
         dataSpec->reserveFlag |= RECV_FLAG_BASE << index;
-        MEDIA_LOGW("mediaType: %{public}d, pts: %{public}" PRIu64
+        MEDIA_LOGD("mediaType: %{public}d, pts: %{public}" PRIu64
                    ", reserveFlag: %{public}x, receiverId: %{public}d, index: %{public}d.",
                    dataSpec->mediaData->mediaType, dataSpec->mediaData->pts, dataSpec->reserveFlag.load(), receiverId,
                    index);

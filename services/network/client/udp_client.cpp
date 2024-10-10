@@ -36,14 +36,14 @@ UdpClient::UdpClient()
 
 bool UdpClient::Connect(const std::string &peerHost, uint16_t peerPort, const std::string &localIp, uint16_t localPort)
 {
-    SHARING_LOGD("peerIp:%{public}s, peerPort:%{public}d, thread_id: %{public}llu.", GetAnonyString(peerHost).c_str(),
-                 peerPort, GetThreadId());
+    SHARING_LOGI("peerIp: %{public}s, peerPort: %{public}d, localPort: %{public}d, thread_id: %{public}llu.",
+                 GetAnonyString(peerHost).c_str(), peerPort, localPort, GetThreadId());
     std::unique_lock<std::shared_mutex> lk(mutex_);
     int32_t retCode = 0;
     socket_ = std::make_unique<UdpSocket>();
     if (socket_) {
         if (socket_->Connect(peerHost, peerPort, retCode, false, true, localIp, localPort)) {
-            SHARING_LOGD("connect success.");
+            SHARING_LOGI("connect success.");
             auto eventRunner = OHOS::AppExecFwk::EventRunner::Create(true);
             eventHandler_ = std::make_shared<UdpClientEventHandler>();
             eventHandler_->SetClient(shared_from_this());
@@ -52,10 +52,8 @@ bool UdpClient::Connect(const std::string &peerHost, uint16_t peerPort, const st
 
             eventListener_ = std::make_shared<UdpClientEventListener>();
             eventListener_->SetClient(shared_from_this());
-            uint32_t events =
-                FILE_DESCRIPTOR_OUTPUT_EVENT | FILE_DESCRIPTOR_SHUTDOWN_EVENT | FILE_DESCRIPTOR_EXCEPTION_EVENT;
-            bool ret = eventListener_->AddFdListener(socket_->GetLocalFd(), eventListener_, eventHandler_, DUMMY_EMPTY,
-                                                     events);
+    
+            bool ret = eventListener_->AddFdListener(socket_->GetLocalFd(), eventListener_, eventHandler_);
 
             auto callback = callback_.lock();
             if (callback) {
@@ -129,7 +127,7 @@ SocketInfo::Ptr UdpClient::GetSocketInfo()
 
 void UdpClient::OnClientReadable(int32_t fd)
 {
-    MEDIA_LOGD("fd: %{public}d, thread_id: %{public}llu.", fd, GetThreadId());
+    MEDIA_LOGI("fd: %{public}d, thread_id: %{public}llu.", fd, GetThreadId());
     int32_t retCode = 0;
     do {
         DataBuffer::Ptr buf = std::make_shared<DataBuffer>(DEAFULT_READ_BUFFER_SIZE);

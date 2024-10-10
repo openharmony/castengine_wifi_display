@@ -25,53 +25,51 @@ std::shared_ptr<WfdSource> WfdSourceFactory::wfdSourceImpl_ = nullptr;
 
 std::shared_ptr<WfdSource> OHOS::Sharing::WfdSourceFactory::CreateSource(int32_t type, const std::string key)
 {
-    SHARING_LOGD("trace.");
-
-    if (!wfdSourceImpl_) {
-        auto client = std::static_pointer_cast<InterIpcClient>(
-            ClientFactory::GetInstance().CreateClient(key, "WfdSourceImpl", "WfdSourceScene"));
-        if (client == nullptr) {
-            SHARING_LOGE("failed to get client.");
-            return nullptr;
-        }
-
-        auto adapter = client->GetMsgAdapter();
-        if (adapter == nullptr) {
-            SHARING_LOGE("failed to get adapter.");
-            return nullptr;
-        }
-
-        std::shared_ptr<WfdSourceImpl> impl = std::make_shared<WfdSourceImpl>();
-        if (impl == nullptr) {
-            SHARING_LOGE("failed to new WfdSourceImpl.");
-            return nullptr;
-        }
-
-        impl->SetIpcClient(client);
-        impl->SetIpcAdapter(adapter);
-        wfdSourceImpl_ = impl;
-    }
-
+    SHARING_LOGI("CreateSource.");
     if (wfdSourceImpl_ == nullptr) {
         SHARING_LOGE("failed to Get wfdSourceImpl.");
     }
+
+    auto client = std::static_pointer_cast<InterIpcClient>(
+        ClientFactory::GetInstance().CreateClient(key, "WfdSourceImpl", "WfdSourceScene"));
+    if (client == nullptr) {
+        SHARING_LOGE("failed to get client.");
+        return nullptr;
+    }
+
+    auto adapter = client->GetMsgAdapter();
+    if (adapter == nullptr) {
+        SHARING_LOGE("failed to get adapter.");
+        return nullptr;
+    }
+
+    std::shared_ptr<WfdSourceImpl> impl = std::make_shared<WfdSourceImpl>();
+    if (impl == nullptr) {
+        SHARING_LOGE("failed to new WfdSourceImpl.");
+        return nullptr;
+    }
+
+    impl->SetIpcClient(client);
+    impl->SetIpcAdapter(adapter);
+    wfdSourceImpl_ = impl;
 
     return wfdSourceImpl_;
 }
 
 WfdSourceImpl::WfdSourceImpl()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("trace.");
 }
 
 WfdSourceImpl::~WfdSourceImpl()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("trace.");
+    client_ = nullptr;
 }
 
 int32_t WfdSourceImpl::StartDiscover()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
     auto msg = std::make_shared<WfdSourceStartDiscoveryReq>();
@@ -90,7 +88,7 @@ int32_t WfdSourceImpl::StartDiscover()
 
 int32_t WfdSourceImpl::StopDiscover()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
@@ -110,12 +108,9 @@ int32_t WfdSourceImpl::StopDiscover()
 
 int32_t WfdSourceImpl::AddDevice(uint64_t screenId, WfdCastDeviceInfo &deviceInfo)
 {
-    SHARING_LOGD("Add deviceId: %{public}s, screenId: %{public}" PRIx64 ".",
+    SHARING_LOGI("Add deviceId: %{public}s, screenId: %{public}" PRIx64 ".",
                  GetAnonyString(deviceInfo.deviceId).c_str(), screenId);
     std::lock_guard<std::mutex> lock(mutex_);
-    if (deviceAdded_) {
-        return 0;
-    }
 
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
@@ -137,7 +132,7 @@ int32_t WfdSourceImpl::AddDevice(uint64_t screenId, WfdCastDeviceInfo &deviceInf
 
 int32_t WfdSourceImpl::RemoveDevice(std::string deviceId)
 {
-    SHARING_LOGD("device: %{public}s.", GetAnonyString(deviceId).c_str());
+    SHARING_LOGI("device: %{public}s.", GetAnonyString(deviceId).c_str());
     std::lock_guard<std::mutex> lock(mutex_);
     if (!deviceAdded_) {
         return 0;
@@ -186,7 +181,8 @@ void WfdSourceImpl::OnRequest(std::shared_ptr<BaseMsg> msg, std::shared_ptr<Base
 
 void WfdSourceImpl::OnRemoteDied()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("OnRemoteDied.");
+
     auto msg = std::make_shared<WfdErrorMsg>();
     RETURN_IF_NULL(msg);
     msg->errorCode = ERR_REMOTE_DIED;

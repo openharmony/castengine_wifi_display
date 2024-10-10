@@ -30,9 +30,12 @@
 namespace OHOS {
 namespace Sharing {
 
+// The most inclination to be a group owner
+constexpr uint32_t GROUP_OWNER_INTENT_MAX = 15;
+
 void WfdSourceScene::WfdP2pCallback::OnP2pStateChanged(int32_t state)
 {
-    SHARING_LOGD("state: %{public}d.", state);
+    SHARING_LOGI("state: %{public}d.", state);
     auto scene = scene_.lock();
     if (scene) {
         switch (static_cast<Wifi::P2pState>(state)) {
@@ -65,12 +68,12 @@ void WfdSourceScene::WfdP2pCallback::OnP2pStateChanged(int32_t state)
 
 void WfdSourceScene::WfdP2pCallback::OnP2pPersistentGroupsChanged(void)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
 }
 
 void WfdSourceScene::WfdP2pCallback::OnP2pThisDeviceChanged(const Wifi::WifiP2pDevice &device)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto scene = scene_.lock();
     if (scene == nullptr) {
         SHARING_LOGW("scene is nullptr.");
@@ -89,7 +92,7 @@ void WfdSourceScene::WfdP2pCallback::OnP2pThisDeviceChanged(const Wifi::WifiP2pD
     }
 
     Wifi::P2pConnectedState state = info.GetConnectState();
-    SHARING_LOGD("ConnectState: %{public}d.", state);
+    SHARING_LOGI("ConnectState: %{public}d.", state);
     if (state != Wifi::P2pConnectedState::P2P_DISCONNECTED) {
         return;
     }
@@ -101,7 +104,7 @@ void WfdSourceScene::WfdP2pCallback::OnP2pThisDeviceChanged(const Wifi::WifiP2pD
 
 void WfdSourceScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::WifiP2pDevice> &device)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto scene = scene_.lock();
     RETURN_IF_NULL(scene);
 
@@ -114,7 +117,7 @@ void WfdSourceScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::W
     std::vector<WfdCastDeviceInfo> foundedDevices;
     for (auto itDev : device) {
         auto status = itDev.GetP2pDeviceStatus();
-        SHARING_LOGI("device name: %{public}s, mac: %{private}s, status: %{public}d.",
+        SHARING_LOGI("device name: %{public}s, mac: %{public}s, status: %{public}d.",
                      GetAnonyString(itDev.GetDeviceName()).c_str(), GetAnonyString(itDev.GetDeviceAddress()).c_str(),
                      status);
         if (status == Wifi::P2pDeviceStatus::PDS_AVAILABLE) {
@@ -144,25 +147,25 @@ void WfdSourceScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::W
 
 void WfdSourceScene::WfdP2pCallback::OnP2pPrivatePeersChanged(const std::string &priWfdInfo)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
 }
 
 void WfdSourceScene::WfdP2pCallback::OnP2pServicesChanged(const std::vector<Wifi::WifiP2pServiceInfo> &srvInfo)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
 }
 
 void WfdSourceScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLinkedInfo &info)
 {
-    SHARING_LOGD("trace.");
     Wifi::P2pConnectedState state = info.GetConnectState();
-    SHARING_LOGD("ConnectState: %{public}d.", state);
+    SHARING_LOGI("OnP2pConnectionChanged ConnectState: %{public}d.", state);
 
     auto scene = scene_.lock();
     if (scene == nullptr || scene->p2pInstance_ == nullptr) {
         SHARING_LOGW("scene is nullptr.");
         return;
     }
+
     if (state != Wifi::P2pConnectedState::P2P_CONNECTED) {
         scene->p2pSysEvent_->ReportEnd(__func__, BIZSceneStage::P2P_DISCONNECT_DEVICE);
         return;
@@ -180,11 +183,6 @@ void WfdSourceScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pL
     }
 
     Wifi::WifiP2pDevice goDevice = group.GetOwner();
-    if (info.GetGroupOwnerAddress() == "0.0.0.0") {
-        SHARING_LOGE("goDevice: %{private}s leased ip is: 0.0.0.0.",
-                     GetAnonyString(goDevice.GetDeviceAddress()).c_str());
-        return;
-    }
 
     ConnectionInfo connectionInfo;
     connectionInfo.ip = info.GetGroupOwnerAddress();
@@ -226,7 +224,7 @@ void WfdSourceScene::WfdP2pCallback::OnConfigChanged(Wifi::CfgType type, char *d
     (void)type;
     (void)data;
     (void)dataLen;
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
 }
 
 WfdSourceScene::WfdSourceScene()
@@ -266,7 +264,7 @@ void WfdSourceScene::ResetCheckWfdConnectionTimer()
 
 void WfdSourceScene::Initialize()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     SharingValue::Ptr values = nullptr;
 
     auto ret = Config::GetInstance().GetConfig("khSharingWfd", "ctrlport", "defaultWfdCtrlport", values);
@@ -322,7 +320,7 @@ void WfdSourceScene::Initialize()
 
 void WfdSourceScene::Release()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (timer_ != nullptr) {
         timer_->Shutdown();
         timer_.reset();
@@ -355,46 +353,39 @@ void WfdSourceScene::Release()
 
 void WfdSourceScene::OnDomainMsg(std::shared_ptr<BaseDomainMsg> &msg)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
 }
 
 void WfdSourceScene::OnRequest(std::shared_ptr<BaseMsg> msg, std::shared_ptr<BaseMsg> &reply)
 {
-    SHARING_LOGD("trace.");
     RETURN_IF_NULL(msg);
-    SHARING_LOGI("recv msg, msg id: %{public}d.", msg->GetMsgId());
     switch (msg->GetMsgId()) {
         case WfdSourceStartDiscoveryReq::MSG_ID: {
-            auto data = std::static_pointer_cast<WfdSourceStartDiscoveryReq>(msg);
             auto rsp = std::make_shared<WfdCommonRsp>();
 
-            rsp->ret = HandleStartDiscovery(data, rsp);
+            rsp->ret = HandleStartDiscovery(msg, rsp);
             reply = std::static_pointer_cast<BaseMsg>(rsp);
             break;
         }
         case WfdSourceStopDiscoveryReq::MSG_ID: {
-            auto data = std::static_pointer_cast<WfdSourceStopDiscoveryReq>(msg);
             auto rsp = std::make_shared<WfdCommonRsp>();
 
-            rsp->ret = HandleStopDiscovery(data, rsp);
+            rsp->ret = HandleStopDiscovery(msg, rsp);
             reply = std::static_pointer_cast<BaseMsg>(rsp);
             break;
         }
         case WfdSourceAddDeviceReq::MSG_ID: {
-            auto data = std::static_pointer_cast<WfdSourceAddDeviceReq>(msg);
-            SHARING_LOGI("add deviceId: %{public}s.", data->deviceId.c_str());
             ResetCheckWfdConnectionTimer();
             auto rsp = std::make_shared<WfdCommonRsp>();
-            rsp->ret = WfdSourceScene::HandleAddDevice(data, rsp);
+            rsp->ret = WfdSourceScene::HandleAddDevice(msg, rsp);
             SetCheckWfdConnectionTimer();
             reply = std::static_pointer_cast<BaseMsg>(rsp);
             break;
         }
         case WfdSourceRemoveDeviceReq::MSG_ID: {
-            auto data = std::static_pointer_cast<WfdSourceRemoveDeviceReq>(msg);
             auto rsp = std::make_shared<WfdCommonRsp>();
 
-            rsp->ret = HandleRemoveDevice(data, rsp);
+            rsp->ret = HandleRemoveDevice(msg, rsp);
             reply = std::static_pointer_cast<BaseMsg>(rsp);
             break;
         }
@@ -411,11 +402,11 @@ void WfdSourceScene::OnRequest(std::shared_ptr<BaseMsg> msg, std::shared_ptr<Bas
     }
 }
 
-int32_t WfdSourceScene::HandleStartDiscovery(std::shared_ptr<WfdSourceStartDiscoveryReq> &msg,
+int32_t WfdSourceScene::HandleStartDiscovery(std::shared_ptr<BaseMsg> &baseMsg,
                                              std::shared_ptr<WfdCommonRsp> &reply)
 {
-    SHARING_LOGD("trace.");
-    (void)msg;
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
+    (void)baseMsg;
     (void)reply;
     int32_t ret = 0;
     if (p2pInstance_ == nullptr) {
@@ -460,11 +451,11 @@ int32_t WfdSourceScene::HandleStartDiscovery(std::shared_ptr<WfdSourceStartDisco
     return ret;
 }
 
-int32_t WfdSourceScene::HandleStopDiscovery(std::shared_ptr<WfdSourceStopDiscoveryReq> &msg,
+int32_t WfdSourceScene::HandleStopDiscovery(std::shared_ptr<BaseMsg> &baseMsg,
                                             std::shared_ptr<WfdCommonRsp> &reply)
 {
-    SHARING_LOGD("trace.");
-    (void)msg;
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
+    (void)baseMsg;
     (void)reply;
     if (!isSourceRunning_) {
         SHARING_LOGW("p2p source is not running.");
@@ -481,20 +472,17 @@ int32_t WfdSourceScene::HandleStopDiscovery(std::shared_ptr<WfdSourceStopDiscove
     return ret;
 }
 
-int32_t WfdSourceScene::HandleAddDevice(std::shared_ptr<WfdSourceAddDeviceReq> &msg,
+int32_t WfdSourceScene::HandleAddDevice(std::shared_ptr<BaseMsg> &baseMsg,
                                         std::shared_ptr<WfdCommonRsp> &reply)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)reply;
-    if (!isSourceRunning_) {
+    if (!isSourceRunning_ || p2pInstance_ == nullptr) {
         SHARING_LOGW("p2p source is not running.");
         return -1;
     }
 
-    if (p2pInstance_ == nullptr) {
-        SHARING_LOGW("p2pInstance is nullptr.");
-        return -1;
-    }
+    std::shared_ptr<WfdSourceAddDeviceReq> msg = std::static_pointer_cast<WfdSourceAddDeviceReq>(baseMsg);
     auto displayIds = OHOS::Rosen::DisplayManager::GetInstance().GetAllDisplayIds();
     bool findDisplayId = false;
     for (auto displayId : displayIds) {
@@ -514,23 +502,27 @@ int32_t WfdSourceScene::HandleAddDevice(std::shared_ptr<WfdSourceAddDeviceReq> &
     Wifi::WifiP2pConfig config;
     config.SetDeviceAddress(msg->deviceId);
     config.SetDeviceAddressType(OHOS::Wifi::RANDOM_DEVICE_ADDRESS);
+    config.SetGroupOwnerIntent(GROUP_OWNER_INTENT_MAX - 1);
+
     screenId_ = msg->screenId;
     int32_t ret = p2pInstance_->P2pConnect(config);
-    SHARING_LOGD("connect device: %s, ret = %d", GetAnonyString(msg->deviceId).c_str(), ret);
+    SHARING_LOGE("connect device: %{public}s, ret = %{public}d", GetAnonyString(msg->deviceId).c_str(), ret);
     return ret;
 }
 
-int32_t WfdSourceScene::HandleRemoveDevice(std::shared_ptr<WfdSourceRemoveDeviceReq> &msg,
+int32_t WfdSourceScene::HandleRemoveDevice(std::shared_ptr<BaseMsg> &baseMsg,
                                            std::shared_ptr<WfdCommonRsp> &reply)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)reply;
     auto sharingAdapter = sharingAdapter_.lock();
     RETURN_INVALID_IF_NULL(sharingAdapter);
 
+    std::shared_ptr<WfdSourceRemoveDeviceReq> msg = std::static_pointer_cast<WfdSourceRemoveDeviceReq>(baseMsg);
+
     std::lock_guard<std::mutex> lock(mutex_);
-    if ((connDev_ == nullptr) || (connDev_->mac != msg->deviceId)) {
-        SHARING_LOGE("can not find dev, mac: %{public}s.", GetAnonyString(msg->deviceId).c_str());
+    if ((connDev_ == nullptr) || (connDev_->mac != msg->deviceId) || connDev_->state != ConnectionState::CONNECTED) {
+        SHARING_LOGE("can not find dev, deviceId: %{public}s.", GetAnonyString(msg->deviceId).c_str());
         return -1;
     }
     auto sessionMsg = std::make_shared<WfdSourceSessionEventMsg>();
@@ -555,7 +547,7 @@ int32_t WfdSourceScene::HandleRemoveDevice(std::shared_ptr<WfdSourceRemoveDevice
 
 int32_t WfdSourceScene::CreateScreenCapture()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto sharingAdapter = sharingAdapter_.lock();
     if (sharingAdapter != nullptr) {
         std::unique_lock<std::mutex> lock(mutex_);
@@ -594,7 +586,7 @@ int32_t WfdSourceScene::CreateScreenCapture()
 
 int32_t WfdSourceScene::HandleDestroyScreenCapture(std::shared_ptr<DestroyScreenCaptureReq> &msg)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)msg;
     auto sharingAdapter = sharingAdapter_.lock();
     if (sharingAdapter != nullptr) {
@@ -605,7 +597,7 @@ int32_t WfdSourceScene::HandleDestroyScreenCapture(std::shared_ptr<DestroyScreen
 
 int32_t WfdSourceScene::AppendCast(const std::string &deviceId)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto sharingAdapter = sharingAdapter_.lock();
     RETURN_INVALID_IF_NULL(sharingAdapter);
 
@@ -661,7 +653,7 @@ int32_t WfdSourceScene::AppendCast(const std::string &deviceId)
 
 void WfdSourceScene::WfdP2pStart()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (p2pInstance_) {
         p2pInstance_->RemoveGroup();
 
@@ -681,7 +673,7 @@ void WfdSourceScene::WfdP2pStart()
 
 void WfdSourceScene::WfdP2pStop()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto sharingAdapter = sharingAdapter_.lock();
     if (sharingAdapter != nullptr) {
         std::lock_guard<std::mutex> lock(mutex_);
@@ -708,7 +700,7 @@ void WfdSourceScene::WfdP2pStop()
 
 void WfdSourceScene::OnDeviceFound(const std::vector<WfdCastDeviceInfo> &deviceInfos)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_IF_NULL(ipcAdapter);
     auto msg = std::make_shared<WfdSourceDeviceFoundMsg>();
@@ -726,7 +718,10 @@ void WfdSourceScene::OnDeviceFound(const std::vector<WfdCastDeviceInfo> &deviceI
 
 void WfdSourceScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGE("OnP2pPeerConnected, deviceName: %{public}s, mac: %{public}s, ip: %{public}s, port: %{public}d.",
+                 GetAnonyString(connectionInfo.deviceName).c_str(), GetAnonyString(connectionInfo.mac).c_str(),
+                 GetAnonyString(connectionInfo.ip).c_str(), connectionInfo.ctrlPort);
+
     if (!isSourceRunning_) {
         SHARING_LOGW("source service is not running.");
         return;
@@ -754,13 +749,13 @@ void WfdSourceScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
 
 void WfdSourceScene::OnP2pPeerDisconnected(ConnectionInfo &connectionInfo)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     OnP2pPeerDisconnected(connectionInfo.mac);
 }
 
 void WfdSourceScene::OnP2pPeerDisconnected(const std::string &mac)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if ((connDev_ == nullptr) || (connDev_->mac != mac)) {
@@ -820,7 +815,7 @@ void WfdSourceScene::ErrorCodeFiltering(int32_t &code)
 
 void WfdSourceScene::OnInnerError(uint32_t contextId, uint32_t agentId, SharingErrorCode errorCode, std::string message)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_IF_NULL(ipcAdapter);
 
@@ -861,10 +856,9 @@ void WfdSourceScene::OnInnerDestroy(uint32_t contextId, uint32_t agentId, AgentT
 
 void WfdSourceScene::OnInnerEvent(SharingEvent &event)
 {
-    SHARING_LOGD("trace.");
     RETURN_IF_NULL(event.eventMsg);
 
-    SHARING_LOGI("eventType: %{public}s.", std::string(magic_enum::enum_name(event.eventMsg->type)).c_str());
+    SHARING_LOGI("OnInnerEvent Type: %{public}s.", std::string(magic_enum::enum_name(event.eventMsg->type)).c_str());
     switch (event.eventMsg->type) {
         case EventType::EVENT_WFD_NOTIFY_RTSP_PLAYED: {
             auto msg = ConvertEventMsg<WfdSceneEventMsg>(event);
@@ -895,7 +889,7 @@ void WfdSourceScene::OnInnerEvent(SharingEvent &event)
 
 void WfdSourceScene::OnConnectionChanged(ConnectionInfo &connectionInfo)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_IF_NULL(ipcAdapter);
 
@@ -927,7 +921,7 @@ void WfdSourceScene::OnConnectionChanged(ConnectionInfo &connectionInfo)
 
 void WfdSourceScene::OnRemoteDied()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
     auto sharingAdapter = sharingAdapter_.lock();
     if (sharingAdapter) {
         sharingAdapter->ReleaseScene(GetId());
