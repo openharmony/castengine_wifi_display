@@ -115,11 +115,12 @@ void AudioPlayController::StartAudioThread()
     }
 
     audioPlayThread_ = std::make_shared<std::thread>(&AudioPlayController::AudioPlayThread, this);
-    std::string name = "audioplay";
-    pthread_setname_np(audioPlayThread_->native_handle(), name.c_str());
     if (audioPlayThread_ == nullptr) {
         SHARING_LOGE("play start create thread error, mediachannelId: %{public}u!", mediachannelId_);
+        return;
     }
+    std::string name = "audioplay";
+    pthread_setname_np(audioPlayThread_->native_handle(), name.c_str());
 }
 
 void AudioPlayController::StopAudioThread()
