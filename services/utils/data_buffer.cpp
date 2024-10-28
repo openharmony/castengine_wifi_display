@@ -96,9 +96,13 @@ void DataBuffer::Resize(int size)
         if (data_ && size_ > 0) {
             auto ret = memcpy_s(data2, capacity_, data_, size_);
             if (ret != EOK) {
+                delete[] data2;
                 return;
             }
+        }
+        if (data_) {
             delete[] data_;
+            data_ = nullptr;
         }
         data_ = data2;
     } else if (size < capacity_) {
