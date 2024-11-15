@@ -1,0 +1,93 @@
+# Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/CastEngine/castengine_wifi_display/config.gni")
+
+config("sharing_service_config") {
+  include_dirs = [
+    "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/frameworks/innerkitsimpl/native/wfd",
+    "$SHARING_ROOT_DIR/services/interaction/ipc_codec",
+    "$SHARING_ROOT_DIR/services/interaction/device_kit",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
+    "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd/include",
+    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include/",
+    "//foundation/communication/ipc/ipc/native/c/ipc/include",
+    "$SHARING_ROOT_DIR/services/extend/magic_enum",
+    "//utils/native/base/include",
+  ]
+
+  cflags = [ "-Wno-c++20-extensions" ]
+}
+
+ohos_shared_library("sharingwfd_napi") {
+  install_enable = true
+
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+  
+  include_dirs = [
+    "$SHARING_ROOT_DIR",
+    "$SHARING_ROOT_DIR/services/utils",
+    "$SHARING_ROOT_DIR/interfaces/kits/js/wfd/include",
+    "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd/include",
+    "$SHARING_ROOT_DIR/frameworks/innerkitsimpl/native/wfd",
+    "//third_party/node/src",
+    "//foundation/ace/napi/interfaces/kits",
+    "//base/hiviewdfx/hilog/interfaces/native/innerkits/include",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
+    "//foundation/ability/ability_runtime/interfaces/inner_api",
+    "//foundation/ability/ability_runtime/interfaces/kits/native",
+    "//foundation/ability/ability_base/interfaces/inner_api",
+    "//foundation/ability/ability_base/interfaces/kits/native",
+  ]
+
+  sources = [
+    "$SHARING_ROOT_DIR/frameworks/kitsimpl/js/wfd/native_module_ohos_wfd.cpp",
+    "$SHARING_ROOT_DIR/frameworks/kitsimpl/js/wfd/wfd_napi_sink.cpp",
+  ]
+
+  public_configs = [
+    ":sharing_service_config",
+    "$SHARING_ROOT_DIR/tests:coverage_flags",
+  ]
+
+  deps = [
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
+    "$SHARING_ROOT_DIR/services/interaction/device_kit:dmkit",
+    "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd:sharingwfd_client",
+    "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:ability_manager",
+    "//foundation/ability/ability_runtime/frameworks/native/ability/native:abilitykit_native",
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_runtime:app_manager",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "device_manager:devicemanagersdk",
+    "c_utils:utils",
+    "graphic_standard:surface",
+    "hilog_native:libhilog",
+    "ipc:ipc_core",
+    "napi:ace_napi",
+  ]
+
+  subsystem_name = "castplus"
+  part_name = "sharing_framework"
+}
