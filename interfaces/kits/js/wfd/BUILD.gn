@@ -39,7 +39,7 @@ ohos_shared_library("sharingwfd_napi") {
     cfi_cross_dso = true
     debug = false
   }
-  
+
   include_dirs = [
     "$SHARING_ROOT_DIR",
     "$SHARING_ROOT_DIR/services/utils",
@@ -67,11 +67,11 @@ ohos_shared_library("sharingwfd_napi") {
   ]
 
   deps = [
-    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
-    "$SHARING_ROOT_DIR/services/interaction/device_kit:dmkit",
     "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd:sharingwfd_client",
-    "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:ability_manager",
+    "$SHARING_ROOT_DIR/services/interaction/device_kit:dmkit",
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
     "//foundation/ability/ability_runtime/frameworks/native/ability/native:abilitykit_native",
+    "//foundation/ability/ability_runtime/interfaces/inner_api/ability_manager:ability_manager",
   ]
 
   external_deps = [
@@ -80,8 +80,8 @@ ohos_shared_library("sharingwfd_napi") {
     "ability_runtime:app_manager",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
-    "device_manager:devicemanagersdk",
     "c_utils:utils",
+    "device_manager:devicemanagersdk",
     "graphic_standard:surface",
     "hilog_native:libhilog",
     "ipc:ipc_core",
