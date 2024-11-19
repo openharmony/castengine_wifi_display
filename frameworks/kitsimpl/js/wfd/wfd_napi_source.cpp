@@ -30,10 +30,10 @@ const std::string CLASS_NAME = "WfdSourceImpl";
 const int32_t ARGS_ONE = 1;
 const int32_t ARGS_TWO = 2;
 const int32_t STRING_MAX_SIZE = 255;
-const char* kCodeKey = "code";
-const char* kMsgKey = "msg";
-const char* kNameKey = "name";
-const char* kErrorName = "BusinessError";
+const char* CODE "code";
+const char* MSG_KEY = "msg";
+const char* NAME_KEY = "name";
+const char* ERROR_NAME = "BusinessError";
 
 WfdSourceNapi::WfdSourceNapi()
 {
@@ -86,7 +86,8 @@ void WfdSourceNapi::CancelCallbackReference()
     refMap_.clear();
 }
 
-napi_value WfdSourceNapi::Constructor(napi_env env, napi_callback_info info) {
+napi_value WfdSourceNapi::Constructor(napi_env env, napi_callback_info info)
+{
     SHARING_LOGD("trace.");
     napi_status status;
     napi_value result = nullptr;
@@ -117,7 +118,8 @@ napi_value WfdSourceNapi::Constructor(napi_env env, napi_callback_info info) {
     return jsThis;
 }
 
-void InitializeWfdSource(WfdSourceNapi *jsCast) {
+void InitializeWfdSource(WfdSourceNapi *jsCast)
+{
     std::vector<AAFwk::AbilityRunningInfo> outInfo;
     AAFwk::AbilityManagerClient::GetInstance()->GetAbilityRunningInfos(outInfo);
 
@@ -137,7 +139,8 @@ void InitializeWfdSource(WfdSourceNapi *jsCast) {
     }
 
     RpcKeyParser parser;
-    jsCast->localKey_ = parser.GetRpcKey(jsCast->bundleName_, jsCast->abilityName_, DmKit::GetLocalDevicesInfo().deviceId, CLASS_NAME);
+    jsCast->localKey_ =
+        parser.GetRpcKey(jsCast->bundleName_, jsCast->abilityName_, DmKit::GetLocalDevicesInfo().deviceId, CLASS_NAME);
 
     jsCast->nativeWfdSource_ = WfdSourceFactory::CreateSource(0, jsCast->localKey_);
     SHARING_CHECK_AND_RETURN_LOG(jsCast->nativeWfdSource_ != nullptr, "failed to WfdSourceImpl.");
@@ -147,7 +150,8 @@ void InitializeWfdSource(WfdSourceNapi *jsCast) {
     jsCast->nativeWfdSource_->SetListener(jsCast->jsCallback_);
 }
 
-void FinalizeCallback(napi_env env, void *data, void * /*hint*/) {
+void FinalizeCallback(napi_env env, void *data, void * /*hint*/)
+{
     SHARING_LOGD("Destructor in.");
     auto *wfdSourceNapi = reinterpret_cast<WfdSourceNapi *>(data);
     wfdSourceNapi->CancelCallbackReference();
@@ -365,7 +369,8 @@ void WfdSourceNapi::CompleteCallback(napi_env env, napi_status status, void *dat
         napi_get_reference_value(env, asyncContext->callbackRef, &callback);
         SHARING_CHECK_AND_RETURN_LOG(callback != nullptr, "callbackRef is nullptr!");
         napi_value retVal = undefined;
-        napi_call_function(env, nullptr, callback, 2, args, &retVal);
+        constexpr size_t argCount = ARGS_TWO;
+        napi_call_function(env, nullptr, callback, argCount, args, &retVal);
         napi_delete_reference(env, asyncContext->callbackRef);
     }
     napi_delete_async_work(env, asyncContext->work);
@@ -417,7 +422,8 @@ napi_status WfdSourceNapi::CreateError(napi_env env, int32_t errCode, const std:
     return napi_ok;
 }
 
-static napi_status CreateString(napi_env env, const char* str, napi_value* result){
+static napi_status CreateString(napi_env env, const char* str, napi_value* result)
+{
     return napi_create_string_utf8(env, str, NAPI_AUTO_LENGTH, result);
 }
 

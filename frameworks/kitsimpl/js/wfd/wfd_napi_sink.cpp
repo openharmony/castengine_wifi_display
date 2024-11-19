@@ -31,6 +31,10 @@ const int32_t ARGS_TWO = 2;
 const int32_t ARGS_THREE = 3;
 const int32_t ARGS_FOUR = 4;
 const int32_t STRING_MAX_SIZE = 255;
+const char* CODE "code";
+const char* MSG_KEY = "msg";
+const char* NAME_KEY = "name";
+const char* ERROR_NAME = "BusinessError";
 
 WfdSinkNapi::WfdSinkNapi()
 {
@@ -473,16 +477,12 @@ void WfdSinkNapi::CompleteCallback(napi_env env, napi_status status, void *data)
         napi_get_reference_value(env, asyncContext->callbackRef, &callback);
         SHARING_CHECK_AND_RETURN_LOG(callback != nullptr, "callbackRef is nullptr!");
         napi_value retVal = undefined;
-        napi_call_function(env, nullptr, callback, 2, args, &retVal);
+        constexpr size_t argCount = ARGS_TWO;
+        napi_call_function(env, nullptr, callback, argCount, args, &retVal);
         napi_delete_reference(env, asyncContext->callbackRef);
     }
-
     napi_delete_async_work(env, asyncContext->work);
-
-    if (asyncContext) {
-        delete asyncContext;
-        asyncContext = nullptr;
-    }
+    delete asyncContext;
     SHARING_LOGD("success.");
 }
 
@@ -530,7 +530,8 @@ napi_status WfdSinkNapi::CreateError(napi_env env, int32_t errCode, const std::s
     return napi_ok;
 }
 
-static napi_status CreateString(napi_env env, const char* str, napi_value* result){
+static napi_status CreateString(napi_env env, const char* str, napi_value* result)
+{
     return napi_create_string_utf8(env, str, NAPI_AUTO_LENGTH, result);
 }
 
