@@ -266,8 +266,7 @@ napi_value WfdSourceNapi::StopDiscovery(napi_env env, napi_callback_info info)
     napi_create_string_utf8(env, "StopDiscovery", NAPI_AUTO_LENGTH, &resource);
 
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resource, WfdSourceNapi::AsyncWork,
-                                          WfdSourceNapi::CompleteCallback,static_cast<void *>(asyncContext.get()),
-                                          &asyncContext->work));
+        WfdSourceNapi::CompleteCallback,static_cast<void *>(asyncContext.get()), &asyncContext->work));
     NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
 
     asyncContext.release();
