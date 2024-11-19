@@ -51,7 +51,7 @@ napi_value WfdSinkNapi::Init(napi_env env, napi_value exports)
 
     napi_property_descriptor properties[] = {DECLARE_NAPI_FUNCTION("start", Start),
                                              DECLARE_NAPI_FUNCTION("setDiscoverable", SetDiscoverable),
-                                             DECLARE_NAPI_FUNCTION("stop", Stop),
+                                             DECLARE_NAPI_FUNCTION("stop", Stop)}
 
     napi_value constructor = nullptr;
     napi_status status = napi_define_class(env, CLASS_NAME.c_str(), NAPI_AUTO_LENGTH, Constructor, nullptr,
@@ -91,15 +91,6 @@ napi_value WfdSinkNapi::Constructor(napi_env env, napi_callback_info info)
     napi_value result = nullptr;
     napi_value jsThis = nullptr;
 
-    auto finalize = [](napi_env env, void *data, void *hint) {
-        SHARING_LOGD("Destructor in.");
-        auto *wfdSinkNapi = reinterpret_cast<WfdSinkNapi *>(data);
-        wfdSinkNapi->CancelCallbackReference();
-
-        delete wfdSinkNapi;
-        SHARING_LOGD("Destructor out.");
-    };
-
     status = napi_get_cb_info(env, info, nullptr, nullptr, &jsThis, nullptr);
     if (status != napi_ok || jsThis == nullptr) {
         napi_get_undefined(env, &result);
@@ -111,7 +102,22 @@ napi_value WfdSinkNapi::Constructor(napi_env env, napi_callback_info info)
     SHARING_CHECK_AND_RETURN_RET_LOG(jsCast != nullptr, result, "No memory.");
 
     jsCast->env_ = env;
+    InitializeWfdSink(jsCast);
 
+    status = napi_wrap(env, jsThis, reinterpret_cast<void *>(jsCast), FinalizeCallback, nullptr, nullptr);
+    if (status != napi_ok) {
+        napi_get_undefined(env, &result);
+        delete jsCast;
+        SHARING_LOGE("Fail to wrapping js to native napi.");
+        return result;
+    }
+
+    SHARING_LOGD("success.");
+    return jsThis;
+}
+
+void InitializeWfdSink(WfdSinkNapi *jsCast)
+{
     std::vector<AAFwk::AbilityRunningInfo> outInfo;
     AAFwk::AbilityManagerClient::GetInstance()->GetAbilityRunningInfos(outInfo);
 
@@ -143,22 +149,21 @@ napi_value WfdSinkNapi::Constructor(napi_env env, napi_callback_info info)
         parser.GetRpcKey(jsCast->bundleName_, jsCast->abilityName_, DmKit::GetLocalDevicesInfo().deviceId, CLASS_NAME);
 
     jsCast->nativeWfdSink_ = WfdSinkFactory::CreateSink(0, jsCast->localKey_);
-    SHARING_CHECK_AND_RETURN_RET_LOG(jsCast->nativeWfdSink_ != nullptr, result, "failed to WfdSinkImpl.");
+    SHARING_CHECK_AND_RETURN_LOG(jsCast->nativeWfdSink_ != nullptr, "failed to WfdSinkImpl.");
 
-    jsCast->jsCallback_ = std::make_shared<WfdSinkCallbackNapi>(env);
+    jsCast->jsCallback_ = std::make_shared<WfdSinkCallbackNapi>(jsCast->env_);
     jsCast->jsCallback_->SetWfdSinkNapi(jsCast);
     jsCast->nativeWfdSink_->SetListener(jsCast->jsCallback_);
+}
 
-    status = napi_wrap(env, jsThis, reinterpret_cast<void *>(jsCast), finalize, nullptr, nullptr);
-    if (status != napi_ok) {
-        napi_get_undefined(env, &result);
-        delete jsCast;
-        SHARING_LOGE("Fail to wrapping js to native napi.");
-        return result;
-    }
+void FinalizeCallback(napi_env env, void *data, void * /*hint*/)
+{
+    SHARING_LOGD("Destructor in.");
+    auto *wfdSinkNapi = reinterpret_cast<WfdSinkNapi *>(data);
+    wfdSinkNapi->CancelCallbackReference();
 
-    SHARING_LOGD("success.");
-    return jsThis;
+    delete wfdSinkNapi;
+    SHARING_LOGD("Destructor out.");
 }
 
 napi_value WfdSinkNapi::CreateSink(napi_env env, napi_callback_info info)
@@ -226,11 +231,9 @@ napi_value WfdSinkNapi::SetDiscoverable(napi_env env, napi_callback_info info)
 
     napi_value resource = nullptr;
     napi_create_string_utf8(env, "SetDiscoverable", NAPI_AUTO_LENGTH, &resource);
-
     NAPI_CALL(env, napi_create_async_work(env, nullptr, resource, WfdSinkNapi::AsyncWork, WfdSinkNapi::CompleteCallback,
                                           static_cast<void *>(asyncContext.get()), &asyncContext->work));
     NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
-
     asyncContext.release();
     SHARING_LOGD("success.");
     return result;
@@ -347,68 +350,84 @@ void WfdSinkNapi::AsyncWork(napi_env env, void *data)
         return;
     }
 
-    auto jsCast = asyncContext->napi;
-    auto nativeWfdSink = jsCast->nativeWfdSink_;
-    int32_t ret = 0;
-
     switch (asyncContext->asyncWorkType) {
-        case AsyncWorkType::ASYNC_WORK_SET_DISCOVERABLE: {
-            if (!asyncContext->errFlag) {
-                bool isDiscoverable = *static_cast<bool*>(asyncContext->data);
-                if (isDiscoverable) {
-                    ret = nativeWfdSink->Start();
-                } else {
-                    ret = nativeWfdSink->Stop();
-                }
-                if (ret < 0) {
-                    SHARING_LOGE("nativeWfdSink->SetDiscoverable error, %{public}d.", ret);
-                    asyncContext->SignError(CommonErrorCode, "native instance SetDiscoverable error");
-                    return;
-                }
-            } else {
-                ret = asyncContext->errCode;
-            }
-
-            asyncContext->JsResult = std::make_unique<WfdJsResult>(ret);
+        case AsyncWorkType::ASYNC_WORK_SET_DISCOVERABLE:
+            HandleSetDiscoverable(asyncContext);
             break;
-        }
-        case AsyncWorkType::ASYNC_WORK_START: {
-            if (!asyncContext->errFlag) {
-                ret = nativeWfdSink->Start();
-                if (ret < 0) {
-                    SHARING_LOGE("nativeWfdSink->Start error, %{public}d.", ret);
-                    asyncContext->SignError(CommonErrorCode, "native instance Start error");
-                    return;
-                }
-            } else {
-                ret = asyncContext->errCode;
-            }
-
-            asyncContext->JsResult = std::make_unique<WfdJsResult>(ret);
+        case AsyncWorkType::ASYNC_WORK_START:
+            HandleStart(asyncContext);
             break;
-        }
-        case AsyncWorkType::ASYNC_WORK_STOP: {
-            if (!asyncContext->errFlag) {
-                ret = nativeWfdSink->Stop();
-                if (ret < 0) {
-                    SHARING_LOGE("nativeWfdSink->Stop error, %{public}d.", ret);
-                    asyncContext->SignError(CommonErrorCode, "native instance Stop error");
-                    return;
-                }
-            } else {
-                ret = asyncContext->errCode;
-            }
-
-            asyncContext->JsResult = std::make_unique<WfdJsResult>(ret);
+        case AsyncWorkType::ASYNC_WORK_STOP:
+            HandleStop(asyncContext);
             break;
-        }
         default:
             SHARING_LOGE("error unknown operation (%{public}d).", (int32_t)asyncContext->asyncWorkType);
             break;
     }
 
     SHARING_LOGD("workType: %{public}d.", asyncContext->asyncWorkType);
-    return;
+}
+
+void HandleSetDiscoverable(WfdSinkAsyncContext *asyncContext)
+{
+    auto nativeWfdSink = asyncContext->napi->nativeWfdSink_;
+    int32_t ret = 0;
+
+    if (!asyncContext->errFlag) {
+        bool isDiscoverable = *static_cast<bool*>(asyncContext->data);
+        if (isDiscoverable) {
+            ret = nativeWfdSink->Start();
+        } else {
+            ret = nativeWfdSink->Stop();
+        }
+        if (ret < 0) {
+            SHARING_LOGE("nativeWfdSink->SetDiscoverable error, %{public}d.", ret);
+            asyncContext->SignError(CommonErrorCode, "native instance SetDiscoverable error");
+            return;
+        }
+    } else {
+        ret = asyncContext->errCode;
+    }
+
+    asyncContext->JsResult = std::make_unique<WfdJsResult>(ret);
+}
+
+void HandleStart(WfdSinkAsyncContext *asyncContext)
+{
+    auto nativeWfdSink = asyncContext->napi->nativeWfdSink_;
+    int32_t ret = 0;
+
+    if (!asyncContext->errFlag) {
+        ret = nativeWfdSink->Start();
+        if (ret < 0) {
+            SHARING_LOGE("nativeWfdSink->Start error, %{public}d.", ret);
+            asyncContext->SignError(CommonErrorCode, "native instance Start error");
+            return;
+        }
+    } else {
+        ret = asyncContext->errCode;
+    }
+
+    asyncContext->JsResult = std::make_unique<WfdJsResult>(ret);
+}
+
+void HandleStop(WfdSinkAsyncContext *asyncContext)
+{
+    auto nativeWfdSink = asyncContext->napi->nativeWfdSink_;
+    int32_t ret = 0;
+
+    if (!asyncContext->errFlag) {
+        ret = nativeWfdSink->Stop();
+        if (ret < 0) {
+            SHARING_LOGE("nativeWfdSink->Stop error, %{public}d.", ret);
+            asyncContext->SignError(CommonErrorCode, "native instance Stop error");
+            return;
+        }
+    } else {
+        ret = asyncContext->errCode;
+    }
+
+    asyncContext->JsResult = std::make_unique<WfdJsResult>(ret);
 }
 
 void WfdSinkNapi::CompleteCallback(napi_env env, napi_status status, void *data)
@@ -420,20 +439,16 @@ void WfdSinkNapi::CompleteCallback(napi_env env, napi_status status, void *data)
     if (status != napi_ok) {
         asyncContext->SignError(CommonErrorCode, "napi_create_async_work status != napi_ok");
     }
-
-    napi_value result = nullptr;
-    napi_get_undefined(env, &result);
-
-    napi_value args[2] = {nullptr};
-    napi_get_undefined(env, &args[0]);
-    napi_get_undefined(env, &args[1]);
+    napi_value undefined;
+    napi_get_undefined(env, &undefined);
+    napi_value result = undefined;
+    napi_value args[2] = {undefined, undefined};
 
     if (asyncContext->errFlag) {
         SHARING_LOGE("async callback failed.");
         CreateError(env, asyncContext->errCode, asyncContext->errMessage, result);
         args[0] = result;
     } else {
-        SHARING_LOGD("async callback out.");
         if (asyncContext->JsResult != nullptr) {
             auto res = asyncContext->JsResult->GetJsResult(env, result);
             if (res == napi_ok) {
@@ -449,22 +464,16 @@ void WfdSinkNapi::CompleteCallback(napi_env env, napi_status status, void *data)
 
     if (asyncContext->deferred) {
         if (asyncContext->errFlag) {
-            SHARING_LOGD("napi_reject_deferred.");
             napi_reject_deferred(env, asyncContext->deferred, args[0]);
         } else {
-            SHARING_LOGD("napi_resolve_deferred.");
             napi_resolve_deferred(env, asyncContext->deferred, args[1]);
         }
     } else {
-        SHARING_LOGD("napi_call_function callback.");
         napi_value callback = nullptr;
         napi_get_reference_value(env, asyncContext->callbackRef, &callback);
         SHARING_CHECK_AND_RETURN_LOG(callback != nullptr, "callbackRef is nullptr!");
-
-        constexpr size_t argCount = 2;
-        napi_value retVal;
-        napi_get_undefined(env, &retVal);
-        napi_call_function(env, nullptr, callback, argCount, args, &retVal);
+        napi_value retVal = undefined;
+        napi_call_function(env, nullptr, callback, 2, args, &retVal);
         napi_delete_reference(env, asyncContext->callbackRef);
     }
 
@@ -480,75 +489,71 @@ void WfdSinkNapi::CompleteCallback(napi_env env, napi_status status, void *data)
 napi_status WfdSinkNapi::CreateError(napi_env env, int32_t errCode, const std::string &errMsg, napi_value &errVal)
 {
     SHARING_LOGD("trace.");
-    napi_get_undefined(env, &errVal);
-
     napi_value msgValStr = nullptr;
-    napi_status nstatus = napi_create_string_utf8(env, errMsg.c_str(), NAPI_AUTO_LENGTH, &msgValStr);
-    if (nstatus != napi_ok || msgValStr == nullptr) {
-        SHARING_LOGE("create error message str fail.");
+    napi_status nstatus = CreateString(env, errMsg.c_str(), &msgValStr);
+    if (HandleError(env, "create error message str fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
     nstatus = napi_create_error(env, nullptr, msgValStr, &errVal);
-    if (nstatus != napi_ok || errVal == nullptr) {
-        SHARING_LOGE("create error fail.");
-        return napi_invalid_arg;
-    }
-
-    napi_value codeStr = nullptr;
-    nstatus = napi_create_string_utf8(env, "code", NAPI_AUTO_LENGTH, &codeStr);
-    if (nstatus != napi_ok || codeStr == nullptr) {
-        SHARING_LOGE("create code str fail.");
+    if (HandleError(env, "create error fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
     napi_value errCodeVal = nullptr;
     nstatus = napi_create_int32(env, errCode, &errCodeVal);
-    if (nstatus != napi_ok || errCodeVal == nullptr) {
-        SHARING_LOGE("create error code number val fail.");
+    if (HandleError(env, "create error code number val fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
-    nstatus = napi_set_property(env, errVal, codeStr, errCodeVal);
-    if (nstatus != napi_ok) {
-        SHARING_LOGE("set error code property fail.");
+    nstatus = SetProperty(env, errVal, kCodeKey, errCodeVal);
+    if (HandleError(env, "set error code property fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
-    napi_value msgStr = nullptr;
-    nstatus = napi_create_string_utf8(env, "msg", NAPI_AUTO_LENGTH, &msgStr);
-    if (nstatus != napi_ok || msgStr == nullptr) {
-        SHARING_LOGE("create msg str fail.");
-        return napi_invalid_arg;
-    }
-
-    nstatus = napi_set_property(env, errVal, msgStr, msgValStr);
-    if (nstatus != napi_ok) {
-        SHARING_LOGE("set error msg property fail.");
-        return napi_invalid_arg;
-    }
-
-    napi_value nameStr = nullptr;
-    nstatus = napi_create_string_utf8(env, "name", NAPI_AUTO_LENGTH, &nameStr);
-    if (nstatus != napi_ok || nameStr == nullptr) {
-        SHARING_LOGE("create name str fail.");
+    nstatus = SetProperty(env, errVal, kMsgKey, msgValStr);
+    if (HandleError(env, "set error msg property fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
     napi_value errNameVal = nullptr;
-    nstatus = napi_create_string_utf8(env, "BusinessError", NAPI_AUTO_LENGTH, &errNameVal);
-    if (nstatus != napi_ok || errNameVal == nullptr) {
-        SHARING_LOGE("create BusinessError str fail.");
+    nstatus = CreateString(env, kErrorName, &errNameVal);
+    if (HandleError(env, "create BusinessError str fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
-    nstatus = napi_set_property(env, errVal, nameStr, errNameVal);
-    if (nstatus != napi_ok) {
-        SHARING_LOGE("set error name property fail.");
+    nstatus = SetProperty(env, errVal, kNameKey, errNameVal);
+    if (HandleError(env, "set error name property fail.", nstatus, &errVal) != napi_ok) {
+        return napi_invalid_arg;
+    }
+    SHARING_LOGD("success.");
+    return napi_ok;
+}
+
+static napi_status CreateString(napi_env env, const char* str, napi_value* result){
+    return napi_create_string_utf8(env, str, NAPI_AUTO_LENGTH, result);
+}
+
+static napi_status SetProperty(napi_env env, napi_value object, const char* key, napi_value value)
+{
+    napi_value keyVal;
+    napi_status status = CreateString(env, key, &keyVal);
+    if (status != napi_ok) {
+        return status;
+    }
+    return napi_set_property(env, object, keyVal, value);
+}
+
+static napi_status HandleError(napi_env env, const char* message, napi_status status, napi_value* errVal)
+{
+    if (status != napi_ok) {
+        SHARING_LOGE("%s: %d", message, status);
+        if (errVal != nullptr) {
+            *errVal = nullptr;
+        }
         return napi_invalid_arg;
     }
     return napi_ok;
 }
-
 } // namespace Sharing
 } // namespace OHOS

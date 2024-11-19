@@ -30,12 +30,18 @@ const std::string CLASS_NAME = "WfdSourceImpl";
 const int32_t ARGS_ONE = 1;
 const int32_t ARGS_TWO = 2;
 const int32_t STRING_MAX_SIZE = 255;
+const char* kCodeKey = "code";
+const char* kMsgKey = "msg";
+const char* kNameKey = "name";
+const char* kErrorName = "BusinessError";
 
-WfdSourceNapi::WfdSourceNapi() {
+WfdSourceNapi::WfdSourceNapi()
+{
     SHARING_LOGI("ctor %{public}p.", this);
 }
 
-WfdSourceNapi::~WfdSourceNapi() {
+WfdSourceNapi::~WfdSourceNapi()
+{
     SHARING_LOGI("dtor %{public}p.", this);
     CancelCallbackReference();
     nativeWfdSource_.reset();
@@ -68,7 +74,7 @@ napi_value WfdSourceNapi::Init(napi_env env, napi_value exports)
     return exports;
 }
 
-void WfdSourceNapi::CancelCallbackReference() 
+void WfdSourceNapi::CancelCallbackReference()
 {
     SHARING_LOGD("trace.");
     std::lock_guard<std::mutex> lock(refMutex_);
@@ -80,21 +86,11 @@ void WfdSourceNapi::CancelCallbackReference()
     refMap_.clear();
 }
 
-napi_value WfdSourceNapi::Constructor(napi_env env, napi_callback_info info)
-{
+napi_value WfdSourceNapi::Constructor(napi_env env, napi_callback_info info) {
     SHARING_LOGD("trace.");
     napi_status status;
     napi_value result = nullptr;
     napi_value jsThis = nullptr;
-
-    auto finalize = [](napi_env env, void *data, void *hint) {
-        SHARING_LOGD("Destructor in.");
-        auto *wfdSourceNapi = reinterpret_cast<WfdSourceNapi *>(data);
-        wfdSourceNapi->CancelCallbackReference();
-
-        delete wfdSourceNapi;
-        SHARING_LOGD("Destructor out.");
-    };
 
     status = napi_get_cb_info(env, info, nullptr, nullptr, &jsThis, nullptr);
     if (status != napi_ok || jsThis == nullptr) {
@@ -107,45 +103,9 @@ napi_value WfdSourceNapi::Constructor(napi_env env, napi_callback_info info)
     SHARING_CHECK_AND_RETURN_RET_LOG(jsCast != nullptr, result, "No memory.");
 
     jsCast->env_ = env;
+    InitializeWfdSource(jsCast);
 
-    std::vector<AAFwk::AbilityRunningInfo> outInfo;
-    AAFwk::AbilityManagerClient::GetInstance()->GetAbilityRunningInfos(outInfo);
-
-    if (outInfo.size() != 1) {
-        SHARING_LOGE("get ability size error: %{public}zu.", outInfo.size());
-        for (auto &item : outInfo) {
-            SHARING_LOGW("get app, bundle: %{public}s, ability: %{public}s.", item.ability.GetBundleName().c_str(),
-                         item.ability.GetAbilityName().c_str());
-        }
-
-        jsCast->bundleName_ = BUNDLE_NAME;
-        jsCast->abilityName_ = ABILITY_NAME;
-    } else {
-        jsCast->bundleName_ = outInfo[0].ability.GetBundleName();
-        jsCast->abilityName_ = outInfo[0].ability.GetAbilityName();
-        SHARING_LOGI("get app, bundle: %{public}s, ability: %{public}s.", jsCast->bundleName_.c_str(),
-                     jsCast->abilityName_.c_str());
-    }
-
-    DmKit::InitDeviceManager();
-    if (DmKit::GetTrustedDevicesInfo().size() > 0) {
-        for (auto &item : DmKit::GetTrustedDevicesInfo()) {
-            SHARING_LOGI("remote trusted device: %{public}s.", item.deviceId);
-        }
-    }
-
-    RpcKeyParser parser;
-    jsCast->localKey_ =
-        parser.GetRpcKey(jsCast->bundleName_, jsCast->abilityName_, DmKit::GetLocalDevicesInfo().deviceId, CLASS_NAME);
-
-    jsCast->nativeWfdSource_ = WfdSourceFactory::CreateSource(0, jsCast->localKey_);
-    SHARING_CHECK_AND_RETURN_RET_LOG(jsCast->nativeWfdSource_ != nullptr, result, "failed to WfdSourceImpl.");
-
-    jsCast->jsCallback_ = std::make_shared<WfdSourceCallbackNapi>(env);
-    jsCast->jsCallback_->SetWfdSourceNapi(jsCast);
-    jsCast->nativeWfdSource_->SetListener(jsCast->jsCallback_);
-
-    status = napi_wrap(env, jsThis, reinterpret_cast<void *>(jsCast), finalize, nullptr, nullptr);
+    status = napi_wrap(env, jsThis, reinterpret_cast<void *>(jsCast), FinalizeCallback, nullptr, nullptr);
     if (status != napi_ok) {
         napi_get_undefined(env, &result);
         delete jsCast;
@@ -155,6 +115,44 @@ napi_value WfdSourceNapi::Constructor(napi_env env, napi_callback_info info)
 
     SHARING_LOGD("success.");
     return jsThis;
+}
+
+void InitializeWfdSource(WfdSourceNapi *jsCast) {
+    std::vector<AAFwk::AbilityRunningInfo> outInfo;
+    AAFwk::AbilityManagerClient::GetInstance()->GetAbilityRunningInfos(outInfo);
+
+    if (outInfo.empty() || outInfo.size() > 1) {
+        SHARING_LOGE("get ability size error: %zu.", outInfo.size());
+        jsCast->bundleName_ = BUNDLE_NAME;
+        jsCast->abilityName_ = ABILITY_NAME;
+    } else {
+        jsCast->bundleName_ = outInfo[0].ability.GetBundleName();
+        jsCast->abilityName_ = outInfo[0].ability.GetAbilityName();
+        SHARING_LOGI("get app, bundle: %s, ability: %s.", jsCast->bundleName_.c_str(), jsCast->abilityName_.c_str());
+    }
+
+    DmKit::InitDeviceManager();
+    for (const auto &item : DmKit::GetTrustedDevicesInfo()) {
+        SHARING_LOGI("remote trusted device: %s.", item.deviceId);
+    }
+
+    RpcKeyParser parser;
+    jsCast->localKey_ = parser.GetRpcKey(jsCast->bundleName_, jsCast->abilityName_, DmKit::GetLocalDevicesInfo().deviceId, CLASS_NAME);
+
+    jsCast->nativeWfdSource_ = WfdSourceFactory::CreateSource(0, jsCast->localKey_);
+    SHARING_CHECK_AND_RETURN_LOG(jsCast->nativeWfdSource_ != nullptr, "failed to WfdSourceImpl.");
+
+    jsCast->jsCallback_ = std::make_shared<WfdSourceCallbackNapi>(jsCast->env_);
+    jsCast->jsCallback_->SetWfdSourceNapi(jsCast);
+    jsCast->nativeWfdSource_->SetListener(jsCast->jsCallback_);
+}
+
+void FinalizeCallback(napi_env env, void *data, void * /*hint*/) {
+    SHARING_LOGD("Destructor in.");
+    auto *wfdSourceNapi = reinterpret_cast<WfdSourceNapi *>(data);
+    wfdSourceNapi->CancelCallbackReference();
+    delete wfdSourceNapi;
+    SHARING_LOGD("Destructor out.");
 }
 
 napi_value WfdSourceNapi::CreateSource(napi_env env, napi_callback_info info)
@@ -263,8 +261,8 @@ napi_value WfdSourceNapi::StopDiscovery(napi_env env, napi_callback_info info)
     napi_value resource = nullptr;
     napi_create_string_utf8(env, "StopDiscovery", NAPI_AUTO_LENGTH, &resource);
 
-    NAPI_CALL(env, napi_create_async_work(env, nullptr, resource, WfdSourceNapi::AsyncWork, 
-                                          WfdSourceNapi::CompleteCallback,static_cast<void *>(asyncContext.get()), 
+    NAPI_CALL(env, napi_create_async_work(env, nullptr, resource, WfdSourceNapi::AsyncWork,
+                                          WfdSourceNapi::CompleteCallback,static_cast<void *>(asyncContext.get()),
                                           &asyncContext->work));
     NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
 
@@ -281,7 +279,6 @@ void WfdSourceNapi::AsyncWork(napi_env env, void *data)
         SHARING_LOGE("WfdSourceAsyncContext is nullptr.");
         return;
     }
-
     SHARING_LOGD("workType: %{public}d.", asyncContext->asyncWorkType);
     if (asyncContext->napi == nullptr || asyncContext->napi->nativeWfdSource_ == nullptr) {
         if (asyncContext->napi == nullptr) {
@@ -328,25 +325,22 @@ void WfdSourceNapi::AsyncWork(napi_env env, void *data)
 void WfdSourceNapi::CompleteCallback(napi_env env, napi_status status, void *data)
 {
     SHARING_LOGD("trace.");
-    auto asyncContext = reinterpret_cast<WfdSourceAsyncContext *>(data);
+    auto asyncContext = static_cast<WfdSourceAsyncContext *>(data);
     SHARING_CHECK_AND_RETURN_LOG(asyncContext != nullptr, "asyncContext is nullptr!");
 
     if (status != napi_ok) {
         asyncContext->SignError(CommonErrorCode, "napi_create_async_work status != napi_ok");
     }
-
-    napi_value result = nullptr;
-    napi_get_undefined(env, &result);
-    napi_value args[2] = {nullptr};
-    napi_get_undefined(env, &args[0]);
-    napi_get_undefined(env, &args[1]);
+    napi_value undefined;
+    napi_get_undefined(env, &undefined);
+    napi_value result = undefined;
+    napi_value args[2] = {undefined, undefined};
 
     if (asyncContext->errFlag) {
         SHARING_LOGE("async callback failed.");
         CreateError(env, asyncContext->errCode, asyncContext->errMessage, result);
         args[0] = result;
     } else {
-        SHARING_LOGD("async callback out.");
         if (asyncContext->JsResult != nullptr) {
             auto res = asyncContext->JsResult->GetJsResult(env, result);
             if (res == napi_ok) {
@@ -362,103 +356,91 @@ void WfdSourceNapi::CompleteCallback(napi_env env, napi_status status, void *dat
 
     if (asyncContext->deferred) {
         if (asyncContext->errFlag) {
-            SHARING_LOGD("napi_reject_deferred.");
             napi_reject_deferred(env, asyncContext->deferred, args[0]);
         } else {
-            SHARING_LOGD("napi_resolve_deferred.");
             napi_resolve_deferred(env, asyncContext->deferred, args[1]);
         }
     } else {
-        SHARING_LOGD("napi_call_function callback.");
-        napi_value callback = nullptr;
+        napi_value callback;
         napi_get_reference_value(env, asyncContext->callbackRef, &callback);
         SHARING_CHECK_AND_RETURN_LOG(callback != nullptr, "callbackRef is nullptr!");
-        constexpr size_t argCount = 2;
-        napi_value retVal;
-        napi_get_undefined(env, &retVal);
-        napi_call_function(env, nullptr, callback, argCount, args, &retVal);
+        napi_value retVal = undefined;
+        napi_call_function(env, nullptr, callback, 2, args, &retVal);
         napi_delete_reference(env, asyncContext->callbackRef);
     }
     napi_delete_async_work(env, asyncContext->work);
-    if (asyncContext) {
-        delete asyncContext;
-        asyncContext = nullptr;
-    }
+    delete asyncContext;
     SHARING_LOGD("success.");
 }
 
 napi_status WfdSourceNapi::CreateError(napi_env env, int32_t errCode, const std::string &errMsg, napi_value &errVal)
 {
     SHARING_LOGD("trace.");
-    napi_get_undefined(env, &errVal);
-
     napi_value msgValStr = nullptr;
-    napi_status nstatus = napi_create_string_utf8(env, errMsg.c_str(), NAPI_AUTO_LENGTH, &msgValStr);
-    if (nstatus != napi_ok || msgValStr == nullptr) {
-        SHARING_LOGE("create error message str fail.");
+    napi_status nstatus = CreateString(env, errMsg.c_str(), &msgValStr);
+    if (HandleError(env, "create error message str fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
     nstatus = napi_create_error(env, nullptr, msgValStr, &errVal);
-    if (nstatus != napi_ok || errVal == nullptr) {
-        SHARING_LOGE("create error fail.");
-        return napi_invalid_arg;
-    }
-
-    napi_value codeStr = nullptr;
-    nstatus = napi_create_string_utf8(env, "code", NAPI_AUTO_LENGTH, &codeStr);
-    if (nstatus != napi_ok || codeStr == nullptr) {
-        SHARING_LOGE("create code str fail.");
+    if (HandleError(env, "create error fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
     napi_value errCodeVal = nullptr;
     nstatus = napi_create_int32(env, errCode, &errCodeVal);
-    if (nstatus != napi_ok || errCodeVal == nullptr) {
-        SHARING_LOGE("create error code number val fail.");
+    if (HandleError(env, "create error code number val fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
-    nstatus = napi_set_property(env, errVal, codeStr, errCodeVal);
-    if (nstatus != napi_ok) {
-        SHARING_LOGE("set error code property fail.");
+    nstatus = SetProperty(env, errVal, kCodeKey, errCodeVal);
+    if (HandleError(env, "set error code property fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
-    napi_value msgStr = nullptr;
-    nstatus = napi_create_string_utf8(env, "msg", NAPI_AUTO_LENGTH, &msgStr);
-    if (nstatus != napi_ok || msgStr == nullptr) {
-        SHARING_LOGE("create msg str fail.");
-        return napi_invalid_arg;
-    }
-
-    nstatus = napi_set_property(env, errVal, msgStr, msgValStr);
-    if (nstatus != napi_ok) {
-        SHARING_LOGE("set error msg property fail.");
-        return napi_invalid_arg;
-    }
-
-    napi_value nameStr = nullptr;
-    nstatus = napi_create_string_utf8(env, "name", NAPI_AUTO_LENGTH, &nameStr);
-    if (nstatus != napi_ok || nameStr == nullptr) {
-        SHARING_LOGE("create name str fail.");
+    nstatus = SetProperty(env, errVal, kMsgKey, msgValStr);
+    if (HandleError(env, "set error msg property fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
     napi_value errNameVal = nullptr;
-    nstatus = napi_create_string_utf8(env, "BusinessError", NAPI_AUTO_LENGTH, &errNameVal);
-    if (nstatus != napi_ok || errNameVal == nullptr) {
-        SHARING_LOGE("create BusinessError str fail.");
+    nstatus = CreateString(env, kErrorName, &errNameVal);
+    if (HandleError(env, "create BusinessError str fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
-    nstatus = napi_set_property(env, errVal, nameStr, errNameVal);
-    if (nstatus != napi_ok) {
-        SHARING_LOGE("set error name property fail.");
+    nstatus = SetProperty(env, errVal, kNameKey, errNameVal);
+    if (HandleError(env, "set error name property fail.", nstatus, &errVal) != napi_ok) {
+        return napi_invalid_arg;
+    }
+    SHARING_LOGD("success.");
+    return napi_ok;
+}
+
+static napi_status CreateString(napi_env env, const char* str, napi_value* result){
+    return napi_create_string_utf8(env, str, NAPI_AUTO_LENGTH, result);
+}
+
+static napi_status SetProperty(napi_env env, napi_value object, const char* key, napi_value value)
+{
+    napi_value keyVal;
+    napi_status status = CreateString(env, key, &keyVal);
+    if (status != napi_ok) {
+        return status;
+    }
+    return napi_set_property(env, object, keyVal, value);
+}
+
+static napi_status HandleError(napi_env env, const char* message, napi_status status, napi_value* errVal)
+{
+    if (status != napi_ok) {
+        SHARING_LOGE("%s: %d", message, status);
+        if (errVal != nullptr) {
+            *errVal = nullptr;
+        }
         return napi_invalid_arg;
     }
     return napi_ok;
 }
-
 } // namespace Sharing
 } // namespace OHOS
