@@ -547,7 +547,6 @@ napi_status WfdSinkNapi::CreateError(napi_env env, int32_t errCode, const std::s
         SHARING_LOGE("set error name property fail.");
         return napi_invalid_arg;
     }
-
     return napi_ok;
 }
 

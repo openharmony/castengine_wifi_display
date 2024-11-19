@@ -41,12 +41,13 @@ WfdSourceNapi::~WfdSourceNapi() {
     nativeWfdSource_.reset();
 }
 
-napi_value WfdSourceNapi::Init(napi_env env, napi_value exports) {
+napi_value WfdSourceNapi::Init(napi_env env, napi_value exports)
+{
     SHARING_LOGD("trace.");
     napi_property_descriptor staticProperty[] = {DECLARE_NAPI_STATIC_FUNCTION("createSource", CreateSource)};
 
     napi_property_descriptor properties[] = {DECLARE_NAPI_FUNCTION("startDiscovery", StartDiscovery),
-                                           DECLARE_NAPI_FUNCTION("stopDiscovery", StopDiscovery)};
+                                             DECLARE_NAPI_FUNCTION("stopDiscovery", StopDiscovery)};
 
     napi_value constructor = nullptr;
     napi_status status = napi_define_class(env, CLASS_NAME.c_str(), NAPI_AUTO_LENGTH, Constructor, nullptr,
@@ -67,7 +68,8 @@ napi_value WfdSourceNapi::Init(napi_env env, napi_value exports) {
     return exports;
 }
 
-void WfdSourceNapi::CancelCallbackReference() {
+void WfdSourceNapi::CancelCallbackReference() 
+{
     SHARING_LOGD("trace.");
     std::lock_guard<std::mutex> lock(refMutex_);
     if (jsCallback_ != nullptr) {
@@ -78,7 +80,8 @@ void WfdSourceNapi::CancelCallbackReference() {
     refMap_.clear();
 }
 
-napi_value WfdSourceNapi::Constructor(napi_env env, napi_callback_info info) {
+napi_value WfdSourceNapi::Constructor(napi_env env, napi_callback_info info)
+{
     SHARING_LOGD("trace.");
     napi_status status;
     napi_value result = nullptr;
@@ -142,7 +145,7 @@ napi_value WfdSourceNapi::Constructor(napi_env env, napi_callback_info info) {
     jsCast->jsCallback_->SetWfdSourceNapi(jsCast);
     jsCast->nativeWfdSource_->SetListener(jsCast->jsCallback_);
 
-status = napi_wrap(env, jsThis, reinterpret_cast<void *>(jsCast), finalize, nullptr, nullptr);
+    status = napi_wrap(env, jsThis, reinterpret_cast<void *>(jsCast), finalize, nullptr, nullptr);
     if (status != napi_ok) {
         napi_get_undefined(env, &result);
         delete jsCast;
@@ -154,7 +157,8 @@ status = napi_wrap(env, jsThis, reinterpret_cast<void *>(jsCast), finalize, null
     return jsThis;
 }
 
-napi_value WfdSourceNapi::CreateSource(napi_env env, napi_callback_info info) {
+napi_value WfdSourceNapi::CreateSource(napi_env env, napi_callback_info info)
+{
     SHARING_LOGD("trace.");
     napi_value result = nullptr;
     napi_value constructor = nullptr;
@@ -177,7 +181,8 @@ napi_value WfdSourceNapi::CreateSource(napi_env env, napi_callback_info info) {
     return result;
 }
 
-napi_value WfdSourceNapi::StartDiscovery(napi_env env, napi_callback_info info) {
+napi_value WfdSourceNapi::StartDiscovery(napi_env env, napi_callback_info info)
+{
     SHARING_LOGD("trace.");
     napi_value result = nullptr;
     napi_value jsThis = nullptr;
@@ -212,9 +217,9 @@ napi_value WfdSourceNapi::StartDiscovery(napi_env env, napi_callback_info info) 
     napi_value resource = nullptr;
     napi_create_string_utf8(env, "StartDiscovery", NAPI_AUTO_LENGTH, &resource);
 
-
-    NAPI_CALL(env, napi_create_async_work(env, nullptr, resource, WfdSourceNapi::AsyncWork, WfdSourceNapi::CompleteCallback,
-                                      static_cast<void *>(asyncContext.get()), &asyncContext->work));
+    NAPI_CALL(env, napi_create_async_work(env, nullptr, resource, WfdSourceNapi::AsyncWork,
+                                          WfdSourceNapi::CompleteCallback, static_cast<void *>(asyncContext.get()),
+                                          &asyncContext->work));
     NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
 
     asyncContext.release();
@@ -222,7 +227,8 @@ napi_value WfdSourceNapi::StartDiscovery(napi_env env, napi_callback_info info) 
     return result;
 }
 
-napi_value WfdSourceNapi::StopDiscovery(napi_env env, napi_callback_info info) {
+napi_value WfdSourceNapi::StopDiscovery(napi_env env, napi_callback_info info)
+{
     SHARING_LOGD("trace.");
     napi_value result = nullptr;
     napi_value jsThis = nullptr;
@@ -257,8 +263,9 @@ napi_value WfdSourceNapi::StopDiscovery(napi_env env, napi_callback_info info) {
     napi_value resource = nullptr;
     napi_create_string_utf8(env, "StopDiscovery", NAPI_AUTO_LENGTH, &resource);
 
-    NAPI_CALL(env, napi_create_async_work(env, nullptr, resource, WfdSourceNapi::AsyncWork, WfdSourceNapi::CompleteCallback,
-                                          static_cast<void *>(asyncContext.get()), &asyncContext->work));
+    NAPI_CALL(env, napi_create_async_work(env, nullptr, resource, WfdSourceNapi::AsyncWork, 
+                                          WfdSourceNapi::CompleteCallback,static_cast<void *>(asyncContext.get()), 
+                                          &asyncContext->work));
     NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
 
     asyncContext.release();
@@ -266,7 +273,8 @@ napi_value WfdSourceNapi::StopDiscovery(napi_env env, napi_callback_info info) {
     return result;
 }
 
-void WfdSourceNapi::AsyncWork(napi_env env, void *data) {
+void WfdSourceNapi::AsyncWork(napi_env env, void *data)
+{
     SHARING_LOGD("trace.");
     auto asyncContext = reinterpret_cast<WfdSourceAsyncContext *>(data);
     if (asyncContext == nullptr) {
@@ -317,7 +325,8 @@ void WfdSourceNapi::AsyncWork(napi_env env, void *data) {
     }
 }
 
-void WfdSourceNapi::CompleteCallback(napi_env env, napi_status status, void *data) {
+void WfdSourceNapi::CompleteCallback(napi_env env, napi_status status, void *data)
+{
     SHARING_LOGD("trace.");
     auto asyncContext = reinterpret_cast<WfdSourceAsyncContext *>(data);
     SHARING_CHECK_AND_RETURN_LOG(asyncContext != nullptr, "asyncContext is nullptr!");
@@ -328,7 +337,6 @@ void WfdSourceNapi::CompleteCallback(napi_env env, napi_status status, void *dat
 
     napi_value result = nullptr;
     napi_get_undefined(env, &result);
-
     napi_value args[2] = {nullptr};
     napi_get_undefined(env, &args[0]);
     napi_get_undefined(env, &args[1]);
@@ -365,16 +373,13 @@ void WfdSourceNapi::CompleteCallback(napi_env env, napi_status status, void *dat
         napi_value callback = nullptr;
         napi_get_reference_value(env, asyncContext->callbackRef, &callback);
         SHARING_CHECK_AND_RETURN_LOG(callback != nullptr, "callbackRef is nullptr!");
-
         constexpr size_t argCount = 2;
         napi_value retVal;
         napi_get_undefined(env, &retVal);
         napi_call_function(env, nullptr, callback, argCount, args, &retVal);
         napi_delete_reference(env, asyncContext->callbackRef);
     }
-
     napi_delete_async_work(env, asyncContext->work);
-
     if (asyncContext) {
         delete asyncContext;
         asyncContext = nullptr;
@@ -382,7 +387,8 @@ void WfdSourceNapi::CompleteCallback(napi_env env, napi_status status, void *dat
     SHARING_LOGD("success.");
 }
 
-napi_status WfdSourceNapi::CreateError(napi_env env, int32_t errCode, const std::string &errMsg, napi_value &errVal) {
+napi_status WfdSourceNapi::CreateError(napi_env env, int32_t errCode, const std::string &errMsg, napi_value &errVal)
+{
     SHARING_LOGD("trace.");
     napi_get_undefined(env, &errVal);
 
@@ -451,7 +457,6 @@ napi_status WfdSourceNapi::CreateError(napi_env env, int32_t errCode, const std:
         SHARING_LOGE("set error name property fail.");
         return napi_invalid_arg;
     }
-
     return napi_ok;
 }
 

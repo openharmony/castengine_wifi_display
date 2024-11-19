@@ -41,7 +41,7 @@ static const std::unordered_map<std::string, int32_t> mapDeviceState = {
     {"READY", DeviceState::READY},
     {"PLAYING", DeviceState::PLAYING},
     {"PAUSED", DeviceState::PAUSED},
-    {"STOPPED", DeviceState::STOPPED},};
+    {"STOPPED", DeviceState::STOPPED}};
 
 constexpr int32_t CommonErrorCode = 18800001;
 static const std::unordered_map<std::string, int32_t> mapErrorCode = {{"ERR_OK", 0},
