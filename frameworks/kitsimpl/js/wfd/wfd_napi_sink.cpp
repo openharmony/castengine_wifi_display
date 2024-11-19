@@ -506,23 +506,23 @@ napi_status WfdSinkNapi::CreateError(napi_env env, int32_t errCode, const std::s
         return napi_invalid_arg;
     }
 
-    nstatus = SetProperty(env, errVal, kCodeKey, errCodeVal);
+    nstatus = SetProperty(env, errVal, CODE, errCodeVal);
     if (HandleError(env, "set error code property fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
-    nstatus = SetProperty(env, errVal, kMsgKey, msgValStr);
+    nstatus = SetProperty(env, errVal, MSG_KEY, msgValStr);
     if (HandleError(env, "set error msg property fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
     napi_value errNameVal = nullptr;
-    nstatus = CreateString(env, kErrorName, &errNameVal);
+    nstatus = CreateString(env, ERROR_NAME, &errNameVal);
     if (HandleError(env, "create BusinessError str fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
 
-    nstatus = SetProperty(env, errVal, kNameKey, errNameVal);
+    nstatus = SetProperty(env, errVal, NAME_KEY, errNameVal);
     if (HandleError(env, "set error name property fail.", nstatus, &errVal) != napi_ok) {
         return napi_invalid_arg;
     }
