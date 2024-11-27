@@ -627,7 +627,8 @@ int32_t WfdSinkScene::HandleSetSceneType(std::shared_ptr<SetSceneTypeReq> &msg, 
         }
 
         auto itemSurface = devSurfaceItemMap_.find(msg->surfaceId);
-        if ((itemSurface == devSurfaceItemMap_.end()) || (itemSurface->second) || (itemSurface->second->deleting)) {
+        if (itemSurface == devSurfaceItemMap_.end() || itemSurface->second == nullptr
+            || itemSurface->second->deleting) {
             lock.unlock();
             SHARING_LOGE("can not find surfaceid, surfaceid: %{public}" PRId64 ".", msg->surfaceId);
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleSetSceneType can't find the surfaceId");
