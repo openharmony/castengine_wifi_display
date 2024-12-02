@@ -49,6 +49,7 @@ ohos_unittest("wfd_source_scene_test") {
     "c_utils:utils",
     "graphic_surface:surface",
     "hilog:libhilog",
+    "samgr:samgr_proxy",
     "wifi:wifi_sdk",
   ]
 }
@@ -85,6 +86,7 @@ ohos_unittest("wfd_sink_scene_test") {
     "c_utils:utils",
     "graphic_surface:surface",
     "hilog:libhilog",
+    "samgr:samgr_proxy",
     "wifi:wifi_sdk",
   ]
 }
