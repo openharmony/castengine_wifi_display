@@ -244,6 +244,7 @@ std::shared_ptr<RtcpSdes> RtcpSdes::Create(const std::vector<std::string> &itemT
         itemPtr->txtLen_ = (0xFF & text.size());
         auto ret = memcpy_s(itemPtr->text_, itemPtr->txtLen_ + 1, text.data(), itemPtr->txtLen_ + 1);
         if (ret != EOK) {
+            delete[] (char *)ptr;
             return nullptr;
         }
         itemPtr = (SdesChunk *)((char *)itemPtr + itemPtr->TotalBytes());
