@@ -29,6 +29,10 @@ ClientFactory::ClientFactory()
 ClientFactory::~ClientFactory()
 {
     SHARING_LOGI("~ClientFactory.");
+    if (!interIpcClient_) {
+        SHARING_LOGE("client is null.");
+        return;
+    }
     interIpcClient_.reset();
 }
 
