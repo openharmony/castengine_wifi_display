@@ -30,6 +30,10 @@ void ScreenCaptureConsumer::AudioEncoderReceiver::OnFrame(const Frame::Ptr &fram
         auto dispatcher = listener->GetDispatcher();
         if (dispatcher) {
             auto mediaData = dispatcher->RequestDataBuffer(MEDIA_TYPE_AUDIO, frame->Size());
+            if (mediaData == nullptr) {
+                SHARING_LOGE("mediaData read failed.");
+                return;
+            }
             mediaData->mediaType = MEDIA_TYPE_AUDIO;
             mediaData->codecId = frame->GetCodecId();
             mediaData->isRaw = false;
