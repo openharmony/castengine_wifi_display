@@ -23,6 +23,9 @@ ohos_static_library("sharing_utils") {
     cfi = true
     cfi_cross_dso = true
     debug = false
+    boundary_sanitize = true
+    ubsan = true
+    integer_overflow = true
   }
 
   include_dirs = [

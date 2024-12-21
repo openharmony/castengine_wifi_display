@@ -21,6 +21,9 @@ ohos_shared_library("sharing_network") {
     cfi = true
     cfi_cross_dso = true
     debug = false
+    boundary_sanitize = true
+    ubsan = true
+    integer_overflow = true
   }
 
   include_dirs = [
