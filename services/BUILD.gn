@@ -33,6 +33,9 @@ ohos_shared_library("sharing_service") {
     cfi = true
     cfi_cross_dso = true
     debug = false
+    boundary_sanitize = true
+    ubsan = true
+    integer_overflow = true
   }
 
   deps = [

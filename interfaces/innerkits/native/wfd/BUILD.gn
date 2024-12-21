@@ -38,6 +38,9 @@ ohos_shared_library("sharingwfd_client") {
     cfi = true
     cfi_cross_dso = true
     debug = false
+    boundary_sanitize = true
+    ubsan = true
+    integer_overflow = true
   }
 
   include_dirs = [ "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include" ]
