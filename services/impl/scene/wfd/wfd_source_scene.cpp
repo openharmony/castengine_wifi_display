@@ -227,6 +227,11 @@ void WfdSourceScene::WfdP2pCallback::OnConfigChanged(Wifi::CfgType type, char *d
     SHARING_LOGI("%{public}s.", __FUNCTION__);
 }
 
+void WfdSourceScene::WfdP2pCallback::OnP2pChrErrCodeReport(const int errCode)
+{
+    SHARING_LOGD("%{public}s.", __FUNCTION__);
+}
+
 WfdSourceScene::WfdSourceScene()
 {
     SHARING_LOGD("id: %{public}u.", GetId());
