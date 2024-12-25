@@ -15,4 +15,6 @@ SHARING_ROOT_DIR = "//foundation/CastEngine/castengine_wifi_display"
 
 declare_args() {
   sharing_framework_support_wfd = true
+  wifi_display_support_sink = true
+  wifi_display_support_source = true
 }
