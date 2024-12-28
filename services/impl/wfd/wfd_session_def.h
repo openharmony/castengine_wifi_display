@@ -59,7 +59,8 @@ struct WfdSinkSessionEventMsg : public SessionEventMsg {
     uint16_t localPort = 0;
     uint16_t remotePort = 0;
 
-    std::string ip;
+    std::string remoteIp;
+    std::string localIp;
     std::string mac;
 
     AudioFormat audioFormat = AUDIO_48000_16_2;

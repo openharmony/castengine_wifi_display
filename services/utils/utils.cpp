@@ -26,6 +26,8 @@
 
 namespace OHOS {
 namespace Sharing {
+constexpr int IP_LEN = 64;
+
 unsigned long long GetThreadId()
 {
     std::thread::id tid = std::this_thread::get_id();
@@ -333,5 +335,39 @@ std::string GetAnonyString(const std::string &value)
     return result;
 }
 
+std::string GetLocalP2pAddress(const std::string &interface)
+{
+    if (interface.empty()) {
+        return "";
+    }
+
+    int32_t socketFd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (socketFd < 0) {
+        SHARING_LOGE("open socket failed, socketFd=%{public}d", socketFd);
+        return "";
+    }
+
+    struct ifreq request;
+    if (strncpy_s(request.ifr_name, sizeof(request.ifr_name), interface.c_str(), interface.length()) != 0) {
+        SHARING_LOGE("copy netIfName:%s fail", interface.c_str());
+        return "";
+    }
+
+    int32_t ret = ioctl(socketFd, SIOCGIFADDR, &request);
+    close(socketFd);
+    if (ret < 0) {
+        SHARING_LOGE("get ifr conf failed = %{public}d, error %{public}s", ret, strerror(errno));
+        return "";
+    }
+
+    auto sockAddrIn = reinterpret_cast<sockaddr_in*>(&request.ifr_addr);
+    char ipString[IP_LEN] = {0};
+    if (inet_ntop(sockAddrIn->sin_family, &sockAddrIn->sin_addr, ipString, IP_LEN) == nullptr) {
+        SHARING_LOGE("inet_ntop failed");
+        return "";
+    }
+
+    return std::string(ipString);
+}
 } // namespace Sharing
 } // namespace OHOS

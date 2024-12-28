@@ -68,6 +68,7 @@ private:
     bool isFirstKeyFrame_ = true;
 
     uint16_t port_ = 0;
+    std::string localIp_;
     int32_t frameNums_ = 1;
     uint32_t contextId_ = 0;
 
