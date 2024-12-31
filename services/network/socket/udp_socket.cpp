@@ -19,6 +19,8 @@
 
 namespace OHOS {
 namespace Sharing {
+constexpr int32_t RECV_BUFFER_SIZE = 640 * 1024;
+
 UdpSocket::UdpSocket()
 {
     SHARING_LOGD("trace.");
@@ -46,7 +48,7 @@ bool UdpSocket::Bind(const uint16_t port, const std::string &host, bool enableRe
 
     SocketUtils::SetNonBlocking(fd);
     SocketUtils::SetSendBuf(fd);
-    SocketUtils::SetRecvBuf(fd);
+    SocketUtils::SetRecvBuf(fd, RECV_BUFFER_SIZE);
     SocketUtils::SetCloseWait(fd);
     SocketUtils::SetCloExec(fd, true);
 
