@@ -65,6 +65,7 @@ void WfdRtpConsumer::HandleProsumerInitState(SharingEvent &event)
     auto msg = ConvertEventMsg<WfdConsumerEventMsg>(event);
     if (msg) {
         port_ = msg->port;
+        localIp_ = msg->ip;
         if (msg->audioTrack.codecId != CodecId::CODEC_NONE) {
             audioTrack_ = msg->audioTrack;
         }
@@ -342,7 +343,11 @@ void WfdRtpConsumer::OnServerReadData(int32_t fd, DataBuffer::Ptr buf, INetworkS
 bool WfdRtpConsumer::StartNetworkServer(uint16_t port, NetworkFactory::ServerPtr &server, int32_t &fd)
 {
     SHARING_LOGD("trace.");
-    if (!NetworkFactory::CreateUdpServer(port, DEFAULT_P2P_IPADDR, shared_from_this(), server)) {
+    if (localIp_.empty()) {
+        localIp_ = DEFAULT_P2P_IPADDR;
+    }
+
+    if (!NetworkFactory::CreateUdpServer(port, localIp_, shared_from_this(), server)) {
         server.reset();
         return false;
     }

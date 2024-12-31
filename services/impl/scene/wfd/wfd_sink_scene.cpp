@@ -27,6 +27,9 @@
 
 namespace OHOS {
 namespace Sharing {
+constexpr int P2P_LISTEN_INTERVAL = 500;
+constexpr int P2P_LISTEN_PERIOD = 500;
+const std::string DEFAULT_P2P_IPADDR = "192.168.49.1";
 
 void WfdSinkScene::WfdP2pCallback::OnP2pStateChanged(int32_t state)
 {
@@ -94,6 +97,17 @@ void WfdSinkScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::Wif
                     parent->OnP2pPeerDisconnected(connectionInfo);
                     break;
                 }
+                case Wifi::P2pDeviceStatus::PDS_CONNECTED: {
+                    parent->currentConnectDev_.mac = itDev.GetDeviceAddress();
+                    parent->currentConnectDev_.deviceName = itDev.GetDeviceName();
+                    parent->currentConnectDev_.primaryDeviceType = itDev.GetPrimaryDeviceType();
+                    parent->currentConnectDev_.secondaryDeviceType = itDev.GetSecondaryDeviceType();
+                    parent->currentConnectDev_.ctrlPort = itDev.GetWfdInfo().GetCtrlPort();
+                    parent->currentConnectDev_.ip = "";
+                    parent->currentConnectDev_.state = ConnectionState::CONNECTED;
+                    break;
+                }
+
                 default:
                     SHARING_LOGI("none process case.");
                     break;
@@ -114,12 +128,52 @@ void WfdSinkScene::WfdP2pCallback::OnP2pServicesChanged(const std::vector<Wifi::
 
 void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLinkedInfo &info)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("trace");
+    auto parent = parent_.lock();
+    RETURN_IF_NULL(parent);
+    if (!parent->isSinkRunning_) {
+        return;
+    }
+
+    Wifi::P2pConnectedState state = info.GetConnectState();
+    if (state == Wifi::P2pConnectedState::P2P_DISCONNECTED) {
+        SHARING_LOGI("OnP2pConnectionChanged disconnected");
+        parent->localIp_ = "";
+        parent->WfdP2pStart();
+        return;
+    }
+
+    Wifi::WifiP2pGroupInfo group;
+    if (Wifi::ErrCode::WIFI_OPT_SUCCESS != parent->p2pInstance_->GetCurrentGroup(group)) {
+        SHARING_LOGE("GetCurrentGroup failed");
+        return;
+    }
+    SHARING_LOGI("group frequency %{public}d", group.GetFrequency());
+    if (info.IsGroupOwner()) {
+        SHARING_LOGI("sink is go");
+        parent->localIp_ = info.GetGroupOwnerAddress();
+        return;
+    } else {
+        SHARING_LOGI("sink is gc");
+        std::string remoteIp = info.GetGroupOwnerAddress();
+        if (remoteIp == "" || remoteIp == "0.0.0.0") {
+            remoteIp = DEFAULT_P2P_IPADDR;
+        }
+        parent->currentConnectDev_.ip = remoteIp;
+        std::string interface = group.GetInterface();
+        parent->localIp_ = GetLocalP2pAddress(interface);
+        if (parent->localIp_.empty()) {
+            SHARING_LOGW("get local ip failed");
+            return;
+        }
+    }
+    parent->p2pInstance_->StopP2pListen();
+    parent->OnP2pPeerConnected(parent->currentConnectDev_);
 }
 
 void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &info)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("trace.");
     auto parent = parent_.lock();
     if (parent && parent->p2pInstance_) {
         std::vector<Wifi::WifiP2pDevice> devices;
@@ -137,6 +191,9 @@ void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &in
         }
 
         for (auto itDev : devices) {
+            if (itDev.GetDeviceAddress() != info.mac) {
+                continue;
+            }
             ConnectionInfo connectionInfo;
             connectionInfo.ip = info.ip;
             connectionInfo.mac = itDev.GetDeviceAddress();
@@ -144,8 +201,10 @@ void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &in
             connectionInfo.secondaryDeviceType = itDev.GetSecondaryDeviceType();
             connectionInfo.ctrlPort = itDev.GetWfdInfo().GetCtrlPort();
             connectionInfo.state = ConnectionState::CONNECTED;
+            parent->currentConnectDev_ = connectionInfo;
             SHARING_LOGD("device connected, mac: %{private}s, ip: %{private}s, port: %{private}d",
                          connectionInfo.mac.c_str(), connectionInfo.ip.c_str(), connectionInfo.ctrlPort);
+            parent->p2pInstance_->StopP2pListen();
             parent->OnP2pPeerConnected(connectionInfo);
             return;
         }
@@ -154,7 +213,7 @@ void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &in
 
 void WfdSinkScene::WfdP2pCallback::OnP2pGcLeaveGroup(const OHOS::Wifi::GcInfo &info)
 {
-    return;
+    SHARING_LOGD("trace.");
 }
 
 void WfdSinkScene::WfdP2pCallback::OnP2pDiscoveryChanged(bool isChange)
@@ -164,7 +223,7 @@ void WfdSinkScene::WfdP2pCallback::OnP2pDiscoveryChanged(bool isChange)
 
 void WfdSinkScene::WfdP2pCallback::OnP2pActionResult(Wifi::P2pActionCallback action, Wifi::ErrCode code)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("action %{public}hhu, code %{public}d", action, code);
 }
 
 void WfdSinkScene::WfdP2pCallback::OnConfigChanged(Wifi::CfgType type, char *data, int32_t dataLen)
@@ -240,7 +299,7 @@ void WfdSinkScene::Initialize()
     RETURN_IF_NULL(p2pInstance_);
     sptr<WfdP2pCallback> wfdP2pCallback(new WfdP2pCallback(shared_from_this()));
     std::vector<std::string> event = {EVENT_P2P_PEER_DEVICE_CHANGE, EVENT_P2P_CONN_STATE_CHANGE,
-                                      EVENT_P2P_GC_JOIN_GROUP, EVENT_P2P_GC_LEAVE_GROUP};
+                                      EVENT_P2P_GC_JOIN_GROUP, EVENT_P2P_GC_LEAVE_GROUP, EVENT_P2P_ACTION_RESULT};
     p2pInstance_->RegisterCallBack(wfdP2pCallback, event);
 }
 
@@ -719,7 +778,8 @@ int32_t WfdSinkScene::HandlePlay(std::shared_ptr<WfdPlayReq> &msg, std::shared_p
         startSessionMsg->toMgr = MODULE_CONTEXT;
         startSessionMsg->dstId = contextId;
         startSessionMsg->agentId = agentId;
-        startSessionMsg->ip = itemDev->second->ip;
+        startSessionMsg->remoteIp = itemDev->second->ip;
+        startSessionMsg->localIp = localIp_;
         startSessionMsg->mac = itemDev->second->mac;
         startSessionMsg->remotePort = itemDev->second->ctrlPort;
         startSessionMsg->videoFormat = itemDev->second->videoFormatId;
@@ -915,10 +975,8 @@ int32_t WfdSinkScene::HandleGetConfig(std::shared_ptr<GetSinkConfigReq> &msg, st
 
 void WfdSinkScene::WfdP2pStart()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("trace.");
     if (p2pInstance_) {
-        p2pInstance_->RemoveGroup();
-
         Wifi::WifiP2pWfdInfo wfdInfo;
         wfdInfo.SetWfdEnabled(true);
         wfdInfo.SetDeviceInfo(0x11);
@@ -926,33 +984,13 @@ void WfdSinkScene::WfdP2pStart()
         wfdInfo.SetMaxThroughput(0x00c8);
 
         p2pInstance_->SetP2pWfdInfo(wfdInfo);
-
-        SHARING_LOGD("WfdSinkScene CreateGroup.");
-        std::vector<Wifi::WifiP2pGroupInfo> p2pGroups;
-        p2pInstance_->QueryP2pGroups(p2pGroups);
-
-        int32_t netWokrId = -2;
-        if (!p2pGroups.empty()) {
-            SHARING_LOGD("WfdSinkScene p2p group exists, the netWorkId:%{public}d.", netWokrId);
-        }
-
-        Wifi::WifiP2pDevice p2pDev;
-        p2pInstance_->QueryP2pLocalDevice(p2pDev);
-        auto hostAddr = p2pDev.GetDeviceAddress();
-
-        Wifi::WifiP2pConfig cfg;
-        cfg.SetGoBand(Wifi::GroupOwnerBand::GO_BAND_5GHZ);
-        cfg.SetNetId(netWokrId);
-        cfg.SetDeviceAddress(hostAddr);
-
-        p2pInstance_->CreateGroup(cfg);
-        SHARING_LOGD("WfdSinkScene DiscoverDevices.");
+        p2pInstance_->StartP2pListen(P2P_LISTEN_PERIOD, P2P_LISTEN_INTERVAL);
     }
 }
 
 void WfdSinkScene::WfdP2pStop()
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("trace.");
     std::unique_lock<std::mutex> lock(mutex_);
     auto sharingAdapter = sharingAdapter_.lock();
     if (sharingAdapter != nullptr) {
@@ -979,10 +1017,7 @@ void WfdSinkScene::WfdP2pStop()
     }
 
     if (p2pInstance_) {
-        SHARING_LOGW("DisableP2p before.");
-        p2pInstance_->StopDiscoverDevices();
-        p2pInstance_->RemoveGroup();
-        SHARING_LOGW("DisableP2p end.");
+        p2pInstance_->StopP2pListen();
     }
 
     devSurfaceItemMap_.clear();

@@ -18,7 +18,13 @@
 
 #include <regex>
 #include <string>
+#include <cstring>
 #include <vector>
+#include <net/if.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 namespace OHOS {
 namespace Sharing {
@@ -109,6 +115,7 @@ void SetBE32(void *p, uint32_t val);
 void SetLE32(void *p, uint32_t val);
 
 std::string GetAnonyString(const std::string &value);
+std::string GetLocalP2pAddress(const std::string &interface);
 } // namespace Sharing
 } // namespace OHOS
 #endif

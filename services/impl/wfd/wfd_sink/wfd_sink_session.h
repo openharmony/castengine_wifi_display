@@ -100,6 +100,7 @@ private:
     std::string rtspSession_;
     std::string lastMessage_;
     std::string remoteRtspIp_;
+    std::string localIp_;
 
     std::unique_ptr<TimeoutTimer> timeoutTimer_ = nullptr;
     std::unique_ptr<TimeoutTimer> keepAliveTimer_ = nullptr;

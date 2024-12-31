@@ -21,6 +21,7 @@
 #include <unordered_set>
 #include "agent/agent_def.h"
 #include "interaction/scene/base_scene.h"
+#include "utils/utils.h"
 #include "wfd_def.h"
 #include "wfd_msg.h"
 #include "wifi_p2p.h"
@@ -128,6 +129,8 @@ private:
     int32_t accessDevMaximum_ = ACCESS_DEV_MAX_NUMBER;
     int32_t foregroundMaximum_ = FOREGROUND_SURFACE_MAX_NUMBER;
 
+    std::string localIp_;
+    ConnectionInfo currentConnectDev_;
     std::mutex mutex_;
     std::shared_ptr<Wifi::WifiP2p> p2pInstance_;
     std::map<uint64_t, std::shared_ptr<DevSurfaceItem>> devSurfaceItemMap_;

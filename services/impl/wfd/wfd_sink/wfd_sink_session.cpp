@@ -102,15 +102,18 @@ void WfdSinkSession::HandleSessionInit(SharingEvent &event)
     auto inputMsg = ConvertEventMsg<WfdSinkSessionEventMsg>(event);
     if (inputMsg) {
         remoteMac_ = inputMsg->mac;
-        remoteRtspIp_ = inputMsg->ip;
+        remoteRtspIp_ = inputMsg->remoteIp;
         remoteRtspPort_ = inputMsg->remotePort != 0 ? inputMsg->remotePort : DEFAULT_WFD_CTRLPORT;
         localRtpPort_ = inputMsg->localPort;
-
+        localIp_ = inputMsg->localIp;
         videoFormat_ = inputMsg->videoFormat;
         audioFormat_ = inputMsg->audioFormat;
     } else {
         SHARING_LOGE("unknow event msg.");
     }
+
+    SHARING_LOGI("sessionInit localIp: %{public}s, remoteIp: %{public}s", GetAnonyString(localIp_).c_str(),
+        GetAnonyString(remoteRtspIp_).c_str());
 }
 
 void WfdSinkSession::HandleProsumerInitState(SharingEvent &event)
@@ -250,6 +253,7 @@ void WfdSinkSession::NotifyProsumerInit(SessionStatusMsg::Ptr &statusMsg)
     eventMsg->type = EventType::EVENT_WFD_MEDIA_INIT;
     eventMsg->toMgr = ModuleType::MODULE_MEDIACHANNEL;
     eventMsg->port = localRtpPort_;
+    eventMsg->ip = localIp_;
 
     Common::SetVideoTrack(eventMsg->videoTrack, videoFormat_);
     Common::SetAudioTrack(eventMsg->audioTrack, audioFormat_);
