@@ -21,10 +21,14 @@
 #include <unordered_set>
 #include "agent/agent_def.h"
 #include "interaction/scene/base_scene.h"
+#include "interaction/device_kit/dm_kit.h"
 #include "utils/utils.h"
 #include "wfd_def.h"
 #include "wfd_msg.h"
 #include "wifi_p2p.h"
+#include "i_wifi_device_callback.h"
+#include "wifi_device.h"
+#include "dm_constants.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -55,6 +59,24 @@ public:
         void OnP2pPrivatePeersChanged(const std::string &priWfdInfo) override;
         void OnP2pActionResult(Wifi::P2pActionCallback action, Wifi::ErrCode code) override;
         void OnP2pServicesChanged(const std::vector<Wifi::WifiP2pServiceInfo> &srvInfo) override;
+
+    private:
+        std::weak_ptr<WfdSinkScene> parent_;
+    };
+
+    class WifiCallback : public Wifi::IWifiDeviceCallBack {
+    public:
+        sptr<IRemoteObject> AsObject() override { return nullptr; }
+
+    public:
+        explicit WifiCallback(std::weak_ptr<WfdSinkScene> parent) : parent_(parent) {}
+
+        void OnWifiStateChanged(int state) override;
+        void OnWifiConnectionChanged(int state, const OHOS::Wifi::WifiLinkedInfo &info) override;
+        void OnWifiRssiChanged(int rssi) override;
+        void OnWifiWpsStateChanged(int state, const std::string &pinCode) override;
+        void OnStreamChanged(int direction) override;
+        void OnDeviceConfigChanged(OHOS::Wifi::ConfigChange value) override;
 
     private:
         std::weak_ptr<WfdSinkScene> parent_;
@@ -92,6 +114,10 @@ protected:
     void OnRequest(std::shared_ptr<BaseMsg> msg, std::shared_ptr<BaseMsg> &reply) final;
 
 private:
+    void InitP2pName();
+    void RegisterP2pListener();
+    void RegisterWifiStatusChangeListener();
+
     void WfdP2pStop();
     void WfdP2pStart();
 

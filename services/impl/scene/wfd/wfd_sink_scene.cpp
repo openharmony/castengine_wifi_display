@@ -25,6 +25,7 @@
 #include "utils/utils.h"
 #include "wfd_session_def.h"
 
+using namespace OHOS::DistributedHardware;
 namespace OHOS {
 namespace Sharing {
 constexpr int P2P_LISTEN_INTERVAL = 500;
@@ -107,7 +108,6 @@ void WfdSinkScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::Wif
                     parent->currentConnectDev_.state = ConnectionState::CONNECTED;
                     break;
                 }
-
                 default:
                     SHARING_LOGI("none process case.");
                     break;
@@ -231,6 +231,42 @@ void WfdSinkScene::WfdP2pCallback::OnConfigChanged(Wifi::CfgType type, char *dat
     SHARING_LOGD("trace.");
 }
 
+void WfdSinkScene::WifiCallback::OnWifiStateChanged(int state)
+{
+    SHARING_LOGI("OnWifiStateChanged state %{public}d", state);
+    if (state == static_cast<int32_t>(Wifi::WifiState::ENABLED)) {
+        auto parent = parent_.lock();
+        if (parent && parent->isSinkRunning_) {
+            parent->WfdP2pStart();
+        }
+    }
+}
+
+void WfdSinkScene::WifiCallback::OnWifiConnectionChanged(int state, const OHOS::Wifi::WifiLinkedInfo &info)
+{
+    SHARING_LOGD("trace.");
+}
+
+void WfdSinkScene::WifiCallback::OnWifiRssiChanged(int rssi)
+{
+    SHARING_LOGD("trace.");
+}
+
+void WfdSinkScene::WifiCallback::OnWifiWpsStateChanged(int state, const std::string &pinCode)
+{
+    SHARING_LOGD("trace.");
+}
+
+void WfdSinkScene::WifiCallback::OnStreamChanged(int direction)
+{
+    SHARING_LOGD("trace.");
+}
+
+void WfdSinkScene::WifiCallback::OnDeviceConfigChanged(OHOS::Wifi::ConfigChange value)
+{
+    SHARING_LOGD("trace.");
+}
+
 WfdSinkScene::WfdSinkScene()
 {
     SHARING_LOGI("id: %{public}u.", GetId());
@@ -295,12 +331,41 @@ void WfdSinkScene::Initialize()
         audioFormatId_ = static_cast<AudioFormat>(audioFormat);
     }
 
+    RegisterP2pListener();
+    RegisterWifiStatusChangeListener();
+    InitP2pName();
+}
+
+void WfdSinkScene::InitP2pName()
+{
+    DmKit::InitDeviceManager();
+    DmDeviceInfo localDevice = {};
+    if (DeviceManager::GetInstance().GetLocalDeviceInfo(DM_PKG_NAME, localDevice) != DM_OK) {
+        SHARING_LOGW("getLocalDeviceInfo from dm failed");
+    } else {
+        if (p2pInstance_) {
+            p2pInstance_->SetP2pDeviceName(localDevice.deviceName);
+        }
+    }
+}
+
+void WfdSinkScene::RegisterP2pListener()
+{
     p2pInstance_ = Wifi::WifiP2p::GetInstance(WIFI_P2P_ABILITY_ID);
     RETURN_IF_NULL(p2pInstance_);
     sptr<WfdP2pCallback> wfdP2pCallback(new WfdP2pCallback(shared_from_this()));
     std::vector<std::string> event = {EVENT_P2P_PEER_DEVICE_CHANGE, EVENT_P2P_CONN_STATE_CHANGE,
                                       EVENT_P2P_GC_JOIN_GROUP, EVENT_P2P_GC_LEAVE_GROUP, EVENT_P2P_ACTION_RESULT};
     p2pInstance_->RegisterCallBack(wfdP2pCallback, event);
+}
+
+void WfdSinkScene::RegisterWifiStatusChangeListener()
+{
+    auto deviceInstance = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
+    RETURN_IF_NULL(deviceInstance);
+    auto callback = sptr<Wifi::IWifiDeviceCallBack> (new WifiCallback(shared_from_this()));
+    std::vector<std::string> events = {EVENT_STA_POWER_STATE_CHANGE};
+    deviceInstance->RegisterCallBack(callback, events);
 }
 
 void WfdSinkScene::Release()

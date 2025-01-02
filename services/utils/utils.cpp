@@ -350,6 +350,7 @@ std::string GetLocalP2pAddress(const std::string &interface)
     struct ifreq request;
     if (strncpy_s(request.ifr_name, sizeof(request.ifr_name), interface.c_str(), interface.length()) != 0) {
         SHARING_LOGE("copy netIfName:%s fail", interface.c_str());
+        close(socketFd);
         return "";
     }
 
