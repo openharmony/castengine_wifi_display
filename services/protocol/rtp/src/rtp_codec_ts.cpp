@@ -54,12 +54,8 @@ void RtpDecoderTs::Release()
     }
 
     if (avioContext_) {
+        av_freep(&avioContext_->buffer);
         avio_context_free(&avioContext_);
-    }
-
-    if (avioCtxBuffer_) {
-        av_free(avioCtxBuffer_);
-        avioCtxBuffer_ = nullptr;
     }
 }
 
@@ -98,10 +94,9 @@ void RtpDecoderTs::StartDecoding()
         return;
     }
 
-    avioCtxBuffer_ = (uint8_t *)av_malloc(FF_BUFFER_SIZE);
-
+    auto buffer = (uint8_t *)av_malloc(FF_BUFFER_SIZE);
     avioContext_ =
-        avio_alloc_context(avioCtxBuffer_, FF_BUFFER_SIZE, 0, this, &RtpDecoderTs::StaticReadPacket, nullptr, nullptr);
+        avio_alloc_context(buffer, FF_BUFFER_SIZE, 0, this, &RtpDecoderTs::StaticReadPacket, nullptr, nullptr);
     if (avioContext_ == nullptr) {
         SHARING_LOGE("avio_alloc_context failed.");
         return;

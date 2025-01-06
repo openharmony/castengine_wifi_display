@@ -67,6 +67,7 @@ public:
 
     int32_t GetSinkConfig(SinkConfig &config) override;
     int32_t AppendSurface(std::string deviceId, uint64_t surfaceId) override;
+    int32_t AppendSurface(std::string deviceId, sptr<IBufferProducer> producer) override;
     int32_t RemoveSurface(std::string deviceId, uint64_t surfaceId) override;
 
     int32_t SetListener(const std::shared_ptr<IWfdEventListener> &callback) override;

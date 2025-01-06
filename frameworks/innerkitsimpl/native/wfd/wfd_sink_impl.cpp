@@ -107,21 +107,23 @@ int32_t WfdSinkImpl::AppendSurface(std::string deviceId, uint64_t surfaceId)
 {
     SHARING_LOGD("add device: %{public}s, surfaceId: %{public}" PRIx64 ".", GetAnonyString(deviceId).c_str(),
                  surfaceId);
-    auto ipcAdapter = ipcAdapter_.lock();
-    RETURN_INVALID_IF_NULL(ipcAdapter);
-
     auto surface = SurfaceUtils::GetInstance()->GetSurface(surfaceId);
     if (nullptr == surface) {
         SHARING_LOGE("get surface failed.");
         return -1;
     }
+    return AppendSurface(deviceId, surface->GetProducer());
+}
 
-    sptr<IBufferProducer> producer = surface->GetProducer();
+int32_t WfdSinkImpl::AppendSurface(std::string deviceId, sptr<IBufferProducer> producer)
+{
+    SHARING_LOGD("add surface by buffer, device: %{public}s" PRIx64 ".", GetAnonyString(deviceId).c_str());
     if (nullptr == producer) {
         SHARING_LOGE("producer object is null.");
         return -1;
     }
-
+    auto ipcAdapter = ipcAdapter_.lock();
+    RETURN_INVALID_IF_NULL(ipcAdapter);
     sptr<IRemoteObject> object = producer->AsObject();
     if (nullptr == object) {
         SHARING_LOGE("surface object is null.");
