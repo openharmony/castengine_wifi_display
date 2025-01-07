@@ -27,11 +27,11 @@ AudioPlayer::~AudioPlayer()
     Release();
 }
 
-bool AudioPlayer::Init(CodecId audioCodecId)
+bool AudioPlayer::Init(const AudioTrack &audioTrack)
 {
     SHARING_LOGD("trace.");
     playerId_ = GetId();
-    audioCodecId_ = audioCodecId;
+    audioCodecId_ = audioTrack.codecId;
     audioSink_ = std::make_shared<AudioSink>(playerId_);
     audioDecoderReceiver_ = std::make_shared<AudioDecoderReceiver>(audioSink_);
 
@@ -41,15 +41,8 @@ bool AudioPlayer::Init(CodecId audioCodecId)
         return false;
     }
 
-    audioDecoder_->Init();
-    return true;
-}
-
-bool AudioPlayer::SetAudioFormat(int32_t channel, int32_t sampleRate)
-{
-    SHARING_LOGD("trace.");
-    channel_ = channel;
-    sampleRate_ = sampleRate;
+    audioTrack_ = audioTrack;
+    audioDecoder_->Init(audioTrack_);
     return true;
 }
 
@@ -67,12 +60,13 @@ bool AudioPlayer::Start()
         return false;
     }
 
-    if (audioSink_->Prepare(channel_, sampleRate_) != 0 || audioSink_->Start() != 0) {
+    if (audioSink_->Prepare(audioTrack_.channels, audioTrack_.sampleRate) != 0 || audioSink_->Start() != 0) {
         SHARING_LOGE("audio player start failed.");
         return false;
     }
 
     audioDecoder_->AddAudioDestination(audioDecoderReceiver_);
+    audioDecoder_->Start();
     isRunning_ = true;
     return true;
 }
@@ -91,6 +85,7 @@ void AudioPlayer::Stop()
     if (isRunning_) {
         if (audioDecoder_) {
             audioDecoder_->RemoveAudioDestination(audioDecoderReceiver_);
+            audioDecoder_->Stop();
         }
         if (audioSink_) {
             audioSink_->Stop();
@@ -105,6 +100,9 @@ void AudioPlayer::Release()
     if (audioSink_ != nullptr) {
         audioSink_->Release();
         audioSink_ = nullptr;
+    }
+    if (audioDecoder_ == nullptr) {
+        audioDecoder_->Release();
     }
 }
 

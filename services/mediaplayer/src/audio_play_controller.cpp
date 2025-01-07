@@ -46,8 +46,7 @@ bool AudioPlayController::Init(AudioTrack &audioTrack)
     }
 
     audioPlayer_ = std::make_shared<AudioPlayer>();
-    if (!audioPlayer_->Init(audioTrack.codecId) ||
-        !audioPlayer_->SetAudioFormat(audioTrack.channels, audioTrack.sampleRate)) {
+    if (!audioPlayer_->Init(audioTrack)) {
         SHARING_LOGE("audio play init error.");
         return false;
     }
