@@ -231,6 +231,11 @@ void WfdSinkScene::WfdP2pCallback::OnConfigChanged(Wifi::CfgType type, char *dat
     SHARING_LOGD("trace.");
 }
 
+void WfdSinkScene::WfdP2pCallback::OnP2pChrErrCodeReport(const int errCode)
+{
+    SHARING_LOGD("trace.");
+}
+
 void WfdSinkScene::WifiCallback::OnWifiStateChanged(int state)
 {
     SHARING_LOGI("OnWifiStateChanged state %{public}d", state);

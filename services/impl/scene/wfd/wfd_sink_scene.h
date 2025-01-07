@@ -59,6 +59,7 @@ public:
         void OnP2pPrivatePeersChanged(const std::string &priWfdInfo) override;
         void OnP2pActionResult(Wifi::P2pActionCallback action, Wifi::ErrCode code) override;
         void OnP2pServicesChanged(const std::vector<Wifi::WifiP2pServiceInfo> &srvInfo) override;
+        void OnP2pChrErrCodeReport(const int errCode) override;
 
     private:
         std::weak_ptr<WfdSinkScene> parent_;
