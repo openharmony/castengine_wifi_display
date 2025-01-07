@@ -573,6 +573,7 @@ void WfdSinkSession::HandleM7Response(const RtspResponse &response, const std::s
         NotifyServiceError();
         return;
     }
+    NotifyAgentPrivateEvent(EVENT_WFD_NOTIFY_RTSP_PLAYED);
 
     wfdState_ = WfdSessionState::PLAYING;
     SHARING_LOGI("WFD RTSP PLAY ok, start receiver to recv the stream.");
@@ -598,16 +599,20 @@ void WfdSinkSession::HandleM8Response(const RtspResponse &response, const std::s
     }
 
     // notify wfd scene rtsp teardown
+    NotifyAgentPrivateEvent(EVENT_WFD_NOTIFY_RTSP_TEARDOWN);
+    SHARING_LOGI("WFD RTSP TEARDOWN ok, stop recv the stream, disconnect socket.");
+}
+
+void WfdSinkSession::NotifyAgentPrivateEvent(EventType type)
+{
     auto statusMsg = std::make_shared<SessionStatusMsg>();
     auto eventMsg = std::make_shared<WfdSceneEventMsg>();
-    eventMsg->type = EventType::EVENT_WFD_NOTIFY_RTSP_TEARDOWN;
+    eventMsg->type = type;
     eventMsg->toMgr = ModuleType::MODULE_INTERACTION;
     eventMsg->mac = remoteMac_;
     statusMsg->msg = std::move(eventMsg);
     statusMsg->status = NOTIFY_SESSION_PRIVATE_EVENT;
-
     NotifyAgentSessionStatus(statusMsg);
-    SHARING_LOGI("WFD RTSP TEARDOWN ok, stop recv the stream, disconnect socket.");
 }
 
 void WfdSinkSession::HandleCommonResponse(const RtspResponse &response, const std::string &message)

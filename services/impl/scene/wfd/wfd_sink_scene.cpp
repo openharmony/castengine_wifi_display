@@ -673,6 +673,8 @@ int32_t WfdSinkScene::HandleAppendSurface(std::shared_ptr<WfdAppendSurfaceReq> &
                 sharingAdapter->AppendSurface(itemDev->second->contextId, itemDev->second->agentId, surfacePtr,
                                               devSurfaceItem->sceneType);
             }
+            itemDev->second->state = ConnectionState::PLAYING;
+            OnConnectionChanged(*itemDev->second);
         }
     }
     return 0;

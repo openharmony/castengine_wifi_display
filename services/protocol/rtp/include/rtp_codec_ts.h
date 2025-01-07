@@ -51,7 +51,6 @@ private:
     bool exit_ = false;
     int videoStreamIndex_ = -1;
     int audioStreamIndex_ = -1;
-    uint8_t *avioCtxBuffer_ = nullptr;
 
     std::mutex queueMutex_;
     std::queue<RtpPacket::Ptr> dataQueue_;

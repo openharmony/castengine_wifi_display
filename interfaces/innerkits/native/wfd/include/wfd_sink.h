@@ -38,6 +38,7 @@ public:
     virtual int32_t GetSinkConfig(SinkConfig &sinkConfig) = 0;
 
     virtual int32_t AppendSurface(std::string deviceId, uint64_t surfaceId) = 0;
+    virtual int32_t AppendSurface(std::string deviceId, sptr<IBufferProducer> producer) = 0;
     virtual int32_t RemoveSurface(std::string deviceId, uint64_t surfaceId) = 0;
 
     virtual int32_t SetListener(const std::shared_ptr<IWfdEventListener> &listener) = 0;

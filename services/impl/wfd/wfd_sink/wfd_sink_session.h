@@ -61,6 +61,7 @@ private:
     void HandleSessionInit(SharingEvent &event);
     void HandleProsumerInitState(SharingEvent &event);
 
+    void NotifyAgentPrivateEvent(EventType type);
     void NotifySessionInterrupted();
     void NotifyServiceError(SharingErrorCode errorCode = ERR_INTERACTION_FAILURE);
 
