@@ -40,7 +40,7 @@ public:
     AudioAACDecoder();
     ~AudioAACDecoder();
 
-    int32_t Init(const AudioTrack &audioTrack) override;
+    int32_t Init() override;
     void OnFrame(const Frame::Ptr &frame) override;
 
 private:

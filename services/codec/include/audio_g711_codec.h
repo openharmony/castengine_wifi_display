@@ -46,7 +46,7 @@ public:
     AudioG711Decoder(G711_TYPE type);
     ~AudioG711Decoder();
 
-    int Init(const AudioTrack &audioDecoder) override;
+    int Init() override;
     void OnFrame(const Frame::Ptr &frame) override;
 
 private:

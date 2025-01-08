@@ -75,7 +75,7 @@ AudioAACDecoder::~AudioAACDecoder()
     }
 }
 
-int32_t AudioAACDecoder::Init(const AudioTrack &audioTrack)
+int32_t AudioAACDecoder::Init()
 {
     SHARING_LOGD("trace.");
     const AVCodec *dec = avcodec_find_decoder(AV_CODEC_ID_AAC);
