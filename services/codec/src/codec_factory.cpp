@@ -15,7 +15,6 @@
 
 #include "codec_factory.h"
 #include "audio_aac_codec.h"
-#include "audio_avcodec_decoder.h"
 #include "audio_g711_codec.h"
 #include "audio_pcm_processor.h"
 #include "sharing_log.h"
@@ -60,7 +59,7 @@ std::shared_ptr<AudioDecoder> CodecFactory::CreateAudioDecoder(CodecId format)
             decoder.reset(new AudioG711Decoder(G711_TYPE::G711_ULAW));
             break;
         case CODEC_AAC:
-            decoder.reset(new AudioAvCodecDecoder());
+            decoder.reset(new AudioAACDecoder());
             break;
         default:
             SHARING_LOGE("unsupported codec format %{public}d.", (int32_t)format);

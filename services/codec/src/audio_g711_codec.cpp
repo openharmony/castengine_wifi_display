@@ -68,7 +68,7 @@ AudioG711Decoder::AudioG711Decoder(G711_TYPE type) : type_(type) {}
 
 AudioG711Decoder::~AudioG711Decoder() {}
 
-int32_t AudioG711Decoder::Init(const AudioTrack &audioTrack)
+int32_t AudioG711Decoder::Init()
 {
     SHARING_LOGD("trace.");
     inited_ = true;
