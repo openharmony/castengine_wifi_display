@@ -37,6 +37,7 @@ ohos_shared_library("sharing_codec") {
     "$SHARING_ROOT_DIR/services/protocol/frame/frame.cpp",
     "$SHARING_ROOT_DIR/services/protocol/frame/h264_frame.cpp",
     "src/audio_aac_codec.cpp",
+    "src/audio_avcodec_decoder.cpp",
     "src/audio_g711_codec.cpp",
     "src/audio_pcm_processor.cpp",
     "src/codec_factory.cpp",

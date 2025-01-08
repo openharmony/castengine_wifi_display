@@ -16,6 +16,8 @@
 #ifndef OHOS_SHARING_AUDIO_DECODER_H
 #define OHOS_SHARING_AUDIO_DECODER_H
 
+#include "common/event_comm.h"
+#include "common/sharing_log.h"
 #include "media_frame_pipeline.h"
 
 namespace OHOS {
@@ -26,7 +28,23 @@ public:
     AudioDecoder() = default;
     virtual ~AudioDecoder() = default;
 
-    virtual int32_t Init() = 0;
+    virtual int32_t Init(const AudioTrack &audioTrack) = 0;
+
+    virtual bool Start()
+    {
+        SHARING_LOGD("trace.");
+        return true;
+    }
+
+    virtual void Stop()
+    {
+        SHARING_LOGD("trace.");
+    }
+
+    virtual void Release()
+    {
+        SHARING_LOGD("trace.");
+    }
 
 public:
     bool inited_ = false;
