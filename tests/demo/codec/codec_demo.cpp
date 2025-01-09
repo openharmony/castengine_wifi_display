@@ -94,7 +94,8 @@ void DecodeG711(char *data, int length, std::fstream &fd)
     if (!decoder) {
         return;
     }
-    decoder->Init();
+    AudioTrack audioTrack;
+    decoder->Init(audioTrack);
 
     auto rawReceiver = std::make_shared<RawDataReceiver>(fd);
 
@@ -118,7 +119,8 @@ void DecodeAAC(char *data, int length, std::fstream &fd)
     if (!decoder) {
         return;
     }
-    decoder->Init();
+    AudioTrack audioTrack;
+    decoder->Init(audioTrack);
 
     auto rawReceiver = std::make_shared<RawDataReceiver>(fd);
 

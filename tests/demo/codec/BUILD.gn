@@ -33,7 +33,11 @@ ohos_executable("sharing_codec_demo") {
 
   deps = [ "$SHARING_ROOT_DIR/services/codec:sharing_codec" ]
 
-  external_deps = [ "hilog:libhilog" ]
+  external_deps = [
+    "graphic_surface:surface",
+    "hilog:libhilog",
+  ]
+
   subsystem_name = "castplus"
   part_name = "sharing_framework"
 }
