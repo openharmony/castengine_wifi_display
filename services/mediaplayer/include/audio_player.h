@@ -23,13 +23,12 @@
 #include "mediaplayer/include/audio_sink.h"
 #include "utils/data_buffer.h"
 
-
 namespace OHOS {
 namespace Sharing {
 
 class AudioDecoderReceiver : public FrameDestination {
 public:
-    AudioDecoderReceiver(std::shared_ptr<AudioSink> &audioSink) : sink_(audioSink){};
+    AudioDecoderReceiver(std::shared_ptr<AudioSink> &audioSink) : sink_(audioSink) {};
 
     void OnFrame(const Frame::Ptr &frame) override
     {
@@ -53,19 +52,16 @@ public:
     void SetVolume(float volume);
     void ProcessAudioData(DataBuffer::Ptr data);
     bool Start();
-    bool Init(CodecId audioCodecId = CODEC_G711A);
-    bool SetAudioFormat(int32_t channel = DEFAULT_CHANNEL, int32_t sampleRate = DEFAULT_SAMPLERATE);
+    bool Init(const AudioTrack &audioTrack);
 
 private:
     uint32_t playerId_ = -1;
-    int32_t channel_ = DEFAULT_CHANNEL;
-    int32_t sampleRate_ = DEFAULT_SAMPLERATE;
 
     std::atomic_bool isRunning_ = false;
     std::shared_ptr<AudioSink> audioSink_ = nullptr;
     std::shared_ptr<AudioDecoder> audioDecoder_ = nullptr;
     std::shared_ptr<AudioDecoderReceiver> audioDecoderReceiver_ = nullptr;
-
+    AudioTrack audioTrack_;
     CodecId audioCodecId_ = CODEC_NONE;
 };
 
