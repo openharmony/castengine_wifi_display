@@ -79,6 +79,7 @@ bool VideoSinkDecoder::SetDecoderFormat(const VideoTrack &track)
     MediaAVCodec::Format format;
     format.PutIntValue("width", track.width);
     format.PutIntValue("height", track.height);
+    format.PutDoubleValue("frame_rate", track.frameRate);
 
     auto ret = videoDecoder_->Configure(format);
     if (ret != MediaAVCodec::AVCS_ERR_OK) {
