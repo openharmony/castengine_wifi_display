@@ -23,7 +23,6 @@
 #include "mediachannel/media_channel_def.h"
 #include "utils/utils.h"
 #include "wfd_media_def.h"
-#include "wfd_message.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -108,6 +107,7 @@ void WfdSinkSession::HandleSessionInit(SharingEvent &event)
         localIp_ = inputMsg->localIp;
         videoFormat_ = inputMsg->videoFormat;
         audioFormat_ = inputMsg->audioFormat;
+        wfdParamsInfo_ = inputMsg->wfdParamsInfo;
     } else {
         SHARING_LOGE("unknow event msg.");
     }
@@ -254,9 +254,8 @@ void WfdSinkSession::NotifyProsumerInit(SessionStatusMsg::Ptr &statusMsg)
     eventMsg->toMgr = ModuleType::MODULE_MEDIACHANNEL;
     eventMsg->port = localRtpPort_;
     eventMsg->ip = localIp_;
-
-    Common::SetVideoTrack(eventMsg->videoTrack, videoFormat_);
-    Common::SetAudioTrack(eventMsg->audioTrack, audioFormat_);
+    eventMsg->audioTrack = audioTrack_;
+    eventMsg->videoTrack = videoTrack_;
 
     statusMsg->msg = std::move(eventMsg);
     statusMsg->status = NOTIFY_SESSION_PRIVATE_EVENT;
@@ -685,11 +684,7 @@ bool WfdSinkSession::SendM2Request()
 bool WfdSinkSession::SendM3Response(int32_t cseq, std::list<std::string> &params)
 {
     SHARING_LOGD("trace.");
-    if (!rtspClient_) {
-        return false;
-    }
-
-    if (params.empty()) {
+    if (!rtspClient_ || params.empty()) {
         return false;
     }
 
@@ -698,23 +693,29 @@ bool WfdSinkSession::SendM3Response(int32_t cseq, std::list<std::string> &params
         if (param == WFD_PARAM_VIDEO_FORMATS) {
             m3Response.SetVideoFormats(videoFormat_);
         } else if (param == WFD_PARAM_AUDIO_CODECS) {
-            m3Response.SetAudioCodecs(AUDIO_48000_16_2);
+            m3Response.SetAudioCodecs(audioFormat_);
         } else if (param == WFD_PARAM_RTP_PORTS) {
             m3Response.SetClientRtpPorts(localRtpPort_);
         } else if (param == WFD_PARAM_CONTENT_PROTECTION) {
-            m3Response.SetContentProtection();
+            m3Response.SetContentProtection(wfdParamsInfo_.contentProtection);
         } else if (param == WFD_PARAM_COUPLED_SINK) {
             m3Response.SetCoupledSink();
         } else if (param == WFD_PARAM_UIBC_CAPABILITY) {
-            m3Response.SetUibcCapability();
+            m3Response.SetUibcCapability(wfdParamsInfo_.uibcCapability);
         } else if (param == WFD_PARAM_STANDBY_RESUME) {
             m3Response.SetStandbyResumeCapability();
+        } else if (param == WFD_PARAM_CONNECTOR_TYPE) {
+            m3Response.SetCustomParam(WFD_PARAM_CONNECTOR_TYPE, wfdParamsInfo_.connectorType);
+        } else if (param == WFD_PARAM_DISPLAY_EDID) {
+            m3Response.SetCustomParam(WFD_PARAM_DISPLAY_EDID, wfdParamsInfo_.displayEdid);
+        } else if (param == WFD_PARAM_RTCP_CAPABILITY) {
+            m3Response.SetCustomParam(WFD_PARAM_RTCP_CAPABILITY, wfdParamsInfo_.microsofRtcpCapability);
+        } else if (param == WFD_PARAM_IDR_REQUEST_CAPABILITY) {
+            m3Response.SetCustomParam(WFD_PARAM_IDR_REQUEST_CAPABILITY, wfdParamsInfo_.idrRequestCapablity);
         } else {
-            m3Response.SetCustomParam(param);
+            SetM3HweParam(m3Response, param);
         }
     }
-
-    m3Response.SetCustomParam("wfd_connector_type", "5");
     if (timeoutTimer_) {
         timeoutTimer_->StartTimer(WFD_TIMEOUT_6_SECOND, "Waiting for M4/SET_PARAMETER request");
     }
@@ -734,6 +735,27 @@ bool WfdSinkSession::SendM3Response(int32_t cseq, std::list<std::string> &params
     return 0;
 }
 
+void WfdSinkSession::SetM3HweParam(WfdRtspM3Response &m3Response, std::string &param)
+{
+    if (param == WFD_PARAM_HWE_VERSION) {
+        m3Response.SetCustomParam(WFD_PARAM_HWE_VERSION, wfdParamsInfo_.hweVersion);
+    } else if (param == WFD_PARAM_HWE_VENDER_ID) {
+        m3Response.SetCustomParam(WFD_PARAM_HWE_VENDER_ID, wfdParamsInfo_.hweVenderId);
+    } else if (param == WFD_PARAM_HWE_PRODUCT_ID) {
+        m3Response.SetCustomParam(WFD_PARAM_HWE_PRODUCT_ID, wfdParamsInfo_.hweProductId);
+    } else if (param == WFD_PARAM_HWE_VTP) {
+        m3Response.SetCustomParam(WFD_PARAM_HWE_VTP, wfdParamsInfo_.hweVtp);
+    } else if (param == WFD_PARAM_HWE_HEVC_FORMATS) {
+        m3Response.SetCustomParam(WFD_PARAM_HWE_HEVC_FORMATS, wfdParamsInfo_.hweHevcFormats);
+    } else if (param == WFD_PARAM_HWE_VIDEO_60FPS) {
+        m3Response.SetCustomParam(WFD_PARAM_HWE_VIDEO_60FPS, wfdParamsInfo_.hweVideo60FPS);
+    } else if (param == WFD_PARAM_HWE_AVSYNC_SINK) {
+        m3Response.SetCustomParam(WFD_PARAM_HWE_AVSYNC_SINK, wfdParamsInfo_.hweAvSyncSink);
+    } else {
+        m3Response.SetCustomParam(param);
+    }
+}
+
 bool WfdSinkSession::HandleM4Request(const std::string &message)
 {
     SHARING_LOGD("trace.");
@@ -741,7 +763,8 @@ bool WfdSinkSession::HandleM4Request(const std::string &message)
     WfdRtspM4Request m4Request;
     m4Request.Parse(message);
     rtspUrl_ = m4Request.GetPresentationUrl();
-
+    m4Request.GetVideoTrack(videoTrack_);
+    m4Request.GetAudioTrack(audioTrack_);
     int incomingCSeq = m4Request.GetCSeq();
     if (timeoutTimer_) {
         timeoutTimer_->StartTimer(WFD_TIMEOUT_6_SECOND, "Waiting for M5/SET_PARAMETER Triger request");

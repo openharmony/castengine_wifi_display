@@ -96,6 +96,7 @@ void WfdDemo::SelectMediaFormat()
     audioAttr_.format = 43;
 
     std::cout << "please input videoFormatId:(default 4)\n";
+    std::cout << "-3: VIDEO_NONE\n";
     std::cout << "0: VIDEO_640X480_60\n";
     std::cout << "1: VIDEO_1280X720_25\n";
     std::cout << "2: VIDEO_1280X720_30\n";
@@ -109,6 +110,7 @@ void WfdDemo::SelectMediaFormat()
     }
 
     std::cout << "please input audioFormatId:\n(default 13)";
+    std::cout << "-31: AUDIO_NONE\n";
     std::cout << "0: AUDIO_44100_8_1\n";
     std::cout << "1: AUDIO_44100_8_2\n";
     std::cout << "2: AUDIO_44100_16_1\n";

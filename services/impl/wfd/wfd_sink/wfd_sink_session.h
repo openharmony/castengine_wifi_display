@@ -26,6 +26,7 @@
 #include "protocol/rtsp/include/rtsp_request.h"
 #include "protocol/rtsp/include/rtsp_response.h"
 #include "utils/timeout_timer.h"
+#include "wfd_message.h"
 #include "wfd_session_def.h"
 
 namespace OHOS {
@@ -84,6 +85,7 @@ private:
     bool SendM1Response(int32_t cseq);     // M1/OPTIONS
     bool SendCommonResponse(int32_t cseq); // M4, M5/SET_PARAMETER Triger, M8, M16/GET_PARAMETER keep-alive
     bool SendM3Response(int32_t cseq, std::list<std::string> &params);
+    void SetM3HweParam(WfdRtspM3Response &m3Response, std::string &param);
 
 private:
     enum class WfdSessionState { INIT, READY, PLAYING, STOPPING };
@@ -107,10 +109,13 @@ private:
     std::unique_ptr<TimeoutTimer> keepAliveTimer_ = nullptr;
     std::map<int, std::function<void(const RtspResponse &response, const std::string &message)>> responseHandlers_;
 
-    AudioFormat audioFormat_ = AUDIO_48000_16_2;
-    VideoFormat videoFormat_ = VIDEO_1920X1080_30;
+    AudioFormat audioFormat_ = AUDIO_NONE;
+    VideoFormat videoFormat_ = VIDEO_NONE;
     NetworkFactory::ClientPtr rtspClient_ = nullptr;
     WfdSessionState wfdState_ = WfdSessionState::INIT;
+    AudioTrack audioTrack_;
+    VideoTrack videoTrack_;
+    WfdParamsInfo wfdParamsInfo_;
 };
 
 } // namespace Sharing

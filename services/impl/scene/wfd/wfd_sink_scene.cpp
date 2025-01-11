@@ -857,6 +857,7 @@ int32_t WfdSinkScene::HandlePlay(std::shared_ptr<WfdPlayReq> &msg, std::shared_p
         startSessionMsg->videoFormat = itemDev->second->videoFormatId;
         startSessionMsg->audioFormat = itemDev->second->audioFormatId;
         startSessionMsg->localPort = SocketUtils::GetAvailableUdpPortPair();
+        startSessionMsg->wfdParamsInfo = wfdParamsInfo_;
 
         SharingEvent event;
         event.eventMsg = std::move(startSessionMsg);
