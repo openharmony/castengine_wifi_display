@@ -349,7 +349,7 @@ void WfdSinkScene::InitP2pName()
         SHARING_LOGW("getLocalDeviceInfo from dm failed");
     } else {
         if (p2pInstance_) {
-            p2pInstance_->SetP2pDeviceName(localDevice.deviceName);
+            p2pInstance_->SetP2pDeviceName(localDevice.deviceName + std::string("-miracast"));
         }
     }
 }
