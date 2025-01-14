@@ -69,7 +69,7 @@ bool TcpSession::Send(const char *buf, int32_t nSize)
             return true;
         } else {
             SHARING_LOGE("send Failed, Shutdown!");
-            if (callback_) {
+            if (callback_ && socket_) {
                 callback_->OnSessionClose(socket_->GetPeerFd());
             }
 
