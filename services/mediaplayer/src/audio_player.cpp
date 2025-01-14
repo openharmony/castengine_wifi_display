@@ -101,7 +101,7 @@ void AudioPlayer::Release()
         audioSink_->Release();
         audioSink_ = nullptr;
     }
-    if (audioDecoder_ == nullptr) {
+    if (audioDecoder_ != nullptr) {
         audioDecoder_->Release();
     }
 }
