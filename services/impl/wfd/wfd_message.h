@@ -17,6 +17,10 @@
 #define OHOS_SHARING_WFD_MESSAGE_H
 
 #include <sstream>
+#include "avcodec_codec_name.h"
+#include "avcodec_info.h"
+#include "avcodec_list.h"
+#include "event_comm.h"
 #include "protocol/rtsp/include/rtsp_request.h"
 #include "protocol/rtsp/include/rtsp_response.h"
 #include "wfd_session_def.h"
@@ -114,6 +118,15 @@ public:
     WfdVideoFormatsInfo GetWfdVideoFormatsInfo() { return vWfdVideoFormatsInfo_[0]; }
 
 private:
+    uint32_t GetVideoFormatResolution(VideoFormat format);
+    uint32_t GetSupportVideoResolution(int32_t maxIndex);
+    bool IsVideoResolutionSupport(std::shared_ptr<MediaAVCodec::VideoCaps> codecInfo, uint32_t resolutionIndex);
+    std::string GetAudioFormat(AudioFormat format);
+    std::string GetSupportAudioCodecList();
+    std::string GetSupportAudioModes(int32_t type, MediaAVCodec::CapabilityData *capData, int32_t length);
+    bool IsSupportAudioModes(int32_t type, int32_t index, MediaAVCodec::CapabilityData *capData);
+
+private:
     std::list<std::pair<std::string, std::string>> params_;
     std::vector<WfdVideoFormatsInfo> vWfdVideoFormatsInfo_;
 };
@@ -137,6 +150,12 @@ public:
     std::string GetParameterValue(const std::string &param);
 
     RtspError Parse(const std::string &request) override;
+
+    void GetVideoTrack(VideoTrack &videoTrack);
+    void GetAudioTrack(AudioTrack &audioTrack);
+
+private:
+    void GetVideoResolution(VideoTrack &videoTrack, std::string resolutionStr, int type);
 
 private:
     std::list<std::pair<std::string, std::string>> params_;

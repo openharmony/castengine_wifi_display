@@ -26,6 +26,7 @@ enum MediaType { MEDIA_TYPE_AV, MEDIA_TYPE_AUDIO, MEDIA_TYPE_VIDEO };
 enum SceneType { FOREGROUND = 0, BACKGROUND = 1 };
 
 enum VideoFormat {
+    VIDEO_NONE = -1,
     VIDEO_640X480_25 = 0,
     VIDEO_640X480_30,
     VIDEO_640X480_60,
@@ -38,6 +39,7 @@ enum VideoFormat {
 };
 
 enum AudioFormat {
+    AUDIO_NONE = -1,
     AUDIO_8000_8_1 = 0,
     AUDIO_8000_8_2,
     AUDIO_8000_16_1,
@@ -63,7 +65,9 @@ enum AudioFormat {
     AUDIO_48000_8_2,
     AUDIO_48000_16_1,
     AUDIO_48000_16_2,
-    AUDIO_48000_16_4
+    AUDIO_48000_16_4,
+    AUDIO_48000_16_6,
+    AUDIO_48000_16_8
 };
 
 constexpr uint32_t WFD_MSEC_IN_SEC = 1000;

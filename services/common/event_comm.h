@@ -222,6 +222,7 @@ struct AudioTrack {
     uint32_t channels = 0;
     uint32_t sampleBit = 0;
     uint32_t sampleRate = 0;
+    uint32_t sampleFormat = 0;
     CodecId codecId = CodecId::CODEC_NONE;
 };
 
