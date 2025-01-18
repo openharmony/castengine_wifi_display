@@ -62,7 +62,6 @@ ohos_source_set("sharing_media_channel_srcs") {
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
-    "audio_framework:audio_capturer",
     "audio_framework:audio_client",
     "audio_framework:audio_renderer",
     "av_codec:av_codec_client",
