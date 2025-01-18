@@ -689,11 +689,37 @@ bool WfdSinkSession::SendM3Response(int32_t cseq, std::list<std::string> &params
     }
 
     WfdRtspM3Response m3Response(cseq, RTSP_STATUS_OK);
+    SetM3ResponseParam(params, m3Response);
+    if (timeoutTimer_) {
+        timeoutTimer_->StartTimer(WFD_TIMEOUT_6_SECOND, "Waiting for M4/SET_PARAMETER request");
+    }
+
+    SHARING_LOGI("sessionId: %{public}d send M3 response, cseq: %{public}d.", GetId(), cseq);
+    std::string m3Req(m3Response.Stringify());
+    bool ret = rtspClient_->Send(m3Req.data(), m3Req.length());
+    if (!ret) {
+        SHARING_LOGE("Failed to send M3 response, cseq: %{public}d", cseq);
+        if (timeoutTimer_) {
+            timeoutTimer_->StopTimer();
+        }
+        NotifyServiceError();
+        return ret;
+    }
+
+    return 0;
+}
+
+void WfdSinkSession::SetM3ResponseParam(std::list<std::string> &params, WfdRtspM3Response &m3Response)
+{
     for (auto &param : params) {
         if (param == WFD_PARAM_VIDEO_FORMATS) {
             m3Response.SetVideoFormats(videoFormat_);
         } else if (param == WFD_PARAM_AUDIO_CODECS) {
             m3Response.SetAudioCodecs(audioFormat_);
+        } else if (param == WFD_PARAM_VIDEO_FORMATS_2) {
+            m3Response.SetVideoFormats2FromSystem();
+        } else if (param == WFD_PARAM_AUDIO_CODECS_2) {
+            m3Response.SetAudioCodec2FromSystem();
         } else if (param == WFD_PARAM_RTP_PORTS) {
             m3Response.SetClientRtpPorts(localRtpPort_);
         } else if (param == WFD_PARAM_CONTENT_PROTECTION) {
@@ -716,23 +742,6 @@ bool WfdSinkSession::SendM3Response(int32_t cseq, std::list<std::string> &params
             SetM3HweParam(m3Response, param);
         }
     }
-    if (timeoutTimer_) {
-        timeoutTimer_->StartTimer(WFD_TIMEOUT_6_SECOND, "Waiting for M4/SET_PARAMETER request");
-    }
-
-    SHARING_LOGI("sessionId: %{public}d send M3 response, cseq: %{public}d.", GetId(), cseq);
-    std::string m3Req(m3Response.Stringify());
-    bool ret = rtspClient_->Send(m3Req.data(), m3Req.length());
-    if (!ret) {
-        SHARING_LOGE("Failed to send M3 response, cseq: %{public}d", cseq);
-        if (timeoutTimer_) {
-            timeoutTimer_->StopTimer();
-        }
-        NotifyServiceError();
-        return ret;
-    }
-
-    return 0;
 }
 
 void WfdSinkSession::SetM3HweParam(WfdRtspM3Response &m3Response, std::string &param)

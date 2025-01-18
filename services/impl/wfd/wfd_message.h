@@ -102,6 +102,8 @@ public:
     void SetVideoFormats(VideoFormat format = VIDEO_1920X1080_30);
     void SetStandbyResumeCapability(const std::string &value = "none");
     void SetCustomParam(const std::string &key, const std::string &value = "none");
+    void SetVideoFormats2FromSystem();
+    void SetAudioCodec2FromSystem();
 
     int32_t GetClientRtpPorts();
     std::string GetUibcCapability();
@@ -119,12 +121,13 @@ public:
 
 private:
     uint32_t GetVideoFormatResolution(VideoFormat format);
-    uint32_t GetSupportVideoResolution(int32_t maxIndex);
+    uint32_t GetSupportVideoResolution(int32_t maxIndex, std::string mimeType);
     bool IsVideoResolutionSupport(std::shared_ptr<MediaAVCodec::VideoCaps> codecInfo, uint32_t resolutionIndex);
     std::string GetAudioFormat(AudioFormat format);
     std::string GetSupportAudioCodecList();
     std::string GetSupportAudioModes(int32_t type, MediaAVCodec::CapabilityData *capData, int32_t length);
     bool IsSupportAudioModes(int32_t type, int32_t index, MediaAVCodec::CapabilityData *capData);
+    std::string GetVideo2Cap(uint32_t codecType, uint32_t profile, uint32_t level, uint64_t ceaResolution);
 
 private:
     std::list<std::pair<std::string, std::string>> params_;
