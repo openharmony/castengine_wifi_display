@@ -45,7 +45,7 @@ constexpr uint32_t MAX_CEA_INDEX = 26;
 constexpr uint32_t MAX_VESA_INDEX = 33;
 constexpr uint32_t MAX_HH_INDEX = 11;
 constexpr uint32_t VIDEO_R1_RESOLUTION_SIZE = 17;
-constexpr uint32_t VIDEO_R2_RESOLUTION_SIZE = 32;
+constexpr uint32_t VIDEO_R2_RESOLUTION_SIZE = 27;
 constexpr uint32_t TYPE_LPCM = 0;
 constexpr uint32_t TYPE_AAC = 1;
 constexpr uint32_t TYPE_AC3 = 2;
@@ -262,7 +262,11 @@ enum class WfdResolutionType : uint8_t {
 // Table 38. Profiles Bitmap
 enum class WfdH264Profile {
     PROFILE_CBP = 0, // 0 0b0: CBP not supported; 0b1: CBP supported;
-    PROFILE_CHP      // 1 0b0: CHP not supported; 0b1: CHP supported;
+    PROFILE_CHP,     // 1 0b0: CHP not supported; 0b1: CHP supported;
+    PROFILE_RHP,
+    PROFILE_BP,
+    PROFILE_MP,
+    PROFILE_HIP,
 };
 
 // Table 39. Maximum H.264 Level Supported
@@ -272,6 +276,15 @@ enum class WfdH264Level {
     LEVEL_40,
     LEVEL_41,
     LEVEL_42,
+    LEVEL_50,
+    LEVEL_51,
+    LEVEL_52,
+};
+
+// Table 76. Video codec Type field values in WFD R2
+enum class WfdVideoCodec {
+    CODEC_H264 = 0,
+    CODEC_H265,
 };
 
 enum WfdAACMode {

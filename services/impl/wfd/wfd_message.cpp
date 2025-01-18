@@ -25,7 +25,9 @@ namespace OHOS {
 namespace Sharing {
 constexpr int32_t BIT_OFFSET_TWO = 2;
 constexpr int32_t BIT_OFFSET_THREE = 3;
+constexpr int32_t BIT_OFFSET_FOUR = 4;
 constexpr int32_t BIT_OFFSET_EIGHT = 8;
+constexpr int32_t BIT_OFFSET_TWELVE = 12;
 
 WfdRtspM1Response::WfdRtspM1Response(int32_t cseq, int32_t status) : RtspResponseOptions(cseq, status)
 {
@@ -79,10 +81,14 @@ void WfdRtspM3Response::SetVideoFormats(VideoFormat format)
     uint32_t vesaResolutionIndex = 0;
     uint32_t hhResolutionIndex = 0;
     if (format == VIDEO_NONE) {
-        ceaResolutionIndex = GetSupportVideoResolution(VIDEO_R1_RESOLUTION_SIZE);
+        ceaResolutionIndex =
+            GetSupportVideoResolution(VIDEO_R1_RESOLUTION_SIZE, std::string(MediaAVCodec::CodecMimeType::VIDEO_AVC));
     } else {
         ceaResolutionIndex = GetVideoFormatResolution(format);
         native = static_cast<uint8_t>(WfdResolutionType::RESOLUTION_CEA) | (ceaResolutionIndex << BIT_OFFSET_THREE);
+    }
+    if (ceaResolutionIndex == 0) {
+        ceaResolutionIndex = (1 << CEA_640_480_P60);
     }
     ss << std::setfill('0') << std::setw(BIT_OFFSET_TWO) << std::hex << (int32_t)native << RTSP_SP << "00" << RTSP_SP;
     ss << std::setfill('0') << std::setw(BIT_OFFSET_TWO) << std::hex << (int32_t)h264Profile << RTSP_SP;
@@ -134,13 +140,13 @@ uint32_t WfdRtspM3Response::GetVideoFormatResolution(VideoFormat format)
     return (1 << ceaResolutionIndex);
 }
 
-uint32_t WfdRtspM3Response::GetSupportVideoResolution(int32_t maxIndex)
+uint32_t WfdRtspM3Response::GetSupportVideoResolution(int32_t maxIndex, std::string mimeType)
 {
     uint32_t ceaResolutionIndex = 0;
     std::shared_ptr<MediaAVCodec::AVCodecList> avCodecList = MediaAVCodec::AVCodecListFactory::CreateAVCodecList();
     if (avCodecList != nullptr) {
-        MediaAVCodec::CapabilityData *capData = avCodecList->GetCapability(
-            std::string(MediaAVCodec::CodecMimeType::VIDEO_AVC), false, MediaAVCodec::AVCodecCategory::AVCODEC_NONE);
+        MediaAVCodec::CapabilityData *capData =
+            avCodecList->GetCapability(mimeType, false, MediaAVCodec::AVCodecCategory::AVCODEC_NONE);
         std::shared_ptr<MediaAVCodec::VideoCaps> codecInfo = std::make_shared<MediaAVCodec::VideoCaps>(capData);
         for (int32_t i = 0; i < maxIndex; i++) {
             if (IsVideoResolutionSupport(codecInfo, i)) {
@@ -287,6 +293,42 @@ bool WfdRtspM3Response::IsSupportAudioModes(int32_t type, int32_t index, MediaAV
     bool isSampleRateSupport = std::find(capData->sampleRate.begin(), capData->sampleRate.end(), config->sampleRate) !=
                                capData->sampleRate.end();
     return isChannelsSupport && isSampleRateSupport;
+}
+
+void WfdRtspM3Response::SetVideoFormats2FromSystem()
+{
+    uint32_t h264Profile = (1 << static_cast<uint32_t>(WfdH264Profile::PROFILE_CHP));
+    uint32_t h264Level = (1 << static_cast<uint32_t>(WfdH264Level::LEVEL_51));
+    uint32_t h264CodecType = (1 << static_cast<uint32_t>(WfdVideoCodec::CODEC_H264));
+    uint64_t ceaResolutionIndex =
+        GetSupportVideoResolution(VIDEO_R2_RESOLUTION_SIZE, std::string(MediaAVCodec::CodecMimeType::VIDEO_AVC));
+
+    std::stringstream ss;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_TWO) << std::hex << std::uppercase << 0 << RTSP_SP;
+    std::string videoAvcCap = GetVideo2Cap(h264CodecType, h264Profile, h264Level, ceaResolutionIndex);
+    ss << videoAvcCap << RTSP_SP << "00";
+
+    params_.emplace_back(WFD_PARAM_VIDEO_FORMATS_2, ss.str());
+}
+
+std::string WfdRtspM3Response::GetVideo2Cap(uint32_t codecType, uint32_t profile, uint32_t level,
+                                            uint64_t ceaResolution)
+{
+    std::stringstream ss;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_TWO) << std::hex << std::uppercase << codecType << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_TWO) << std::hex << std::uppercase << profile << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_FOUR) << std::hex << std::uppercase << level << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_TWELVE) << std::hex << std::uppercase << ceaResolution << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_TWELVE) << std::hex << std::uppercase << 0 << RTSP_SP;
+    ss << std::setfill('0') << std::setw(BIT_OFFSET_TWELVE) << std::hex << std::uppercase << 0 << RTSP_SP;
+    ss << "00 0000 0000 00";
+    return ss.str();
+}
+
+void WfdRtspM3Response::SetAudioCodec2FromSystem()
+{
+    std::string audioCodec = GetSupportAudioCodecList();
+    params_.emplace_back(WFD_PARAM_AUDIO_CODECS_2, audioCodec);
 }
 
 void WfdRtspM3Response::SetClientRtpPorts(int32_t port)
@@ -634,7 +676,10 @@ int32_t WfdRtspM4Request::GetRtpPort()
 
 void WfdRtspM4Request::GetVideoTrack(VideoTrack &videoTrack)
 {
-    std::string wfdVideoFormatParam = GetParameterValue(WFD_PARAM_VIDEO_FORMATS);
+    std::string wfdVideoFormatParam = GetParameterValue(WFD_PARAM_VIDEO_FORMATS_2);
+    if (wfdVideoFormatParam.empty()) {
+        wfdVideoFormatParam = GetParameterValue(WFD_PARAM_VIDEO_FORMATS);
+    }
     if (wfdVideoFormatParam.empty()) {
         SHARING_LOGE("wfdVideoFormatParam is null.");
         return;
@@ -686,7 +731,10 @@ void WfdRtspM4Request::GetVideoResolution(VideoTrack &videoTrack, std::string re
 
 void WfdRtspM4Request::GetAudioTrack(AudioTrack &audioTrack)
 {
-    std::string wfdAudioFormatParam = GetParameterValue(WFD_PARAM_AUDIO_CODECS);
+    std::string wfdAudioFormatParam = GetParameterValue(WFD_PARAM_AUDIO_CODECS_2);
+    if (wfdAudioFormatParam.empty()) {
+        wfdAudioFormatParam = GetParameterValue(WFD_PARAM_AUDIO_CODECS);
+    }
     if (wfdAudioFormatParam.empty()) {
         SHARING_LOGE("wfdAudioFormatParam is null.");
         return;

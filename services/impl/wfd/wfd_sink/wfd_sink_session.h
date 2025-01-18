@@ -85,6 +85,7 @@ private:
     bool SendM1Response(int32_t cseq);     // M1/OPTIONS
     bool SendCommonResponse(int32_t cseq); // M4, M5/SET_PARAMETER Triger, M8, M16/GET_PARAMETER keep-alive
     bool SendM3Response(int32_t cseq, std::list<std::string> &params);
+    void SetM3ResponseParam(std::list<std::string> &params, WfdRtspM3Response &m3Response);
     void SetM3HweParam(WfdRtspM3Response &m3Response, std::string &param);
 
 private:
