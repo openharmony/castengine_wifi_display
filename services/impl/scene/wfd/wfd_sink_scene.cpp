@@ -138,6 +138,9 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
     Wifi::P2pConnectedState state = info.GetConnectState();
     if (state == Wifi::P2pConnectedState::P2P_DISCONNECTED) {
         SHARING_LOGI("OnP2pConnectionChanged disconnected");
+        if (parent->currentConnectDev_.mac != "") {
+            parent->OnP2pPeerDisconnected(parent->currentConnectDev_.mac);
+        }
         parent->localIp_ = "";
         parent->WfdP2pStart();
         return;
@@ -1476,6 +1479,7 @@ void WfdSinkScene::OnConnectionChanged(ConnectionInfo &connectionInfo)
 void WfdSinkScene::P2pRemoveClient(ConnectionInfo &connectionInfo)
 {
     SHARING_LOGI("p2p remove client: %{private}s.", GetAnonyString(connectionInfo.mac).c_str());
+    currentConnectDev_.mac = "";
     if (!p2pInstance_) {
         SHARING_LOGE("p2p instance is null");
         return;
