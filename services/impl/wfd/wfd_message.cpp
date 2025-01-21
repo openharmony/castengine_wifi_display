@@ -690,22 +690,27 @@ void WfdRtspM4Request::GetVideoTrack(VideoTrack &videoTrack)
         return;
     }
     SHARING_LOGD("wfdVideoFormats native:%{public}s", videoFormats.at(0).c_str());
-    int type = 0;
+    errno = 0;
+    char *endPtr = nullptr;
+    int nativeValue = std::strtol(videoFormats.front().c_str(), &endPtr, HEX_LENGTH);
+    if (errno == ERANGE || endPtr == videoFormats.front().c_str() || *endPtr != '\0') {
+        SHARING_LOGE("%{public}s error : %{public}s!", __FUNCTION__, strerror(errno));
+        return;
+    }
+    
     std::string resolutionStr = {""};
-    if (videoFormats.front() == CEA) {
+    nativeValue &= 0x07;
+    if (nativeValue == TYPE_CEA) {
         resolutionStr = videoFormats.at(INDEX_CEA);
-        type = TYPE_CEA;
-    } else if (videoFormats.front() == VESA) {
+    } else if (nativeValue == TYPE_VESA) {
         resolutionStr = videoFormats.at(INDEX_VESA);
-        type = TYPE_VESA;
-    } else if (videoFormats.front() == HH) {
+    } else if (nativeValue == TYPE_HH) {
         resolutionStr = videoFormats.at(INDEX_HH);
-        type = TYPE_HH;
     } else {
         SHARING_LOGE("get wfd_video_formats error.");
         return;
     }
-    GetVideoResolution(videoTrack, resolutionStr, type);
+    GetVideoResolution(videoTrack, resolutionStr, nativeValue);
 }
 
 void WfdRtspM4Request::GetVideoResolution(VideoTrack &videoTrack, std::string resolutionStr, int type)

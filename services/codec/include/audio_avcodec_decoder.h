@@ -58,7 +58,7 @@ public:
     std::mutex inputBufferMutex_;
     std::mutex decoderMutex_;
     std::condition_variable inCond_;
-    std::atomic_bool isRunning_;
+    std::atomic_bool isRunning_ = false;
     std::shared_ptr<MediaAVCodec::AVCodecAudioDecoder> audioDecoder_ = nullptr;
     CodecId audioCodecId_ = CODEC_NONE;
     bool isFirstFrame_ = true;
