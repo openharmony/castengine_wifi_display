@@ -59,9 +59,6 @@ constexpr uint32_t AUDIO_LPCM_MODE_LENGTH = 2;
 constexpr uint32_t AUDIO_AAC_MODE_LENGTH = 4;
 constexpr uint32_t AUDIO_AAC3_MODE_LENGTH = 3;
 
-const std::string CEA = "00";
-const std::string VESA = "01";
-const std::string HH = "10";
 const std::string LPCM = "LPCM";
 const std::string AAC = "AAC";
 const std::string AC3 = "AC3";
