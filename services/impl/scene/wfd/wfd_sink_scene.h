@@ -29,6 +29,7 @@
 #include "i_wifi_device_callback.h"
 #include "wifi_device.h"
 #include "dm_constants.h"
+#include "system_ability_status_change_stub.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -85,6 +86,17 @@ public:
 
     friend class WfdP2pCallback;
 
+    class WfdSystemAbilityListener : public SystemAbilityStatusChangeStub {
+    public:
+        explicit WfdSystemAbilityListener(std::weak_ptr<WfdSinkScene> scene) : scene_(scene) {}
+ 
+        void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+        void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+ 
+    private:
+        std::weak_ptr<WfdSinkScene> scene_;
+    };
+
 protected:
     void SetIpcAdapter(const std::weak_ptr<IpcMsgAdapter> &adapter) final
     {
@@ -133,6 +145,11 @@ private:
     void OnDecoderDied(ConnectionInfo &connectionInfo);
     void OnDecoderAccelerationDone(ConnectionInfo &connectionInfo);
 
+    void OnWifiAbilityResume();
+    void OnWifiAbilityDied();
+    void RegisterWfdAbilityListener();
+    void UnRegisterWfdAbilityListener();
+
     int32_t HandleStop(std::shared_ptr<WfdSinkStopReq> &msg, std::shared_ptr<WfdCommonRsp> &reply);
     int32_t HandleStart(std::shared_ptr<WfdSinkStartReq> &msg, std::shared_ptr<WfdCommonRsp> &reply);
 
@@ -150,6 +167,7 @@ private:
 
 private:
     std::atomic_bool isSinkRunning_ = false;
+    std::atomic_bool isInitialized_ = false;
 
     int32_t ctrlPort_ = DEFAULT_WFD_CTRLPORT;
     int32_t surfaceMaximum_ = SURFACE_MAX_NUMBER;
@@ -168,6 +186,8 @@ private:
     AudioFormat audioFormatId_ = AudioFormat::AUDIO_NONE;
     VideoFormat videoFormatId_ = VideoFormat::VIDEO_NONE;
     WfdParamsInfo wfdParamsInfo_;
+
+    sptr<ISystemAbilityStatusChange> sysAbilityListener_ = nullptr;
 };
 
 } // namespace Sharing

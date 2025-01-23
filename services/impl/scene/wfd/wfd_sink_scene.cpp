@@ -24,6 +24,8 @@
 #include "network/socket/socket_utils.h"
 #include "utils/utils.h"
 #include "wfd_session_def.h"
+#include "system_ability_definition.h"
+#include "iservice_registry.h"
 
 using namespace OHOS::DistributedHardware;
 namespace OHOS {
@@ -31,6 +33,33 @@ namespace Sharing {
 constexpr int P2P_LISTEN_INTERVAL = 500;
 constexpr int P2P_LISTEN_PERIOD = 500;
 const std::string DEFAULT_P2P_IPADDR = "192.168.49.1";
+
+void WfdSinkScene::WfdSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+{
+    if (systemAbilityId == WIFI_DEVICE_ABILITY_ID) {
+        SHARING_LOGI("%{public}s, id is %{public}d.", __FUNCTION__, systemAbilityId);
+        auto scene = scene_.lock();
+        if (scene == nullptr) {
+            SHARING_LOGE("WfdSinkScene is null");
+            return;
+        }
+        scene->OnWifiAbilityResume();
+    }
+}
+ 
+void WfdSinkScene::WfdSystemAbilityListener::OnRemoveSystemAbility(int32_t systemAbilityId,
+    const std::string& deviceId)
+{
+    if (systemAbilityId == WIFI_DEVICE_ABILITY_ID) {
+        SHARING_LOGI("%{public}s, id is %{public}d.", __FUNCTION__, systemAbilityId);
+        auto scene = scene_.lock();
+        if (scene == nullptr) {
+            SHARING_LOGE("WfdSinkScene is null");
+            return;
+        }
+        scene->OnWifiAbilityDied();
+    }
+}
 
 void WfdSinkScene::WfdP2pCallback::OnP2pStateChanged(int32_t state)
 {
@@ -342,6 +371,26 @@ void WfdSinkScene::Initialize()
     RegisterP2pListener();
     RegisterWifiStatusChangeListener();
     InitP2pName();
+    isInitialized_ = true;
+    RegisterWfdAbilityListener();
+}
+
+void WfdSinkScene::OnWifiAbilityResume()
+{
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
+    RegisterP2pListener();
+    RegisterWifiStatusChangeListener();
+    InitP2pName();
+    isInitialized_ = true;
+}
+
+void WfdSinkScene::OnWifiAbilityDied()
+{
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
+    if (currentConnectDev_.mac != "") {
+        OnP2pPeerDisconnected(currentConnectDev_.mac);
+    }
+    isInitialized_ = false;
 }
 
 void WfdSinkScene::InitP2pName()
@@ -379,6 +428,7 @@ void WfdSinkScene::RegisterWifiStatusChangeListener()
 void WfdSinkScene::Release()
 {
     SHARING_LOGD("trace.");
+    UnRegisterWfdAbilityListener();
     std::unique_lock<std::mutex> lock(mutex_);
     auto sharingAdapter = sharingAdapter_.lock();
     if (sharingAdapter != nullptr) {
@@ -1047,6 +1097,38 @@ int32_t WfdSinkScene::HandleGetConfig(std::shared_ptr<GetSinkConfigReq> &msg, st
     reply->surfaceMaximum = surfaceMaximum_;
 
     return 0;
+}
+
+void WfdSinkScene::RegisterWfdAbilityListener()
+{
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
+    std::unique_lock<std::mutex> lock(mutex_);
+    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrProxy == nullptr) {
+        SHARING_LOGE("get system ability manager fail");
+        return;
+    }
+    sysAbilityListener_ = new (std::nothrow) WfdSystemAbilityListener(shared_from_this());
+    int32_t ret = samgrProxy->SubscribeSystemAbility(WIFI_DEVICE_ABILITY_ID, sysAbilityListener_);
+    SHARING_LOGI("result is %{public}d.", ret);
+}
+ 
+void WfdSinkScene::UnRegisterWfdAbilityListener()
+{
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (sysAbilityListener_ == nullptr) {
+        SHARING_LOGE("listener is null");
+        return;
+    }
+    auto samgrProxy = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrProxy == nullptr) {
+        SHARING_LOGE("get system ability manager fail");
+        return;
+    }
+    int32_t ret = samgrProxy->UnSubscribeSystemAbility(WIFI_DEVICE_ABILITY_ID, sysAbilityListener_);
+    SHARING_LOGI("result is %{public}d.", ret);
+    sysAbilityListener_ = nullptr;
 }
 
 void WfdSinkScene::WfdP2pStart()
