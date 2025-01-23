@@ -48,7 +48,7 @@ void WfdSinkScene::WfdSystemAbilityListener::OnAddSystemAbility(int32_t systemAb
 }
  
 void WfdSinkScene::WfdSystemAbilityListener::OnRemoveSystemAbility(int32_t systemAbilityId,
-                                                                     const std::string& deviceId)
+                                                                  const std::string)
 {
     if (systemAbilityId == WIFI_DEVICE_ABILITY_ID) {
         SHARING_LOGI("%{public}s, id is %{public}d.", __FUNCTION__, systemAbilityId);
