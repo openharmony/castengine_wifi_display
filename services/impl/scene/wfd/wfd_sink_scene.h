@@ -187,7 +187,7 @@ private:
     VideoFormat videoFormatId_ = VideoFormat::VIDEO_NONE;
     WfdParamsInfo wfdParamsInfo_;
 
-    sptr<ISystemAbilityStatusChange> sysAbilityListener_ = nullptr;    
+    sptr<ISystemAbilityStatusChange> sysAbilityListener_ = nullptr;
 };
 
 } // namespace Sharing
