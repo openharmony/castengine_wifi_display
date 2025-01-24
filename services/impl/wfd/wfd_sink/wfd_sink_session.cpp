@@ -217,7 +217,7 @@ void WfdSinkSession::UpdateMediaStatus(SessionStatusMsg::Ptr &statusMsg)
         return;
     }
 
-    SHARING_LOGI("update media notify status: %{public}s.",
+    SHARING_LOGD("update media notify status: %{public}s.",
                  std::string(magic_enum::enum_name(static_cast<MediaNotifyStatus>(statusMsg->status))).c_str());
     switch (statusMsg->status) {
         case STATE_PROSUMER_CREATE_SUCCESS:

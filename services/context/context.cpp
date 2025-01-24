@@ -48,7 +48,7 @@ int32_t Context::HandleEvent(SharingEvent &event)
 {
     SHARING_LOGD("trace.");
     RETURN_INVALID_IF_NULL(event.eventMsg);
-    SHARING_LOGI(
+    SHARING_LOGD(
         "contextId: %{public}u, fromMgr: %{public}u, srcId: %{public}u, "
         "toMgr: %{public}u, toId: %{public}u, event: %{public}s.",
         GetId(), event.eventMsg->fromMgr, event.eventMsg->srcId, event.eventMsg->toMgr, event.eventMsg->dstId,
