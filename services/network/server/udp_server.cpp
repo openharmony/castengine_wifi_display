@@ -191,7 +191,6 @@ std::shared_ptr<BaseNetworkSession> UdpServer::FindOrCreateSession(const struct 
             return value.first->sin_addr.s_addr == addr.sin_addr.s_addr && value.first->sin_port == addr.sin_port;
         });
     if (it != addrToFdMap_.end()) {
-        MEDIA_LOGD("find session.");
         return sessionMap_[it->second];
     } else if (socket_ != nullptr) {
         MEDIA_LOGD("not find, create session!");

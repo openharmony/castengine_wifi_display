@@ -246,7 +246,7 @@ int32_t MediaChannel::HandleEvent(SharingEvent &event)
 {
     SHARING_LOGD("trace.");
     RETURN_INVALID_IF_NULL(event.eventMsg);
-    SHARING_LOGI(
+    SHARING_LOGD(
         "HandleEvent mediachannelId: %{public}u, fromMgr: %{public}u, srcId: %{public}u, handle event: %{public}s.",
         event.eventMsg->dstId, event.eventMsg->fromMgr, event.eventMsg->srcId,
         std::string(magic_enum::enum_name(event.eventMsg->type)).c_str());

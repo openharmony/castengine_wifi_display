@@ -72,7 +72,7 @@ void SinkAgent::NotifyConsumer(SessionStatusMsg::Ptr &statusMsg, EventType type)
     SHARING_LOGD("trace.");
     RETURN_IF_NULL(statusMsg);
     RETURN_IF_NULL(statusMsg->msg);
-    SHARING_LOGI("agentId: %{public}u, notify status, type: %{public}s.", GetId(),
+    SHARING_LOGD("agentId: %{public}u, notify status, type: %{public}s.", GetId(),
                  std::string(magic_enum::enum_name(type)).c_str());
 
     auto listener = agentListener_.lock();

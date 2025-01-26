@@ -63,7 +63,7 @@ void WfdSinkScene::WfdSystemAbilityListener::OnRemoveSystemAbility(int32_t syste
 
 void WfdSinkScene::WfdP2pCallback::OnP2pStateChanged(int32_t state)
 {
-    SHARING_LOGD("state: %{public}d.", state);
+    SHARING_LOGI("state: %{public}d.", state);
     auto parent = parent_.lock();
     if (parent) {
         switch (state) {
@@ -463,9 +463,7 @@ void WfdSinkScene::Release()
     }
 
     if (p2pInstance_) {
-        SHARING_LOGW("DisableP2p before.");
         p2pInstance_->RemoveGroup();
-        SHARING_LOGW("DisableP2p end.");
     }
 
     devConnectionMap_.clear();
