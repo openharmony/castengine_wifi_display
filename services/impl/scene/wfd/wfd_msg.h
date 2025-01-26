@@ -50,7 +50,35 @@ enum WfdMsgId {
     WFD_SOURCE_ADD_DEVICE_REQ,
     WFD_SOURCE_REMOVE_DEVICE_REQ,
     WFD_SOURCE_DESTROY_SCREEN_CAPTUREREQ_REQ,
+    WFD_GET_BOUND_DEVICES_REQ,
+    WFD_GET_BOUND_DEVICES_RSP,
+    WFD_DELETE_BOUND_DEVICE_REQ
     // domain msg
+};
+
+struct BoundDeviceInfo {
+    std::string deviceId = "";
+    std::string deviceName = "";
+    std::string deviceAddress = "";
+    std::string networkId = "";
+
+    int32_t IpcSerialize(MessageParcel &data)
+    {
+        data.WriteString(this->deviceId);
+        data.WriteString(this->deviceName);
+        data.WriteString(this->deviceAddress);
+        data.WriteString(this->networkId);
+        return 0;
+    }
+
+    int32_t IpcDeserialize(MessageParcel &pIpcMsg)
+    {
+        this->deviceId = pIpcMsg.ReadString();
+        this->deviceName = pIpcMsg.ReadString();
+        this->deviceAddress = pIpcMsg.ReadString();
+        this->networkId = pIpcMsg.ReadString();
+        return 0;
+    }
 };
 
 struct WfdCommonRsp : public BaseMsg {
@@ -492,6 +520,46 @@ struct WfdSurfaceFailureMsg : public BaseMsg {
 
     uint64_t surfaceId;
     std::string mac;
+};
+
+
+struct WfdGetBoundDevicesReq : public BaseMsg {
+    enum { MSG_ID = WfdMsgId::WFD_GET_BOUND_DEVICES_REQ };
+
+    int32_t GetMsgId() final
+    {
+        return MSG_ID;
+    }
+
+    IPC_BIND_ATTR0
+};
+
+struct WfdGetBoundDevicesRsp : public BaseMsg {
+    enum { MSG_ID = WfdMsgId::WFD_GET_BOUND_DEVICES_RSP };
+
+    int32_t GetMsgId() final
+    {
+        return MSG_ID;
+    }
+    WfdGetBoundDevicesRsp() = default;
+
+    IPC_BIND_ATTR(trustDevices)
+
+    std::vector<BoundDeviceInfo> trustDevices;
+};
+
+struct WfdDeleteBoundDeviceReq : public BaseMsg {
+    enum { MSG_ID = WfdMsgId::WFD_DELETE_BOUND_DEVICE_REQ };
+
+    int32_t GetMsgId() final
+    {
+        return MSG_ID;
+    }
+    WfdDeleteBoundDeviceReq() = default;
+
+    IPC_BIND_ATTR(deviceAddress)
+
+    std::string deviceAddress;
 };
 
 } // namespace Sharing

@@ -53,7 +53,8 @@
         "eventhandler",
         "ffmpeg",
         "window_manager",
-        "bounds_checking_function"
+        "bounds_checking_function",
+        "preferences"
       ],
       "third_party": [
         "cJSON",

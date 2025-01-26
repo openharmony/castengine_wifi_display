@@ -37,3 +37,6 @@ IPC_MESSAGE_DECODE_BIND(WfdSourceDeviceFoundMsg, WfdSourceDeviceFoundMsg::MSG_ID
 IPC_MESSAGE_DECODE_BIND(WfdSourceAddDeviceReq, WfdSourceAddDeviceReq::MSG_ID)
 IPC_MESSAGE_DECODE_BIND(WfdSourceRemoveDeviceReq, WfdSourceRemoveDeviceReq::MSG_ID)
 IPC_MESSAGE_DECODE_BIND(DestroyScreenCaptureReq, DestroyScreenCaptureReq::MSG_ID)
+IPC_MESSAGE_DECODE_BIND(WfdGetBoundDevicesReq, WfdGetBoundDevicesReq::MSG_ID)
+IPC_MESSAGE_DECODE_BIND(WfdGetBoundDevicesRsp, WfdGetBoundDevicesRsp::MSG_ID)
+IPC_MESSAGE_DECODE_BIND(WfdDeleteBoundDeviceReq, WfdDeleteBoundDeviceReq::MSG_ID)

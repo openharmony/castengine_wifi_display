@@ -21,11 +21,12 @@
 #include "configuration/include/config.h"
 #include "const_def.h"
 #include "extend/magic_enum/magic_enum.hpp"
+#include "iservice_registry.h"
 #include "network/socket/socket_utils.h"
+#include "system_ability_definition.h"
 #include "utils/utils.h"
 #include "wfd_session_def.h"
-#include "system_ability_definition.h"
-#include "iservice_registry.h"
+#include "wfd_trust_list_manager.h"
 
 using namespace OHOS::DistributedHardware;
 namespace OHOS {
@@ -34,7 +35,7 @@ constexpr int P2P_LISTEN_INTERVAL = 500;
 constexpr int P2P_LISTEN_PERIOD = 500;
 const std::string DEFAULT_P2P_IPADDR = "192.168.49.1";
 
-void WfdSinkScene::WfdSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
+void WfdSinkScene::WfdSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
     if (systemAbilityId == WIFI_DEVICE_ABILITY_ID) {
         SHARING_LOGI("%{public}s, id is %{public}d.", __FUNCTION__, systemAbilityId);
@@ -198,6 +199,7 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
             SHARING_LOGW("get local ip failed");
             return;
         }
+        wfdTrustListManager_.AddBoundDevice(group);
     }
     parent->p2pInstance_->StopP2pListen();
     parent->OnP2pPeerConnected(parent->currentConnectDev_);
@@ -238,6 +240,9 @@ void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &in
                          connectionInfo.mac.c_str(), connectionInfo.ip.c_str(), connectionInfo.ctrlPort);
             parent->p2pInstance_->StopP2pListen();
             parent->OnP2pPeerConnected(connectionInfo);
+            Wifi::WifiP2pGroupInfo group;
+            parent->p2pInstance_->GetCurrentGroup(group);
+            wfdTrustListManager_.AddBoundDevice(group);
             return;
         }
     }
@@ -579,6 +584,22 @@ void WfdSinkScene::OnRequest(std::shared_ptr<BaseMsg> msg, std::shared_ptr<BaseM
             reply = std::static_pointer_cast<BaseMsg>(rsp);
             break;
         }
+        case WfdGetBoundDevicesReq::MSG_ID: {
+            auto data = std::static_pointer_cast<WfdGetBoundDevicesReq>(msg);
+            auto rsp = std::make_shared<WfdGetBoundDevicesRsp>();
+
+            HandleGetBoundDevices(data, rsp);
+            reply = std::static_pointer_cast<BaseMsg>(rsp);
+            break;
+        }
+        case WfdDeleteBoundDeviceReq::MSG_ID: {
+            auto data = std::static_pointer_cast<WfdDeleteBoundDeviceReq>(msg);
+            auto rsp = std::make_shared<WfdCommonRsp>();
+
+            HandleDeleteBoundDevice(data, rsp);
+            reply = std::static_pointer_cast<BaseMsg>(rsp);
+            break;
+        }
         default:
             SHARING_LOGW("unknown msg request.");
             break;
@@ -832,7 +853,7 @@ int32_t WfdSinkScene::HandleSetSceneType(std::shared_ptr<SetSceneTypeReq> &msg, 
                 }
             }
 
-            if (foregroundSurfaceNum > (uint32_t)foregroundMaximum_) {
+            if (foregroundSurfaceNum > static_cast<uint32_t>(foregroundMaximum_)) {
                 lock.unlock();
                 SHARING_LOGE("foreground surfaces is too much.");
                 OnInnerError(0, 0, SharingErrorCode::ERR_SERVICE_LIMIT,
@@ -1094,6 +1115,26 @@ int32_t WfdSinkScene::HandleGetConfig(std::shared_ptr<GetSinkConfigReq> &msg, st
     reply->foregroundMaximum = foregroundMaximum_;
     reply->surfaceMaximum = surfaceMaximum_;
 
+    return 0;
+}
+
+int32_t WfdSinkScene::HandleGetBoundDevices(std::shared_ptr<WfdGetBoundDevicesReq> &msg,
+                                            std::shared_ptr<WfdGetBoundDevicesRsp> &reply)
+{
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
+    (void)msg;
+    (void)reply;
+    reply->trustDevices = wfdTrustListManager_.GetAllBoundDevices();
+    return 0;
+}
+
+int32_t WfdSinkScene::HandleDeleteBoundDevice(std::shared_ptr<WfdDeleteBoundDeviceReq> &msg,
+                                              std::shared_ptr<WfdCommonRsp> &reply)
+{
+    SHARING_LOGI("%{public}s.", __FUNCTION__);
+    (void)reply;
+    RETURN_INVALID_IF_NULL(msg);
+    wfdTrustListManager_.DeleteBoundDeviceGroup(msg->deviceAddress);
     return 0;
 }
 

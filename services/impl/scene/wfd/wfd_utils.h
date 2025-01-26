@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+ * Copyright (c) 2025 Shenzhen Kaihong Digital Industry Development Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,19 +13,16 @@
  * limitations under the License.
  */
 
-#ifndef OHOS_SHARING_CRYPTO_H
-#define OHOS_SHARING_CRYPTO_H
+#ifndef OHOS_SHARING_WFD_UTILS_H
+#define OHOS_SHARING_WFD_UTILS_H
 
 #include <string>
 
 namespace OHOS {
 namespace Sharing {
 
-std::string GetMD5(const std::string &src);
-
-std::vector<uint8_t> GenerateSha256HashId(const uint8_t *originalId, uint32_t &len);
+std::string GetAddressHash(const std::string &address);
 
 } // namespace Sharing
 } // namespace OHOS
-
-#endif // OHOS_SHARING_CRYPTO_H
+#endif
