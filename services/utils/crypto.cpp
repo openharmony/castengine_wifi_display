@@ -15,7 +15,10 @@
 
 #include "crypto.h"
 #include <iomanip>
+#include <openssl/evp.h>
 #include <sstream>
+#include <vector>
+#include "common/sharing_log.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -37,5 +40,21 @@ std::string GetMD5(const std::string &src)
     return MD5Digest;
 }
 
+std::vector<uint8_t> GenerateSha256HashId(const uint8_t *originalId, uint32_t &len)
+{
+    if (originalId == nullptr || len == 0) {
+        return std::vector<uint8_t>{};
+    }
+
+    std::unique_ptr<uint8_t[]> outHash = std::make_unique<uint8_t[]>(len);
+    uint32_t outLen = 0; // should be 32 bytes
+    int32_t ret = EVP_Digest(originalId, len, outHash.get(), &outLen, EVP_sha256(), nullptr);
+    if (ret != 1) {
+        SHARING_LOGE("Get Openssl Hash fail, %{public}d", ret);
+        return std::vector<uint8_t>{};
+    }
+    std::vector<uint8_t> result(outHash.get(), outHash.get() + outLen);
+    return result;
+}
 } // namespace Sharing
 } // namespace OHOS

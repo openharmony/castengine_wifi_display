@@ -402,5 +402,43 @@ void WfdSinkImpl::OnRemoteDied()
     }
 }
 
+int32_t WfdSinkImpl::GetBoundDevicesList(std::vector<BoundDeviceInfo> &devices)
+{
+    SHARING_LOGI("trace");
+    auto ipcAdapter = ipcAdapter_.lock();
+    RETURN_INVALID_IF_NULL(ipcAdapter);
+    auto msg = std::make_shared<WfdGetBoundDevicesReq>();
+    RETURN_INVALID_IF_NULL(msg);
+    auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdGetBoundDevicesRsp>());
+    RETURN_INVALID_IF_NULL(reply);
+    auto ret = ipcAdapter->SendRequest(msg, reply);
+    if (ret != 0) {
+        SHARING_LOGE("ipc GetBoundDevicesList failed: %{public}d.", ret);
+        return ret;
+    }
+    auto replyMsg = std::static_pointer_cast<WfdGetBoundDevicesRsp>(reply);
+    devices = replyMsg->trustDevices;
+    return ret;
+}
+
+int32_t WfdSinkImpl::DeleteBoundDevice(std::string &deviceAddress)
+{
+    SHARING_LOGI("trace");
+    auto ipcAdapter = ipcAdapter_.lock();
+    RETURN_INVALID_IF_NULL(ipcAdapter);
+    auto msg = std::make_shared<WfdDeleteBoundDeviceReq>();
+    RETURN_INVALID_IF_NULL(msg);
+    msg->deviceAddress = deviceAddress;
+    auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
+    RETURN_INVALID_IF_NULL(reply);
+    auto ret = ipcAdapter->SendRequest(msg, reply);
+    if (ret != 0) {
+        SHARING_LOGE("ipc DeleteBoundDevice failed: %{public}d.", ret);
+        return ret;
+    }
+    auto replyMsg = std::static_pointer_cast<WfdCommonRsp>(reply);
+    return replyMsg->ret;
+}
+
 } // namespace Sharing
 } // namespace OHOS

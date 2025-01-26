@@ -32,7 +32,7 @@ ohos_source_set("sharing_wfd_srcs") {
     "$SHARING_ROOT_DIR/services/interaction/ipc_codec",
   ]
 
-  sources = []
+  sources = [ "wfd_utils.cpp" ]
 
   if (wifi_display_support_source) {
     sources += [ "wfd_source_scene.cpp" ]
@@ -43,7 +43,10 @@ ohos_source_set("sharing_wfd_srcs") {
   }
 
   if (wifi_display_support_sink) {
-    sources += [ "wfd_sink_scene.cpp" ]
+    sources += [
+      "wfd_sink_scene.cpp",
+      "wfd_trust_list_manager.cpp",
+    ]
     include_dirs += [ "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink" ]
   }
 

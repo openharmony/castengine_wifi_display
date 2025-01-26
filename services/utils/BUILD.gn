@@ -39,6 +39,7 @@ ohos_static_library("sharing_utils") {
     "crypto.cpp",
     "data_buffer.cpp",
     "data_queue.cpp",
+    "preferences_util.cpp",
     "timeout_timer.cpp",
     "utils.cpp",
   ]
@@ -50,6 +51,7 @@ ohos_static_library("sharing_utils") {
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
+    "preferences:native_preferences",
   ]
   part_name = "sharing_framework"
   subsystem_name = "castplus"

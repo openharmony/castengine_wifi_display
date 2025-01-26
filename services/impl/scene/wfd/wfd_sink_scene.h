@@ -20,16 +20,17 @@
 #include <unordered_map>
 #include <unordered_set>
 #include "agent/agent_def.h"
-#include "interaction/scene/base_scene.h"
+#include "dm_constants.h"
+#include "i_wifi_device_callback.h"
 #include "interaction/device_kit/dm_kit.h"
+#include "interaction/scene/base_scene.h"
+#include "system_ability_status_change_stub.h"
 #include "utils/utils.h"
 #include "wfd_def.h"
 #include "wfd_msg.h"
-#include "wifi_p2p.h"
-#include "i_wifi_device_callback.h"
+#include "wfd_trust_list_manager.h"
 #include "wifi_device.h"
-#include "dm_constants.h"
-#include "system_ability_status_change_stub.h"
+#include "wifi_p2p.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -64,6 +65,7 @@ public:
 
     private:
         std::weak_ptr<WfdSinkScene> parent_;
+        WfdTrustListManager wfdTrustListManager_;
     };
 
     class WifiCallback : public Wifi::IWifiDeviceCallBack {
@@ -89,10 +91,10 @@ public:
     class WfdSystemAbilityListener : public SystemAbilityStatusChangeStub {
     public:
         explicit WfdSystemAbilityListener(std::weak_ptr<WfdSinkScene> scene) : scene_(scene) {}
- 
+
         void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
         void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
- 
+
     private:
         std::weak_ptr<WfdSinkScene> scene_;
     };
@@ -165,6 +167,11 @@ private:
     int32_t HandleClose(std::shared_ptr<WfdCloseReq> &msg, std::shared_ptr<WfdCommonRsp> &reply);
     int32_t HandleGetConfig(std::shared_ptr<GetSinkConfigReq> &msg, std::shared_ptr<GetSinkConfigRsp> &reply);
 
+    int32_t HandleGetBoundDevices(std::shared_ptr<WfdGetBoundDevicesReq> &msg,
+                                  std::shared_ptr<WfdGetBoundDevicesRsp> &reply);
+    int32_t HandleDeleteBoundDevice(std::shared_ptr<WfdDeleteBoundDeviceReq> &msg,
+                                    std::shared_ptr<WfdCommonRsp> &reply);
+
 private:
     std::atomic_bool isSinkRunning_ = false;
     std::atomic_bool isInitialized_ = false;
@@ -186,7 +193,7 @@ private:
     AudioFormat audioFormatId_ = AudioFormat::AUDIO_NONE;
     VideoFormat videoFormatId_ = VideoFormat::VIDEO_NONE;
     WfdParamsInfo wfdParamsInfo_;
-
+    WfdTrustListManager wfdTrustListManager_;
     sptr<ISystemAbilityStatusChange> sysAbilityListener_ = nullptr;
 };
 

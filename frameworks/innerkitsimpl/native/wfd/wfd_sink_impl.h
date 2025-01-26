@@ -74,6 +74,8 @@ public:
 
     int32_t SetSceneType(std::string deviceId, uint64_t surfaceId, SceneType sceneType) override;
     int32_t SetMediaFormat(std::string deviceId, CodecAttr videoAttr, CodecAttr audioAttr) override;
+    int32_t GetBoundDevicesList(std::vector<BoundDeviceInfo> &devices) override;
+    int32_t DeleteBoundDevice(std::string &deviceAddress) override;
 
 private:
     std::weak_ptr<IpcMsgAdapter> ipcAdapter_;

@@ -45,6 +45,8 @@ public:
 
     virtual int32_t SetSceneType(std::string deviceId, uint64_t surfaceId, SceneType sceneType) = 0;
     virtual int32_t SetMediaFormat(std::string deviceId, CodecAttr videoAttr, CodecAttr audioAttr) = 0;
+    virtual int32_t GetBoundDevicesList(std::vector<BoundDeviceInfo> &devices) = 0;
+    virtual int32_t DeleteBoundDevice(std::string &deviceAddress) = 0;
 };
 
 class __attribute__((visibility("default"))) WfdSinkFactory {
