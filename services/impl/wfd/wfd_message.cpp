@@ -493,7 +493,7 @@ VideoFormat WfdRtspM3Response::GetVideoFormats()
     while (run) {
         auto nPos = value.find_first_of(",", index + 1);
         if (nPos != std::string::npos) {
-            index = nPos;
+            index = static_cast<int>(nPos);
             temp = value.substr(0, index);
         } else {
             temp = value.substr(index + 1);

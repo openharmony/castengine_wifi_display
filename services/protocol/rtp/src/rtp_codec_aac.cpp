@@ -30,7 +30,10 @@ RtpDecoderAAC::RtpDecoderAAC(const RtpPlaylodParam &rpp) : rpp_(rpp)
     if (aacExtra && !aacExtra->aacConfig_.empty()) {
         for (size_t i = 0; i < aacExtra->aacConfig_.size() / 2; ++i) { // 2:unit
             uint32_t cfg;
-            sscanf_s(aacExtra->aacConfig_.substr(i * 2, 2).data(), "%02X", &cfg); // 2:unit
+            auto ret = sscanf_s(aacExtra->aacConfig_.substr(i * 2, 2).data(), "%02X", &cfg); // 2:unit
+            if (ret != EOK) {
+                MEDIA_LOGE("sscanf_s failed.");
+            }
             cfg &= 0x00FF;
             aacConfig_.push_back((char)cfg);
         }
@@ -171,7 +174,7 @@ void RtpEncoderAAC::InputFrame(const Frame::Ptr &frame)
     MEDIA_LOGD("rtpEncoderAAC::InputFrame.");
     auto stamp = frame->Dts();
     auto data = frame->Data() + frame->PrefixSize();
-    auto len = frame->Size() - frame->PrefixSize();
+    auto len = (size_t)frame->Size() - frame->PrefixSize();
     auto ptr = (char *)data;
     auto remain_size = len;
     auto max_size = GetMaxSize() - 4; // 4:avc start code size

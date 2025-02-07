@@ -81,10 +81,10 @@ private:
 
     SwrContext *swr_ = nullptr;
     //buffer for swr out put
-    uint8_t **swrData_;
+    uint8_t **swrData_ = nullptr;
     AVAudioFifo *fifo_ = nullptr;
 
-    int64_t nextOutPts_;
+    int64_t nextOutPts_ = 0;
     uint8_t* outBuffer_ = nullptr;
 };
 

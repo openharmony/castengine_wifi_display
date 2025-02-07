@@ -34,7 +34,10 @@ DataBuffer::DataBuffer(const DataBuffer &other) noexcept
     if (other.data_ && other.size_) {
         capacity_ = other.size_;
         data_ = new uint8_t[capacity_ + 1];
-        memcpy_s(data_, capacity_ + 1, other.data_, other.size_);
+        auto ret = memcpy_s(data_, capacity_ + 1, other.data_, other.size_);
+        if (ret != EOK) {
+            size_ = other.size_;
+        }
         size_ = other.size_;
     }
 }
@@ -46,7 +49,11 @@ DataBuffer &DataBuffer::operator=(const DataBuffer &other) noexcept
             capacity_ = other.size_;
             delete[] data_;
             data_ = new uint8_t[capacity_ + 1];
-            memcpy_s(data_, capacity_ + 1, other.data_, other.size_);
+            auto ret = memcpy_s(data_, capacity_ + 1, other.data_, other.size_);
+            if (ret != EOK) {
+                size_ = other.size_;
+                return *this;
+            }
             size_ = other.size_;
         }
     }

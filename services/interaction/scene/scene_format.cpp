@@ -315,6 +315,10 @@ bool SceneFormatParcel::Unmarshalling(MessageParcel &parcel, SceneFormat &format
 {
     SHARING_LOGD("trace.");
     uint32_t size = parcel.ReadUint32();
+    if (static_cast<uint32_t>(size) > 100) { // 100:size limit
+        SHARING_LOGE("size above limit.");
+        return false;
+    }
     for (uint32_t index = 0; index < size; index++) {
         std::string key = parcel.ReadString();
         uint32_t valType = parcel.ReadUint32();

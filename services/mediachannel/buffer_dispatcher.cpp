@@ -674,12 +674,12 @@ int32_t BufferDispatcher::AttachReceiver(BufferReceiver::Ptr receiver)
 
     auto usableRef = ~readRefFlag_ & (-(~readRefFlag_));
 
-    if ((usableRef & (usableRef - 1)) != 0) {
+    if ((static_cast<uint32_t>(usableRef) & static_cast<uint32_t>(usableRef - 1)) != 0) {
         SHARING_LOGE("usableRef: %{public}d invalid.", usableRef);
         return -1;
     }
 
-    readRefFlag_ |= usableRef;
+    readRefFlag_ |= static_cast<uint32_t>(usableRef);
     notifier->SetReadIndex(static_cast<uint32_t>(log2(usableRef)));
     SHARING_LOGI("receiverId: %{public}d, readIndex: %{public}d, usableRef: %{public}d, readRefFlag_: %{public}d.",
                  receiver->GetReceiverId(), notifier->GetReadIndex(), usableRef, readRefFlag_);
@@ -895,7 +895,7 @@ int32_t BufferDispatcher::ReadBufferData(uint32_t receiverId, MediaType type,
 
     if (IsKeyVideoFrame(data)) {
         int32_t bufferVideoCacheCnt = 0;
-        for (size_t i = readIndex + 1; i < circularBuffer_.size(); i++) {
+        for (size_t i = (size_t)readIndex + 1; i < circularBuffer_.size(); i++) {
             if (circularBuffer_[i]->mediaData->mediaType == MEDIA_TYPE_VIDEO)
                 bufferVideoCacheCnt++;
         }
@@ -992,7 +992,7 @@ int32_t BufferDispatcher::WriteDataIntoBuffer(const DataSpec::Ptr &data)
 
     if (NeedRestoreToNormalCapacity()) {
         std::unique_lock<std::shared_mutex> locker(bufferMutex_);
-        int32_t popSize = circularBuffer_.size() - INITIAL_BUFFER_CAPACITY;
+        int32_t popSize = (int32_t)(circularBuffer_.size() - INITIAL_BUFFER_CAPACITY);
         for (int32_t i = 0; i < popSize; i++) {
             if (HeadFrameNeedReserve()) {
                 MEDIA_LOGW("dispatcherId: %{public}u, need reserve but pop, mediaType: "
@@ -1274,7 +1274,7 @@ void BufferDispatcher::UpdateReceiverReadIndex(uint32_t receiverId, const uint32
 uint32_t BufferDispatcher::FindNextIndex(uint32_t index, MediaType type)
 {
     MEDIA_LOGD("trace.");
-    if (index + 1 >= circularBuffer_.size() || index == INVALID_INDEX) {
+    if ((uint64_t)index + 1 >= circularBuffer_.size() || index == INVALID_INDEX) {
         return index;
     }
 
@@ -1665,8 +1665,10 @@ uint32_t BufferDispatcher::GetReceiverIndexRef(uint32_t receiverId)
     uint32_t audioBit = index * 2;
     uint32_t videoBit = index * 2 + 1;
     uint32_t retBitRef = 0x0000;
-    retBitRef |= RECV_FLAG_BASE << audioBit;
-    retBitRef |= RECV_FLAG_BASE << videoBit;
+    if (videoBit < 32) { // 32:bit width
+        retBitRef |= RECV_FLAG_BASE << audioBit;
+        retBitRef |= RECV_FLAG_BASE << videoBit;
+    }
     return retBitRef;
 }
 

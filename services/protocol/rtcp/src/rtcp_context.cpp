@@ -72,7 +72,7 @@ void RtcpSenderContext::OnRtcp(RtcpHeader *rtcp)
                 // time: [sender (send SR) -> receiver (recv SR)] + [receiver (send RR) -> sender (recv RR)]
                 auto rtt = (int32_t)(msInc - delayMs);
                 if (rtt >= 0) {
-                    rtt_[item->ssrc_] = rtt;
+                    rtt_[item->ssrc_] = (uint32_t)rtt;
                 }
             }
             break;

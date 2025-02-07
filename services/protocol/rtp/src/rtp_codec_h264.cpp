@@ -257,6 +257,7 @@ void RtpEncoderH264::PackRtpFu(const uint8_t *data, size_t len, uint32_t pts, bo
     auto fuChar1 = H264_TYPE(data[0]);
     FuFlags *fuFlags = (FuFlags *)(&fuChar1);
     fuFlags->startBit_ = 1;
+    fuFlags->endBit_ = 0;
 
     size_t offset = 1;
     while (!fuFlags->endBit_) {

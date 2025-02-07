@@ -122,7 +122,7 @@ public:
 
     std::string peerIp_;
 
-    struct sockaddr_in udpClientAddr_;
+    struct sockaddr_in udpClientAddr_ = {};
     socklen_t udpClientLen_ = sizeof(struct sockaddr_in);
 
 protected:

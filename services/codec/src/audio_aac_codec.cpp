@@ -201,7 +201,7 @@ int AudioAACEncoder::InitSwr()
     if (inSampleBit_ == AUDIO_SAMPLE_BIT_U8) {
         in_sample_fmt = AV_SAMPLE_FMT_U8;
     }
-    int in_sample_rate = inSampleRate_;
+    int in_sample_rate = (int)inSampleRate_;
     swr_ = swr_alloc_set_opts(NULL, enc_->channel_layout, enc_->sample_fmt, enc_->sample_rate, in_ch_layout,
                               in_sample_fmt, in_sample_rate, 0, NULL);
     if (!swr_) {
@@ -229,12 +229,12 @@ int AudioAACEncoder::InitSwr()
 
 void AudioAACEncoder::InitEncoderCtx(uint32_t channels, uint32_t sampleBit, uint32_t sampleRate)
 {
-    enc_->sample_rate = sampleRate; // dst_samplerate;
-    enc_->channels = channels;      // dst_channels;
-    enc_->channel_layout = av_get_default_channel_layout(channels);
+    enc_->sample_rate = (int32_t)sampleRate; // dst_samplerate;
+    enc_->channels = (int32_t)channels;      // dst_channels;
+    enc_->channel_layout = (uint64_t)av_get_default_channel_layout(channels);
     enc_->bit_rate = AUDIO_BIT_RATE_12800;
     enc_->time_base.num = 1;
-    enc_->time_base.den = sampleRate;
+    enc_->time_base.den = (int32_t)sampleRate;
     enc_->compression_level = 1;
     enc_->strict_std_compliance = FF_COMPLIANCE_EXPERIMENTAL;
 }
@@ -347,16 +347,18 @@ void AddAdtsHeader(uint8_t *data, int dataSize)
     adtsHeader[0] = ADTS_HEADER_BEGIN;
     adtsHeader[1] = ADTS_HEADER_MPEG4_AACLC;
     adtsHeader[ADTS_HEADER_INDEX_2] =
-        ((profile - 1) << ADTS_HEADER_PROFILE_SHIFT) |
-        ((samplingFrequencyIndex & ADTS_HEADER_SAMPLE_MASK) << ADTS_HEADER_SAMPLE_SHIFT) |
-        ((channelConfiguration >> ADTS_HEADER_CHANNEL_SHIFT) & ADTS_HEADER_CHANNEL_MASK);
+        (static_cast<uint32_t>(profile - 1) << ADTS_HEADER_PROFILE_SHIFT) |
+        ((static_cast<uint32_t>(samplingFrequencyIndex) & ADTS_HEADER_SAMPLE_MASK) << ADTS_HEADER_SAMPLE_SHIFT) |
+        ((static_cast<uint32_t>(channelConfiguration) >> ADTS_HEADER_CHANNEL_SHIFT) & ADTS_HEADER_CHANNEL_MASK);
     adtsHeader[ADTS_HEADER_INDEX_3] =
-        ((channelConfiguration & ADTS_HEADER_CHANNEL_MASK1) << ADTS_HEADER_CHANNEL_SHIFT1) |
-        ((dataSize + ADTS_HEADER_DATA_SZIE_OFFSET) >> ADTS_HEADER_DATA_SZIE_SHIFT);
+        ((static_cast<uint32_t>(channelConfiguration) & ADTS_HEADER_CHANNEL_MASK1) << ADTS_HEADER_CHANNEL_SHIFT1) |
+        (static_cast<uint32_t>(dataSize + ADTS_HEADER_DATA_SZIE_OFFSET) >> ADTS_HEADER_DATA_SZIE_SHIFT);
     adtsHeader[ADTS_HEADER_INDEX_4] =
-        ((dataSize + ADTS_HEADER_DATA_SZIE_OFFSET) >> ADTS_HEADER_DATA_SZIE_SHIFT1) & ADTS_HEADER_DATA_SZIE_MASK;
+        (static_cast<uint32_t>(dataSize + ADTS_HEADER_DATA_SZIE_OFFSET) >> ADTS_HEADER_DATA_SZIE_SHIFT1) &
+        ADTS_HEADER_DATA_SZIE_MASK;
     adtsHeader[ADTS_HEADER_INDEX_5] =
-        ((dataSize + ADTS_HEADER_DATA_SZIE_OFFSET) << ADTS_HEADER_DATA_SZIE_SHIFT2) | ADTS_HEADER_DATA_SZIE_MASK1;
+        (static_cast<uint32_t>(dataSize + ADTS_HEADER_DATA_SZIE_OFFSET) << ADTS_HEADER_DATA_SZIE_SHIFT2) |
+        ADTS_HEADER_DATA_SZIE_MASK1;
     adtsHeader[ADTS_HEADER_INDEX_6] = ADTS_HEADER_END;
 
     if (memcpy_s(data, sizeof(adtsHeader), adtsHeader, sizeof(adtsHeader)) != EOK) {
@@ -374,7 +376,7 @@ void AudioAACEncoder::DoSwr(const Frame::Ptr &frame)
     char errBuf[AV_ERROR_MAX_STRING_SIZE] = {0};
 
     do {
-        int sample_size = inChannels_ * inSampleBit_ / 8;
+        int sample_size = (int)(inChannels_ * inSampleBit_ / 8);
         in_samples = in_samples / sample_size;
 
         int frame_size = swr_convert(swr_, swrData_, enc_->frame_size, (const uint8_t **)in_sample, in_samples);
@@ -396,11 +398,11 @@ void AudioAACEncoder::OnFrame(const Frame::Ptr &frame)
     RETURN_IF_NULL(frame);
     if (duration == 0) {
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-        duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+        duration = (uint64_t)std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
     }
 
     int error = 0;
-    if (!swr_ && (error = InitSwr()) != 0) {
+    if ((error = InitSwr()) != 0 && !swr_) {
         SHARING_LOGE("resample init failed!");
         return;
     }
@@ -440,7 +442,7 @@ void AudioAACEncoder::OnFrame(const Frame::Ptr &frame)
             AddAdtsHeader((uint8_t *)outBuffer_, encPacket_->size);
             auto aacFrame = FrameImpl::Create();
             aacFrame->codecId_ = CODEC_AAC;
-            aacFrame->pts_ = duration + encPacket_->pts;
+            aacFrame->pts_ = (uint32_t)((int64_t)duration + encPacket_->pts);
             aacFrame->Assign((char *)outBuffer_, encPacket_->size + 7); // 7: size offset
             DeliverFrame(aacFrame);
         }

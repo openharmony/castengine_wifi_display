@@ -36,10 +36,10 @@ private:
     void PcmLittleToBigEndian(uint8_t *data, int32_t size);
 
 private:
-    uint32_t channels_;
-    uint32_t sampleBit_;
-    uint32_t sampleRate_;
-    uint32_t sampleSize_;
+    uint32_t channels_ = 0;
+    uint32_t sampleBit_ = 0;
+    uint32_t sampleRate_ = 0;
+    uint32_t sampleSize_ = 0;
     AVAudioFifo *fifo_ = nullptr;
 };
 
