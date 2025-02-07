@@ -73,13 +73,13 @@ void AudioPcmProcessor::OnFrame(const Frame::Ptr &frame)
 
     if (duration == 0) {
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-        duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+        duration = (uint64_t)std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
     }
 
     PcmLittleToBigEndian(frame->Data(), frame->Size());
     uint8_t *captureData[] = {frame->Data()};
     uint8_t *payloadData[] = {data};
-    int32_t payloadSampleNum = LPCM_PES_PAYLOAD_DATA_SIZE / sampleSize_;
+    int32_t payloadSampleNum = (int32_t)(LPCM_PES_PAYLOAD_DATA_SIZE / sampleSize_);
     av_audio_fifo_write(fifo_, reinterpret_cast<void **>(captureData), frame->Size() / sampleSize_);
     while (av_audio_fifo_size(fifo_) >= payloadSampleNum) {
         av_audio_fifo_read(fifo_, reinterpret_cast<void **>(payloadData), payloadSampleNum);
@@ -99,7 +99,7 @@ void AudioPcmProcessor::OnFrame(const Frame::Ptr &frame)
 
 void AudioPcmProcessor::PcmLittleToBigEndian(uint8_t *data, int32_t size)
 {
-    uint32_t sampleSize = sampleSize_ / channels_;
+    uint32_t sampleSize = (int32_t)(sampleSize_ / channels_);
     if (sampleSize <= 1) {
         return;
     }

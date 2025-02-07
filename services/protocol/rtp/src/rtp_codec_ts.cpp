@@ -306,7 +306,7 @@ void RtpEncoderTs::StartEncoding()
     audioStream->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
     audioStream->codecpar->codec_id = audioCodeId_;
     audioStream->codecpar->codec_tag = 0;
-    audioStream->codecpar->channel_layout = av_get_default_channel_layout(AUDIO_CHANNEL_STEREO);
+    audioStream->codecpar->channel_layout = (uint64_t)av_get_default_channel_layout(AUDIO_CHANNEL_STEREO);
     audioStream->codecpar->channels = AUDIO_CHANNEL_STEREO;
     audioStream->codecpar->sample_rate = AUDIO_SAMPLE_RATE_48000;
     audioStream->time_base.num = 1;
@@ -322,7 +322,7 @@ void RtpEncoderTs::StartEncoding()
         return;
     }
     avFormatContext_->pb = avioContext_;
-    avFormatContext_->flags |= AVFMT_FLAG_CUSTOM_IO;
+    avFormatContext_->flags = (int32_t)((uint32_t)(avFormatContext_->flags) | AVFMT_FLAG_CUSTOM_IO);
 
     int32_t ret = avformat_write_header(avFormatContext_, NULL);
     if (ret < 0) {

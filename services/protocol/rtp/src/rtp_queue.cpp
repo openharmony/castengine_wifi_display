@@ -49,10 +49,10 @@ void RtpPacketSortor::InputRtp(TrackType type, uint8_t *ptr, size_t len)
 
     auto rtp = std::make_shared<RtpPacket>();
     rtp->ReplaceData(reinterpret_cast<char*>(ptr), len);
-    rtp->sampleRate_ = sampleRate_;
+    rtp->sampleRate_ = (uint32_t)sampleRate_;
     rtp->type_ = type;
 
-    if (rtp->Size() != len) {
+    if ((size_t)rtp->Size() != len) {
         return;
     }
     MEDIA_LOGD("rtp payload size: %{public}zu.", rtp->GetPayloadSize());

@@ -124,6 +124,10 @@ void KvOperator::SyncCompleted(const std::map<std::string, DistributedKv::Status
 
 bool KvOperator::StringToJson(const std::string &str, nlohmann::json &jsonObj)
 {
+    if (str.empty() || !nlohmann::json::accept(str)) {
+        MEDIA_LOGE("parse json failed.");
+        return false;
+    }
     jsonObj = nlohmann::json::parse(str);
     if (jsonObj.is_discarded()) {
         MEDIA_LOGE("parse json failed.");

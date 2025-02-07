@@ -61,10 +61,10 @@ void AdtsHeader::ParseAacConfig(const std::string &config, AdtsHeader &adts)
     adts.id_ = 0;
     adts.layer_ = 0;
     adts.protectionAbsent_ = 1;
-    adts.profile_ = audioObjectType - 1;
-    adts.sfIndex_ = samplingFrequencyIndex;
+    adts.profile_ = (uint32_t)(audioObjectType - 1);
+    adts.sfIndex_ = (uint32_t)samplingFrequencyIndex;
     adts.privateBit_ = 0;
-    adts.channelConfiguration_ = channelConfiguration;
+    adts.channelConfiguration_ = (uint32_t)channelConfiguration;
     adts.original_ = 0;
     adts.home_ = 0;
     adts.copyrightIdentificationBit_ = 0;

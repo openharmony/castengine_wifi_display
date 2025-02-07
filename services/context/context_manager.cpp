@@ -164,7 +164,7 @@ bool ContextManager::CheckAgentSize(AgentType agentType)
             sinkCount += (item.second->GetSinkAgentSize());
         }
         SHARING_LOGI("now sink agent num: %{public}d.", sinkCount);
-        if (sinkCount >= GetAgentSinkLimit()) {
+        if (sinkCount >= (int32_t)GetAgentSinkLimit()) {
             SHARING_LOGE("check agent size error! limit sink agent size.");
             return false;
         }
@@ -174,7 +174,7 @@ bool ContextManager::CheckAgentSize(AgentType agentType)
             srcCount += (item.second->GetSrcAgentSize());
         }
         SHARING_LOGI("now src agent num: %{public}d.", srcCount);
-        if (srcCount >= GetAgentSrcLimit()) {
+        if (srcCount >= (int32_t)GetAgentSrcLimit()) {
             SHARING_LOGE("check agent size error! limit src agent size.");
             return false;
         }

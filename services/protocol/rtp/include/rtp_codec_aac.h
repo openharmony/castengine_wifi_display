@@ -61,7 +61,7 @@ public:
     void MakeAACRtp(const void *data, size_t len, bool mark, uint32_t stamp);
 
 private:
-    unsigned char sectionBuf_[1600];
+    unsigned char sectionBuf_[1600] = {0};
 };
 } // namespace Sharing
 } // namespace OHOS

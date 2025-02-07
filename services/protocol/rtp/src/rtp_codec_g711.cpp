@@ -85,7 +85,7 @@ void RtpEncoderG711::InputFrame(const Frame::Ptr &frame)
     RETURN_IF_NULL(frame);
     RETURN_IF_NULL(cacheFrame_);
     MEDIA_LOGD("rtpEncoderG711::InputFrame enter.");
-    auto dur = (cacheFrame_->Size() - cacheFrame_->PrefixSize()) / (8 * channels_);
+    auto dur = ((size_t)cacheFrame_->Size() - cacheFrame_->PrefixSize()) / (8 * channels_);
     auto next_pts = cacheFrame_->Pts() + dur;
     if (next_pts == 0) {
         cacheFrame_->pts_ = frame->Pts();
@@ -99,10 +99,10 @@ void RtpEncoderG711::InputFrame(const Frame::Ptr &frame)
 
     auto stamp = cacheFrame_->Pts();
     auto ptr = cacheFrame_->Data() + cacheFrame_->PrefixSize();
-    auto len = cacheFrame_->Size() - cacheFrame_->PrefixSize();
+    auto len = (size_t)cacheFrame_->Size() - cacheFrame_->PrefixSize();
     auto rtpPack = MakeRtp(ptr, len, false, stamp);
     if (onRtpPack_) {
-        MEDIA_LOGD("rtpEncoderG711::InputFrame onRtpPack data %{public}p size: %{public}d.", ptr, (int32_t)len);
+        MEDIA_LOGD("rtpEncoderG711::InputFrame onRtpPack size: %{public}d.", (int32_t)len);
         onRtpPack_(rtpPack);
     }
 

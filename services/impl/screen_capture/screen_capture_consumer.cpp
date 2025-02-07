@@ -95,7 +95,7 @@ void ScreenCaptureConsumer::OnFrame(const Frame::Ptr &frame, FRAME_TYPE frameTyp
     auto listener = listener_.lock();
     BufferDispatcher::Ptr dispatcher = listener->GetDispatcher();
     if (dispatcher) {
-        uint32_t len = frame->Size();
+        uint32_t len = (uint32_t)frame->Size();
         switch (frameType) {
             case SPS_FRAME: {
                 SHARING_LOGD("get sps frame, size:%{public}u.", len);
@@ -109,7 +109,8 @@ void ScreenCaptureConsumer::OnFrame(const Frame::Ptr &frame, FRAME_TYPE frameTyp
             }
             case IDR_FRAME: {
                 std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-                uint64_t pts = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+                uint64_t pts =
+                    static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count());
                 auto mediaData = dispatcher->RequestDataBuffer(MEDIA_TYPE_VIDEO, len);
                 if (mediaData == nullptr) {
                     SHARING_LOGE("RequestDataBuffer get null!");

@@ -287,10 +287,10 @@ bool SocketUtils::SetCloExec(int32_t fd, bool isOn)
     }
 
     if (isOn) {
-        flags |= FD_CLOEXEC;
+        flags = static_cast<int32_t>(static_cast<uint32_t>(flags) | FD_CLOEXEC);
     } else {
         int32_t cloexec = FD_CLOEXEC;
-        flags &= ~cloexec;
+        flags = static_cast<int32_t>(static_cast<uint32_t>(flags) & ~static_cast<uint32_t>(cloexec));
     }
 
     if (fcntl(fd, F_SETFD, flags) == -1) {
@@ -325,9 +325,9 @@ bool SocketUtils::SetNonBlocking(int32_t fd, bool isNonBlock, uint32_t writeTime
     SHARING_LOGD("trace.");
     int32_t flags = -1;
     if (isNonBlock) {
-        flags = fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
+        flags = fcntl(fd, F_SETFL, static_cast<uint32_t>(fcntl(fd, F_GETFL)) | O_NONBLOCK);
     } else {
-        flags = fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) & ~O_NONBLOCK);
+        flags = fcntl(fd, F_SETFL, static_cast<uint32_t>(fcntl(fd, F_GETFL)) & ~O_NONBLOCK);
         if (writeTimeout > 0) {
             struct timeval tv = {writeTimeout / 1000, (writeTimeout % 1000) * 1000};
             setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<char *>(&tv), sizeof tv);
@@ -458,7 +458,7 @@ int32_t SocketUtils::ReadSocket(int32_t fd, DataBuffer::Ptr buf, int32_t &error)
 
     auto size = buf->Capacity() - buf->Size();
     if (size < READ_BUF_SIZE) {
-        uint32_t bufferReaderSize = buf->Size();
+        uint32_t bufferReaderSize = (uint32_t)buf->Size();
         if (bufferReaderSize > MAX_READ_BUF_SIZE) {
             SHARING_LOGE("error data size!");
             return -1;

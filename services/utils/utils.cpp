@@ -144,7 +144,7 @@ std::string ChangeCase(const std::string &value, bool LowerCase)
 {
     std::string newvalue(value);
     for (std::string::size_type i = 0, l = newvalue.length(); i < l; ++i)
-        newvalue[i] = LowerCase ? tolower(newvalue[i]) : toupper(newvalue[i]);
+        newvalue[i] = LowerCase ? static_cast<char>(tolower(newvalue[i])) : static_cast<char>(toupper(newvalue[i]));
     return newvalue;
 }
 
@@ -201,36 +201,6 @@ void SaveFile(const char *data, int32_t dataSize, const std::string &fileName)
     out.write(data, dataSize);
     out.flush();
     out.close();
-}
-
-void NeonMemcpy(volatile unsigned char *dst, volatile unsigned char *src, int size)
-{
-#if defined(__ARM_NEON__)
-    int neonCopy = size - size % 64;
-    if (neonCopy > 0) {
-        int tempCount = neonCopy;
-        asm volatile("NEONCopyPLD_%=: \n"
-                     " VLDM %[src]!,{d0-d7} \n"
-                     " VSTM %[dst]!,{d0-d7} \n"
-                     " SUBS %[tempCount],%[tempCount],#0x40 \n"
-                     " BGT NEONCopyPLD_%= \n"
-                     : [dst] "+r"(dst), [src] "+r"(src), [tempCount] "+r"(tempCount)::"d0", "d1", "d2", "d3", "d4",
-                       "d5", "d6", "d7", "cc", "memory");
-    }
-    if (size - neonCopy > 0) {
-        auto ret = memcpy_s((void *)dst, size - neonCopy, (void *)src, size - neonCopy);
-        if (ret != EOK) {
-            return;
-        }
-    }
-#else
-    if (size > 0) {
-        auto ret = memcpy_s((void *)dst, size, (void *)src, size);
-        if (ret != EOK) {
-            return;
-        }
-    }
-#endif
 }
 
 uint16_t SwapEndian16(uint16_t value)

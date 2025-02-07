@@ -84,8 +84,8 @@ private:
     bool exit_ = false;
     uint8_t *avioCtxBuffer_ = nullptr;
 
-    bool keyFrame_;
-    uint32_t timeStamp_;
+    bool keyFrame_ = false;
+    uint32_t timeStamp_ = 0;
     FrameMerger merger_;
 
     std::mutex queueMutex_;

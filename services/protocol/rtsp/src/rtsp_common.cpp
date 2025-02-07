@@ -137,7 +137,7 @@ RtspError RtspCommon::ParseMessage(const std::string &message, std::vector<std::
         if (messageV.size() > 1) {
             SHARING_LOGW("may packet splicing.");
             std::string splicingPart;
-            for (int32_t i = 1; i < messageV.size(); ++i) {
+            for (size_t i = 1; i < messageV.size(); ++i) {
                 splicingPart += messageV[i];
                 if (i != messageV.size() - 1) {
                     splicingPart += "\r\n\r\n";

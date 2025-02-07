@@ -33,7 +33,7 @@ int32_t RtcpHeader::GetSize() const
 
 void RtcpHeader::SetSize(int32_t size)
 {
-    length_ = htons((size >> 2) - 1); // 2:byte offset
+    length_ = htons(((uint32_t)size >> 2) - 1); // 2:byte offset
 }
 
 int32_t RtcpHeader::GetPaddingSize() const
@@ -49,7 +49,7 @@ int32_t RtcpHeader::GetPaddingSize() const
 
 static inline int32_t AlignSize(int32_t bytes)
 {
-    return static_cast<int32_t>(((bytes + 3) >> 2) << 2); // 2:byte offset, 3:byte length
+    return static_cast<int32_t>((static_cast<uint32_t>(bytes + 3) >> 2) << 2); // 2:byte offset, 3:byte length
 }
 
 static void SetupHeader(RtcpHeader *rtcp, RtcpType type, int32_t reportCount, int32_t totalBytes)
@@ -82,7 +82,7 @@ static void SetupPadding(RtcpHeader *rtcp, size_t paddingSize)
 
 std::shared_ptr<RtcpSR> RtcpSR::Create(int32_t itemCount)
 {
-    auto realSize = sizeof(RtcpSR) - sizeof(ReportItem) + itemCount * sizeof(ReportItem);
+    auto realSize = (int32_t)sizeof(RtcpSR) - (int32_t)sizeof(ReportItem) + itemCount * (int32_t)sizeof(ReportItem);
     auto bytes = AlignSize(realSize);
     if (bytes == 0 || bytes < 0) {
         return nullptr;
@@ -107,8 +107,8 @@ RtcpSR &RtcpSR::SetNtpStamp(timeval tv)
 RtcpSR &RtcpSR::SetNtpStamp(uint64_t unixStampMs)
 {
     timeval tv;
-    tv.tv_sec = unixStampMs / 1000;           // 1000:unit
-    tv.tv_usec = (unixStampMs % 1000) * 1000; // 1000:unit
+    tv.tv_sec = (int64_t)(unixStampMs / 1000);           // 1000:unit
+    tv.tv_usec = (int64_t)((unixStampMs % 1000) * 1000); // 1000:unit
     return SetNtpStamp(tv);
 }
 
@@ -226,7 +226,7 @@ std::shared_ptr<RtcpSdes> RtcpSdes::Create(const std::vector<std::string> &itemT
 {
     size_t itemTotalSize = 0;
     for (auto &text : itemText) {
-        itemTotalSize += AlignSize(SdesChunk::MinSize() + (0xFF & text.size()));
+        itemTotalSize += (size_t)AlignSize(SdesChunk::MinSize() + (0xFF & text.size()));
     }
     auto realSize = sizeof(RtcpSdes) - sizeof(SdesChunk) + itemTotalSize;
     auto bytes = AlignSize(realSize);

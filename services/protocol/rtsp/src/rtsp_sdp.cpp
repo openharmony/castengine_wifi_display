@@ -32,7 +32,7 @@ bool SessionOrigin::Parse(const std::string &origin)
 
     username = sm[1].str();
     sessionId = sm[2].str();                    // 2:byte offset
-    sessionVersion = atoi(sm[3].str().c_str()); // 3:byte offset
+    sessionVersion = (uint32_t)atoi(sm[3].str().c_str()); // 3:byte offset
     netType = sm[4].str();                      // 4:byte offset
     addrType = sm[5].str();                     // 5:byte offset
     unicastAddr = sm[6].str();                  // 6:byte offset
@@ -148,7 +148,7 @@ int32_t MediaDescription::GetSe(uint8_t *buf, uint32_t nLen, uint32_t &pos)
 int32_t MediaDescription::GetU(uint8_t bitCount, const uint8_t *buf, uint32_t &pos)
 {
     RETURN_INVALID_IF_NULL(buf);
-    int32_t value = 0;
+    uint32_t value = 0;
     for (uint32_t i = 0; i < bitCount; i++) {
         value <<= 1;
         if (buf[pos / 8] & (0x80 >> (pos % 8))) { // 8:unit
@@ -156,8 +156,9 @@ int32_t MediaDescription::GetU(uint8_t bitCount, const uint8_t *buf, uint32_t &p
         }
         pos++;
     }
+    int32_t valueint = (int32_t)value;
 
-    return value;
+    return valueint;
 }
 
 void MediaDescription::ExtractNaluRbsp(uint8_t *buf, uint32_t *bufSize)
@@ -166,7 +167,7 @@ void MediaDescription::ExtractNaluRbsp(uint8_t *buf, uint32_t *bufSize)
     RETURN_IF_NULL(bufSize);
     uint8_t *tmpPtr = buf;
     uint32_t tmpBufSize = *bufSize;
-    for (uint32_t i = 0; i < (tmpBufSize - 2); i++) {             // 2:unit
+    for (uint32_t i = 0; (i + 2) < tmpBufSize; i++) {             // 2:unit
         if (!tmpPtr[i] && !tmpPtr[i + 1] && tmpPtr[i + 2] == 3) { // 2:unit, 3:unit
             for (uint32_t j = i + 2; j < tmpBufSize - 1; j++) {   // 2:unit
                 tmpPtr[j] = tmpPtr[j + 1];
@@ -259,7 +260,7 @@ std::pair<int32_t, int32_t> MediaDescription::GetVideoSize()
                     for (int32_t j = 0; j < sizeOfScalingList; j++) {
                         if (nextScale != 0) {
                             int32_t deltaScale = GetSe(buf, nLen, cursor);
-                            nextScale = (lastScale + deltaScale) & 0xff;
+                            nextScale = (uint32_t)(lastScale + deltaScale) & 0xff;
                         }
                         lastScale = nextScale == 0 ? lastScale : nextScale;
                     }
@@ -472,8 +473,8 @@ bool RtspSdp::Parse(const std::list<std::string> &sdpLines)
                 std::regex match("([0-9]+) ([0-9]+)");
                 std::smatch sm;
                 if (std::regex_search(value, sm, match)) {
-                    session_.time.time.first = atol(sm[1].str().c_str());
-                    session_.time.time.second = atol(sm[2].str().c_str()); // 2:fixed size
+                    session_.time.time.first = (uint64_t)atol(sm[1].str().c_str());
+                    session_.time.time.second = (uint64_t)atol(sm[2].str().c_str()); // 2:fixed size
                 }
                 break;
             }

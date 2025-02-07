@@ -131,7 +131,7 @@ void FrameMerger::DoMerge(DataBuffer::Ptr &merged, const Frame::Ptr &frame) cons
             break;
         }
         case MP4_NAL_SIZE: {
-            uint32_t naluSize = (uint32_t)(frame->Size() - frame->PrefixSize());
+            uint32_t naluSize = (uint32_t)((size_t)frame->Size() - frame->PrefixSize());
             naluSize = htonl(naluSize);
             merged->Append((char *)&naluSize, 4); // 4:avc start code size
             merged->Append(frame->Data() + frame->PrefixSize(), frame->Size() - frame->PrefixSize());
