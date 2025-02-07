@@ -99,7 +99,7 @@ void AudioPcmProcessor::OnFrame(const Frame::Ptr &frame)
 
 void AudioPcmProcessor::PcmLittleToBigEndian(uint8_t *data, int32_t size)
 {
-    uint32_t sampleSize = (int32_t)(sampleSize_ / channels_);
+    int32_t sampleSize = (int32_t)(sampleSize_ / channels_);
     if (sampleSize <= 1) {
         return;
     }
