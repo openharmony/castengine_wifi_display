@@ -105,11 +105,13 @@ void AudioPcmProcessor::PcmLittleToBigEndian(uint8_t *data, int32_t size)
     }
 
     uint8_t tmpData;
-    int32_t count = size / sampleSize;
-    for (int32_t i = 0; i < count; i++) {
-        tmpData = data[i * sampleSize];
-        data[i * sampleSize] = data[i * sampleSize + 1];
-        data[i * sampleSize + 1] = tmpData;
+    if (sampleSize != 0) {
+        int32_t count = size / sampleSize;
+        for (int32_t i = 0; i < count; i++) {
+            tmpData = data[i * sampleSize];
+            data[i * sampleSize] = data[i * sampleSize + 1];
+            data[i * sampleSize + 1] = tmpData;
+        }
     }
 }
 } // namespace Sharing
