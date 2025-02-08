@@ -273,7 +273,9 @@ std::string WfdRtspM3Response::GetSupportAudioModes(int32_t type, MediaAVCodec::
 {
     char audioModes[length + 1];
     audioModes[length] = '\0';
-    memset_s(audioModes, sizeof(audioModes), '0', length);
+    if (memset_s(audioModes, sizeof(audioModes), '0', length) != EOK) {
+        SHARING_LOGI("call memset_s failed");
+    }
     for (int32_t i = 0; i < length; i++) {
         if (IsSupportAudioModes(type, i, capData)) {
             audioModes[length - i - 1] = '1';
