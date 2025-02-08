@@ -23,15 +23,15 @@
 
 namespace OHOS {
 namespace Sharing {
-int32_t JsonParser::GetConfig(std::string &fileName, SharingData::Ptr &value)
+int32_t JsonParser::GetConfig(SharingData::Ptr &value)
 {
     SHARING_LOGD("trace.");
     Json::Value root;
     std::ifstream ifs;
-    ifs.open(fileName.c_str());
+    ifs.open("/etc/sharing_config.json");
 
     if (!ifs.is_open()) {
-        SHARING_LOGE("cannot open %{public}s.", fileName.c_str());
+        SHARING_LOGE("cannot open /etc/sharing_config.json.");
         return -1;
     }
 
@@ -53,15 +53,15 @@ int32_t JsonParser::GetConfig(std::string &fileName, SharingData::Ptr &value)
     return 0;
 }
 
-int32_t JsonParser::SaveConfig(std::string &fileName, SharingData::Ptr &value)
+int32_t JsonParser::SaveConfig(SharingData::Ptr &value)
 {
     SHARING_LOGD("trace.");
     RETURN_INVALID_IF_NULL(value);
     std::ofstream ofs;
-    ofs.open(fileName.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
+    ofs.open("/data/sharing_config.json", std::ios::out | std::ios::trunc | std::ios::binary);
 
     if (!ofs.is_open()) {
-        SHARING_LOGE("open file %{public}s err.", fileName.c_str());
+        SHARING_LOGE("open file /data/sharing_config.json err.");
         return -1;
     }
 

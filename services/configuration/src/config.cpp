@@ -147,7 +147,7 @@ bool Config::ReadConfig(void)
         std::unique_lock<std::shared_mutex> lock(mutex_);
         status_ = ConfigStatus::CONFIG_STATUS_READING;
         JsonParser parser;
-        parser.GetConfig(fileName_, datas_);
+        parser.GetConfig(datas_);
         status_ = ConfigStatus::CONFIG_STATUS_READY;
         EmitEvent();
     });
@@ -166,8 +166,7 @@ bool Config::SaveConfig(void)
         std::unique_lock<std::shared_mutex> lock(mutex_);
         status_ = ConfigStatus::CONFIG_STATUS_WRITING;
         JsonParser parser;
-        std::string ofile = "/data/sharing_config.json";
-        parser.SaveConfig(ofile, datas_);
+        parser.SaveConfig(datas_);
         status_ = ConfigStatus::CONFIG_STATUS_READY;
     });
 

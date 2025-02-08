@@ -273,7 +273,9 @@ std::string WfdRtspM3Response::GetSupportAudioModes(int32_t type, MediaAVCodec::
 {
     char audioModes[length + 1];
     audioModes[length] = '\0';
-    memset_s(audioModes, length, '0', length);
+    if (memset_s(audioModes, sizeof(audioModes), '0', length) != EOK) {
+        SHARING_LOGI("call memset_s failed");
+    }
     for (int32_t i = 0; i < length; i++) {
         if (IsSupportAudioModes(type, i, capData)) {
             audioModes[length - i - 1] = '1';
@@ -699,7 +701,7 @@ void WfdRtspM4Request::GetVideoTrack(VideoTrack &videoTrack)
     }
     
     std::string resolutionStr = {""};
-    nativeValue &= 0x07;
+    nativeValue = (int32_t)((uint32_t)nativeValue & 0x07);
     if (nativeValue == TYPE_CEA) {
         resolutionStr = videoFormats.at(INDEX_CEA);
     } else if (nativeValue == TYPE_VESA) {
@@ -715,7 +717,7 @@ void WfdRtspM4Request::GetVideoTrack(VideoTrack &videoTrack)
 
 void WfdRtspM4Request::GetVideoResolution(VideoTrack &videoTrack, std::string resolutionStr, int type)
 {
-    uint32_t result = strtol(resolutionStr.c_str(), nullptr, HEX_LENGTH);
+    uint32_t result = (uint32_t)strtol(resolutionStr.c_str(), nullptr, HEX_LENGTH);
     if (result <= 0) {
         SHARING_LOGE("get video resolution failed.");
         return;

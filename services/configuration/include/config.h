@@ -81,7 +81,6 @@ private:
 
 private:
     std::shared_mutex mutex_;
-    std::string fileName_ = "/etc/sharing_config.json";
 
     EventEmitter emiter_;
     SharingData::Ptr datas_ = std::make_shared<SharingData>();

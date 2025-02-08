@@ -29,8 +29,8 @@ public:
     JsonParser() = default;
     ~JsonParser() = default;
 
-    int32_t GetConfig(std::string &fileName, SharingData::Ptr &value);
-    int32_t SaveConfig(std::string &fileName, SharingData::Ptr &value);
+    int32_t GetConfig(SharingData::Ptr &value);
+    int32_t SaveConfig(SharingData::Ptr &value);
 
 private:
     int32_t ReadModuleConfig(Json::Value &module, SharingData::Ptr &value);
