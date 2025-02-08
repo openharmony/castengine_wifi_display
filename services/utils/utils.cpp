@@ -189,20 +189,6 @@ uint64_t GetCurrentMillisecond()
     return tv.tv_sec * 1000 + tv.tv_usec / 1000; // 1000: time base conversion.
 }
 
-void SaveFile(const char *data, int32_t dataSize, const std::string &fileName)
-{
-    RETURN_IF_NULL(data);
-    std::ofstream out(fileName, std::ios::out | std::ios::binary);
-    if (!out.is_open()) {
-        SHARING_LOGD("failed to opne file: %{public}s", fileName.c_str());
-        return;
-    }
-
-    out.write(data, dataSize);
-    out.flush();
-    out.close();
-}
-
 uint16_t SwapEndian16(uint16_t value)
 {
     return (value & 0xff00) >> 8 | (value & 0x00ff) << 8; // 8: swap endian

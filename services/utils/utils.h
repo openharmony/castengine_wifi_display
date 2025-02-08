@@ -95,8 +95,6 @@ std::string &Trim(std::string &s, const std::string &chars = " \r\n\t");
 std::vector<std::string> Split(const std::string &s, const char *delim);
 std::vector<std::string> SplitOnce(const std::string &s, const char *delim);
 
-void SaveFile(const char *data, int32_t dataSize, const std::string &fileName);
-
 uint16_t SwapEndian16(uint16_t value);
 uint32_t SwapEndian32(uint32_t value);
 uint64_t SwapEndian64(uint64_t value);

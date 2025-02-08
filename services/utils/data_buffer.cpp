@@ -124,7 +124,7 @@ void DataBuffer::Resize(int size)
 
 void DataBuffer::PushData(const char *data, int dataLen)
 {
-    if (!data) {
+    if (!data || dataLen <= 0 || size_ < 0 || capacity_ < 0) {
         return;
     }
 
