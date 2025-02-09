@@ -56,7 +56,14 @@ std::vector<BoundDeviceInfo> WfdTrustListManager::GetAllBoundDevices()
     }
     std::map<std::string, std::string> datas = preferencesUtil_->GetAll();
     for (auto &[key, value] : datas) {
-        if (deviceMap.find(key) != deviceMap.end()) {
+        bool isExist = false;
+        for (BoundDeviceInfo device : devices) {
+            if (device.deviceAddress == key) {
+                isExist = true;
+                break;
+            }
+        }
+        if (!isExist) {
             BoundDeviceInfo deviceInfo;
             deviceInfo.deviceId = key;
             deviceInfo.deviceAddress = key;
