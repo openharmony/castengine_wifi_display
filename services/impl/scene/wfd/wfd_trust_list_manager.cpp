@@ -54,6 +54,16 @@ std::vector<BoundDeviceInfo> WfdTrustListManager::GetAllBoundDevices()
     for (auto device : deviceMap) {
         devices.push_back(device.second);
     }
+    std::map<std::string, std::string> datas = preferencesUtil_->GetAll();
+    for (auto &[key, value] : datas) {
+        if (deviceMap.find(key) != deviceMap.end()) {
+            BoundDeviceInfo deviceInfo;
+            deviceInfo.deviceId = key;
+            deviceInfo.deviceAddress = key;
+            deviceInfo.deviceName = value;
+            devices.push_back(deviceInfo);
+        }
+    }
     return devices;
 }
 
@@ -147,6 +157,7 @@ void WfdTrustListManager::DeleteBoundDeviceGroup(std::string &deviceAddress)
             DeleteP2pGroup(groupInfo.GetOwner(), deviceAddress, groupInfo);
         }
     }
+    preferencesUtil_->DeleteKey(deviceAddress);
 }
 
 void WfdTrustListManager::DeleteP2pGroup(const Wifi::WifiP2pDevice &device, std::string &deviceAddress,
