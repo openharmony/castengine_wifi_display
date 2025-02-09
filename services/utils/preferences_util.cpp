@@ -116,5 +116,20 @@ int PreferencesUtil::FlushSync()
     return ptr->FlushSync();
 }
 
+std::map<std::string, std::string> PreferencesUtil::GetAll()
+{
+    std::map<std::string, std::string> allDevices;
+    std::shared_ptr<NativePreferences::Preferences> ptr = GetProfiles(path_, errCode_);
+    if (ptr == nullptr) {
+        SHARING_LOGE("get profiles failed. errcode_ %{public}d.", errCode_);
+        return allDevices;
+    }
+    std::map<std::string, NativePreferences::PreferencesValue> datas = ptr->GetAll();
+
+    for (auto &[key, value] : datas) {
+        allDevices[key] = std::string(value);
+    }
+    return allDevices;
+}
 } // namespace Sharing
 } // namespace OHOS

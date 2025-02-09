@@ -34,10 +34,12 @@ public:
     int Clear();
     void Flush();
     int FlushSync();
+    std::map<std::string, std::string> GetAll();
 
-    private:
+private:
     std::shared_ptr<NativePreferences::Preferences> GetProfiles(const std::string &path, int &errCode);
-    private:
+
+private:
     std::shared_mutex preferencesMutex_;
     int errCode_ = NativePreferences::E_OK;
     std::string path_;
