@@ -36,7 +36,7 @@ void RtpDecoderG711::InputRtp(const RtpPacket::Ptr &rtp)
     auto stamp = rtp->GetStampMS();
     auto seq = rtp->GetSeq();
 
-    if (frame_->dts_ != stamp || frame_->Size() > maxFrameSize_) {
+    if (frame_->dts_ != stamp || static_cast<size_t>(frame_->Size()) > maxFrameSize_) {
         if (frame_->Size()) {
             onFrame_(frame_);
         }

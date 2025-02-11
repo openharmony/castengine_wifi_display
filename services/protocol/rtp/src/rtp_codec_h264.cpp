@@ -49,7 +49,7 @@ void RtpDecoderH264::InputRtp(const RtpPacket::Ptr &rtp)
     RETURN_IF_NULL(rtp);
     auto frame = rtp->GetPayload();
     int32_t length = rtp->GetPayloadSize();
-    auto stamp = rtp->GetStampMS();
+    auto stamp = static_cast<int32_t>(rtp->GetStampMS());
     auto seq = rtp->GetSeq();
     int32_t nal = H264_TYPE(frame[0]);
     MEDIA_LOGD("rtpDecoderH264::InputRtp length: %{public}d, stamp: %{public}d, seq: %{public}d, nal: %{public}d.",
@@ -130,7 +130,7 @@ bool RtpDecoderH264::UnpackFuA(const RtpPacket::Ptr &rtp, const uint8_t *ptr, ss
     FuFlags *fu = (FuFlags *)(ptr + 1);
     if (fu->startBit_) {
         frame_->Assign("\x00\x00\x00\x01", 4); // 4:avc start code size
-        uint8_t flag = nalSuffix | fu->nalType_;
+        uint8_t flag = static_cast<uint8_t>(nalSuffix) | fu->nalType_;
         frame_->Append(&flag, 1);
         frame_->pts_ = stamp;
         fuDropped_ = false;

@@ -313,6 +313,7 @@ void WfdSinkScene::WifiCallback::OnDeviceConfigChanged(OHOS::Wifi::ConfigChange 
 WfdSinkScene::WfdSinkScene()
 {
     SHARING_LOGI("id: %{public}u.", GetId());
+    currentConnectDev_.state = ConnectionState::DISCONNECTED;
 }
 
 WfdSinkScene::~WfdSinkScene()
@@ -384,6 +385,9 @@ void WfdSinkScene::Initialize()
 void WfdSinkScene::OnWifiAbilityResume()
 {
     SHARING_LOGI("%{public}s.", __FUNCTION__);
+    if (isInitialized_) {
+        return;
+    }
     RegisterP2pListener();
     RegisterWifiStatusChangeListener();
     InitP2pName();
@@ -1112,9 +1116,9 @@ int32_t WfdSinkScene::HandleGetConfig(std::shared_ptr<GetSinkConfigReq> &msg, st
     SHARING_LOGD("trace.");
     (void)msg;
     RETURN_INVALID_IF_NULL(reply);
-    reply->accessDevMaximum = accessDevMaximum_;
-    reply->foregroundMaximum = foregroundMaximum_;
-    reply->surfaceMaximum = surfaceMaximum_;
+    reply->accessDevMaximum = static_cast<uint32_t>(accessDevMaximum_);
+    reply->foregroundMaximum = static_cast<uint32_t>(foregroundMaximum_);
+    reply->surfaceMaximum = static_cast<uint32_t>(surfaceMaximum_);
 
     return 0;
 }

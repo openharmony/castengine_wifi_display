@@ -126,7 +126,7 @@ bool VideoSinkDecoder::Start()
 
 void VideoSinkDecoder::Stop()
 {
-    SHARING_LOGD("trace %{public}p.", this);
+    SHARING_LOGD("trace.");
     if (!isRunning_) {
         SHARING_LOGD("decoder is not running.");
         return;

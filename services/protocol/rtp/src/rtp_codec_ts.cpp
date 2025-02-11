@@ -111,10 +111,10 @@ void RtpDecoderTs::StartDecoding()
 
     for (uint32_t i = 0; i < avFormatContext_->nb_streams; i++) {
         if (avFormatContext_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-            videoStreamIndex_ = i;
+            videoStreamIndex_ = static_cast<int>(i);
             SHARING_LOGD("find video stream %{public}u.", i);
         } else if (avFormatContext_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-            audioStreamIndex_ = i;
+            audioStreamIndex_ = static_cast<int>(i);
             SHARING_LOGD("find audio stream %{public}u.", i);
         }
     }
@@ -178,7 +178,7 @@ int RtpDecoderTs::ReadPacket(uint8_t *buf, int buf_size)
     std::unique_lock<std::mutex> lock(queueMutex_);
     auto &rtp = dataQueue_.front();
     auto data = rtp->GetPayload();
-    int length = rtp->GetPayloadSize();
+    int length = static_cast<int>(rtp->GetPayloadSize());
     if (length > buf_size) {
         SHARING_LOGE("rtp length exceed buf_size!");
         return 0;

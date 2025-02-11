@@ -467,7 +467,9 @@ void BufferDispatcher::StartDispatch()
 {
     SHARING_LOGD("trace.");
     running_ = true;
-    notifyThread_ = std::thread(&BufferDispatcher::NotifyThreadWorker, this);
+    notifyThread_ = std::thread([this] {
+        this->NotifyThreadWorker(this);
+    });
     std::string name = "notifyThread";
     pthread_setname_np(notifyThread_.native_handle(), name.c_str());
 }

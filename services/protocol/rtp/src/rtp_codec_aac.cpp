@@ -86,7 +86,7 @@ void RtpDecoderAAC::InputRtp(const RtpPacket::Ptr &rtp)
         if (size) {
             frame_->Assign((char *)ptr, size);
 
-            frame_->dts_ = lastDts_ + i * dtsInc_;
+            frame_->dts_ = lastDts_ + static_cast<uint32_t>(i) * dtsInc_;
             ptr += size;
             auHeaderPtr += 2; // 2:byte offset
             FlushData();
@@ -126,7 +126,7 @@ void RtpDecoderAAC::FlushData()
             buff->Append(frame_->Data(), frame_->Size());
             frame_->Clear();
             frame_->ReplaceData(reinterpret_cast<const char *>(buff->Data()), buff->Size());
-            frame_->prefixSize_ = size;
+            frame_->prefixSize_ = static_cast<size_t>(size);
         }
     }
 
@@ -144,12 +144,12 @@ void RtpDecoderAAC::InputFrame(const Frame::Ptr &frame)
     auto ptr = frame->Data();
     auto end = frame->Data() + frame->Size();
     while (ptr < end) {
-        size_t frame_len = AdtsHeader::GetAacFrameLength((uint8_t *)ptr, end - ptr);
+        size_t frame_len = static_cast<size_t>(AdtsHeader::GetAacFrameLength((uint8_t *)ptr, end - ptr));
         MEDIA_LOGD("aac frame len: %{public}zu   frame size: %{public}d.", frame_len, frame->Size());
         if (frame_len < ADTS_HEADER_LEN) {
             break;
         }
-        if (frame_len == frame->Size()) {
+        if (frame_len == static_cast<size_t>(frame->Size())) {
             onFrame_(frame);
             return;
         }
