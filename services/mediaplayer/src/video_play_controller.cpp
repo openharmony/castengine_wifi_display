@@ -323,8 +323,7 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
     SHARING_LOGD("Render begin.");
     sptr<SurfaceBuffer> buffer;
     int32_t releaseFence = -1;
-    int32_t renderWidth = static_cast<int32_t>(videoTrack_.width == 0 ?
-        DEFAULT_VIDEO_WIDTH : videoTrack_.width);
+    int32_t renderWidth = static_cast<int32_t>(videoTrack_.width == 0 ? DEFAULT_VIDEO_WIDTH : videoTrack_.width);
     int32_t renderHeight = static_cast<int32_t>(videoTrack_.height == 0 ?
         DEFAULT_CAPTURE_VIDEO_HEIGHT : videoTrack_.height);
 
