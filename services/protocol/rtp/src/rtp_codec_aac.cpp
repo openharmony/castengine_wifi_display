@@ -66,7 +66,7 @@ void RtpDecoderAAC::InputRtp(const RtpPacket::Ptr &rtp)
         lastDts_ = stamp;
     }
 
-    auto dtsInc_ = (stamp - lastDts_) / auHeaderCount;
+    auto dtsInc_ = (stamp - lastDts_) / static_cast<uint32_t>(auHeaderCount);
     MEDIA_LOGD(
         "RtpDecoderAAC::InputRtp seq: %{public}d payloadLen: %{public}zu  auHeaderCount: %{public}d stamp: %{public}d "
         "dtsInc_: %{public}d\n.",
