@@ -48,8 +48,8 @@ void RtpDecoderH264::InputRtp(const RtpPacket::Ptr &rtp)
 {
     RETURN_IF_NULL(rtp);
     auto frame = rtp->GetPayload();
-    int32_t length = rtp->GetPayloadSize();
-    auto stamp = static_cast<int32_t>(rtp->GetStampMS());
+    int32_t length = static_cast<int32_t>(rtp->GetPayloadSize();
+    auto stamp = rtp->GetStampMS();
     auto seq = rtp->GetSeq();
     int32_t nal = H264_TYPE(frame[0]);
     MEDIA_LOGD("rtpDecoderH264::InputRtp length: %{public}d, stamp: %{public}d, seq: %{public}d, nal: %{public}d.",
