@@ -109,12 +109,12 @@ void RtpDecoderTs::StartDecoding()
         return;
     }
 
-    for (uint32_t i = 0; i < avFormatContext_->nb_streams; i++) {
+    for (int32_t i = 0; i < static_cast<int32_t>(avFormatContext_->nb_streams); i++) {
         if (avFormatContext_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-            videoStreamIndex_ = static_cast<int>(i);
+            videoStreamIndex_ = i;
             SHARING_LOGD("find video stream %{public}u.", i);
         } else if (avFormatContext_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-            audioStreamIndex_ = static_cast<int>(i);
+            audioStreamIndex_ = i;
             SHARING_LOGD("find audio stream %{public}u.", i);
         }
     }
