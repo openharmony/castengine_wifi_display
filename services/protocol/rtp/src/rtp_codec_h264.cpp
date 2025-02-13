@@ -126,11 +126,11 @@ bool RtpDecoderH264::UnpackFuA(const RtpPacket::Ptr &rtp, const uint8_t *ptr, ss
     RETURN_FALSE_IF_NULL(rtp);
     RETURN_FALSE_IF_NULL(ptr);
     RETURN_FALSE_IF_NULL(frame_);
-    auto nalSuffix = *ptr & (~0x1F);
+    uint8_t nalSuffix = *ptr & (~0x1F);
     FuFlags *fu = (FuFlags *)(ptr + 1);
     if (fu->startBit_) {
         frame_->Assign("\x00\x00\x00\x01", 4); // 4:avc start code size
-        uint8_t flag = static_cast<uint8_t>(nalSuffix) | fu->nalType_;
+        uint8_t flag = nalSuffix | fu->nalType_;
         frame_->Append(&flag, 1);
         frame_->pts_ = stamp;
         fuDropped_ = false;
