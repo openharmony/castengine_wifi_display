@@ -38,7 +38,7 @@ private:
 private:
     bool dropFlag_ = false;
     uint16_t lastSeq_ = 0;
-    size_t maxFrameSize_ = 0;
+    int32_t maxFrameSize_ = 0;
 
     FrameImpl::Ptr frame_ = nullptr;
 };
