@@ -1135,7 +1135,7 @@ int32_t WfdSinkScene::HandleDeleteBoundDevice(std::shared_ptr<WfdDeleteBoundDevi
     SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)reply;
     RETURN_INVALID_IF_NULL(msg);
-    wfdTrustListManager_.DeleteBoundDeviceGroup(msg->deviceAddress);
+    reply->ret = wfdTrustListManager_.DeleteBoundDeviceGroup(msg->deviceAddress);
     return 0;
 }
 
