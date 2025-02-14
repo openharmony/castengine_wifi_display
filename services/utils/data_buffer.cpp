@@ -146,7 +146,7 @@ void DataBuffer::PushData(const char *data, int dataLen)
                 return;
             }
         }
-        auto ret = memcpy_s(newBuffer + size_, capacity_, data, dataLen);
+        auto ret = memcpy_s(newBuffer + size_, capacity_ - size_, data, dataLen);
         if (ret != EOK) {
             return;
         }

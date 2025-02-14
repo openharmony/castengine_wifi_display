@@ -252,7 +252,7 @@ void AudioAvCodecDecoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::
     auto frameBuffer = FrameImpl::Create();
     frameBuffer->SetSize(static_cast<uint32_t>(info.size));
     frameBuffer->codecId_ = CODEC_AAC;
-    frameBuffer->pts_ = info.presentationTimeUs;
+    frameBuffer->pts_ = static_cast<uint32_t>(info.presentationTimeUs);
     frameBuffer->Assign((char *)buffer->GetBase(), info.size);
     DeliverFrame(frameBuffer);
     int32_t ret = audioDecoder->ReleaseOutputBuffer(index);
