@@ -24,6 +24,8 @@
 
 namespace OHOS {
 namespace Sharing {
+constexpr int32_t OPERATE_OK = 0;
+constexpr int32_t OPERATE_ERR = -1;
 constexpr int32_t MIN_DEVICE_NAME_LEN = 3;
 constexpr int32_t DEVICE_NAME_INDEX = 2;
 constexpr int32_t HASH_ADDRESS_LENGTH = 64;
