@@ -152,25 +152,25 @@ int32_t WfdTrustListManager::DeleteBoundDeviceGroup(std::string &deviceAddress)
     int32_t result = 0;
     p2pInstance_->QueryP2pGroups(groups);
     for (Wifi::WifiP2pGroupInfo groupInfo : groups) {
-        if (groupInfo.IsGroupOwner()) {
-            std::vector<Wifi::WifiP2pDevice> clientDevices = groupInfo.GetClientDevices();
-            if (clientDevices.empty()) {
-                SHARING_LOGW("clientDevices empty");
-                continue;
-            }
-            for (Wifi::WifiP2pDevice device : clientDevices) {
-                if (MaskAddress(device.GetDeviceAddress()) != deviceAddress) {
-                    continue;
-                }
-                if (!DeleteP2pGroup(device, deviceAddress, groupInfo)) {
-                    result = -1;
-                }
-            }
-        } else {
+        if (!groupInfo.IsGroupOwner()) {
             if (MaskAddress(groupInfo.GetOwner().GetDeviceAddress()) != deviceAddress) {
                 continue;
             }
             if (!DeleteP2pGroup(groupInfo.GetOwner(), deviceAddress, groupInfo)) {
+                result = -1;
+            }
+            continue;
+        }
+        std::vector<Wifi::WifiP2pDevice> clientDevices = groupInfo.GetClientDevices();
+        if (clientDevices.empty()) {
+            SHARING_LOGW("clientDevices empty");
+            continue;
+        }
+        for (Wifi::WifiP2pDevice device : clientDevices) {
+            if (MaskAddress(device.GetDeviceAddress()) != deviceAddress) {
+                continue;
+            }
+            if (!DeleteP2pGroup(device, deviceAddress, groupInfo)) {
                 result = -1;
             }
         }
