@@ -141,14 +141,15 @@ std::string WfdTrustListManager::GetDeviceName(const Wifi::WifiP2pDevice &device
     return "";
 }
 
-void WfdTrustListManager::DeleteBoundDeviceGroup(std::string &deviceAddress)
+int32_t WfdTrustListManager::DeleteBoundDeviceGroup(std::string &deviceAddress)
 {
     SHARING_LOGI("trace");
     std::vector<Wifi::WifiP2pGroupInfo> groups;
     if (p2pInstance_ == nullptr || preferencesUtil_ == nullptr) {
         SHARING_LOGE("GetAllBoundDevices nullptr");
-        return;
+        return -1;
     }
+    int32_t result = 0;
     p2pInstance_->QueryP2pGroups(groups);
     for (Wifi::WifiP2pGroupInfo groupInfo : groups) {
         if (groupInfo.IsGroupOwner()) {
@@ -158,25 +159,36 @@ void WfdTrustListManager::DeleteBoundDeviceGroup(std::string &deviceAddress)
                 continue;
             }
             for (Wifi::WifiP2pDevice device : clientDevices) {
-                DeleteP2pGroup(device, deviceAddress, groupInfo);
+                if (MaskAddress(device.GetDeviceAddress()) != deviceAddress) {
+                    continue;
+                }
+                if (!DeleteP2pGroup(device, deviceAddress, groupInfo)) {
+                    result = -1;
+                }
             }
         } else {
-            DeleteP2pGroup(groupInfo.GetOwner(), deviceAddress, groupInfo);
+            if (MaskAddress(groupInfo.GetOwner().GetDeviceAddress()) != deviceAddress) {
+                continue;
+            }
+            if (!DeleteP2pGroup(groupInfo.GetOwner(), deviceAddress, groupInfo)) {
+                result = -1;
+            }
         }
     }
     preferencesUtil_->DeleteKey(deviceAddress);
+    return result;
 }
 
-void WfdTrustListManager::DeleteP2pGroup(const Wifi::WifiP2pDevice &device, std::string &deviceAddress,
+bool WfdTrustListManager::DeleteP2pGroup(const Wifi::WifiP2pDevice &device, std::string &deviceAddress,
                                          const Wifi::WifiP2pGroupInfo &groupInfo)
 {
-    if (MaskAddress(device.GetDeviceAddress()) == deviceAddress) {
-        Wifi::ErrCode errCode = p2pInstance_->DeleteGroup(groupInfo);
-        if (errCode == Wifi::WIFI_OPT_SUCCESS) {
-            preferencesUtil_->DeleteKey(deviceAddress);
-        } else {
-            SHARING_LOGE("DeleteP2pGroup fail, errCode = %{public}d", errCode);
-        }
+    Wifi::ErrCode errCode = p2pInstance_->DeleteGroup(groupInfo);
+    if (errCode == Wifi::WIFI_OPT_SUCCESS) {
+        preferencesUtil_->DeleteKey(deviceAddress);
+        return true;
+    } else {
+        SHARING_LOGE("DeleteP2pGroup fail, errCode = %{public}d", errCode);
+        return false;
     }
 }
 
