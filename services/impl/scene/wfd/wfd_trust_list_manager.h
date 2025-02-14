@@ -37,13 +37,13 @@ public:
 
 public:
     std::vector<BoundDeviceInfo> GetAllBoundDevices();
-    void DeleteBoundDeviceGroup(std::string &deviceAddress);
+    int32_t DeleteBoundDeviceGroup(std::string &deviceAddress);
     void AddBoundDevice(const Wifi::WifiP2pGroupInfo &group);
 
 private:
     void AddBoundDeviceItem(std::map<std::string, BoundDeviceInfo> &deviceMap, const Wifi::WifiP2pGroupInfo group,
                             std::string encryptedMac);
-    void DeleteP2pGroup(const Wifi::WifiP2pDevice &device, std::string &deviceAddress,
+    bool DeleteP2pGroup(const Wifi::WifiP2pDevice &device, std::string &deviceAddress,
                         const Wifi::WifiP2pGroupInfo &groupInfo);
     std::string GetDeviceName(const Wifi::WifiP2pDevice &device);
     std::vector<std::string> Split(const std::string &str, const std::string &delimiter);
