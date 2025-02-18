@@ -994,7 +994,7 @@ int32_t BufferDispatcher::WriteDataIntoBuffer(const DataSpec::Ptr &data)
 
     if (NeedRestoreToNormalCapacity()) {
         std::unique_lock<std::shared_mutex> locker(bufferMutex_);
-        int32_t popSize = (int32_t)(circularBuffer_.size() - INITIAL_BUFFER_CAPACITY);
+        int32_t popSize = (int32_t)circularBuffer_.size() - (int32_t)INITIAL_BUFFER_CAPACITY;
         for (int32_t i = 0; i < popSize; i++) {
             if (HeadFrameNeedReserve()) {
                 MEDIA_LOGW("dispatcherId: %{public}u, need reserve but pop, mediaType: "
