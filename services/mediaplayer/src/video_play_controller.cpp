@@ -328,9 +328,7 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
         DEFAULT_CAPTURE_VIDEO_HEIGHT : videoTrack_.height);
 
     BufferRequestConfig requestConfig = {
-        .width = renderWidth,
-        .height = renderHeight,
-        .strideAlignment = 8,
+        .width = renderWidth, .height = renderHeight, .strideAlignment = 8,
         // .format = PIXEL_FMT_RGBA_8888,
         // .usage = HBM_USE_CPU_READ | HBM_USE_CPU_WRITE | HBM_USE_MEM_DMA,
         .format = GRAPHIC_PIXEL_FMT_YCRCB_420_SP,
@@ -367,13 +365,9 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
     }
 
     BufferFlushConfig flushConfig = {
-        .damage =
-            {
-                .x = 0,
-                .y = 0,
-                .w = renderWidth,
-                .h = renderHeight,
-            },
+        .damage = {
+            .x = 0, .y = 0, .w = renderWidth, .h = renderHeight,
+        },
         .timestamp = 0,
     };
 
