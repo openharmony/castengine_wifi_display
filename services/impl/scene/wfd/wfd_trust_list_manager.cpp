@@ -55,22 +55,6 @@ std::vector<BoundDeviceInfo> WfdTrustListManager::GetAllBoundDevices()
         devices.push_back(device.second);
     }
     std::map<std::string, std::string> datas = preferencesUtil_->GetAll();
-    for (auto &[key, value] : datas) {
-        bool isExist = false;
-        for (BoundDeviceInfo device : devices) {
-            if (device.deviceAddress == key) {
-                isExist = true;
-                break;
-            }
-        }
-        if (!isExist) {
-            BoundDeviceInfo deviceInfo;
-            deviceInfo.deviceId = key;
-            deviceInfo.deviceAddress = key;
-            deviceInfo.deviceName = value;
-            devices.push_back(deviceInfo);
-        }
-    }
     return devices;
 }
 
@@ -175,7 +159,6 @@ int32_t WfdTrustListManager::DeleteBoundDeviceGroup(std::string &deviceAddress)
             }
         }
     }
-    preferencesUtil_->DeleteKey(deviceAddress);
     return result;
 }
 
