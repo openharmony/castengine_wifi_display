@@ -54,7 +54,6 @@ std::vector<BoundDeviceInfo> WfdTrustListManager::GetAllBoundDevices()
     for (auto device : deviceMap) {
         devices.push_back(device.second);
     }
-    std::map<std::string, std::string> datas = preferencesUtil_->GetAll();
     return devices;
 }
 
