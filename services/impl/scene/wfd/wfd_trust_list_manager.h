@@ -24,6 +24,8 @@
 
 namespace OHOS {
 namespace Sharing {
+constexpr int32_t OPERATE_OK = 0;
+constexpr int32_t OPERATE_ERR = -1;
 constexpr int32_t MIN_DEVICE_NAME_LEN = 3;
 constexpr int32_t DEVICE_NAME_INDEX = 2;
 constexpr int32_t HASH_ADDRESS_LENGTH = 64;
@@ -37,13 +39,13 @@ public:
 
 public:
     std::vector<BoundDeviceInfo> GetAllBoundDevices();
-    void DeleteBoundDeviceGroup(std::string &deviceAddress);
+    int32_t DeleteBoundDeviceGroup(std::string &deviceAddress);
     void AddBoundDevice(const Wifi::WifiP2pGroupInfo &group);
 
 private:
     void AddBoundDeviceItem(std::map<std::string, BoundDeviceInfo> &deviceMap, const Wifi::WifiP2pGroupInfo group,
                             std::string encryptedMac);
-    void DeleteP2pGroup(const Wifi::WifiP2pDevice &device, std::string &deviceAddress,
+    bool DeleteP2pGroup(const Wifi::WifiP2pDevice &device, std::string &deviceAddress,
                         const Wifi::WifiP2pGroupInfo &groupInfo);
     std::string GetDeviceName(const Wifi::WifiP2pDevice &device);
     std::vector<std::string> Split(const std::string &str, const std::string &delimiter);
