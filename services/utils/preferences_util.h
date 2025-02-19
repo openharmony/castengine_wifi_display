@@ -34,7 +34,6 @@ public:
     int Clear();
     void Flush();
     int FlushSync();
-    std::map<std::string, std::string> GetAll();
 
 private:
     std::shared_ptr<NativePreferences::Preferences> GetProfiles(const std::string &path, int &errCode);
