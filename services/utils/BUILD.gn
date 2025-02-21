@@ -39,7 +39,6 @@ ohos_static_library("sharing_utils") {
     "crypto.cpp",
     "data_buffer.cpp",
     "data_queue.cpp",
-    "preferences_util.cpp",
     "timeout_timer.cpp",
     "utils.cpp",
   ]
@@ -48,11 +47,17 @@ ohos_static_library("sharing_utils") {
     "//third_party/openssl:libcrypto_shared",
     "//third_party/openssl:libssl_shared",
   ]
+
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
-    "preferences:native_preferences",
   ]
+
+  if (wifi_display_support_sink) {
+    external_deps += [ "preferences:native_preferences" ]
+    sources += [ "preferences_util.cpp" ]
+  }
+
   part_name = "sharing_framework"
   subsystem_name = "castplus"
 }
