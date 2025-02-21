@@ -287,7 +287,13 @@ void WfdSinkScene::WifiCallback::OnWifiStateChanged(int state)
 
 void WfdSinkScene::WifiCallback::OnWifiConnectionChanged(int state, const OHOS::Wifi::WifiLinkedInfo &info)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("OnWifiConnectionChanged state %{public}d", state);
+    if (state == static_cast<int32_t>(Wifi::ConnState::CONNECTED)) {
+        auto parent = parent_.lock();
+        if (parent && parent->isSinkRunning_) {
+            parent->WfdP2pStart();
+        }
+    }
 }
 
 void WfdSinkScene::WifiCallback::OnWifiRssiChanged(int rssi)
