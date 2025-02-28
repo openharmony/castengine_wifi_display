@@ -437,7 +437,7 @@ void WfdSinkScene::RegisterWifiStatusChangeListener()
     auto deviceInstance = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
     RETURN_IF_NULL(deviceInstance);
     auto callback = sptr<Wifi::IWifiDeviceCallBack> (new WifiCallback(shared_from_this()));
-    std::vector<std::string> events = {EVENT_STA_POWER_STATE_CHANGE};
+    std::vector<std::string> events = {EVENT_STA_POWER_STATE_CHANGE, EVENT_STA_CONN_STATE_CHANGE};
     deviceInstance->RegisterCallBack(callback, events);
 }
 
