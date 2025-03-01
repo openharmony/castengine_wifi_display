@@ -122,6 +122,10 @@ int32_t InterIpcClient::CreateListenerObject()
     }
 
     listenerStub_ = new (std::nothrow) InterIpcClientStub();
+    if (listenerStub_ == nullptr) {
+        SHARING_LOGE("listenerStub create failed.");
+        return -1;
+    }
     sptr<IRemoteObject> object = listenerStub_->AsObject();
     msgAdapter_ = std::make_shared<IpcMsgAdapter>();
     msgAdapter_->SetLocalStub(listenerStub_);
