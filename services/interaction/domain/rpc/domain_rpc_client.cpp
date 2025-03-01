@@ -75,6 +75,10 @@ sptr<IDomainRpcService> DomainRpcClient::GetDomainProxy(std::string deviceId)
     }
 
     deathRecipient_ = new (std::nothrow) DomainRpcDeathRecipient(deviceId);
+    if (deathRecipient_ == nullptr) {
+        SHARING_LOGE("deathRecipient create failed.");
+        return nullptr;
+    }
     deathRecipient_->SetDeathListener(shared_from_this());
     if (!object->AddDeathRecipient(deathRecipient_)) {
         SHARING_LOGE("add IDomainRpcService death recipient failed.");
@@ -131,6 +135,10 @@ int32_t DomainRpcClient::CreateListenerObject()
     }
 
     listenerStub_ = new (std::nothrow) DomainRpcServiceStub();
+    if (listenerStub_ == nullptr) {
+        SHARING_LOGE("listenerStub create failed.");
+        return -1;
+    }
     listenerStub_->SetStubListener(shared_from_this());
     sptr<IRemoteObject> object = listenerStub_->AsObject();
 

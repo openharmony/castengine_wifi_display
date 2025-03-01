@@ -51,6 +51,10 @@ sptr<IRemoteObject> InterIpcServiceStub::GetSubSystemAbility(std::string key, st
     }
 
     sptr<InterIpcStub> adapterStub = new (std::nothrow) InterIpcSubStub();
+    if (adapterStub == nullptr) {
+        SHARING_LOGE("adapterStub create failed.");
+        return nullptr;
+    }
     sptr<IRemoteObject> object = adapterStub->AsObject();
 
     auto adapter = std::make_shared<IpcMsgAdapter>();
