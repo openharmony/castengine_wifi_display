@@ -49,6 +49,10 @@ int32_t InterIpcClientStub::SetListenerObject(std::string key, const sptr<IRemot
     SHARING_LOGD("peer key: %{public}s, listener num: %{public}zu.", key.c_str(), peerProxys_.size());
 
     auto deathRecipient = new (std::nothrow) InterIpcDeathRecipient(key);
+    if (deathRecipient == nullptr) {
+        SHARING_LOGE("deathRecipient create failed.");
+        return -1;
+    }
     deathRecipients_[key] = deathRecipient;
     CreateDeathListener(key);
 

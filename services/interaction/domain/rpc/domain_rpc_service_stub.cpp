@@ -97,6 +97,10 @@ int32_t DomainRpcServiceStub::SetListenerObject(const sptr<IRemoteObject> &objec
                  peerProxys_.size());
 
     auto deathRecipient = new (std::nothrow) DomainRpcDeathRecipient(peerDevId);
+    if (deathRecipient == nullptr) {
+        SHARING_LOGE("deathRecipient create failed.");
+        return -1;
+    }
     deathRecipients_[peerDevId] = deathRecipient;
     CreateDeathListener(peerDevId);
 
