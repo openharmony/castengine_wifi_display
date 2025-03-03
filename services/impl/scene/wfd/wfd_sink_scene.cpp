@@ -1159,6 +1159,10 @@ void WfdSinkScene::RegisterWfdAbilityListener()
         return;
     }
     sysAbilityListener_ = new (std::nothrow) WfdSystemAbilityListener(shared_from_this());
+    if (sysAbilityListener_ == nullptr) {
+        SHARING_LOGE("sysAbilityListener create failed.");
+        return;
+    }
     int32_t ret = samgrProxy->SubscribeSystemAbility(WIFI_DEVICE_ABILITY_ID, sysAbilityListener_);
     SHARING_LOGI("result is %{public}d.", ret);
 }

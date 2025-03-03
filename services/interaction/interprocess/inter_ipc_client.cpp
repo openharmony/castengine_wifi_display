@@ -74,6 +74,10 @@ sptr<IInterIpc> InterIpcClient::GetSharingProxy()
     }
 
     deathRecipient_ = new (std::nothrow) InterIpcDeathRecipient(key_);
+    if (deathRecipient_ == nullptr) {
+        SHARING_LOGE("deathRecipient create failed.");
+        return nullptr;
+    }
     deathRecipient_->SetDeathListener(shared_from_this());
 
     if (!object->AddDeathRecipient(deathRecipient_)) {
