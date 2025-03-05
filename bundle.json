@@ -54,7 +54,9 @@
         "ffmpeg",
         "window_manager",
         "bounds_checking_function",
-        "preferences"
+        "preferences",
+        "data_share",
+        "os_account"
       ],
       "third_party": [
         "cJSON",

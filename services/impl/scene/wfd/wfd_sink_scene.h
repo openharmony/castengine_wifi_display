@@ -20,11 +20,13 @@
 #include <unordered_map>
 #include <unordered_set>
 #include "agent/agent_def.h"
+#include "data_ability_observer_stub.h"
 #include "dm_constants.h"
 #include "i_wifi_device_callback.h"
 #include "interaction/device_kit/dm_kit.h"
 #include "interaction/scene/base_scene.h"
 #include "system_ability_status_change_stub.h"
+#include "utils/data_share_helper.h"
 #include "utils/utils.h"
 #include "wfd_def.h"
 #include "wfd_msg.h"
@@ -94,6 +96,15 @@ public:
 
         void OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
         void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId) override;
+ 
+    private:
+        std::weak_ptr<WfdSinkScene> scene_;
+    };
+
+    class DeviceNameObserver : public AAFwk::DataAbilityObserverStub {
+    public:
+        explicit DeviceNameObserver(std::weak_ptr<WfdSinkScene> scene) : scene_(scene) {}
+        void OnChange() override;
 
     private:
         std::weak_ptr<WfdSinkScene> scene_;
@@ -151,6 +162,8 @@ private:
     void OnWifiAbilityDied();
     void RegisterWfdAbilityListener();
     void UnRegisterWfdAbilityListener();
+    void RegisterDevNameObserver();
+    void UnRegisterDevNameObserver();
 
     int32_t HandleStop(std::shared_ptr<WfdSinkStopReq> &msg, std::shared_ptr<WfdCommonRsp> &reply);
     int32_t HandleStart(std::shared_ptr<WfdSinkStartReq> &msg, std::shared_ptr<WfdCommonRsp> &reply);
@@ -194,6 +207,8 @@ private:
     VideoFormat videoFormatId_ = VideoFormat::VIDEO_NONE;
     WfdParamsInfo wfdParamsInfo_;
     WfdTrustListManager wfdTrustListManager_;
+
+    sptr<AAFwk::IDataAbilityObserver> deviceNameObserver_ = nullptr;
     sptr<ISystemAbilityStatusChange> sysAbilityListener_ = nullptr;
 };
 

@@ -290,7 +290,7 @@ void WfdSinkScene::WifiCallback::OnWifiConnectionChanged(int state, const OHOS::
     SHARING_LOGI("OnWifiConnectionChanged state %{public}d", state);
     if (state == static_cast<int32_t>(Wifi::ConnState::CONNECTED)) {
         auto parent = parent_.lock();
-        if (parent && parent->isSinkRunning_) {
+        if (parent && parent->isSinkRunning_ && parent->currentConnectDev_.mac == "") {
             parent->WfdP2pStart();
         }
     }
@@ -314,6 +314,15 @@ void WfdSinkScene::WifiCallback::OnStreamChanged(int direction)
 void WfdSinkScene::WifiCallback::OnDeviceConfigChanged(OHOS::Wifi::ConfigChange value)
 {
     SHARING_LOGD("trace.");
+}
+
+void WfdSinkScene::DeviceNameObserver::OnChange()
+{
+    SHARING_LOGI("deviceName observer onChange");
+    auto scene = scene_.lock();
+    if (scene && scene->isSinkRunning_) {
+        scene->InitP2pName();
+    }
 }
 
 WfdSinkScene::WfdSinkScene()
@@ -383,6 +392,7 @@ void WfdSinkScene::Initialize()
 
     RegisterP2pListener();
     RegisterWifiStatusChangeListener();
+    RegisterDevNameObserver();
     InitP2pName();
     isInitialized_ = true;
     RegisterWfdAbilityListener();
@@ -407,6 +417,30 @@ void WfdSinkScene::OnWifiAbilityDied()
         OnP2pPeerDisconnected(currentConnectDev_.mac);
     }
     isInitialized_ = false;
+}
+
+void WfdSinkScene::RegisterDevNameObserver()
+{
+    SHARING_LOGI("RegisterDevNameObserver");
+    if (deviceNameObserver_ != nullptr) {
+        SHARING_LOGI("unregister old name observer");
+        UnRegisterDevNameObserver();
+    }
+
+    deviceNameObserver_ = new (std::nothrow) DeviceNameObserver(shared_from_this());
+    if (deviceNameObserver_ == nullptr) {
+        SHARING_LOGE("new deviceNameObserver error");
+        return;
+    }
+    int32_t ret = DataShareHelper::GetInstance().RegisterObserver(deviceNameObserver_);
+    SHARING_LOGI("register name observer ret=%{public}d", ret);
+}
+
+void WfdSinkScene::UnRegisterDevNameObserver()
+{
+    int32_t ret = DataShareHelper::GetInstance().UnregisterObserver(deviceNameObserver_);
+    SHARING_LOGI("unregister name observer ret=%{public}d", ret);
+    deviceNameObserver_ = nullptr;
 }
 
 void WfdSinkScene::InitP2pName()
@@ -445,6 +479,7 @@ void WfdSinkScene::Release()
 {
     SHARING_LOGD("trace.");
     UnRegisterWfdAbilityListener();
+    UnRegisterDevNameObserver();
     std::unique_lock<std::mutex> lock(mutex_);
     auto sharingAdapter = sharingAdapter_.lock();
     if (sharingAdapter != nullptr) {
