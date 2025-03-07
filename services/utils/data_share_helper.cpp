@@ -93,7 +93,7 @@ Uri DataShareHelper::GetDefaultNamerUri()
 Uri DataShareHelper::GetUserDefinedNameUri()
 {
     std::string osAccountId = std::to_string(GetCurrentActiveAccountUserId());
-    return Uri(SETTINGS_DATA_BASE_URI + osAccountId + "?Proxy=true&key=" + USER_DEFINED_STRING);
+    return Uri(SETTINGS_DATA_SECURE_URI + osAccountId + "?Proxy=true&key=" + USER_DEFINED_STRING);
 }
 
 int32_t DataShareHelper::GetCurrentActiveAccountUserId()
