@@ -93,7 +93,8 @@
       ],
       "test": [
         "//foundation/CastEngine/castengine_wifi_display/tests:test",
-        "//foundation/CastEngine/castengine_wifi_display/tests/unittest:wfd_unit_test"
+        "//foundation/CastEngine/castengine_wifi_display/tests/unittest:wfd_unit_test",
+        "//foundation/CastEngine/castengine_wifi_display/tests/fuzztest/sink_fuzzer:wfd_sink_fuzz_test"
       ]
     }
   }
