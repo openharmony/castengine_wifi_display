@@ -15,13 +15,27 @@
 
 #include "wfd_start_fuzzer.h"
 #include "wfd_sink.h"
+#include "securec.h"
 
 namespace OHOS {
 namespace Sharing {
-    bool Start()
+    bool CreateSinkFuzzTest(const uint8_t* data, size_t size)
     {
+        if (data == nullptr || size == 0) {
+            return false;
+        }
+        int32_t type{};
+        size_t objectSize = sizeof(type);
+        if (objectSize > size) {
+            return false;
+        }
+        errno_t ret = memcpy_s(&type, objectSize, data, objectSize);
+        if (ret != EOK) {
+            return false;
+        }
+
         std::shared_ptr<WfdSink> client = nullptr;
-        client = WfdSinkFactory::CreateSink(0, "wfd_start_fuzzer");
+        client = WfdSinkFactory::CreateSink(type, "wfd_start_fuzzer");
         if (!client) {
             SHARING_LOGE("create wfdSink client error.");
             return false;
@@ -42,8 +56,8 @@ namespace Sharing {
 } // namespace sharing
 } // namespace OHOS
 
-extern "C" int LLVMFuzzerTestOneInput()
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
-    OHOS::Sharing::Start();
+    OHOS::Sharing::CreateSinkFuzzTest(data, size);
     return 0;
 }
