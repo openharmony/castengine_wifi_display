@@ -31,7 +31,7 @@ constexpr int32_t DEVICE_NAME_INDEX = 2;
 constexpr int32_t HASH_ADDRESS_LENGTH = 64;
 constexpr int32_t HASH_ADDRESS_SUB_START = 5;
 constexpr int32_t HASH_ADDRESS_SUB_LENGTH = 5;
-const std::string TRUST_DEVICES_PREFERENCES_PATH = "/data/service/el1/public/database/sharingcodec/trust_list.xml";
+const std::string TRUST_DEVICES_PREFERENCES_PATH = "/data/service/el1/public/sharing_service/trust_list.xml";
 
 class WfdTrustListManager {
 public:
