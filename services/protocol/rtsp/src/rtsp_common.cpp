@@ -151,16 +151,5 @@ RtspError RtspCommon::ParseMessage(const std::string &message, std::vector<std::
 
     return {};
 }
-std::string RtspCommon::GenerateAuthorization(const std::string &username, const std::string &realm,
-                                              const std::string &password, const std::string &nonce,
-                                              const std::string &method, const std::string &url)
-{
-    auto urpMD5 = GetMD5(username + ':' + realm + ':' + password);
-    auto pmuMD5 = GetMD5(method + url);
-    auto responseMD5 = GetMD5(urpMD5 + ':' + nonce + ':' + pmuMD5);
-    auto authorization = "Digest username=\"" + username + "\", realm=\"" + realm + "\", nonce=\"" + nonce +
-                         "\", uri=\"" + url + "\", response=\"" + responseMD5 + "\"";
-    return authorization;
-}
 } // namespace Sharing
 } // namespace OHOS
