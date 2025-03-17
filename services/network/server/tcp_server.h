@@ -41,6 +41,7 @@ public:
     SocketInfo::Ptr GetSocketInfo() override;
     void CloseClientSocket(int32_t fd) override;
 
+    void SetClientFd(int32_t clientFd);
     void OnServerReadable(int32_t fd) override;
 
 private:

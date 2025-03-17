@@ -86,6 +86,9 @@ bool UdpSocket::Connect(const std::string &peerIp, uint16_t peerPort, int32_t &r
     SocketUtils::SetCloseWait(fd);
     SocketUtils::SetCloExec(fd, true);
 
+    int32_t value = 0xBC;
+    setsockopt(fd, IPPROTO_IP, IP_TOS, &value, sizeof(value));
+    
     if (SocketUtils::ConnectSocket(fd, isAsync, peerIp, peerPort, retCode)) {
         SHARING_LOGD("connect success .fd: %{public}d.", fd);
         localIp_ = localIp;
