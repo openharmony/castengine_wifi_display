@@ -92,10 +92,6 @@ public:
 
     static RtspError ParseMessage(const std::string &message, std::vector<std::string> &firstLine,
                                   std::unordered_map<std::string, std::string> &header, std::list<std::string> &body);
-
-    static std::string GenerateAuthorization(const std::string &username, const std::string &realm,
-                                             const std::string &password, const std::string &nonce,
-                                             const std::string &method, const std::string &url);
 };
 } // namespace Sharing
 } // namespace OHOS
