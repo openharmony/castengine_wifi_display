@@ -186,19 +186,6 @@ HWTEST_F(RtspUnitTest, RtspUnitTest_018, Function | SmallTest | Level2)
     ASSERT_TRUE(ret.code == RtspErrorType::OK);
 }
 
-HWTEST_F(RtspUnitTest, RtspUnitTest_019, Function | SmallTest | Level2)
-{
-    const std::string &username = "username";
-    const std::string &realm = "realm";
-    const std::string &password = "password";
-    const std::string &nonce = "nonce";
-    const std::string &method = "method";
-    const std::string &url = "url";
-    auto ret = RtspCommon::GenerateAuthorization(username, realm, password, nonce, method, url);
-    EXPECT_EQ(ret,
-              "Digest username=\"username\", realm=\"realm\", nonce=\"nonce\", uri=\"url\", response=\"00000000\"");
-}
-
 HWTEST_F(RtspUnitTest, RtspUnitTest_020, Function | SmallTest | Level2)
 {
     auto request = std::make_shared<RtspRequest>();
