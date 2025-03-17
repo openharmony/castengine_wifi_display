@@ -104,6 +104,19 @@ SocketInfo::Ptr TcpServer::GetSocketInfo()
     return socket_;
 }
 
+void TcpServer::SetClientFd(int32_t clientFd)
+{
+    SocketUtils::SetNonBlocking(clientFd);
+    SocketUtils::SetNoDelay(clientFd, true);
+    SocketUtils::SetSendBuf(clientFd);
+    SocketUtils::SetRecvBuf(clientFd);
+    SocketUtils::SetCloseWait(clientFd);
+    SocketUtils::SetCloExec(clientFd, true);
+    SocketUtils::SetKeepAlive(clientFd);
+    int32_t value = 0xBC;
+    setsockopt(clientFd, IPPROTO_IP, IP_TOS, &value, sizeof(value));
+}
+
 void TcpServer::OnServerReadable(int32_t fd)
 {
     SHARING_LOGD("fd: %{public}d, socketLocalFd: %{public}d, thread_id: %{public}llu.", fd, socketLocalFd_,
@@ -117,13 +130,7 @@ void TcpServer::OnServerReadable(int32_t fd)
             SHARING_LOGE("onReadable accept client error!");
             return;
         }
-        SocketUtils::SetNonBlocking(clientFd);
-        SocketUtils::SetNoDelay(clientFd, true);
-        SocketUtils::SetSendBuf(clientFd);
-        SocketUtils::SetRecvBuf(clientFd);
-        SocketUtils::SetCloseWait(clientFd);
-        SocketUtils::SetCloExec(clientFd, true);
-        SocketUtils::SetKeepAlive(clientFd);
+        SetClientFd(clientFd);
         SHARING_LOGD("onReadable accept client fd: %{public}d.", clientFd);
         if (socket_) {
             socket_->socketPeerFd_ = clientFd;
