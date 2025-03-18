@@ -761,7 +761,7 @@ int32_t WfdSinkScene::HandleAppendSurface(std::shared_ptr<WfdAppendSurfaceReq> &
                 return ERR_STATE_EXCEPTION;
             }
 
-            if (item.second->sceneType == SceneType::FOREGROUND) {
+            if (item.second != nullptr && item.second->sceneType == SceneType::FOREGROUND) {
                 foregroundSurfaceNum++;
             }
         }
