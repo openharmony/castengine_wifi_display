@@ -191,7 +191,7 @@ std::string WfdRtspM3Response::GetAudioFormat(AudioFormat format)
 {
     std::stringstream ss;
     uint32_t type = TYPE_AAC;
-    uint32_t mode;
+    uint32_t mode = AAC_48000_16_2;
     std::string codec = AAC;
     switch (format) {
         case AUDIO_44100_8_2:

@@ -104,6 +104,11 @@ bool WfdSinkDemo::Start()
 
 bool WfdSinkDemo::Stop()
 {
+    printf("enter stop");
+    if (!client_) {
+        printf("client is nullptr");
+        return false;
+    }
     if (client_->Stop() == -1) {
         printf("sink stop error");
         return false;
@@ -113,6 +118,10 @@ bool WfdSinkDemo::Stop()
 
 bool WfdSinkDemo::AppendSurface(std::string deviceId)
 {
+    if (!client_) {
+        printf("client is nullptr");
+        return false;
+    }
     uint64_t surfaceId = 0;
     for (auto item : surfaceUsing_) {
         if (!item.second) {
@@ -151,6 +160,10 @@ bool WfdSinkDemo::AppendSurface(std::string deviceId)
 
 bool WfdSinkDemo::RemoveSurface(std::string deviceId, std::string surfaceId)
 {
+    if (!client_) {
+        printf("client is nullptr");
+        return false;
+    }
     uint64_t surfaceUintId = std::stoull(surfaceId);
     if (client_->RemoveSurface(deviceId, surfaceUintId) != 0) {
         printf("delete surface:%llu failed", surfaceUintId);
@@ -161,6 +174,10 @@ bool WfdSinkDemo::RemoveSurface(std::string deviceId, std::string surfaceId)
 
 bool WfdSinkDemo::SetMediaFormat(std::string deviceId, VideoFormat videoFormatId, AudioFormat audioFormatId)
 {
+    if (!client_) {
+        printf("client is nullptr");
+        return false;
+    }
     CodecAttr videoAttr;
     videoAttr.codecType = CodecId::CODEC_H264;
     videoAttr.formatId = videoFormatId;
@@ -177,6 +194,10 @@ bool WfdSinkDemo::SetMediaFormat(std::string deviceId, VideoFormat videoFormatId
 
 bool WfdSinkDemo::SetSceneType(std::string deviceId, std::string surfaceId, SceneType sceneType)
 {
+    if (!client_) {
+        printf("client is nullptr");
+        return false;
+    }
     uint64_t stringUintId = std::stoull(surfaceId);
     if (client_->SetSceneType(deviceId, stringUintId, sceneType) == -1) {
         printf("SetSceneType error, surfaceId: %s", deviceId.c_str());
@@ -187,6 +208,10 @@ bool WfdSinkDemo::SetSceneType(std::string deviceId, std::string surfaceId, Scen
 
 bool WfdSinkDemo::Mute(std::string deviceId)
 {
+    if (!client_) {
+        printf("client is nullptr");
+        return false;
+    }
     if (client_->Mute(deviceId) == -1) {
         printf("Mute error, deviceId: %s", deviceId.c_str());
         return false;
@@ -196,6 +221,10 @@ bool WfdSinkDemo::Mute(std::string deviceId)
 
 int32_t WfdSinkDemo::UnMute(std::string deviceId)
 {
+    if (!client_) {
+        printf("client is nullptr");
+        return false;
+    }
     if (client_->UnMute(deviceId) == -1) {
         printf("UnMute error, deviceId: %s", deviceId.c_str());
         return false;
@@ -233,6 +262,10 @@ void WfdSinkDemo::ListDevices()
 
 bool WfdSinkDemo::Play(std::string deviceId)
 {
+    if (!client_) {
+        printf("client is nullptr");
+        return false;
+    }
     if (client_->Play(deviceId) == -1) {
         printf("play error, deviceId: %s", deviceId.c_str());
         return false;
@@ -242,6 +275,10 @@ bool WfdSinkDemo::Play(std::string deviceId)
 
 bool WfdSinkDemo::Pause(std::string deviceId)
 {
+    if (!client_) {
+        printf("client is nullptr");
+        return false;
+    }
     if (client_->Pause(deviceId) == -1) {
         printf("Pause error, deviceId: %s", deviceId.c_str());
         return false;
@@ -251,6 +288,10 @@ bool WfdSinkDemo::Pause(std::string deviceId)
 
 bool WfdSinkDemo::Close(std::string deviceId)
 {
+    if (!client_) {
+        printf("client is nullptr");
+        return false;
+    }
     RemoveDevice(deviceId);
     if (client_->Close(deviceId) == -1) {
         printf("close error, deviceId: %s", deviceId.c_str());
