@@ -23,23 +23,6 @@
 namespace OHOS {
 namespace Sharing {
 
-std::string GetMD5(const std::string &src)
-{
-    int md5DigestLength = 4;
-    unsigned char MD5Hash[md5DigestLength];
-    std::string MD5Digest;
-    std::string tmp;
-    std::stringstream ss;
-
-    for (int32_t i = 0; i < md5DigestLength; ++i) {
-        ss << std::hex << std::setw(2) << std::setfill('0') << (int32_t)MD5Hash[i] << std::endl; // 2: fix offset
-        ss >> tmp;
-        MD5Digest += tmp;
-    }
-
-    return MD5Digest;
-}
-
 std::vector<uint8_t> GenerateSha256HashId(const uint8_t *originalId, uint32_t &len)
 {
     if (originalId == nullptr || len == 0) {

@@ -20,9 +20,6 @@
 
 namespace OHOS {
 namespace Sharing {
-
-std::string GetMD5(const std::string &src);
-
 std::vector<uint8_t> GenerateSha256HashId(const uint8_t *originalId, uint32_t &len);
 
 } // namespace Sharing
