@@ -374,7 +374,6 @@ int32_t SocketUtils::SendSocket(int32_t fd, const char *buf, int32_t len)
     if (fd < 0 || buf == nullptr || len == 0) {
         return -1;
     }
-    SHARING_LOGD("sendSocket: \r\n%{public}s.", buf);
     int32_t bytes = 0;
     bool sending = true;
     while (sending) {
@@ -409,7 +408,6 @@ int32_t SocketUtils::Sendto(int32_t fd, const char *buf, size_t len, const char 
 {
     RETURN_INVALID_IF_NULL(buf);
     RETURN_INVALID_IF_NULL(ip);
-    SHARING_LOGD("trace: \r\n%{public}s.", buf);
     struct sockaddr_in addr = {};
     addr.sin_family = AF_INET;
     addr.sin_port = htons(nPort);
