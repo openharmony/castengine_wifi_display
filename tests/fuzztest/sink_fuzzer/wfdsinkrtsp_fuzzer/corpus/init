@@ -11,12 +11,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//foundation/CastEngine/castengine_wifi_display/config.gni")
-
-group("wfd_sink_fuzz_test") {
-  testonly = true
-  deps = [
-    "wfdsinkrtsp_fuzzer:fuzztest",
-    "wfdstart_fuzzer:fuzztest",
-  ]
-}
+FUZZ
