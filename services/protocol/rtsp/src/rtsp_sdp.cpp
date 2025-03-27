@@ -288,11 +288,11 @@ std::pair<int32_t, int32_t> MediaDescription::GetVideoSize()
         uint32_t index = static_cast<uint32_t>(numRefFramesInPicOrderCntCycle);
         int32_t *offsetForRefFrame = new int32_t[index];
         if (offsetForRefFrame == nullptr) {
-            for (int32_t i = 0; i < index; i++) {
+            for (uint32_t i = 0; i < index; i++) {
                 GetSe(buf, nLen, cursor);
             }
         } else {
-            for (int32_t i = 0; i < index; i++) {
+            for (uint32_t i = 0; i < index; i++) {
                 offsetForRefFrame[i] = GetSe(buf, nLen, cursor);
             }
         }
