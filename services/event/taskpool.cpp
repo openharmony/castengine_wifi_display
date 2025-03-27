@@ -16,6 +16,7 @@
 #include "taskpool.h"
 namespace OHOS {
 namespace Sharing {
+constexpr uint32_t MAX_THREAD_NUM = 50;
 
 TaskPool::TaskPool()
 {
@@ -38,7 +39,7 @@ int32_t TaskPool::Start(int32_t threadsNum)
         return -1;
     }
 
-    if (threadsNum <= 0) {
+    if (threadsNum <= 0 || threadsNum >= MAX_THREAD_NUM) {
         SHARING_LOGE("threadNum is illegal, %{public}d.", threadsNum);
         return -1;
     }
