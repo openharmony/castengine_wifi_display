@@ -19,7 +19,6 @@
 #include "protocol/rtsp/include/rtsp_request.h"
 #include "protocol/rtsp/include/rtsp_response.h"
 #include "protocol/rtsp/include/rtsp_sdp.h"
-#include "protocol/rtsp/include/rtsp_url.h"
 
 using namespace testing::ext;
 using namespace OHOS::Sharing;
@@ -237,16 +236,6 @@ HWTEST_F(RtspUnitTest, RtspUnitTest_025, Function | SmallTest | Level2)
     request->SetUrl(url);
     auto ret = request->GetUrl();
     EXPECT_EQ(ret, url);
-}
-
-HWTEST_F(RtspUnitTest, RtspUnitTest_026, Function | SmallTest | Level2)
-{
-    const std::string &authorization = "authorization";
-    auto request = std::make_shared<RtspRequest>();
-    EXPECT_NE(request, nullptr);
-    request->SetAuthorization(authorization);
-    auto ret = request->GetAuthorization();
-    EXPECT_EQ(ret, authorization);
 }
 
 HWTEST_F(RtspUnitTest, RtspUnitTest_027, Function | SmallTest | Level2)
@@ -863,47 +852,6 @@ HWTEST_F(RtspUnitTest, RtspUnitTest_076, Function | SmallTest | Level2)
     EXPECT_EQ(ret9.second, 232322);
     auto ret10 = rtspSdp->getAttributes();
     EXPECT_EQ(ret10[0], "attr");
-}
-
-HWTEST_F(RtspUnitTest, RtspUnitTest_077, Function | SmallTest | Level2)
-{
-    auto rtspUrl = std::make_shared<RtspUrl>();
-    EXPECT_NE(rtspUrl, nullptr);
-}
-
-HWTEST_F(RtspUnitTest, RtspUnitTest_078, Function | SmallTest | Level2)
-{
-    const std::string url = "rtsp://admin:12345@172.6.22.106:554/h264/ch33/main/av_stream";
-    auto rtspUrl = std::make_shared<RtspUrl>(url);
-    EXPECT_NE(rtspUrl, nullptr);
-}
-
-HWTEST_F(RtspUnitTest, RtspUnitTest_079, Function | SmallTest | Level2)
-{
-    auto rtspUrl = std::make_shared<RtspUrl>();
-    EXPECT_NE(rtspUrl, nullptr);
-    const std::string url = "rtsp://admin:12345@172.6.22.106:554/h264/ch33/main/av_stream";
-    auto ret = rtspUrl->Parse(url);
-    EXPECT_NE(ret, false);
-    auto host = rtspUrl->GetHost();
-    EXPECT_EQ(host, "172.6.22.106");
-    auto path = rtspUrl->GetPath();
-    EXPECT_EQ(path, "/h264/ch33/main/av_stream");
-    auto port = rtspUrl->GetPort();
-    EXPECT_EQ(port, 554);
-    auto userName = rtspUrl->GetUsername();
-    EXPECT_EQ(userName, "admin");
-    auto password = rtspUrl->GetPassword();
-    EXPECT_EQ(password, "12345");
-}
-
-HWTEST_F(RtspUnitTest, RtspUnitTest_080, Function | SmallTest | Level2)
-{
-    auto rtspUrl = std::make_shared<RtspUrl>();
-    EXPECT_NE(rtspUrl, nullptr);
-    const std::string url = "";
-    auto ret = rtspUrl->Parse(url);
-    EXPECT_NE(ret, true);
 }
 
 } // namespace

@@ -25,9 +25,6 @@ std::string RtspRequest::Stringify()
     std::stringstream ss;
     ss << method_ << RTSP_SP << url_ << RTSP_SP << RTSP_VERSION << RTSP_CRLF;
     ss << RTSP_TOKEN_CSEQ << ":" << RTSP_SP << cSeq_ << RTSP_CRLF;
-    if (!authorization_.empty()) {
-        ss << RTSP_TOKEN_AUTHORIZATION << ":" << RTSP_SP << authorization_ << RTSP_CRLF;
-    }
     ss << RTSP_TOKEN_UA << ":" << RTSP_SP << userAgent_ << RTSP_CRLF;
     if (!session_.empty()) {
         ss << RTSP_TOKEN_SESSION << ":" << RTSP_SP << session_;

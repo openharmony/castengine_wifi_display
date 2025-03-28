@@ -56,14 +56,6 @@ public:
 
     std::string GetUrl() const { return url_; }
 
-    RtspRequest &SetAuthorization(const std::string &authorization)
-    {
-        authorization_ = authorization;
-        return *this;
-    }
-
-    std::string GetAuthorization() { return authorization_; }
-
     RtspRequest &SetUserAgent(const std::string &userAgent)
     {
         userAgent_ = userAgent;
@@ -110,7 +102,6 @@ private:
     std::string method_;
     std::string session_;
     std::string url_ = "*";
-    std::string authorization_;
     std::string customHeaders_;
     std::string userAgent_ = "KaihongOS";
 
