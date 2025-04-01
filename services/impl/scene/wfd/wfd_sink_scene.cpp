@@ -238,7 +238,8 @@ void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &in
             connectionInfo.state = ConnectionState::CONNECTED;
             parent->currentConnectDev_ = connectionInfo;
             SHARING_LOGD("device connected, mac: %{private}s, ip: %{private}s, port: %{private}d",
-                GetAnonymousMAC(connectionInfo.mac).c_str(), GetAnonymousIp(connectionInfo.ip).c_str(), connectionInfo.ctrlPort);
+                GetAnonymousMAC(connectionInfo.mac).c_str(), GetAnonymousIp(connectionInfo.ip).c_str(),
+                connectionInfo.ctrlPort);
             parent->p2pInstance_->StopP2pListen();
             parent->OnP2pPeerConnected(connectionInfo);
             Wifi::WifiP2pGroupInfo group;
@@ -1548,7 +1549,8 @@ void WfdSinkScene::OnInnerDestroy(uint32_t contextId, uint32_t agentId, AgentTyp
 
             SHARING_LOGI(
                 "disconnected, contextId: %{public}u, agentId: %{public}u, devMac: %{private}s, devIp: %{private}s.",
-                contextId, agentId, GetAnonymousMAC(connectionInfo.mac).c_str(), GetAnonymousIp(connectionInfo.ip).c_str());
+                contextId, agentId, GetAnonymousMAC(connectionInfo.mac).c_str(),
+                GetAnonymousIp(connectionInfo.ip).c_str());
             OnConnectionChanged(connectionInfo);
 
             P2pRemoveClient(connectionInfo);
@@ -1691,8 +1693,9 @@ void WfdSinkScene::OnDecoderDied(ConnectionInfo &connectionInfo)
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
     ipcAdapter->SendRequest(msg, reply);
 
-    SHARING_LOGD("failed at device ip: %{private}s, mac: %{private}s, state: %{public}s.", GetAnonymousIp(connectionInfo.ip).c_str(),
-        GetAnonymousMAC(connectionInfo.mac).c_str(), std::string(magic_enum::enum_name(connectionInfo.state)).c_str());
+    SHARING_LOGD("failed at device ip: %{private}s, mac: %{private}s, state: %{public}s.",
+        GetAnonymousIp(connectionInfo.ip).c_str(), GetAnonymousMAC(connectionInfo.mac).c_str(),
+        std::string(magic_enum::enum_name(connectionInfo.state)).c_str());
 }
 
 void WfdSinkScene::OnRemoteDied()

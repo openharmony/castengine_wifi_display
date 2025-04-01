@@ -27,6 +27,9 @@
 namespace OHOS {
 namespace Sharing {
 constexpr int IP_LEN = 64;
+constexpr uint32_t MIN_DEVICE_ID_LEN = 10;
+constexpr uint32_t MAC_LEN = 17;
+constexpr uint32_t DEVICE_ID_VISIBLE_LEN = 5;
 
 unsigned long long GetThreadId()
 {
@@ -341,13 +344,16 @@ std::string GetAnonymousIp(const std::string &ip)
 
 std::string GetAnonymousMAC(const std::string &mac)
 {
-    if (mac.empty() || mac.length() != 17) {
+    if (mac.empty() || mac.length() != MAC_LEN) {
         return "";
     }
-    uint32_t maskPos[4] = {12, 13 ,15, 16};
+    uint32_t maskPos[4] = {12, 13, 15, 16};
     char marArr[mac.length() + 1];
-    memcpy_s(marArr, mac.length(), mac.c_str(), mac.length());
-    for(uint64_t i = 0; i < sizeof(maskPos) / sizeof(unsigned long); i++){
+    if (memcpy_s(marArr, mac.length(), mac.c_str(), mac.length()) != 0) {
+        return "";
+    }
+    ;
+    for(uint64_t i = 0; i < sizeof(maskPos) / sizeof(unsigned long); i++) {
         marArr[maskPos[i]] = '*';
     }
     return std::string(marArr);
@@ -355,10 +361,11 @@ std::string GetAnonymousMAC(const std::string &mac)
 
 std::string GetAnonymousDeviceId(const std::string &deviceId)
 {
-    if (deviceId.empty() || deviceId.length() < 10) {
+    if (deviceId.empty() || deviceId.length() < MIN_DEVICE_ID_LEN) {
         return "";
     }
-    return deviceId.substr(0, 5) + "**" + deviceId.substr(deviceId.length() - 5);
+    return deviceId.substr(0, DEVICE_ID_VISIBLE_LEN) + "**" +
+        deviceId.substr(deviceId.length() - DEVICE_ID_VISIBLE_LEN);
 }
 } // namespace Sharing
 } // namespace OHOS
