@@ -105,7 +105,7 @@ int32_t WfdSinkImpl::GetSinkConfig(SinkConfig &sinkConfig)
 
 int32_t WfdSinkImpl::AppendSurface(std::string deviceId, uint64_t surfaceId)
 {
-    SHARING_LOGD("add device: %{public}s, surfaceId: %{public}" PRIx64 ".", GetAnonyString(deviceId).c_str(),
+    SHARING_LOGD("add device: %{public}s, surfaceId: %{public}" PRIx64 ".", GetAnonymousDeviceId(deviceId).c_str(),
                  surfaceId);
     auto surface = SurfaceUtils::GetInstance()->GetSurface(surfaceId);
     if (nullptr == surface) {
@@ -117,7 +117,7 @@ int32_t WfdSinkImpl::AppendSurface(std::string deviceId, uint64_t surfaceId)
 
 int32_t WfdSinkImpl::AppendSurface(std::string deviceId, sptr<IBufferProducer> producer)
 {
-    SHARING_LOGD("add surface by buffer, device: %{public}s" PRIx64 ".", GetAnonyString(deviceId).c_str());
+    SHARING_LOGD("add surface by buffer, device: %{public}s" PRIx64 ".", GetAnonymousDeviceId(deviceId).c_str());
     if (nullptr == producer) {
         SHARING_LOGE("producer object is null.");
         return -1;
@@ -148,7 +148,7 @@ int32_t WfdSinkImpl::AppendSurface(std::string deviceId, sptr<IBufferProducer> p
 
 int32_t WfdSinkImpl::RemoveSurface(std::string deviceId, uint64_t surfaceId)
 {
-    SHARING_LOGD("delete device: %{public}s, surfaceId:%{public}" PRIx64 ".", GetAnonyString(deviceId).c_str(),
+    SHARING_LOGD("delete device: %{public}s, surfaceId:%{public}" PRIx64 ".", GetAnonymousDeviceId(deviceId).c_str(),
                  surfaceId);
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
@@ -211,7 +211,7 @@ int32_t WfdSinkImpl::Stop()
 
 int32_t WfdSinkImpl::SetMediaFormat(std::string deviceId, CodecAttr videoAttr, CodecAttr audioAttr)
 {
-    SHARING_LOGD("set device: %{public}s, VideoFormat: %{public}d, AudioFormat: %{public}d.", deviceId.c_str(),
+    SHARING_LOGD("set device: %{public}s, VideoFormat: %{public}d, AudioFormat: %{public}d.", GetAnonymousDeviceId(deviceId).c_str(),
                  videoAttr.formatId, audioAttr.formatId);
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
@@ -235,7 +235,7 @@ int32_t WfdSinkImpl::SetMediaFormat(std::string deviceId, CodecAttr videoAttr, C
 
 int32_t WfdSinkImpl::Play(std::string deviceId)
 {
-    SHARING_LOGD("device: %{public}s.", deviceId.c_str());
+    SHARING_LOGD("device: %{public}s.", GetAnonymousDeviceId(deviceId).c_str());
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
@@ -256,7 +256,7 @@ int32_t WfdSinkImpl::Play(std::string deviceId)
 
 int32_t WfdSinkImpl::Pause(std::string deviceId)
 {
-    SHARING_LOGD("device:%{public}s.", deviceId.c_str());
+    SHARING_LOGD("device:%{public}s.", GetAnonymousDeviceId(deviceId).c_str());
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
@@ -277,7 +277,7 @@ int32_t WfdSinkImpl::Pause(std::string deviceId)
 
 int32_t WfdSinkImpl::Close(std::string deviceId)
 {
-    SHARING_LOGD("device: %{public}s.", deviceId.c_str());
+    SHARING_LOGD("device: %{public}s.", GetAnonymousDeviceId(deviceId).c_str());
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
@@ -299,7 +299,7 @@ int32_t WfdSinkImpl::Close(std::string deviceId)
 int32_t WfdSinkImpl::SetSceneType(std::string deviceId, uint64_t surfaceId, SceneType sceneType)
 {
     SHARING_LOGD("set device: %{public}s, surfaceId: %{public}" PRIx64 ", sceneType: %{public}d.",
-                 GetAnonyString(deviceId).c_str(), surfaceId, sceneType);
+                 GetAnonymousDeviceId(deviceId).c_str(), surfaceId, sceneType);
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
@@ -322,7 +322,7 @@ int32_t WfdSinkImpl::SetSceneType(std::string deviceId, uint64_t surfaceId, Scen
 
 int32_t WfdSinkImpl::Mute(std::string deviceId)
 {
-    SHARING_LOGD("device: %{public}s.", GetAnonyString(deviceId).c_str());
+    SHARING_LOGD("device: %{public}s.", GetAnonymousDeviceId(deviceId).c_str());
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
@@ -343,7 +343,7 @@ int32_t WfdSinkImpl::Mute(std::string deviceId)
 
 int32_t WfdSinkImpl::UnMute(std::string deviceId)
 {
-    SHARING_LOGD("device: %{public}s.", GetAnonyString(deviceId).c_str());
+    SHARING_LOGD("device: %{public}s.", GetAnonymousDeviceId(deviceId).c_str());
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
