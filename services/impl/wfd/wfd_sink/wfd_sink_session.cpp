@@ -113,7 +113,7 @@ void WfdSinkSession::HandleSessionInit(SharingEvent &event)
     }
 
     SHARING_LOGI("sessionInit localIp: %{public}s, remoteIp: %{public}s", GetAnonymousIp(localIp_).c_str(),
-        GetAnonymousIpGetAnonymousIp(remoteRtspIp_).c_str());
+        GetAnonymousIp(remoteRtspIp_).c_str());
 }
 
 void WfdSinkSession::HandleProsumerInitState(SharingEvent &event)
