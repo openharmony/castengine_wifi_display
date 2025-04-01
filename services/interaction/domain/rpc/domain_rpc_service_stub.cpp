@@ -93,7 +93,7 @@ int32_t DomainRpcServiceStub::SetListenerObject(const sptr<IRemoteObject> &objec
     std::unique_lock<std::mutex> lock(mutex_);
     peerProxys_[peerDevId] = peerProxy;
     lock.unlock();
-    SHARING_LOGD("peer deviceId: %{public}s, listener num: %{public}zu.", GetAnonyString(peerDevId).c_str(),
+    SHARING_LOGD("peer deviceId: %{public}s, listener num: %{public}zu.", GetAnonymousDeviceId(peerDevId).c_str(),
                  peerProxys_.size());
 
     auto deathRecipient = new (std::nothrow) DomainRpcDeathRecipient(peerDevId);

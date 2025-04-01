@@ -101,7 +101,7 @@ int32_t DomainRpcService::DoRpcCommand(std::shared_ptr<BaseDomainMsg> msg, std::
 
 void DomainRpcService::CreateDeathListener(std::string deviceId)
 {
-    SHARING_LOGD("deviceId: %{public}s.", GetAnonyString(deviceId).c_str());
+    SHARING_LOGD("deviceId: %{public}s.", GetAnonymousDeviceId(deviceId).c_str());
     if (deathRecipients_.find(deviceId) != deathRecipients_.end()) {
         auto listener = std::make_shared<DomainRpcServiceDeathListener>();
         if (shared_from_this_ == nullptr) {
@@ -110,7 +110,7 @@ void DomainRpcService::CreateDeathListener(std::string deviceId)
         listener->SetService(shared_from_this_);
         deathRecipients_[deviceId]->SetDeathListener(listener);
     } else {
-        SHARING_LOGE("deviceId not find: %{public}s.", GetAnonyString(deviceId).c_str());
+        SHARING_LOGE("deviceId not find: %{public}s.", GetAnonymousDeviceId(deviceId).c_str());
     }
 }
 

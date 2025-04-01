@@ -110,6 +110,9 @@ void SetLE32(void *p, uint32_t val);
 
 std::string GetAnonyString(const std::string &value);
 std::string GetLocalP2pAddress(const std::string &interface);
+std::string GetAnonymousIp(const std::string &ip);
+std::string GetAnonymousMAC(const std::string &mac);
+std::string GetAnonymousDeviceId(const std::string &deviceId);
 } // namespace Sharing
 } // namespace OHOS
 #endif

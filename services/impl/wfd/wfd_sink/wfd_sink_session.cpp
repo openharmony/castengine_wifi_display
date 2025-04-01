@@ -112,8 +112,8 @@ void WfdSinkSession::HandleSessionInit(SharingEvent &event)
         SHARING_LOGE("unknow event msg.");
     }
 
-    SHARING_LOGI("sessionInit localIp: %{public}s, remoteIp: %{public}s", GetAnonyString(localIp_).c_str(),
-        GetAnonyString(remoteRtspIp_).c_str());
+    SHARING_LOGI("sessionInit localIp: %{public}s, remoteIp: %{public}s", GetAnonymousIp(localIp_).c_str(),
+        GetAnonymousIp(remoteRtspIp_).c_str());
 }
 
 void WfdSinkSession::HandleProsumerInitState(SharingEvent &event)
@@ -279,7 +279,7 @@ bool WfdSinkSession::StartWfdSession()
     SHARING_LOGD("trace.");
     if (NetworkFactory::CreateTcpClient(remoteRtspIp_, remoteRtspPort_, shared_from_this(), rtspClient_)) {
         SHARING_LOGI("sessionId: %{public}u, wfds session connected ip: %{public}s.", GetId(),
-                     GetAnonyString(remoteRtspIp_).c_str());
+                     GetAnonymousIp(remoteRtspIp_).c_str());
     } else {
         // try connect again
         for (int32_t i = 0; i < 5; i++) { // 5: retry time
@@ -296,11 +296,11 @@ bool WfdSinkSession::StartWfdSession()
             if (rtspClient_) {
                 if (rtspClient_->Connect(remoteRtspIp_, remoteRtspPort_, "::", 0)) {
                     SHARING_LOGW("sessionId: %{public}u, reconnected successfully, ip: %{public}s, times: %{public}d.",
-                                 GetId(), GetAnonyString(remoteRtspIp_).c_str(), i);
+                                 GetId(), GetAnonymousIp(remoteRtspIp_).c_str(), i);
                     break;
                 } else {
                     SHARING_LOGE("sessionId: %{public}u, Failed to connect wfd rtsp server %{public}s:%{public}d.",
-                                 GetId(), GetAnonyString(remoteRtspIp_).c_str(), remoteRtspPort_);
+                                 GetId(), GetAnonymousIp(remoteRtspIp_).c_str(), remoteRtspPort_);
                     if (i == 4) { // 4: stop try
                         return false;
                     }
