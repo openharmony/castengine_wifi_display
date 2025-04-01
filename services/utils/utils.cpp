@@ -353,7 +353,7 @@ std::string GetAnonymousMAC(const std::string &mac)
         return "";
     }
     ;
-    for(uint64_t i = 0; i < sizeof(maskPos) / sizeof(unsigned long); i++) {
+    for (uint64_t i = 0; i < sizeof(maskPos) / sizeof(unsigned long); i++) {
         marArr[maskPos[i]] = '*';
     }
     return std::string(marArr);
