@@ -35,8 +35,8 @@ TcpServer::TcpServer()
 
 bool TcpServer::Start(uint16_t port, const std::string &host, bool enableReuse, uint32_t backlog)
 {
-    SHARING_LOGD("server ip:%{public}s, Port:%{public}d, thread_id: %{public}llu.", GetAnonyString(host).c_str(), port,
-                 GetThreadId());
+    SHARING_LOGD("server ip:%{public}s, Port:%{public}d, thread_id: %{public}llu.",
+        GetAnonymousIp(host).c_str(), port, GetThreadId());
     socket_ = std::make_unique<TcpSocket>();
     if (socket_) {
         if (socket_->Bind(port, host, enableReuse, backlog)) {

@@ -326,5 +326,39 @@ std::string GetLocalP2pAddress(const std::string &interface)
 
     return std::string(ipString);
 }
+
+std::string GetAnonymousIp(const std::string &ip)
+{
+    if (ip.empty()) {
+        return "";
+    }
+    std::regex pattern(R"(^((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]|[*])\.){3}(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]|[*])$)");
+    if (!std::regex_match(ip, pattern)) {
+        return "";
+    }
+    return ip.substr(0, ip.find_last_of('.') + 1) + "***";
+}
+
+std::string GetAnonymousMAC(const std::string &mac)
+{
+    if (mac.empty() || mac.length() != 17) {
+        return "";
+    }
+    uint32_t maskPos[4] = {12, 13 ,15, 16};
+    char marArr[mac.length() + 1];
+    memcpy_s(marArr, mac.length(), mac.c_str(), mac.length());
+    for(uint64_t i = 0; i < sizeof(maskPos) / sizeof(unsigned long); i++){
+        marArr[maskPos[i]] = '*';
+    }
+    return std::string(marArr);
+}
+
+std::string GetAnonymousDeviceId(const std::string &deviceId)
+{
+    if (deviceId.empty() || deviceId.length() < 10) {
+        return "";
+    }
+    return deviceId.substr(0, 5) + "**" + deviceId.substr(deviceId.length() - 5);
+}
 } // namespace Sharing
 } // namespace OHOS

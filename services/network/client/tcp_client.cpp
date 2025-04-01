@@ -35,7 +35,7 @@ TcpClient::TcpClient()
 
 bool TcpClient::Connect(const std::string &peerIp, uint16_t peerPort, const std::string &localIp, uint16_t localPort)
 {
-    SHARING_LOGI("peerIp:%{public}s, peerPort:%{public}d, thread_id: %{public}llu.", GetAnonyString(peerIp).c_str(),
+    SHARING_LOGI("peerIp:%{public}s, peerPort:%{public}d, thread_id: %{public}llu.", GetAnonymousIp(peerIp).c_str(),
                  peerPort, GetThreadId());
 
     int32_t retCode = 0;
