@@ -26,7 +26,6 @@
 #include "system_ability_definition.h"
 #include "utils/utils.h"
 #include "wfd_session_def.h"
-#include "wfd_trust_list_manager.h"
 
 using namespace OHOS::DistributedHardware;
 namespace OHOS {

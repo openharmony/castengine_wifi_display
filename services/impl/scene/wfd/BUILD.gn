@@ -44,8 +44,8 @@ ohos_source_set("sharing_wfd_srcs") {
 
   if (wifi_display_support_sink) {
     sources += [
+      "sink/wfd_trust_list_manager.cpp",
       "wfd_sink_scene.cpp",
-      "wfd_trust_list_manager.cpp",
     ]
     include_dirs += [ "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink" ]
   }

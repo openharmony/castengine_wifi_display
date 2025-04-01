@@ -30,7 +30,7 @@
 #include "utils/utils.h"
 #include "wfd_def.h"
 #include "wfd_msg.h"
-#include "wfd_trust_list_manager.h"
+#include "sink/wfd_trust_list_manager.h"
 #include "wifi_device.h"
 #include "wifi_p2p.h"
 
