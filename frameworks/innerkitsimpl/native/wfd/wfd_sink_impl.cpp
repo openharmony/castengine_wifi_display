@@ -211,8 +211,8 @@ int32_t WfdSinkImpl::Stop()
 
 int32_t WfdSinkImpl::SetMediaFormat(std::string deviceId, CodecAttr videoAttr, CodecAttr audioAttr)
 {
-    SHARING_LOGD("set device: %{public}s, VideoFormat: %{public}d, AudioFormat: %{public}d.", GetAnonymousDeviceId(deviceId).c_str(),
-                 videoAttr.formatId, audioAttr.formatId);
+    SHARING_LOGD("set device: %{public}s, VideoFormat: %{public}d, AudioFormat: %{public}d.",
+        GetAnonymousDeviceId(deviceId).c_str(), videoAttr.formatId, audioAttr.formatId);
     auto ipcAdapter = ipcAdapter_.lock();
     RETURN_INVALID_IF_NULL(ipcAdapter);
 
