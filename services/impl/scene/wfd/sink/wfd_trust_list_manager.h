@@ -17,7 +17,7 @@
 #define OHOS_SHARING_WFD_TRUST_LIST_MANAGER_H
 
 #include <regex>
-#include "utils/preferences_util.h"
+#include "preferences_util.h"
 #include "utils/utils.h"
 #include "wfd_def.h"
 #include "wifi_p2p.h"

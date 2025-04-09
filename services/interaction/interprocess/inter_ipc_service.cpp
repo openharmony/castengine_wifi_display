@@ -76,30 +76,5 @@ void InterIpcService::OnStop()
     SHARING_LOGD("trace.");
 }
 
-void InterIpcService::RecordProcessIdByKvStore()
-{
-    SHARING_LOGD("trace.");
-    int32_t pid = getpid();
-    SHARING_LOGD("open KvStore.");
-    kvOperator_.OpenKvStore();
-    
-    nlohmann::json jsObj;
-    jsObj[VALID_PID] = std::to_string(pid);
-    jsObj[ENABLE_HARDWARE] = true;
-
-    SharingValue::Ptr values = nullptr;
-    auto ret = Config::GetInstance().GetConfig("codec", "forceSWDecoder", "isEnable", values);
-    if (ret == CONFIGURE_ERROR_NONE) {
-        bool value;
-        values->GetValue<bool>(value);
-        jsObj[ENABLE_HARDWARE] = static_cast<bool>(!value);
-    }
-
-    kvOperator_.PutValues(SHARING_INFOS, jsObj.dump());
-    SHARING_LOGD("kv put value, pid: %{public}d.", pid);
-    
-    kvOperator_.CloseKvStore();
-}
-
 } // namespace Sharing
 } // namespace OHOS

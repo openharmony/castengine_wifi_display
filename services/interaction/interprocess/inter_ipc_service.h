@@ -19,7 +19,6 @@
 #include <unordered_map>
 #include "inter_ipc_service_stub.h"
 #include "system_ability.h"
-#include "common/kv_operator.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -37,12 +36,6 @@ protected:
     void OnDump() final;
     void OnStop() final;
     void OnStart() final;
-
-private:
-    void RecordProcessIdByKvStore();
-
-private:
-    KvOperator kvOperator_;
 };
 
 } // namespace Sharing

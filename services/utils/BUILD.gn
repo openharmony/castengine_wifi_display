@@ -53,20 +53,6 @@ ohos_static_library("sharing_utils") {
     "hilog:libhilog",
   ]
 
-  if (wifi_display_support_sink) {
-    external_deps += [
-      "ability_runtime:dataobs_manager",
-      "data_share:datashare_consumer",
-      "os_account:os_account_innerkits",
-      "preferences:native_preferences",
-      "samgr:samgr_proxy",
-    ]
-    sources += [
-      "data_share_helper.cpp",
-      "preferences_util.cpp",
-    ]
-  }
-
   part_name = "sharing_framework"
   subsystem_name = "castplus"
 }
