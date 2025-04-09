@@ -44,6 +44,8 @@ ohos_source_set("sharing_wfd_srcs") {
 
   if (wifi_display_support_sink) {
     sources += [
+      "sink/data_share_helper.cpp",
+      "sink/preferences_util.cpp",
       "sink/wfd_trust_list_manager.cpp",
       "wfd_sink_scene.cpp",
     ]
@@ -69,6 +71,7 @@ ohos_source_set("sharing_wfd_srcs") {
   if (wifi_display_support_sink) {
     external_deps += [
       "data_share:datashare_consumer",
+      "os_account:os_account_innerkits",
       "preferences:native_preferences",
     ]
   }

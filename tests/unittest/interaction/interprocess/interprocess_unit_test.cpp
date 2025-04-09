@@ -428,15 +428,6 @@ HWTEST_F(InterProcessUnitTest, InterIpcService_Test_037, testing::ext::TestSize.
     interIpcService->OnStart();
 }
 
-HWTEST_F(InterProcessUnitTest, InterIpcService_Test_038, testing::ext::TestSize.Level1)
-{
-    int32_t systemAbilityId = 100;
-    bool runOnCreate = true;
-    auto interIpcService = std::make_shared<InterIpcService>(systemAbilityId, runOnCreate);
-    EXPECT_NE(interIpcService, nullptr);
-    interIpcService->RecordProcessIdByKvStore();
-}
-
 HWTEST_F(InterProcessUnitTest, InterIpcStubDeathListener_Test_039, testing::ext::TestSize.Level1)
 {
     auto ipcStub = std::make_shared<InterIpcStub>();

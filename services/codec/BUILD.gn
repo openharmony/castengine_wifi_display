@@ -54,7 +54,6 @@ ohos_shared_library("sharing_codec") {
   external_deps = [
     "av_codec:av_codec_client",
     "c_utils:utilsbase",
-    "ffmpeg:libohosffmpeg",
     "graphic_surface:surface",
     "hilog:libhilog",
     "ipc:ipc_core",

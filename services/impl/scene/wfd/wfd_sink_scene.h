@@ -26,7 +26,7 @@
 #include "interaction/device_kit/dm_kit.h"
 #include "interaction/scene/base_scene.h"
 #include "system_ability_status_change_stub.h"
-#include "utils/data_share_helper.h"
+#include "sink/data_share_helper.h"
 #include "utils/utils.h"
 #include "wfd_def.h"
 #include "wfd_msg.h"

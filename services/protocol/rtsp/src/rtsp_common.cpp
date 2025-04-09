@@ -16,7 +16,6 @@
 #include "rtsp_common.h"
 #include <regex>
 #include "common/media_log.h"
-#include "utils/crypto.h"
 
 namespace OHOS {
 namespace Sharing {

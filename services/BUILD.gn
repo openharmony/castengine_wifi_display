@@ -51,7 +51,6 @@ ohos_shared_library("sharing_service") {
 
   deps += [
     "codec:sharing_codec",
-    "common:kv_operator",
     "common:sharing_common",
     "network:sharing_network",
     "protocol/rtp:sharing_rtp",
@@ -80,7 +79,6 @@ ohos_shared_library("sharing_service") {
     "graphic_2d:librender_service_base",
     "graphic_surface:surface",
     "hilog:libhilog",
-    "kv_store:distributeddata_inner",
     "samgr:samgr_proxy",
   ]
 
