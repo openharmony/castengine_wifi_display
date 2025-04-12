@@ -176,6 +176,7 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
         return;
     }
 
+    parent->p2pInstance_->StopP2pListen();
     Wifi::WifiP2pGroupInfo group;
     if (Wifi::ErrCode::WIFI_OPT_SUCCESS != parent->p2pInstance_->GetCurrentGroup(group)) {
         SHARING_LOGE("GetCurrentGroup failed");
@@ -201,7 +202,6 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
         }
         wfdTrustListManager_.AddBoundDevice(group);
     }
-    parent->p2pInstance_->StopP2pListen();
     parent->OnP2pPeerConnected(parent->currentConnectDev_);
 }
 
@@ -239,7 +239,6 @@ void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &in
             SHARING_LOGD("device connected, mac: %{private}s, ip: %{private}s, port: %{private}d",
                 GetAnonymousMAC(connectionInfo.mac).c_str(), GetAnonymousIp(connectionInfo.ip).c_str(),
                 connectionInfo.ctrlPort);
-            parent->p2pInstance_->StopP2pListen();
             parent->OnP2pPeerConnected(connectionInfo);
             Wifi::WifiP2pGroupInfo group;
             parent->p2pInstance_->GetCurrentGroup(group);
@@ -511,10 +510,6 @@ void WfdSinkScene::Release()
 
             sharingAdapter->DestroyAgent(contextId, agentId);
         }
-    }
-
-    if (p2pInstance_) {
-        p2pInstance_->RemoveGroup();
     }
 
     devConnectionMap_.clear();
