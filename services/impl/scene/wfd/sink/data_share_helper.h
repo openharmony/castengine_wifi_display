@@ -34,7 +34,7 @@ public:
 private:
     bool Init();
     Uri GetDefaultNamerUri();
-    Uri GetUserDefinedNameUri();
+    Uri GetDisplayNameUri();
     int32_t GetCurrentActiveAccountUserId();
     std::shared_ptr<DataShare::DataShareHelper> helper_ = nullptr;
 };

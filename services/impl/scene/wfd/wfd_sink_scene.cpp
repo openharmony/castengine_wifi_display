@@ -32,7 +32,7 @@ namespace OHOS {
 namespace Sharing {
 constexpr int P2P_LISTEN_INTERVAL = 500;
 constexpr int P2P_LISTEN_PERIOD = 500;
-constexpr int DM_MAX_NAME_LENGTH = 32;
+constexpr int DM_FULL_NAME_LENGTH = 0;
 const std::string DEFAULT_P2P_IPADDR = "192.168.49.1";
 
 void WfdSinkScene::WfdSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
@@ -176,6 +176,7 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
         return;
     }
 
+    parent->p2pInstance_->StopP2pListen();
     Wifi::WifiP2pGroupInfo group;
     if (Wifi::ErrCode::WIFI_OPT_SUCCESS != parent->p2pInstance_->GetCurrentGroup(group)) {
         SHARING_LOGE("GetCurrentGroup failed");
@@ -201,7 +202,6 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
         }
         wfdTrustListManager_.AddBoundDevice(group);
     }
-    parent->p2pInstance_->StopP2pListen();
     parent->OnP2pPeerConnected(parent->currentConnectDev_);
 }
 
@@ -239,7 +239,6 @@ void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &in
             SHARING_LOGD("device connected, mac: %{private}s, ip: %{private}s, port: %{private}d",
                 GetAnonymousMAC(connectionInfo.mac).c_str(), GetAnonymousIp(connectionInfo.ip).c_str(),
                 connectionInfo.ctrlPort);
-            parent->p2pInstance_->StopP2pListen();
             parent->OnP2pPeerConnected(connectionInfo);
             Wifi::WifiP2pGroupInfo group;
             parent->p2pInstance_->GetCurrentGroup(group);
@@ -447,11 +446,11 @@ void WfdSinkScene::InitP2pName()
 {
     DmKit::InitDeviceManager();
     std::string deviceName;
-    if (DeviceManager::GetInstance().GetLocalDisplayDeviceName(DM_PKG_NAME, DM_MAX_NAME_LENGTH, deviceName) != DM_OK) {
+    if (DeviceManager::GetInstance().GetLocalDisplayDeviceName(DM_PKG_NAME, DM_FULL_NAME_LENGTH, deviceName) != DM_OK) {
         SHARING_LOGW("getLocalDeviceInfo from dm failed");
     } else {
         if (p2pInstance_) {
-            p2pInstance_->SetP2pDeviceName(deviceName + std::string("-miracast"));
+            p2pInstance_->SetP2pDeviceName(deviceName);
         }
     }
 }
@@ -511,10 +510,6 @@ void WfdSinkScene::Release()
 
             sharingAdapter->DestroyAgent(contextId, agentId);
         }
-    }
-
-    if (p2pInstance_) {
-        p2pInstance_->RemoveGroup();
     }
 
     devConnectionMap_.clear();

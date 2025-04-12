@@ -26,7 +26,7 @@ const std::string SETTINGS_DATA_BASE_URI =
 const std::string SETTINGS_DATA_SECURE_URI =
     "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_SECURE_";
 const std::string SETTINGS_GENERAL_DEVICE_NAME = "settings.general.device_name";
-const std::string USER_DEFINED_STRING = "settings.general.user_defined_device_name";
+const std::string SETTINGS_DISPLAY_DEVICE_NAME = "settings.general.display_device_name";
 constexpr int32_t DEFAULT_OS_ACCOUNT_ID = 100;
 
 DataShareHelper &DataShareHelper::GetInstance()
@@ -47,7 +47,7 @@ int32_t DataShareHelper::RegisterObserver(const sptr<AAFwk::IDataAbilityObserver
         return DATA_SHARE_ERROR;
     }
     helper_->RegisterObserver(GetDefaultNamerUri(), observer);
-    helper_->RegisterObserver(GetUserDefinedNameUri(), observer);
+    helper_->RegisterObserver(GetDisplayNameUri(), observer);
     return DATA_SHARE_SUCCESS;
 }
 
@@ -58,7 +58,7 @@ int32_t DataShareHelper::UnregisterObserver(const sptr<AAFwk::IDataAbilityObserv
         return DATA_SHARE_ERROR;
     }
     helper_->UnregisterObserver(GetDefaultNamerUri(), observer);
-    helper_->UnregisterObserver(GetUserDefinedNameUri(), observer);
+    helper_->UnregisterObserver(GetDisplayNameUri(), observer);
     return DATA_SHARE_SUCCESS;
 }
 
@@ -90,10 +90,10 @@ Uri DataShareHelper::GetDefaultNamerUri()
     return Uri(SETTINGS_DATA_BASE_URI + "&key=" + SETTINGS_GENERAL_DEVICE_NAME);
 }
 
-Uri DataShareHelper::GetUserDefinedNameUri()
+Uri DataShareHelper::GetDisplayNameUri()
 {
     std::string osAccountId = std::to_string(GetCurrentActiveAccountUserId());
-    return Uri(SETTINGS_DATA_SECURE_URI + osAccountId + "?Proxy=true&key=" + USER_DEFINED_STRING);
+    return Uri(SETTINGS_DATA_SECURE_URI + osAccountId + "?Proxy=true&key=" + SETTINGS_DISPLAY_DEVICE_NAME);
 }
 
 int32_t DataShareHelper::GetCurrentActiveAccountUserId()
