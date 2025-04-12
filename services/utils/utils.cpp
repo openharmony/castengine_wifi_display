@@ -352,8 +352,8 @@ std::string GetAnonymousMAC(const std::string &mac)
     if (memcpy_s(marArr, mac.length(), mac.c_str(), mac.length()) != 0) {
         return "";
     }
-    ;
-    for (uint64_t i = 0; i < sizeof(maskPos) / sizeof(unsigned long); i++) {
+
+    for (size_t i = 0; i < sizeof(maskPos) / sizeof(maskPos[0]); i++) {
         marArr[maskPos[i]] = '*';
     }
     return std::string(marArr);

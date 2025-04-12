@@ -84,7 +84,6 @@ int32_t JsonParser::SaveConfig(SharingData::Ptr &value)
 
 int32_t JsonParser::ReadModuleConfig(Json::Value &modules, SharingData::Ptr &value)
 {
-    SHARING_LOGD("trace.");
     if (modules.empty()) {
         SHARING_LOGE("this module is empty.");
         return -1;
@@ -92,11 +91,12 @@ int32_t JsonParser::ReadModuleConfig(Json::Value &modules, SharingData::Ptr &val
 
     auto moduleNames = modules.getMemberNames();
     for (auto &moduleName : moduleNames) {
-        MEDIA_LOGD("take down %{public}s: %{public}s.", moduleName.c_str(),
-                   modules[moduleName].toStyledString().c_str());
         auto moduleValue = std::make_shared<SharingDataGroupByModule>(moduleName);
         auto module = modules[moduleName];
         for (auto &item : module) {
+            if (!item["tag"].isString()) {
+                continue;
+            }
             auto tag = item["tag"].asString();
             auto tagValue = std::make_shared<SharingDataGroupByTag>(tag);
             moduleValue->PutSharingValues(tag, tagValue);
@@ -105,7 +105,7 @@ int32_t JsonParser::ReadModuleConfig(Json::Value &modules, SharingData::Ptr &val
                 if (key == "tag") {
                     continue;
                 }
-                if (key == "isEnable" && tag == "mediaLog") {
+                if (key == "isEnable" && tag == "mediaLog" && item[key].isBool()) {
                     g_logOn = item[key].asBool();
                 }
                 SharingValue::Ptr sharingData = nullptr;
