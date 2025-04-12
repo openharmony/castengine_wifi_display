@@ -32,7 +32,7 @@ namespace OHOS {
 namespace Sharing {
 constexpr int P2P_LISTEN_INTERVAL = 500;
 constexpr int P2P_LISTEN_PERIOD = 500;
-constexpr int DM_MAX_NAME_LENGTH = 32;
+constexpr int DM_FULL_NAME_LENGTH = 0;
 const std::string DEFAULT_P2P_IPADDR = "192.168.49.1";
 
 void WfdSinkScene::WfdSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
@@ -447,11 +447,11 @@ void WfdSinkScene::InitP2pName()
 {
     DmKit::InitDeviceManager();
     std::string deviceName;
-    if (DeviceManager::GetInstance().GetLocalDisplayDeviceName(DM_PKG_NAME, DM_MAX_NAME_LENGTH, deviceName) != DM_OK) {
+    if (DeviceManager::GetInstance().GetLocalDisplayDeviceName(DM_PKG_NAME, DM_FULL_NAME_LENGTH, deviceName) != DM_OK) {
         SHARING_LOGW("getLocalDeviceInfo from dm failed");
     } else {
         if (p2pInstance_) {
-            p2pInstance_->SetP2pDeviceName(deviceName + std::string("-miracast"));
+            p2pInstance_->SetP2pDeviceName(deviceName);
         }
     }
 }
