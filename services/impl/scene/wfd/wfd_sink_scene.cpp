@@ -287,7 +287,8 @@ void WfdSinkScene::WifiCallback::OnWifiStateChanged(int state)
 void WfdSinkScene::WifiCallback::OnWifiConnectionChanged(int state, const OHOS::Wifi::WifiLinkedInfo &info)
 {
     SHARING_LOGI("OnWifiConnectionChanged state %{public}d", state);
-    if (state == static_cast<int32_t>(Wifi::ConnState::CONNECTED)) {
+    if (state == static_cast<int32_t>(Wifi::ConnState::CONNECTED) ||
+        state == static_cast<int32_t>(Wifi::ConnState::DISCONNECTED)) {
         auto parent = parent_.lock();
         if (parent && parent->isSinkRunning_ && parent->currentConnectDev_.mac == "") {
             parent->WfdP2pStart();
@@ -1196,7 +1197,7 @@ void WfdSinkScene::RegisterWfdAbilityListener()
     int32_t ret = samgrProxy->SubscribeSystemAbility(WIFI_DEVICE_ABILITY_ID, sysAbilityListener_);
     SHARING_LOGI("result is %{public}d.", ret);
 }
- 
+
 void WfdSinkScene::UnRegisterWfdAbilityListener()
 {
     SHARING_LOGI("%{public}s.", __FUNCTION__);
