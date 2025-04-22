@@ -16,7 +16,6 @@ import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 group("demo_test") {
   deps = [
-    "codec:sharing_codec_demo",
     "delaytest:loop_back_demo",
     "interaction:sharing_wfd_source_demo",
     "network:sharing_network_client_demo",
@@ -25,7 +24,6 @@ group("demo_test") {
     "network:udp_server_demo",
     "rtp:sharing_rtp_dec_demo",
     "rtp:sharing_rtp_enc_demo",
-    "scheduler:sharing_scheduler_demo",
     "wfd:sharing_wfd_demo",
   ]
 }

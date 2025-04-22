@@ -52,6 +52,10 @@ ohos_shared_library("sharing_network") {
     "socket/udp_socket.cpp",
   ]
 
+  if (wifi_display_support_sink) {
+    version_script = "libsharing_network.map"
+  }
+
   deps = [
     "$SHARING_ROOT_DIR/services/common:sharing_common",
     "$SHARING_ROOT_DIR/services/utils:sharing_utils",

@@ -37,7 +37,10 @@ ohos_static_library("sharing_rtsp") {
     "src/rtsp_sdp.cpp",
   ]
 
-  configs = [ "$SHARING_ROOT_DIR/tests:coverage_flags" ]
+  configs = [
+    "$SHARING_ROOT_DIR/tests:coverage_flags",
+    "$SHARING_ROOT_DIR:wifi_display_default_config",
+  ]
 
   deps = [
     "$SHARING_ROOT_DIR/services/common:sharing_common",

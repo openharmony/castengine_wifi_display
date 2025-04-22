@@ -35,7 +35,10 @@ ohos_source_set("sharing_context_srcs") {
     "context_manager.cpp",
   ]
 
-  configs = [ "$SHARING_ROOT_DIR/tests:coverage_flags" ]
+  configs = [
+    "$SHARING_ROOT_DIR/tests:coverage_flags",
+    "$SHARING_ROOT_DIR:wifi_display_default_config",
+  ]
   external_deps = [
     "graphic_surface:surface",
     "hilog:libhilog",

@@ -42,7 +42,6 @@ ohos_shared_library("sharingwfd_napi") {
     "$SHARING_ROOT_DIR/interfaces/kits/js/wfd/include",
     "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd/include",
     "$SHARING_ROOT_DIR/frameworks/innerkitsimpl/native/wfd",
-    "//third_party/node/src",
   ]
 
   sources = [
@@ -69,8 +68,8 @@ ohos_shared_library("sharingwfd_napi") {
     "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "device_manager:devicemanagersdk",
-    "graphic_standard:surface",
-    "hilog_native:libhilog",
+    "graphic_surface:surface",
+    "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
   ]

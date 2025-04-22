@@ -51,6 +51,10 @@ ohos_shared_library("sharing_codec") {
     "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
+  if (wifi_display_support_sink) {
+    version_script = "libsharing_codec.map"
+  }
+
   external_deps = [
     "av_codec:av_codec_client",
     "c_utils:utilsbase",
