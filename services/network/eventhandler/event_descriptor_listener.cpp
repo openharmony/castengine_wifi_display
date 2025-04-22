@@ -82,10 +82,7 @@ void EventDescriptorListener::RemoveFdListener(int32_t fd,
         eventHandler = existHandler;
     }
 
-    if (eventHandler) {
-        eventHandler->RemoveFileDescriptorListener(fd);
-    }
-
+    eventHandler->RemoveFileDescriptorListener(fd);
     socketLocalFd_ = -1;
     EventHandlerManager::GetInstance().DelFdListener(fd);
     EventHandlerManager::GetInstance().DelEventHandler(fd);

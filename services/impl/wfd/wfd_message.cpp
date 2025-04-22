@@ -165,7 +165,7 @@ bool WfdRtspM3Response::IsVideoResolutionSupport(std::shared_ptr<MediaAVCodec::V
         SHARING_LOGE("codecInfo is null");
         return false;
     }
-    if (index < 0 || index >= VIDEO_RESOLUTION_TABLE_LENGTH) {
+    if (index >= VIDEO_RESOLUTION_TABLE_LENGTH) {
         SHARING_LOGE("invalid index");
         return false;
     }

@@ -756,7 +756,7 @@ SharingErrorCode MediaChannel::HandleDestroyProducer(SharingEvent &event)
         if (iter != producers_.end()) {
             pProducer = iter->second;
         } else {
-            SHARING_LOGE("cann't find producerId: %{public}d, channelId: %{public}d.", id, GetId());
+            SHARING_LOGE("cann't find producerId: %{public}u, channelId: %{public}u.", id, GetId());
         }
     }
 
@@ -769,7 +769,7 @@ SharingErrorCode MediaChannel::HandleDestroyProducer(SharingEvent &event)
     }
 
     if (pProducer->IsRunning()) {
-        SHARING_LOGD("producer is running, producerId: %{public}d, mediachannelId: %{public}u.", id, GetId());
+        SHARING_LOGD("producer is running, producerId: %{public}u, mediachannelId: %{public}u.", id, GetId());
         statusMsg->errorCode = ERR_PROSUMER_DESTROY;
         statusMsg->prosumerId = id;
         statusMsg->agentId = channelMsg->agentId;
@@ -807,7 +807,7 @@ SharingErrorCode MediaChannel::HandleStartProducer(SharingEvent &event)
             SHARING_LOGD("media start producer success, mediachannelId: %{public}u.", GetId());
             return SharingErrorCode::ERR_OK;
         } else {
-            SHARING_LOGW("cann't find producerId: %{public}d, mediachannelId: %{public}d, agentId: %{public}d.",
+            SHARING_LOGW("cann't find producerId: %{public}u, mediachannelId: %{public}u, agentId: %{public}u.",
                          channelMsg->prosumerId, GetId(), channelMsg->agentId);
             statusMsg->errorCode = ERR_PROSUMER_START;
             statusMsg->prosumerId = channelMsg->prosumerId;
@@ -841,7 +841,7 @@ SharingErrorCode MediaChannel::HandleStopProducer(SharingEvent &event)
             SHARING_LOGD("media stop producer success, mediachannelId: %{public}u.", GetId());
             return SharingErrorCode::ERR_OK;
         } else {
-            SHARING_LOGW("cann't find producerId: %{public}d, mediachannelId: %{public}d, agentId: %{public}d.",
+            SHARING_LOGW("cann't find producerId: %{public}u, mediachannelId: %{public}u, agentId: %{public}u.",
                          channelMsg->prosumerId, GetId(), channelMsg->agentId);
             statusMsg->errorCode = ERR_OK;
             statusMsg->prosumerId = channelMsg->prosumerId;
@@ -905,7 +905,7 @@ SharingErrorCode MediaChannel::HandleResumeProducer(SharingEvent &event)
             iter->second->UpdateOperation(statusMsg);
             return SharingErrorCode::ERR_OK;
         } else {
-            SHARING_LOGW("cann't find producerId: %{public}d, mediachannelId: %{public}d, agentId: %{public}d.",
+            SHARING_LOGW("cann't find producerId: %{public}u, mediachannelId: %{public}u, agentId: %{public}u.",
                          channelMsg->prosumerId, GetId(), channelMsg->agentId);
         }
     }

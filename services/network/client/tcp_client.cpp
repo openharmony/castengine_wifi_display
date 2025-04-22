@@ -140,8 +140,8 @@ void TcpClient::OnClientReadable(int32_t fd)
     int32_t error = 0;
     int32_t retCode = 0;
     do {
-        DataBuffer::Ptr buf = std::make_shared<DataBuffer>(DEAFULT_READ_BUFFER_SIZE);
-        retCode = SocketUtils::RecvSocket(fd, (char *)buf->Data(), DEAFULT_READ_BUFFER_SIZE, flags_, error);
+        DataBuffer::Ptr buf = std::make_shared<DataBuffer>(DEFAULT_READ_BUFFER_SIZE);
+        retCode = SocketUtils::RecvSocket(fd, (char *)buf->Data(), DEFAULT_READ_BUFFER_SIZE, flags_, error);
         SHARING_LOGD("recvSocket len: %{public}d.", retCode);
         if (retCode > 0) {
             buf->UpdateSize(retCode);
@@ -160,7 +160,7 @@ void TcpClient::OnClientReadable(int32_t fd)
             SHARING_LOGE("recvSocket failed!");
             Disconnect();
         }
-    } while (retCode == (int32_t)DEAFULT_READ_BUFFER_SIZE);
+    } while (retCode == (int32_t)DEFAULT_READ_BUFFER_SIZE);
 }
 
 } // namespace Sharing

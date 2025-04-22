@@ -91,23 +91,21 @@ bool VideoPlayController::SetSurface(sptr<Surface> surface, bool keyFrame)
     }
 
     if (forceSWDecoder_) {
-        if ((nullptr != videoSinkDecoder_)) {
-            bool isVaild = true;
-            if (isSurfaceNoCopy_) {
-                isVaild = videoSinkDecoder_->SetSurface(surface);
-            }
-            if (isVaild) {
-                enableSurface_ = true;
-                surface_ = surface;
-                SHARING_LOGD("set surface success.");
-                return true;
-            } else {
-                SHARING_LOGD("set surface failed.");
-                return false;
-            }
+        bool isVaild = true;
+        if (isSurfaceNoCopy_) {
+            isVaild = videoSinkDecoder_->SetSurface(surface);
+        }
+        if (isVaild) {
+            enableSurface_ = true;
+            surface_ = surface;
+            SHARING_LOGD("set surface success.");
+            return true;
+        } else {
+            SHARING_LOGD("set surface failed.");
+            return false;
         }
     } else {
-        if ((nullptr != videoSinkDecoder_) && (videoSinkDecoder_->SetSurface(surface))) {
+        if (videoSinkDecoder_->SetSurface(surface)) {
             surface_ = surface;
             isKeyMode_ = keyFrame;
             enableSurface_ = true;
@@ -346,6 +344,12 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
     }
 
     void *bufferVirAddr = buffer->GetVirAddr();
+    
+    if (bufferVirAddr == nullptr) {
+        SHARING_LOGD("bufferVirAddr is nullptr.");
+        return -1;
+    }
+    
     SHARING_LOGD("buffer size is %{public}d.", decodedData->Size());
     if (firstFrame_ == true) {
         firstFrame_ = false;
@@ -356,11 +360,6 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
     auto ret = memcpy_s(bufferVirAddr, dataSize, decodedData->Peek(), dataSize);
     if (ret != EOK) {
         SHARING_LOGE("copy data failed !");
-        return -1;
-    }
-
-    if (bufferVirAddr == nullptr) {
-        SHARING_LOGD("bufferVirAddr is nullptr.");
         return -1;
     }
 

@@ -95,7 +95,7 @@ void RtpPacketSortor::SortPacket(uint16_t seq, RtpPacket::Ptr packet)
 {
     RETURN_IF_NULL(packet);
     if (seq < nextSeqOut_) {
-        if (nextSeqOut_ < seq + kMax_) {
+        if (nextSeqOut_ < (uint32_t)seq + kMax_) {
             return;
         }
     } else if (nextSeqOut_ && seq - nextSeqOut_ > ((std::numeric_limits<uint16_t>::max)() >> 1)) {

@@ -110,10 +110,10 @@ void UdpSession::OnSessionReadble(int32_t fd)
     if (fd == socket_->GetLocalFd()) {
         int32_t retCode = 0;
         do {
-            DataBuffer::Ptr buf = std::make_shared<DataBuffer>(DEAFULT_READ_BUFFER_SIZE);
+            DataBuffer::Ptr buf = std::make_shared<DataBuffer>(DEFAULT_READ_BUFFER_SIZE);
             struct sockaddr_in clientAddr;
             socklen_t len = sizeof(struct sockaddr_in);
-            retCode = ::recvfrom(fd, buf->Data(), DEAFULT_READ_BUFFER_SIZE, 0, (struct sockaddr *)&clientAddr, &len);
+            retCode = ::recvfrom(fd, buf->Data(), DEFAULT_READ_BUFFER_SIZE, 0, (struct sockaddr *)&clientAddr, &len);
             MEDIA_LOGD("recvSocket len: %{public}d, address: %{public}s, port: %{public}d.", retCode,
                        GetAnonyString(inet_ntoa(clientAddr.sin_addr)).c_str(), clientAddr.sin_port);
 

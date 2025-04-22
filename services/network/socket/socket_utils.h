@@ -20,7 +20,7 @@
 #include "utils/data_buffer.h"
 namespace OHOS {
 namespace Sharing {
-constexpr int32_t DEAFULT_READ_BUFFER_SIZE = 1500;
+constexpr int32_t DEFAULT_READ_BUFFER_SIZE = 1500;
 constexpr uint32_t SOCKET_DEFAULT_BUF_SIZE = 256 * 1024;
 constexpr uint32_t READ_BUF_SIZE = 2048;
 constexpr uint32_t MAX_READ_BUF_SIZE = 102400000;
