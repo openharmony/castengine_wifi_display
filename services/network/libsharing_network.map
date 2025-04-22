@@ -1,0 +1,13 @@
+1.0  {
+    global: 
+        extern "C++" {
+            OHOS::Sharing::NetworkSessionManager::*;
+            OHOS::Sharing::SocketUtils::*;
+            OHOS::Sharing::NetworkFactory::*;
+            OHOS::Sharing::TcpClient::*;
+            OHOS::Sharing::TcpServer::*;
+            OHOS::Sharing::UdpClient::*;
+            OHOS::Sharing::UdpServer::*;
+        };
+    local: *;
+};

@@ -1,0 +1,14 @@
+1.0  {
+    global: 
+        "*RemoveAudioDestination*";
+        "*AddAudioDestination*";
+        "*CreateAudioEncoder*";
+        "*CreateAudioDecoder*";
+        extern "C++" {
+            OHOS::Sharing::AudioPlayer::*;
+            OHOS::Sharing::VideoPlayController::*;
+            OHOS::Sharing::VideoSinkDecoder::*;
+            OHOS::Sharing::VideoSourceEncoder::*;
+        };
+    local: *;
+};

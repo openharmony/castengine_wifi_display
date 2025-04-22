@@ -52,6 +52,11 @@ ohos_source_set("sharing_wfd_srcs") {
     include_dirs += [ "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink" ]
   }
 
+  configs = [
+    "$SHARING_ROOT_DIR/tests:coverage_flags",
+    "$SHARING_ROOT_DIR:wifi_display_default_config",
+  ]
+
   deps = [
     "$SHARING_ROOT_DIR/services/agent:sharing_agent_srcs",
     "$SHARING_ROOT_DIR/services/interaction:sharing_interaction_srcs",

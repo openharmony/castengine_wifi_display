@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 group("sharing_packages") {
   deps = [
@@ -21,4 +22,24 @@ group("sharing_packages") {
     "//foundation/CastEngine/castengine_wifi_display/services:sharing_services_package",
     "//foundation/CastEngine/castengine_wifi_display/services/etc:sharing_service.rc",
   ]
+}
+
+config("wifi_display_default_config") {
+  if (wifi_display_support_sink) {
+    cflags = [
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-shadow",
+      "-Wno-unused-parameter",
+      "-Wno-missing-field-initializers",
+      "-FS",
+      "-O2",
+      "-D_FORTIFY_SOURCE=2",
+      "-fvisibility=hidden",
+      "-fvisibility-inlines-hidden",
+    ]
+    cflags_cc = cflags
+    ldflags = [ "-Werror" ]
+  }
 }

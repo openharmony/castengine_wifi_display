@@ -48,6 +48,11 @@ ohos_source_set("sharing_media_player_srcs") {
     "//foundation/multimedia/audio_framework/interfaces/inner_api/native/audiocommon/include",
   ]
 
+  configs = [
+    "$SHARING_ROOT_DIR/tests:coverage_flags",
+    "$SHARING_ROOT_DIR:wifi_display_default_config",
+  ]
+
   deps = [
     "$SHARING_ROOT_DIR/services/common:sharing_common",
     "$SHARING_ROOT_DIR/services/utils:sharing_utils",
