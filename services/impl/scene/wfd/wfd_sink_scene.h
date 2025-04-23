@@ -68,6 +68,7 @@ public:
         static bool GetErrorCode(Wifi::ErrCode errorCode, std::pair<SharingErrorCode, SinkErrorCode> &sharingError);
 
     private:
+        void FillAndReportDeviceInfo(const Wifi::WifiP2pGroupInfo& group);
         std::weak_ptr<WfdSinkScene> parent_;
         WfdTrustListManager wfdTrustListManager_;
         static std::unordered_map<Wifi::ErrCode, std::pair<SharingErrorCode, SinkErrorCode>> wifiErrorMapping_;

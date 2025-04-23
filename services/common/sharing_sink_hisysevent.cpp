@@ -25,7 +25,7 @@ void WfdSinkHiSysEvent::SetHiSysEventDevInfo(WfdSinkHiSysEvent::SinkHisyseventDe
     devInfo_.peerNetId_ = devInfo.peerNetId_;
 }
 
-void WfdSinkHiSysEvent::GetStarTime(std::chrono::system_clock::time_point startTime)
+void WfdSinkHiSysEvent::GetStartTime(std::chrono::system_clock::time_point startTime)
 {
     startTime_ = std::chrono::duration_cast<std::chrono::seconds>(startTime.time_since_epoch()).count();
 }
@@ -38,9 +38,9 @@ void WfdSinkHiSysEvent::ChangeHisysEventScene(SinkBizScene scene)
 void WfdSinkHiSysEvent::StartReport(const std::string &funcName, SinkStage sinkStage, SinkStageRes sinkStageRes)
 {
     if (sinkBizScene_ == static_cast<int32_t>(SinkBizScene::ESTABLISH_MIRRORING)) {
-        dottingFlag_ = true;
+        hiSysEventStart_ = true;
     }
-    if (dottingFlag_ == false) {
+    if (hiSysEventStart_ == false) {
         SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
         return;
     }
@@ -66,7 +66,7 @@ void WfdSinkHiSysEvent::StartReport(const std::string &funcName, SinkStage sinkS
 
 void WfdSinkHiSysEvent::Report(const std::string &funcName, SinkStage sinkStage, SinkStageRes sinkStageRes)
 {
-    if (dottingFlag_ == false) {
+    if (hiSysEventStart_ == false) {
         SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
         return;
     }
@@ -91,7 +91,7 @@ void WfdSinkHiSysEvent::Report(const std::string &funcName, SinkStage sinkStage,
 
 void WfdSinkHiSysEvent::FirstSceneEndReport(const std::string &funcName, SinkStage sinkStage, SinkStageRes sinkStageRes)
 {
-    if (dottingFlag_ == false) {
+    if (hiSysEventStart_ == false) {
         SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
         return;
     }
@@ -117,7 +117,7 @@ void WfdSinkHiSysEvent::FirstSceneEndReport(const std::string &funcName, SinkSta
 
 void WfdSinkHiSysEvent::ThirdSceneEndReport(const std::string &funcName, SinkStage sinkStage)
 {
-    if (dottingFlag_ == false) {
+    if (hiSysEventStart_ == false) {
         SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
         return;
     }
@@ -144,12 +144,12 @@ void WfdSinkHiSysEvent::ThirdSceneEndReport(const std::string &funcName, SinkSta
                     "PEER_IP", devInfo_.peerIp_.c_str(),
                     "PEER_DEV_NAME", devInfo_.peerDevName_.c_str(),
                     "SERVICE_DURATION", duration);
-    dottingFlag_ = false;
+    hiSysEventStart_ = false;
 }
 
 void WfdSinkHiSysEvent::ReportError(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode)
 {
-    if (dottingFlag_ == false) {
+    if (hiSysEventStart_ == false) {
         SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
         return;
     }
@@ -219,7 +219,7 @@ void WfdSinkHiSysEvent::ReportError(const std::string &funcName, SinkStage sinkS
                     "PEER_DEV_NAME", devInfo_.peerDevName_.c_str(),
                     "SERVICE_DURATION", duration);
     }
-    dottingFlag_ = false;
+    hiSysEventStart_ = false;
 }
 
 void WfdSinkHiSysEvent::P2PReportError(const std::string &funcName, SinkErrorCode errorCode)

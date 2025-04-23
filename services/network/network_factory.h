@@ -38,8 +38,6 @@ public:
                                 const IServerCallback::Ptr &callback, ServerPtr &serverPtr);
     static bool CreateUdpClient(const std::string &peerIp, uint16_t peerPort, const std::string &localIp,
                                 uint16_t localPort, const IClientCallback::Ptr &callback, ClientPtr &clientPtr);
-    static bool CreateVtpServer(const uint16_t localPort, const std::string &localIp,
-                                const IServerCallback::Ptr &callback, ServerPtr &serverPtr);
 };
 } // namespace Sharing
 } // namespace OHOS

@@ -6,9 +6,6 @@
 
 namespace OHOS {
 namespace Sharing {
-
-
-
 // 定义业务场景枚举
 enum class SinkBizScene : int32_t {
     ESTABLISH_MIRRORING = 1,  // 建立miracast镜像投屏
@@ -108,7 +105,7 @@ public:
     //获取对端设备信息
     void SetHiSysEventDevInfo(SinkHisyseventDevInfo devInfo);
 
-    void GetStarTime(std::chrono::system_clock::time_point startTime);
+    void GetStartTime(std::chrono::system_clock::time_point startTime);
 
     // 开始打点
     void StartReport(const std::string &funcName, SinkStage sinkStage, SinkStageRes sinkStageRes);
@@ -132,7 +129,7 @@ private:
     SinkHisyseventDevInfo devInfo_;
 
     int32_t sinkBizScene_ = 0;
-    bool dottingFlag_ = true;
+    bool hiSysEventStart_ = true;
     int32_t startTime_ = 0;
 };
 

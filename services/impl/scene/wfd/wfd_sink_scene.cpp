@@ -157,6 +157,28 @@ void WfdSinkScene::WfdP2pCallback::OnP2pServicesChanged(const std::vector<Wifi::
     SHARING_LOGD("trace.");
 }
 
+void WfdSinkScene::WfdP2pCallback::FillAndReportDeviceInfo(const Wifi::WifiP2pGroupInfo& group)
+{
+    auto parent = parent_.lock();
+    RETURN_IF_NULL(parent);
+
+    int32_t netWorkId = group.GetNetworkId();
+    Wifi::WifiP2pDevice deviceInfo;
+    parent->p2pInstance_->QueryP2pLocalDevice(deviceInfo);
+
+    WfdSinkHiSysEvent::SinkHisyseventDevInfo devInfo;
+    devInfo.localIp_ = parent->localIp_;
+    devInfo.localWifiMac_ = deviceInfo.GetDeviceAddress();
+    devInfo.localDevName_ = deviceInfo.GetDeviceName();
+    devInfo.localNetId_ = std::to_string(netWorkId);
+    devInfo.peerDevName_ = parent->currentConnectDev_.deviceName.c_str();
+    devInfo.peerIp_ = parent->currentConnectDev_.ip.c_str();
+    devInfo.peerNetId_ = std::to_string(netWorkId);
+    devInfo.peerWifiMac_ = parent->currentConnectDev_.mac.c_str();
+
+    WfdSinkHiSysEvent::GetInstance().SetHiSysEventDevInfo(devInfo);
+}
+
 void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLinkedInfo &info)
 {
     SHARING_LOGI("trace");
@@ -203,21 +225,7 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
         }
         wfdTrustListManager_.AddBoundDevice(group);
     }
-    int32_t netWorkId = group.GetNetworkId();
-    Wifi::WifiP2pDevice deviceInfo;
-    parent->p2pInstance_->QueryP2pLocalDevice(deviceInfo);
-
-    WfdSinkHiSysEvent::SinkHisyseventDevInfo devInfo;
-    devInfo.localIp_ = parent->localIp_;
-    devInfo.localWifiMac_ = deviceInfo.GetDeviceAddress();
-    devInfo.localDevName_ = deviceInfo.GetDeviceName();
-    devInfo.localNetId_ = std::to_string(netWorkId);
-    devInfo.peerDevName_ = parent->currentConnectDev_.deviceName.c_str();
-    devInfo.peerIp_ = parent->currentConnectDev_.ip.c_str();
-    devInfo.peerNetId_ = std::to_string(netWorkId);
-    devInfo.peerWifiMac_ = parent->currentConnectDev_.mac.c_str();
-
-    WfdSinkHiSysEvent::GetInstance().SetHiSysEventDevInfo(devInfo);
+    FillAndReportDeviceInfo(group);
     parent->OnP2pPeerConnected(parent->currentConnectDev_);
 }
 
@@ -1407,7 +1415,7 @@ void WfdSinkScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
                 "agentId: %{public}u, devMac: %{private}s, devIp: %{private}s.", contextId, agentId,
                 GetAnonymousMAC(connectionInfo.mac).c_str(), GetAnonymousIp(connectionInfo.ip).c_str());
                 std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
-                WfdSinkHiSysEvent::GetInstance().GetStarTime(startTime);
+                WfdSinkHiSysEvent::GetInstance().GetStartTime(startTime);
                 WfdSinkHiSysEvent::GetInstance().ChangeHisysEventScene(SinkBizScene::ESTABLISH_MIRRORING); //scene1开始
                 WfdSinkHiSysEvent::GetInstance().StartReport(__func__, SinkStage::P2P_CONNECT_SUCCESS, SinkStageRes::SUCCESS); //scene1-1 p2p连接成功
         }

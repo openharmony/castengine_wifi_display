@@ -271,17 +271,18 @@ void SetLE32(void *p, uint32_t val)
 
 std::string GetAnonyDevName(const std::string &value)
 {
-    constexpr size_t INT32_MIN_ID_LENGTH = 5;
-    const size_t strLen = value.length();
-    const std::string tmpStr("*****");
-    if (strLen <= INT32_MIN_ID_LENGTH) {
-        return tmpStr;
+    const size_t length = value.length();
+    const size_t keepHead = 2;
+    const size_t maxStars = 5;
+    
+    if (length <= keepHead) {
+        return std::string(length, '*');
     }
-    if (strLen <= INT32_MIN_ID_LENGTH + 2) {
-        return value.substr(0, 2) + tmpStr;
-    } else {
-        return value.substr(0, 2) + tmpStr + value.substr(INT32_MIN_ID_LENGTH + 2);
-    }
+    
+    const size_t starCount = std::min(length - keepHead, maxStars);
+
+    return value.substr(0, keepHead) +  std::string(starCount, '*') + 
+        (length > keepHead + starCount ? value.substr(keepHead + starCount) : "");
 }
 
 std::string GetAnonyString(const std::string &value)
