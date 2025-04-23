@@ -1,0 +1,142 @@
+#ifndef WFD_SINK_HISYS_EVENT_H
+#define WFD_SINK_HISYS_EVENT_H
+
+#include <string>
+
+
+namespace OHOS {
+namespace Sharing {
+
+
+
+// 定义业务场景枚举
+enum class SinkBizScene : int32_t {
+    ESTABLISH_MIRRORING = 1,  // 建立miracast镜像投屏
+    MIRRORING_STABILITY = 2,  // miracast镜像投屏稳定性
+    DISCONNECT_MIRRORING = 3  // 断开miracast镜像投屏
+};
+
+// 定义业务阶段枚举
+enum class SinkStage : int32_t {
+    // 建立miracast镜像投屏阶段
+    P2P_CONNECT_SUCCESS = 1,
+    SESSION_NEGOTIATION = 2,
+    SEND_M7_MSG = 3,
+    RECEIVE_DATA = 4,
+    FIRST_FRAME_PROCESSED = 5,
+    // miracast镜像投屏稳定性阶段
+    RECEIVE_DATA_STABILITY = 1,
+    RTP_DEMUX = 2,
+    VIDEO_DECODE = 3,
+    AUDIO_DECODE = 4,
+    AV_SYNC_PROCESS = 5,
+    // 断开miracast镜像投屏阶段
+    RECEIVE_DISCONNECT_EVENT = 1,
+    DISCONNECT_COMPLETE = 2
+};
+
+// 定义阶段结果枚举
+enum class SinkStageRes : int32_t {
+    START = 0,
+    SUCCESS = 1,
+    FAIL = 2,
+    CANCEL = 3
+};
+
+enum class SinkBIZState : int32_t {
+    BIZ_STATE_BEGIN = 1,
+    BIZ_STATE_END = 2
+};
+
+// 定义错误码枚举
+enum class SinkErrorCode : int32_t {
+    // P2P连接失败错误码
+    WIFI_DISPLAY_P2P_FAILED = 476119140,
+    WIFI_DISPLAY_P2P_OPT_NOT_SUPPORTED,
+    WIFI_DISPLAY_P2P_OPT_INVALID_PARAM,
+    WIFI_DISPLAY_P2P_OPT_FORBID_AIRPLANE, 
+    WIFI_DISPLAY_P2P_OPT_FORBID_POWSAVING,
+    WIFI_DISPLAY_P2P_OPT_PERMISSION_DENIED,
+    WIFI_DISPLAY_P2P_OPT_OPEN_FAIL_WHEN_CLOSING,
+    WIFI_DISPLAY_P2P_OPT_P2P_NOT_OPENED,
+    WIFI_DISPLAY_P2P_DISCONNECTED_STATE_CLOSED,
+    WIFI_DISPLAY_P2P_GCJOINGROUP_TIMEOUT,
+    //会话协商错误码
+    WIFI_DISPLAY_RTSP_KEEPALIVE_TIMEOUT = 476184676,
+    WIFI_DISPLAY_RTSP_FAILED,
+    WIFI_DISPLAY_TCP_FAILED,
+    WIFI_DISPLAY_UDP_FAILED,
+    WIFI_DISPLAY_VTP_FAILED,
+    WIFI_DISPLAY_DATA_INVALID,
+    WIFI_DISPLAY_LOCAL_IP_FAILED,
+    //音视频解码错误码
+    WIFI_DISPLAY_RTP_DATA_INVALID = 476250212,
+    WIFI_DISPLAY_VIDEO_DECODE_FAILED,
+    WIFI_DISPLAY_AUDIO_DECODE_FAILED,
+    WIFI_DISPLAY_VIDEO_DECODE_TIMEOUT,
+    WIFI_DISPLAY_AUDIO_DECODE_TIMEOUT,
+    WIFI_DISPLAY_SYNC_FAILED,
+    //系统模块错误码
+    WIFI_DISPLAY_GENERAL_ERROR = 476315748,
+    WIFI_DISPLAY_BAD_PARAMETER,
+    WIFI_DISPLAY_ADD_SURFACE_ERROR,
+    WIFI_DISPLAY_AGENT_ERROR,
+    WIFI_DISPLAY_CONSUMER_ERROR
+};
+
+class WfdSinkHiSysEvent {
+public:
+
+    WfdSinkHiSysEvent(const WfdSinkHiSysEvent&) = delete;
+    WfdSinkHiSysEvent& operator=(const WfdSinkHiSysEvent&) = delete;
+
+    static WfdSinkHiSysEvent& GetInstance()
+    {
+        static WfdSinkHiSysEvent instance;
+        return instance;
+    }
+    struct SinkHisyseventDevInfo {
+        std::string localNetId_ = "";
+        std::string localWifiMac_ = "";
+        std::string localDevName_ = "";
+        std::string localIp_ = "";
+        std::string peerNetId_ = "";
+        std::string peerWifiMac_ = "";
+        std::string peerIp_ = "";
+        std::string peerDevName_ = "";
+    };
+    //获取对端设备信息
+    void SetHiSysEventDevInfo(SinkHisyseventDevInfo devInfo);
+
+    void GetStarTime(std::chrono::system_clock::time_point startTime);
+
+    // 开始打点
+    void StartReport(const std::string &funcName, SinkStage sinkStage, SinkStageRes sinkStageRes);
+
+    void Report(const std::string &funcName, SinkStage sinkStage, SinkStageRes sinkStageRes);
+
+    void FirstSceneEndReport(const std::string &funcName, SinkStage sinkStage, SinkStageRes sinkStageRes);
+
+    void ThirdSceneEndReport(const std::string &funcName, SinkStage sinkStage);
+
+    void ReportError(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode);
+
+    void P2PReportError(const std::string &funcName, SinkErrorCode errorCode);
+    
+    //更换场景
+    void ChangeHisysEventScene(SinkBizScene scene);
+
+private:
+    WfdSinkHiSysEvent() = default;
+    ~ WfdSinkHiSysEvent() = default;
+    SinkHisyseventDevInfo devInfo_;
+
+    int32_t sinkBizScene_ = 0;
+    bool dottingFlag_ = true;
+    int32_t startTime_ = 0;
+};
+
+}  // namespace Sharing
+}  // namespace OHOS
+
+#endif  // WFD_SINK_HISYS_EVENT_H

@@ -22,6 +22,7 @@
 #include "rtp_codec_g711.h"
 #include "rtp_codec_h264.h"
 #include "rtp_codec_ts.h"
+#include "common/sharing_sink_hisysevent.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -55,6 +56,7 @@ void RtpUnpackImpl::ParseRtp(const char *data, size_t len)
             }
             default:
                 // todo not support this pt
+                WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::RTP_DEMUX, SinkErrorCode::WIFI_DISPLAY_RTP_DATA_INVALID);//解析RTP数据包异常
                 return;
         }
     }
