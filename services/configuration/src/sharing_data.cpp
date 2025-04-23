@@ -145,7 +145,9 @@ void SharingDataGroupByTag::Print()
     while (iter != datas_.end()) {
         std::string key = iter->first;
         SharingValue::Ptr value = iter->second;
-        value->Print();
+        if (value) {
+            value->Print();
+        }
         iter++;
     }
 }
@@ -274,7 +276,9 @@ void SharingDataGroupByModule::Print()
     while (iter != datass_.end()) {
         SHARING_LOGD("forEach print %{public}s.", iter->first.c_str());
         SharingDataGroupByTag::Ptr value = iter->second;
-        value->Print();
+        if (value) {
+            value->Print();
+        }
         iter++;
     }
 }
@@ -424,7 +428,9 @@ void SharingData::Print()
     while (iter != datass_.end()) {
         SHARING_LOGD("forEach print %{public}s.", iter->first.c_str());
         SharingDataGroupByModule::Ptr value = iter->second;
-        value->Print();
+        if (value) {
+            value->Print();
+        }
         iter++;
     }
 }

@@ -41,6 +41,7 @@ int32_t JsonParser::GetConfig(SharingData::Ptr &value)
 
     if (!parseFromStream(builder, ifs, &root, &errs)) {
         SHARING_LOGE("parse file error: %{public}s.", errs.c_str());
+        ifs.close();
         return -1;
     }
 

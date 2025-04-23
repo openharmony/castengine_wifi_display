@@ -304,6 +304,9 @@ void VideoSinkDecoder::OnInputBufferAvailable(uint32_t index, std::shared_ptr<Me
     MEDIA_LOGD("OnInputBufferAvailable index: %{public}u controlId: %{public}u.", index, controlId_);
     {
         std::lock_guard<std::mutex> lock(inMutex_);
+        if (buffer == nullptr) {
+            return;
+        }
         inQueue_.push(index);
         inBufferQueue_.push(buffer);
     }

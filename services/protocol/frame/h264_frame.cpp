@@ -59,6 +59,7 @@ static const char *MemFind(const char *buf, ssize_t len, const char *subBuf, ssi
 void SplitH264(const char *ptr, size_t len, size_t prefix, const std::function<void(const char *, size_t, size_t)> &cb)
 {
     RETURN_IF_NULL(ptr);
+    RETURN_IF_NULL(cb);
     if (prefix <= 0) {
         prefix = PrefixSize(ptr, len);
     }
