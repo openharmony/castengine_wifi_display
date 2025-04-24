@@ -92,22 +92,20 @@ bool VideoPlayController::SetSurface(sptr<Surface> surface, bool keyFrame)
     }
 
     if (forceSWDecoder_) {
-        if ((nullptr != videoSinkDecoder_)) {
-            bool isVaild = true;
-            if (isSurfaceNoCopy_) {
-                isVaild = videoSinkDecoder_->SetSurface(surface);
-            }
-            if (isVaild) {
-                enableSurface_ = true;
-                surface_ = surface;
-                SHARING_LOGD("set surface success.");
-                return true;
-            } else {
-                SHARING_LOGD("set surface failed.");
-                WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::RECEIVE_DATA,
-                                                            SinkErrorCode::WIFI_DISPLAY_ADD_SURFACE_ERROR);
-                return false;
-            }
+        bool isVaild = true;
+        if (isSurfaceNoCopy_) {
+            isVaild = videoSinkDecoder_->SetSurface(surface);
+        }
+        if (isVaild) {
+            enableSurface_ = true;
+            surface_ = surface;
+            SHARING_LOGD("set surface success.");
+            return true;
+        } else {
+            SHARING_LOGD("set surface failed.");
+            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::RECEIVE_DATA,
+                SinkErrorCode::WIFI_DISPLAY_ADD_SURFACE_ERROR);
+            return false;
         }
     } else {
         if ((nullptr != videoSinkDecoder_) && (videoSinkDecoder_->SetSurface(surface))) {
