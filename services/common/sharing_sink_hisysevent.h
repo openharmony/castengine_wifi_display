@@ -121,22 +121,29 @@ public:
 
     void GetStartTime(std::chrono::system_clock::time_point startTime);
 
-    void ReportEstablishMirroringError(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode, int64_t duration);
+    void ReportEstablishMirroringError(const std::string &funcName, const std::string &toCallpkg,
+                                        SinkStage sinkStage, SinkErrorCode errorCode, int32_t duration);
 
-    void ReportStabilityError(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode);
-    
-    void ReportDisconnectError(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode, int64_t duration);
+    void ReportStabilityError(const std::string &funcName, const std::string &toCallpkg,
+                                SinkStage sinkStage, SinkErrorCode errorCode);
+
+    void ReportDisconnectError(const std::string &funcName, const std::string &toCallpkg,
+                                SinkStage sinkStage, SinkErrorCode errorCode, int32_t duration);
 
     // 开始打点
-    void StartReport(const std::string &funcName, SinkStage sinkStage, SinkStageRes sinkStageRes);
+    void StartReport(const std::string &funcName, const std::string &toCallpkg,
+                    SinkStage sinkStage, SinkStageRes sinkStageRes);
 
-    void Report(const std::string &funcName, SinkStage sinkStage, SinkStageRes sinkStageRes);
+    void Report(const std::string &funcName, const std::string &toCallpkg,
+                SinkStage sinkStage, SinkStageRes sinkStageRes);
 
-    void FirstSceneEndReport(const std::string &funcName, SinkStage sinkStage, SinkStageRes sinkStageRes);
+    void FirstSceneEndReport(const std::string &funcName, const std::string &toCallpkg,
+                            SinkStage sinkStage, SinkStageRes sinkStageRes);
 
-    void ThirdSceneEndReport(const std::string &funcName, SinkStage sinkStage);
+    void ThirdSceneEndReport(const std::string &funcName, const std::string &toCallpkg, SinkStage sinkStage);
 
-    void ReportError(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode);
+    void ReportError(const std::string &funcName, const std::string &toCallpkg,
+                    SinkStage sinkStage, SinkErrorCode errorCode);
 
     void P2PReportError(const std::string &funcName, SinkErrorCode errorCode);
     

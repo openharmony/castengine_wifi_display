@@ -263,7 +263,7 @@ void VideoSinkDecoder::OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t
     if (listener) {
         listener->OnError(errorCode);
     }
-    WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::VIDEO_DECODE,
+    WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::VIDEO_DECODE,
                                                 SinkErrorCode::WIFI_DISPLAY_VIDEO_DECODE_FAILED);
 }
 

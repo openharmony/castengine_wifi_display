@@ -56,8 +56,8 @@ void RtpUnpackImpl::ParseRtp(const char *data, size_t len)
             }
             default:
                 // todo not support this pt
-                WfdSinkHiSysEvent::GetInstance().ReportError(__func__,
-                                                            SinkStage::RTP_DEMUX, SinkErrorCode::WIFI_DISPLAY_RTP_DATA_INVALID);
+                WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::RTP_DEMUX,
+                                                            SinkErrorCode::WIFI_DISPLAY_RTP_DATA_INVALID);
                 return;
         }
     }
