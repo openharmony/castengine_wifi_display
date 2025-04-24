@@ -700,8 +700,6 @@ AgentRunStepWeight Agent::GetRunStepWeight(AgentRunStep runStep)
         case AGENT_STEP_START:
             weight = AGENT_STEP_WEIGHT_START;
             break;
-        // case AGENT_STEP_PAUSE:
-        // case AGENT_STEP_RESUME:
         case AGENT_STEP_APPENDSURFACE: // fall-through
         case AGENT_STEP_REMOVESURFACE: // fall-through
         case AGENT_STEP_PLAY:          // fall-through

@@ -71,7 +71,7 @@ void RtpDecoderAAC::InputRtp(const RtpPacket::Ptr &rtp)
         "RtpDecoderAAC::InputRtp seq: %{public}d payloadLen: %{public}zu  auHeaderCount: %{public}d stamp: %{public}d "
         "dtsInc_: %{public}d\n.",
         rtp->GetSeq(), rtp->GetPayloadSize(), auHeaderCount, stamp, dtsInc_);
-    if (dtsInc_ < 0 && dtsInc_ > 100) { // 100:unit
+    if (dtsInc_ < 0 || dtsInc_ > 100) { // 100:unit
         MEDIA_LOGD("abnormal timestamp.");
         dtsInc_ = 0;
     }
@@ -214,7 +214,7 @@ void RtpEncoderAAC::SetOnRtpPack(const OnRtpPack &cb)
 
 void RtpEncoderAAC::MakeAACRtp(const void *data, size_t len, bool mark, uint32_t stamp)
 {
-    MEDIA_LOGD("rtpEncoderAAC::MakeAACRtp len: %{public}zu, stamp: %{public}d.", len, stamp);
+    MEDIA_LOGD("rtpEncoderAAC::MakeAACRtp len: %{public}zu, stamp: %{public}u.", len, stamp);
     RETURN_IF_NULL(data);
     auto rtp = MakeRtp(data, len, mark, stamp);
     if (onRtpPack_) {

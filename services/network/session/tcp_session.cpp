@@ -103,8 +103,8 @@ void TcpSession::OnSessionReadble(int32_t fd)
     if (fd == socket_->GetPeerFd()) {
         int32_t retCode = 0;
         int32_t error = 0;
-        DataBuffer::Ptr buf = std::make_shared<DataBuffer>(DEAFULT_READ_BUFFER_SIZE);
-        retCode = SocketUtils::RecvSocket(fd, (char *)buf->Data(), DEAFULT_READ_BUFFER_SIZE, 0, error);
+        DataBuffer::Ptr buf = std::make_shared<DataBuffer>(DEFAULT_READ_BUFFER_SIZE);
+        retCode = SocketUtils::RecvSocket(fd, (char *)buf->Data(), DEFAULT_READ_BUFFER_SIZE, 0, error);
         if (retCode > 0) {
             buf->UpdateSize(retCode);
             if (callback_) {

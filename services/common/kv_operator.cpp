@@ -79,7 +79,7 @@ bool KvOperator::GetValues(const std::string &key,  std::string &val)
 
     val = v.ToString();
 
-    MEDIA_LOGI("get kvstore success!  val %{public}s.", val.c_str());
+    MEDIA_LOGI("get kvstore success");
     return true;
 }
 
@@ -97,7 +97,7 @@ bool KvOperator::PutValues(const std::string &key, std::string values)
         MEDIA_LOGE("put kvstore failed %{public}d.", status);
         return false;
     }
-    MEDIA_LOGI("put kvstore success!, val %{public}s.", values.c_str());
+    MEDIA_LOGI("put kvstore success");
     return true;
 }
 

@@ -228,6 +228,9 @@ void AudioAvCodecDecoder::OnInputBufferAvailable(uint32_t index, std::shared_ptr
     SHARING_LOGD("trace.");
     {
         std::lock_guard<std::mutex> lock(inputBufferMutex_);
+        if (buffer == nullptr) {
+            return;
+        }
         inBufferQueue_.push({index, buffer});
     }
     inCond_.notify_all();

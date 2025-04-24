@@ -130,8 +130,8 @@ void UdpClient::OnClientReadable(int32_t fd)
     MEDIA_LOGI("fd: %{public}d, thread_id: %{public}llu.", fd, GetThreadId());
     int32_t retCode = 0;
     do {
-        DataBuffer::Ptr buf = std::make_shared<DataBuffer>(DEAFULT_READ_BUFFER_SIZE);
-        int32_t retCode = read(fd, buf->Data(), DEAFULT_READ_BUFFER_SIZE);
+        DataBuffer::Ptr buf = std::make_shared<DataBuffer>(DEFAULT_READ_BUFFER_SIZE);
+        retCode = read(fd, buf->Data(), DEFAULT_READ_BUFFER_SIZE);
         MEDIA_LOGD("recvSocket len: %{public}d.", retCode);
         if (retCode > 0) {
             buf->UpdateSize(retCode);
