@@ -161,7 +161,8 @@ void WfdSinkSession::UpdateOperation(SessionStatusMsg::Ptr &statusMsg)
         case SESSION_START: {
             if (!StartWfdSession()) {
                 SHARING_LOGE("session start connection failed, sessionId: %{public}u.", GetId());
-                WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::SESSION_NEGOTIATION, SinkErrorCode::WIFI_DISPLAY_TCP_FAILED);//tcp连接失败
+                WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::SESSION_NEGOTIATION,
+                                                            SinkErrorCode::WIFI_DISPLAY_TCP_FAILED);
                 statusMsg->msg->errorCode = ERR_CONNECTION_FAILURE;
                 statusMsg->status = STATE_SESSION_ERROR;
                 break;
@@ -319,7 +320,8 @@ bool WfdSinkSession::StartWfdSession()
             }
         } else {
             NotifyServiceError(ERR_PROTOCOL_INTERACTION_TIMEOUT);
-            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::SESSION_NEGOTIATION, SinkErrorCode::WIFI_DISPLAY_RTSP_FAILED);//rtsp连接失败
+            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::SESSION_NEGOTIATION,
+                                                        SinkErrorCode::WIFI_DISPLAY_RTSP_FAILED);
         }
     });
 
@@ -333,7 +335,7 @@ bool WfdSinkSession::StopWfdSession()
     SendM8Request();
     connected_ = false;
 
-    WfdSinkHiSysEvent::GetInstance().ThirdSceneEndReport(__func__, SinkStage::DISCONNECT_COMPLETE);//M3-end2-断开完成
+    WfdSinkHiSysEvent::GetInstance().ThirdSceneEndReport(__func__, SinkStage::DISCONNECT_COMPLETE);
     return true;
 }
 
@@ -590,11 +592,12 @@ void WfdSinkSession::HandleM7Response(const RtspResponse &response, const std::s
 
     keepAliveTimer_ = std::make_unique<TimeoutTimer>();
     keepAliveTimer_->SetTimeoutCallback([this]() {
-        NotifyServiceError(ERR_NETWORK_ERROR); 
-        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::RTP_DEMUX, SinkErrorCode::WIFI_DISPLAY_RTSP_KEEPALIVE_TIMEOUT);//心跳超时
+        NotifyServiceError(ERR_NETWORK_ERROR);
+        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::RTP_DEMUX,
+                                                    SinkErrorCode::WIFI_DISPLAY_RTSP_KEEPALIVE_TIMEOUT);
     });
     keepAliveTimer_->StartTimer(keepAliveTimeout_, "Waiting for WFD source M16/GET_PARAMETER KeepAlive request");
-    WfdSinkHiSysEvent::GetInstance().Report(__func__, SinkStage::SEND_M7_MSG, SinkStageRes::SUCCESS);//scene1-3发送M7消息
+    WfdSinkHiSysEvent::GetInstance().Report(__func__, SinkStage::SEND_M7_MSG, SinkStageRes::SUCCESS);
 }
 
 void WfdSinkSession::HandleM8Response(const RtspResponse &response, const std::string &message)
@@ -602,7 +605,8 @@ void WfdSinkSession::HandleM8Response(const RtspResponse &response, const std::s
     SHARING_LOGD("trace.");
 
     WfdSinkHiSysEvent::GetInstance().ChangeHisysEventScene(SinkBizScene::DISCONNECT_MIRRORING); //scene3开始
-    WfdSinkHiSysEvent::GetInstance().StartReport(__func__, SinkStage::RECEIVE_DISCONNECT_EVENT, SinkStageRes::SUCCESS); //scene3-1 手机侧退出
+    WfdSinkHiSysEvent::GetInstance().StartReport(__func__, SinkStage::RECEIVE_DISCONNECT_EVENT,
+                                                SinkStageRes::SUCCESS);
     if (response.GetStatus() != RTSP_STATUS_OK) {
         SHARING_LOGE("WFD source peer handle 'TEARDOWN' method error.");
         NotifyServiceError();
@@ -651,7 +655,7 @@ bool WfdSinkSession::SendM1Response(int32_t cseq)
     WfdRtspM1Response m1Response(cseq, RTSP_STATUS_OK);
     std::string m1Res(m1Response.Stringify());
 
-    WfdSinkHiSysEvent::GetInstance().Report(__func__, SinkStage::SESSION_NEGOTIATION, SinkStageRes::SUCCESS);//scene1-3发送M7消息
+    WfdSinkHiSysEvent::GetInstance().Report(__func__, SinkStage::SESSION_NEGOTIATION, SinkStageRes::SUCCESS);
     SHARING_LOGI("sessionId: %{public}d send M1 response, cseq: %{public}d.", GetId(), cseq);
     bool ret = rtspClient_->Send(m1Res.data(), m1Res.length());
     if (!ret) {

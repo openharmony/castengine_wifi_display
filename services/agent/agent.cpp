@@ -237,7 +237,8 @@ void Agent::HandleProsumerError(SessionStatusMsg::Ptr &statusMsg)
             break;
     }
 #ifdef WFD_SINK
-    WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::SESSION_NEGOTIATION, SinkErrorCode::WIFI_DISPLAY_CONSUMER_ERROR); //consumer异常
+    WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::SESSION_NEGOTIATION,
+                                                SinkErrorCode::WIFI_DISPLAY_CONSUMER_ERROR);
 #endif
 }
 

@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #ifndef WFD_SINK_HISYS_EVENT_H
 #define WFD_SINK_HISYS_EVENT_H
 
@@ -51,7 +65,7 @@ enum class SinkErrorCode : int32_t {
     WIFI_DISPLAY_P2P_FAILED = 476119140,
     WIFI_DISPLAY_P2P_OPT_NOT_SUPPORTED,
     WIFI_DISPLAY_P2P_OPT_INVALID_PARAM,
-    WIFI_DISPLAY_P2P_OPT_FORBID_AIRPLANE, 
+    WIFI_DISPLAY_P2P_OPT_FORBID_AIRPLANE,
     WIFI_DISPLAY_P2P_OPT_FORBID_POWSAVING,
     WIFI_DISPLAY_P2P_OPT_PERMISSION_DENIED,
     WIFI_DISPLAY_P2P_OPT_OPEN_FAIL_WHEN_CLOSING,
@@ -93,19 +107,23 @@ public:
         return instance;
     }
     struct SinkHisyseventDevInfo {
-        std::string localNetId_ = "";
-        std::string localWifiMac_ = "";
-        std::string localDevName_ = "";
-        std::string localIp_ = "";
-        std::string peerNetId_ = "";
-        std::string peerWifiMac_ = "";
-        std::string peerIp_ = "";
-        std::string peerDevName_ = "";
+        std::string localNetId = "";
+        std::string localWifiMac = "";
+        std::string localDevName = "";
+        std::string localIp = "";
+        std::string peerNetId = "";
+        std::string peerWifiMac = "";
+        std::string peerIp = "";
+        std::string peerDevName = "";
     };
     //获取对端设备信息
     void SetHiSysEventDevInfo(SinkHisyseventDevInfo devInfo);
 
     void GetStartTime(std::chrono::system_clock::time_point startTime);
+
+    void ReportEstablishMirroringError(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode, int64_t duration);
+    void ReportStabilityError(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode);
+    void ReportDisconnectError(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode, int64_t duration);
 
     // 开始打点
     void StartReport(const std::string &funcName, SinkStage sinkStage, SinkStageRes sinkStageRes);

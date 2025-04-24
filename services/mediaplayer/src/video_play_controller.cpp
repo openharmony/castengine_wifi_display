@@ -104,7 +104,8 @@ bool VideoPlayController::SetSurface(sptr<Surface> surface, bool keyFrame)
                 return true;
             } else {
                 SHARING_LOGD("set surface failed.");
-                WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::RECEIVE_DATA, SinkErrorCode::WIFI_DISPLAY_ADD_SURFACE_ERROR);//添加surface异常
+                WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::RECEIVE_DATA,
+                                                            SinkErrorCode::WIFI_DISPLAY_ADD_SURFACE_ERROR);
                 return false;
             }
         }
@@ -264,7 +265,8 @@ void VideoPlayController::ProcessVideoData(const char *data, int32_t size)
                                                     [this]() { return (!videoSinkDecoder_->inQueue_.empty()); });
 
                 if (videoSinkDecoder_->inQueue_.empty()) {
-                    WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::VIDEO_DECODE, SinkErrorCode::WIFI_DISPLAY_VIDEO_DECODE_TIMEOUT);//视频解码超时
+                    WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::VIDEO_DECODE,
+                                                                SinkErrorCode::WIFI_DISPLAY_VIDEO_DECODE_TIMEOUT);
                     SHARING_LOGD("index queue empty, mediachannelId: %{public}u.", mediachannelId_);
                     continue;
                 }

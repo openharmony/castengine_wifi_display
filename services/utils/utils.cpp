@@ -281,7 +281,7 @@ std::string GetAnonyDevName(const std::string &value)
     
     const size_t starCount = std::min(length - keepHead, maxStars);
 
-    return value.substr(0, keepHead) +  std::string(starCount, '*') + 
+    return value.substr(0, keepHead) + std::string(starCount, '*') +
         (length > keepHead + starCount ? value.substr(keepHead + starCount) : "");
 }
 

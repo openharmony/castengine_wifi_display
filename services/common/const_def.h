@@ -215,7 +215,6 @@ enum SharingErrorCode {
     ERR_P2P_OPT_PERMISSION_DENIED,
     ERR_P2P_OPT_OPEN_FAIL_WHEN_CLOSING,
     ERR_P2P_OPT_P2P_NOT_OPENED = 437452825,
-    
 };
 
 enum SharingMsgId {
