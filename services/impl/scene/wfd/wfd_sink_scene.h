@@ -33,6 +33,7 @@
 #include "sink/wfd_trust_list_manager.h"
 #include "wifi_device.h"
 #include "wifi_p2p.h"
+#include "common/sharing_sink_hisysevent.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -64,10 +65,13 @@ public:
         void OnP2pActionResult(Wifi::P2pActionCallback action, Wifi::ErrCode code) override;
         void OnP2pServicesChanged(const std::vector<Wifi::WifiP2pServiceInfo> &srvInfo) override;
         void OnP2pChrErrCodeReport(const int errCode) override;
+        static bool GetErrorCode(Wifi::ErrCode errorCode, std::pair<SharingErrorCode, SinkErrorCode> &sharingError);
 
     private:
+        void FillAndReportDeviceInfo(const Wifi::WifiP2pGroupInfo& group);
         std::weak_ptr<WfdSinkScene> parent_;
         WfdTrustListManager wfdTrustListManager_;
+        static std::unordered_map<Wifi::ErrCode, std::pair<SharingErrorCode, SinkErrorCode>> wifiErrorMapping_;
     };
 
     class WifiCallback : public Wifi::IWifiDeviceCallBack {

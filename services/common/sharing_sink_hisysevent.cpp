@@ -1,0 +1,287 @@
+/*
+ * Copyright (c) 2025 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "sharing_sink_hisysevent.h"
+#include "hisysevent.h"
+#include "sharing_log.h"
+#include "utils/utils.h"
+
+namespace OHOS {
+namespace Sharing {
+
+static constexpr char SHARING_SINK_DFX_DOMAIN_NAME[] = "WIFI_DISPLAY";
+static constexpr char SHARING_SINK_EVENT_NAME[] = "MIRACAST_SINK_BEHAVIOR";
+static constexpr char SHARING_SINK_ORG_PKG[] = "wifi_display_sink";
+static constexpr char SHARING_SINK_HOST_PKG[] = "cast_engine_service";
+static constexpr char SHARING_SINK_TO_CALL_PKG[] = "wpa_supplicant";
+static constexpr char SHARING_SINK_LOCAL_DEV_TYPE[] = "09C";
+
+void WfdSinkHiSysEvent::SetHiSysEventDevInfo(WfdSinkHiSysEvent::SinkHisyseventDevInfo devInfo)
+{
+    devInfo_.localDevName = GetAnonyDevName(devInfo.localDevName).c_str();
+    devInfo_.localIp = GetAnonymousIp(devInfo.localIp).c_str();
+    devInfo_.localWifiMac = GetAnonymousMAC(devInfo.localWifiMac).c_str();
+    devInfo_.localNetId = devInfo.localNetId;
+    devInfo_.peerDevName = GetAnonyDevName(devInfo.peerDevName).c_str();
+    devInfo_.peerIp = GetAnonymousIp(devInfo.peerIp).c_str();
+    devInfo_.peerWifiMac = GetAnonymousMAC(devInfo.peerWifiMac).c_str();
+    devInfo_.peerNetId = devInfo.peerNetId;
+}
+
+void WfdSinkHiSysEvent::GetStartTime(std::chrono::system_clock::time_point startTime)
+{
+    startTime_ = std::chrono::duration_cast<std::chrono::seconds>(startTime.time_since_epoch()).count();
+}
+
+void WfdSinkHiSysEvent::ChangeHisysEventScene(SinkBizScene scene)
+{
+    sinkBizScene_ = static_cast<int32_t>(scene);
+}
+
+void WfdSinkHiSysEvent::StartReport(const std::string &funcName, SinkStage sinkStage, SinkStageRes sinkStageRes)
+{
+    if (sinkBizScene_ == static_cast<int32_t>(SinkBizScene::ESTABLISH_MIRRORING)) {
+        hiSysEventStart_ = true;
+    }
+    if (hiSysEventStart_ == false) {
+        SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
+        return;
+    }
+    HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME, HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
+                    "FUNC_NAME", funcName.c_str(),
+                    "BIZ_SCENE", sinkBizScene_,
+                    "BIZ_STAGE", static_cast<int32_t>(sinkStage),
+                    "STAGE_RES", static_cast<int32_t>(sinkStageRes),
+                    "BIZ_STATE", static_cast<int32_t>(SinkBIZState::BIZ_STATE_BEGIN),
+                    "ORG_PKG", SHARING_SINK_ORG_PKG,
+                    "HOST_PKG", SHARING_SINK_HOST_PKG,
+                    "TO_CALL_PKG", SHARING_SINK_TO_CALL_PKG,
+                    "LOCAL_NET_ID", devInfo_.localNetId.c_str(),
+                    "LOCAL_WIFI_MAC", devInfo_.localWifiMac.c_str(),
+                    "LOCAL_DEV_NAME", devInfo_.localDevName.c_str(),
+                    "LOCAL_DEV_TYPE", SHARING_SINK_LOCAL_DEV_TYPE,
+                    "LOCAL_IP", devInfo_.localIp.c_str(),
+                    "PEER_NET_ID", devInfo_.peerNetId.c_str(),
+                    "PEER_WIFI_MAC", devInfo_.peerWifiMac.c_str(),
+                    "PEER_IP", devInfo_.peerIp.c_str(),
+                    "PEER_DEV_NAME", devInfo_.peerDevName.c_str());
+}
+
+void WfdSinkHiSysEvent::Report(const std::string &funcName, SinkStage sinkStage, SinkStageRes sinkStageRes)
+{
+    if (hiSysEventStart_ == false) {
+        SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
+        return;
+    }
+    HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME, HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
+                    "FUNC_NAME", funcName.c_str(),
+                    "BIZ_SCENE", sinkBizScene_,
+                    "BIZ_STAGE", static_cast<int32_t>(sinkStage),
+                    "STAGE_RES", static_cast<int32_t>(sinkStageRes),
+                    "ORG_PKG", SHARING_SINK_ORG_PKG,
+                    "HOST_PKG", SHARING_SINK_HOST_PKG,
+                    "TO_CALL_PKG", SHARING_SINK_TO_CALL_PKG,
+                    "LOCAL_NET_ID", devInfo_.localNetId.c_str(),
+                    "LOCAL_WIFI_MAC", devInfo_.localWifiMac.c_str(),
+                    "LOCAL_DEV_NAME", devInfo_.localDevName.c_str(),
+                    "LOCAL_DEV_TYPE", SHARING_SINK_LOCAL_DEV_TYPE,
+                    "LOCAL_IP", devInfo_.localIp.c_str(),
+                    "PEER_NET_ID", devInfo_.peerNetId.c_str(),
+                    "PEER_WIFI_MAC", devInfo_.peerWifiMac.c_str(),
+                    "PEER_IP", devInfo_.peerIp.c_str(),
+                    "PEER_DEV_NAME", devInfo_.peerDevName.c_str());
+}
+
+void WfdSinkHiSysEvent::FirstSceneEndReport(const std::string &funcName, SinkStage sinkStage, SinkStageRes sinkStageRes)
+{
+    if (hiSysEventStart_ == false) {
+        SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
+        return;
+    }
+    HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME, HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
+                    "FUNC_NAME", funcName.c_str(),
+                    "BIZ_SCENE", sinkBizScene_,
+                    "BIZ_STAGE", static_cast<int32_t>(sinkStage),
+                    "STAGE_RES", static_cast<int32_t>(sinkStageRes),
+                    "BIZ_STATE", static_cast<int32_t>(SinkBIZState::BIZ_STATE_END),
+                    "ORG_PKG", SHARING_SINK_ORG_PKG,
+                    "HOST_PKG", SHARING_SINK_HOST_PKG,
+                    "TO_CALL_PKG", SHARING_SINK_TO_CALL_PKG,
+                    "LOCAL_NET_ID", devInfo_.localNetId.c_str(),
+                    "LOCAL_WIFI_MAC", devInfo_.localWifiMac.c_str(),
+                    "LOCAL_DEV_NAME", devInfo_.localDevName.c_str(),
+                    "LOCAL_DEV_TYPE", SHARING_SINK_LOCAL_DEV_TYPE,
+                    "LOCAL_IP", devInfo_.localIp.c_str(),
+                    "PEER_NET_ID", devInfo_.peerNetId.c_str(),
+                    "PEER_WIFI_MAC", devInfo_.peerWifiMac.c_str(),
+                    "PEER_IP", devInfo_.peerIp.c_str(),
+                    "PEER_DEV_NAME", devInfo_.peerDevName.c_str());
+}
+
+void WfdSinkHiSysEvent::ThirdSceneEndReport(const std::string &funcName, SinkStage sinkStage)
+{
+    if (hiSysEventStart_ == false) {
+        SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
+        return;
+    }
+    std::chrono::system_clock::time_point endTimePoint = std::chrono::system_clock::now();
+    int endTime = std::chrono::duration_cast<std::chrono::seconds>(endTimePoint.time_since_epoch()).count();
+    int64_t duration = endTime - startTime_;
+
+    HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME, HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
+                    "FUNC_NAME", funcName.c_str(),
+                    "BIZ_SCENE", static_cast<int32_t>(SinkBizScene::DISCONNECT_MIRRORING),
+                    "BIZ_STAGE", static_cast<int32_t>(SinkStage::DISCONNECT_COMPLETE),
+                    "STAGE_RES", static_cast<int32_t>(SinkStageRes::SUCCESS),
+                    "BIZ_STATE", static_cast<int32_t>(SinkBIZState::BIZ_STATE_END),
+                    "ORG_PKG", SHARING_SINK_ORG_PKG,
+                    "HOST_PKG", SHARING_SINK_HOST_PKG,
+                    "TO_CALL_PKG", SHARING_SINK_TO_CALL_PKG,
+                    "LOCAL_NET_ID", devInfo_.localNetId.c_str(),
+                    "LOCAL_WIFI_MAC", devInfo_.localWifiMac.c_str(),
+                    "LOCAL_DEV_NAME", devInfo_.localDevName.c_str(),
+                    "LOCAL_DEV_TYPE", SHARING_SINK_LOCAL_DEV_TYPE,
+                    "LOCAL_IP", devInfo_.localIp.c_str(),
+                    "PEER_NET_ID", devInfo_.peerNetId.c_str(),
+                    "PEER_WIFI_MAC", devInfo_.peerWifiMac.c_str(),
+                    "PEER_IP", devInfo_.peerIp.c_str(),
+                    "PEER_DEV_NAME", devInfo_.peerDevName.c_str(),
+                    "SERVICE_DURATION", duration);
+    hiSysEventStart_ = false;
+}
+
+void WfdSinkHiSysEvent::ReportEstablishMirroringError(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode, int64_t duration)
+{
+    HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME,
+        HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
+        "FUNC_NAME", funcName.c_str(),
+        "BIZ_SCENE", sinkBizScene_,
+        "BIZ_STAGE", static_cast<int32_t>(sinkStage),
+        "STAGE_RES", static_cast<int32_t>(SinkStageRes::FAIL),
+        "ERROR_CODE", static_cast<int32_t>(errorCode),
+        "BIZ_STATE", static_cast<int32_t>(SinkBIZState::BIZ_STATE_END),
+        "ORG_PKG", SHARING_SINK_ORG_PKG,
+        "HOST_PKG", SHARING_SINK_HOST_PKG,
+        "TO_CALL_PKG", SHARING_SINK_TO_CALL_PKG,
+        "LOCAL_NET_ID", devInfo_.localNetId.c_str(),
+        "LOCAL_WIFI_MAC", devInfo_.localWifiMac.c_str(),
+        "LOCAL_DEV_NAME", devInfo_.localDevName.c_str(),
+        "LOCAL_DEV_TYPE", SHARING_SINK_LOCAL_DEV_TYPE,
+        "LOCAL_IP", devInfo_.localIp.c_str(),
+        "PEER_NET_ID", devInfo_.peerNetId.c_str(),
+        "PEER_WIFI_MAC", devInfo_.peerWifiMac.c_str(),
+        "PEER_IP", devInfo_.peerIp.c_str(),
+        "PEER_DEV_NAME", devInfo_.peerDevName.c_str());
+}
+
+void WfdSinkHiSysEvent::ReportStabilityError(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode)
+{
+    HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME,
+        HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
+        "FUNC_NAME", funcName.c_str(),
+        "BIZ_SCENE", sinkBizScene_,
+        "BIZ_STAGE", static_cast<int32_t>(sinkStage),
+        "STAGE_RES", static_cast<int32_t>(SinkStageRes::FAIL),
+        "ERROR_CODE", static_cast<int32_t>(errorCode),
+        "ORG_PKG", SHARING_SINK_ORG_PKG,
+        "HOST_PKG", SHARING_SINK_HOST_PKG,
+        "TO_CALL_PKG", SHARING_SINK_TO_CALL_PKG,
+        "LOCAL_NET_ID", devInfo_.localNetId.c_str(),
+        "LOCAL_WIFI_MAC", devInfo_.localWifiMac.c_str(),
+        "LOCAL_DEV_NAME", devInfo_.localDevName.c_str(),
+        "LOCAL_DEV_TYPE", SHARING_SINK_LOCAL_DEV_TYPE,
+        "LOCAL_IP", devInfo_.localIp.c_str(),
+        "PEER_NET_ID", devInfo_.peerNetId.c_str(),
+        "PEER_WIFI_MAC", devInfo_.peerWifiMac.c_str(),
+        "PEER_IP", devInfo_.peerIp.c_str(),
+        "PEER_DEV_NAME", devInfo_.peerDevName.c_str());
+}
+
+void WfdSinkHiSysEvent::ReportDisconnectError(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode, int64_t duration)
+{
+    HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME,
+        HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
+        "FUNC_NAME", funcName.c_str(),
+        "BIZ_SCENE", sinkBizScene_,
+        "BIZ_STAGE", static_cast<int32_t>(sinkStage),
+        "STAGE_RES", static_cast<int32_t>(SinkStageRes::FAIL),
+        "ERROR_CODE", static_cast<int32_t>(errorCode),
+        "BIZ_STATE", static_cast<int32_t>(SinkBIZState::BIZ_STATE_END),
+        "ORG_PKG", SHARING_SINK_ORG_PKG,
+        "HOST_PKG", SHARING_SINK_HOST_PKG,
+        "TO_CALL_PKG", SHARING_SINK_TO_CALL_PKG,
+        "LOCAL_NET_ID", devInfo_.localNetId.c_str(),
+        "LOCAL_WIFI_MAC", devInfo_.localWifiMac.c_str(),
+        "LOCAL_DEV_NAME", devInfo_.localDevName.c_str(),
+        "LOCAL_DEV_TYPE", SHARING_SINK_LOCAL_DEV_TYPE,
+        "LOCAL_IP", devInfo_.localIp.c_str(),
+        "PEER_NET_ID", devInfo_.peerNetId.c_str(),
+        "PEER_WIFI_MAC", devInfo_.peerWifiMac.c_str(),
+        "PEER_IP", devInfo_.peerIp.c_str(),
+        "PEER_DEV_NAME", devInfo_.peerDevName.c_str(),
+        "SERVICE_DURATION", duration);
+}
+
+
+void WfdSinkHiSysEvent::ReportError(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode)
+{
+    if (hiSysEventStart_ == false) {
+        SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
+        return;
+    }
+
+    std::chrono::system_clock::time_point endTimePoint = std::chrono::system_clock::now();
+    int endTime = std::chrono::duration_cast<std::chrono::seconds>(endTimePoint.time_since_epoch()).count();
+    int64_t duration = endTime - startTime_;
+
+    switch (static_cast<SinkBizScene>(sinkBizScene_)) {
+        case SinkBizScene::ESTABLISH_MIRRORING:
+            ReportEstablishMirroringError(funcName, sinkStage, errorCode, duration);
+            break;
+        case SinkBizScene::MIRRORING_STABILITY:
+            ReportStabilityError(funcName, sinkStage, errorCode);
+            break;
+        case SinkBizScene::DISCONNECT_MIRRORING:
+            ReportDisconnectError(funcName, sinkStage, errorCode, duration);
+            break;
+    }
+
+    hiSysEventStart_ = false;
+}
+
+void WfdSinkHiSysEvent::P2PReportError(const std::string &funcName, SinkErrorCode errorCode)
+{
+    HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME, HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
+                    "FUNC_NAME", funcName.c_str(),
+                    "BIZ_SCENE", static_cast<int32_t>(SinkBizScene::ESTABLISH_MIRRORING),
+                    "BIZ_STAGE", static_cast<int32_t>(SinkStage::P2P_CONNECT_SUCCESS),
+                    "STAGE_RES", static_cast<int32_t>(SinkStageRes::FAIL),
+                    "ERROR_CODE", static_cast<int32_t>(errorCode),
+                    "ORG_PKG", SHARING_SINK_ORG_PKG,
+                    "HOST_PKG", SHARING_SINK_HOST_PKG,
+                    "TO_CALL_PKG", SHARING_SINK_TO_CALL_PKG,
+                    "LOCAL_NET_ID", devInfo_.localNetId.c_str(),
+                    "LOCAL_WIFI_MAC", devInfo_.localWifiMac.c_str(),
+                    "LOCAL_DEV_NAME", devInfo_.localDevName.c_str(),
+                    "LOCAL_DEV_TYPE", SHARING_SINK_LOCAL_DEV_TYPE,
+                    "LOCAL_IP", devInfo_.localIp.c_str(),
+                    "PEER_NET_ID", devInfo_.peerNetId.c_str(),
+                    "PEER_WIFI_MAC", devInfo_.peerWifiMac.c_str(),
+                    "PEER_IP", devInfo_.peerIp.c_str(),
+                    "PEER_DEV_NAME", devInfo_.peerDevName.c_str());
+}
+
+}  // namespace Sharing
+}  // namespace OHOS

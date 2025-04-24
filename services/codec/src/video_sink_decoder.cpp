@@ -22,6 +22,7 @@
 #include "common/common_macro.h"
 #include "common/media_log.h"
 #include "configuration/include/config.h"
+#include "common/sharing_sink_hisysevent.h"
 #include "utils/utils.h"
 
 namespace OHOS {
@@ -262,6 +263,8 @@ void VideoSinkDecoder::OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t
     if (listener) {
         listener->OnError(errorCode);
     }
+    WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::VIDEO_DECODE,
+                                                SinkErrorCode::WIFI_DISPLAY_VIDEO_DECODE_FAILED);
 }
 
 void VideoSinkDecoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::AVCodecBufferInfo info,

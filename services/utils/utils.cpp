@@ -269,6 +269,22 @@ void SetLE32(void *p, uint32_t val)
     data[3] = val >> 24; // 3: transformed position, 24: byte offset
 }
 
+std::string GetAnonyDevName(const std::string &value)
+{
+    const size_t length = value.length();
+    const size_t keepHead = 2;
+    const size_t maxStars = 5;
+    
+    if (length <= keepHead) {
+        return std::string(length, '*');
+    }
+    
+    const size_t starCount = std::min(length - keepHead, maxStars);
+
+    return value.substr(0, keepHead) + std::string(starCount, '*') +
+        (length > keepHead + starCount ? value.substr(keepHead + starCount) : "");
+}
+
 std::string GetAnonyString(const std::string &value)
 {
     constexpr size_t INT32_SHORT_ID_LENGTH = 20;

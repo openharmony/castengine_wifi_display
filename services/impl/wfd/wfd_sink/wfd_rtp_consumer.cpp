@@ -22,6 +22,7 @@
 #include "protocol/frame/h264_frame.h"
 #include "wfd_media_def.h"
 #include "wfd_session_def.h"
+#include "common/sharing_sink_hisysevent.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -306,6 +307,9 @@ void WfdRtpConsumer::OnRtpUnpackCallback(uint32_t ssrc, const Frame::Ptr &frame)
                     if (isFirstKeyFrame_) {
                         MEDIA_LOGD("TEST STATISTICS Miracast:first, agent ID:%{public}d, get video frame.",
                                    GetSinkAgentId());
+                        WfdSinkHiSysEvent::GetInstance().FirstSceneEndReport(__func__,
+                                                                            SinkStage::FIRST_FRAME_PROCESSED, SinkStageRes::SUCCESS);
+                        WfdSinkHiSysEvent::GetInstance().ChangeHisysEventScene(SinkBizScene::MIRRORING_STABILITY);
                         isFirstKeyFrame_ = false;
                     } else {
                         auto end = std::chrono::steady_clock::now();
@@ -331,6 +335,9 @@ void WfdRtpConsumer::OnRtpUnpackCallback(uint32_t ssrc, const Frame::Ptr &frame)
 
 void WfdRtpConsumer::OnServerReadData(int32_t fd, DataBuffer::Ptr buf, INetworkSession::Ptr sesssion)
 {
+    if (isFirstPacket_) {
+        WfdSinkHiSysEvent::GetInstance().Report(__func__, SinkStage::RECEIVE_DATA, SinkStageRes::SUCCESS);
+    }
     if (rtpUnpacker_ != nullptr && isRunning_) {
         rtpUnpacker_->ParseRtp(buf->Peek(), buf->Size());
         if (isFirstPacket_) {
@@ -349,6 +356,8 @@ bool WfdRtpConsumer::StartNetworkServer(uint16_t port, NetworkFactory::ServerPtr
 
     if (!NetworkFactory::CreateUdpServer(port, localIp_, shared_from_this(), server)) {
         server.reset();
+        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::SESSION_NEGOTIATION,
+                                                        SinkErrorCode::WIFI_DISPLAY_UDP_FAILED);
         return false;
     }
 

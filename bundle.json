@@ -23,7 +23,8 @@
     "rom": "",
     "ram": "",
     "hisysevent_config": [
-      "//foundation/CastEngine/castengine_wifi_display/hisysevent.yaml"
+      "//foundation/CastEngine/castengine_wifi_display/hisysevent.yaml",
+      "//foundation/CastEngine/castengine_wifi_display/hisysevent_sink.yaml"
     ],
     "deps": {
       "components": [

@@ -1,0 +1,37 @@
+# Copyright (c) 2025 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+domain: WIFI_DISPLAY
+
+MIRACAST_SINK_BEHAVIOR:
+    __BASE: {type: BEHAVIOR, level: MINOR, desc: miracast sink behavior event}
+    ORG_PKG: {type: STRING, desc: organization module}
+    HOST_PKG: {type: STRING, desc: upstream module}
+    TO_CALL_PKG: {type: STRING, desc: downstream module}
+    FUNC: {type: STRING, desc: function name}
+    BIZ_SCENE: {type: INT32, desc: business function scenario}
+    BIZ_STAGE: {type: INT32, desc: process stage}
+    EXTRA_DATA: {type: STRING, desc: extended data}
+    STAGE_RES: {type: INT32, desc: stage result}
+    BIZ_STATE: {type: INT32, desc: start or end of business module}
+    ERROR_CODE: {type: INT32, desc: error code}
+    LOCAL_NET_ID: {type: STRING, desc: network ID of local device}
+    LOCAL_WIFI_MAC: {type: STRING, desc: wifi address of local device}
+    LOCAL_DEV_NAME: {type: STRING, desc: device name of local device}
+    LOCAL_DEV_TYPE: {type: STRING, desc: device type of local device}
+    LOCAL_IP: {type: STRING, desc: IP address of local device}
+    PEER_NET_ID: {type: STRING, desc: network ID of peer device}
+    PEER_WIFI_MAC: {type: STRING, desc: wifi address of peer device}
+    PEER_IP: {type: STRING, desc: IP address of peer device}
+    PEER_DEV_NAME: {type: STRING, desc: device name of peer device}
+    SERVICE_DURATION: {type: INT64, desc:  duration of Use}

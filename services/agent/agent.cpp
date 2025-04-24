@@ -20,6 +20,7 @@
 #include "common/reflect_registration.h"
 #include "common/sharing_log.h"
 #include "magic_enum.hpp"
+#include "common/sharing_sink_hisysevent.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -235,6 +236,10 @@ void Agent::HandleProsumerError(SessionStatusMsg::Ptr &statusMsg)
             SHARING_LOGI("none process case.");
             break;
     }
+#ifdef WFD_SINK
+    WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::SESSION_NEGOTIATION,
+                                                SinkErrorCode::WIFI_DISPLAY_CONSUMER_ERROR);
+#endif
 }
 
 void Agent::HandleProsumerState(SessionStatusMsg::Ptr &statusMsg)
