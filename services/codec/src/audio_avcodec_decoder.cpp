@@ -221,7 +221,7 @@ void AudioAvCodecDecoder::OnError(MediaAVCodec::AVCodecErrorType errorType, int3
 {
     SHARING_LOGE("onError, errorCode = %{public}d", errorCode);
     WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::AUDIO_DECODE,
-                                                SinkErrorCode::WIFI_DISPLAY_AUDIO_DECODE_FAILED);
+                                                 SinkErrorCode::WIFI_DISPLAY_AUDIO_DECODE_FAILED);
 }
 
 void AudioAvCodecDecoder::OnInputBufferAvailable(uint32_t index, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
