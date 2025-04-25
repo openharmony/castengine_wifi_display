@@ -655,7 +655,8 @@ bool WfdSinkSession::SendM1Response(int32_t cseq)
     WfdRtspM1Response m1Response(cseq, RTSP_STATUS_OK);
     std::string m1Res(m1Response.Stringify());
 
-    WfdSinkHiSysEvent::GetInstance().Report(__func__, "dsoftbus", SinkStage::SESSION_NEGOTIATION, SinkStageRes::SUCCESS);
+    WfdSinkHiSysEvent::GetInstance().Report(__func__, "dsoftbus", SinkStage::SESSION_NEGOTIATION,
+                                            SinkStageRes::SUCCESS);
     SHARING_LOGI("sessionId: %{public}d send M1 response, cseq: %{public}d.", GetId(), cseq);
     bool ret = rtspClient_->Send(m1Res.data(), m1Res.length());
     if (!ret) {

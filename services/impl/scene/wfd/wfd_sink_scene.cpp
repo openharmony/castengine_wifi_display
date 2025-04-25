@@ -284,14 +284,14 @@ void WfdSinkScene::WfdP2pCallback::OnP2pDiscoveryChanged(bool isChange)
 }
 
 std::unordered_map<Wifi::ErrCode, SinkErrorCode> WfdSinkScene::WfdP2pCallback::wifiErrorMapping_ = {
-        { Wifi::WIFI_OPT_FAILED, SinkErrorCode::WIFI_DISPLAY_P2P_FAILED },
-        { Wifi::WIFI_OPT_NOT_SUPPORTED, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_NOT_SUPPORTED },
-        { Wifi::WIFI_OPT_INVALID_PARAM, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_INVALID_PARAM },
-        { Wifi::WIFI_OPT_FORBID_AIRPLANE, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_FORBID_AIRPLANE },
-        { Wifi::WIFI_OPT_FORBID_POWSAVING, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_FORBID_POWSAVING },
-        { Wifi::WIFI_OPT_PERMISSION_DENIED, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_PERMISSION_DENIED },
-        { Wifi::WIFI_OPT_OPEN_FAIL_WHEN_CLOSING, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_OPEN_FAIL_WHEN_CLOSING },
-        { Wifi::WIFI_OPT_P2P_NOT_OPENED, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_P2P_NOT_OPENED },
+                { Wifi::WIFI_OPT_FAILED, SinkErrorCode::WIFI_DISPLAY_P2P_FAILED },
+                { Wifi::WIFI_OPT_NOT_SUPPORTED, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_NOT_SUPPORTED },
+                { Wifi::WIFI_OPT_INVALID_PARAM, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_INVALID_PARAM },
+                { Wifi::WIFI_OPT_FORBID_AIRPLANE, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_FORBID_AIRPLANE },
+                { Wifi::WIFI_OPT_FORBID_POWSAVING, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_FORBID_POWSAVING },
+                { Wifi::WIFI_OPT_PERMISSION_DENIED, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_PERMISSION_DENIED },
+                { Wifi::WIFI_OPT_OPEN_FAIL_WHEN_CLOSING, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_OPEN_FAIL_WHEN_CLOSING },
+                { Wifi::WIFI_OPT_P2P_NOT_OPENED, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_P2P_NOT_OPENED },
 };
 
 bool WfdSinkScene::WfdP2pCallback::GetErrorCode(Wifi::ErrCode errorCode, SinkErrorCode &sharingError)

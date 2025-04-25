@@ -80,7 +80,7 @@ void WfdSinkHiSysEvent::StartReport(const std::string &funcName, const std::stri
 }
 
 void WfdSinkHiSysEvent::Report(const std::string &funcName, const std::string &toCallpkg,
-                                SinkStage sinkStage, SinkStageRes sinkStageRes)
+                               SinkStage sinkStage, SinkStageRes sinkStageRes)
 {
     if (hiSysEventStart_ == false) {
         SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
@@ -166,7 +166,7 @@ void WfdSinkHiSysEvent::ThirdSceneEndReport(const std::string &funcName, const s
 }
 
 void WfdSinkHiSysEvent::ReportEstablishMirroringError(const std::string &funcName, const std::string &toCallpkg,
-                                                    SinkStage sinkStage, SinkErrorCode errorCode, int32_t duration)
+                                                        SinkStage sinkStage, SinkErrorCode errorCode, int32_t duration)
 {
     HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME,
         HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
@@ -191,7 +191,7 @@ void WfdSinkHiSysEvent::ReportEstablishMirroringError(const std::string &funcNam
 }
 
 void WfdSinkHiSysEvent::ReportStabilityError(const std::string &funcName, const std::string &toCallpkg,
-                                            SinkStage sinkStage, SinkErrorCode errorCode)
+                                                SinkStage sinkStage, SinkErrorCode errorCode)
 {
     HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME,
         HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
@@ -215,7 +215,7 @@ void WfdSinkHiSysEvent::ReportStabilityError(const std::string &funcName, const 
 }
 
 void WfdSinkHiSysEvent::ReportDisconnectError(const std::string &funcName, const std::string &toCallpkg,
-                                            SinkStage sinkStage, SinkErrorCode errorCode, int32_t duration)
+                                                SinkStage sinkStage, SinkErrorCode errorCode, int32_t duration)
 {
     HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME,
         HiviewDFX::HiSysEvent::EventType::BEHAVIOR,

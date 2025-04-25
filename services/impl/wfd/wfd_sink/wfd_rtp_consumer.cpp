@@ -307,8 +307,8 @@ void WfdRtpConsumer::OnRtpUnpackCallback(uint32_t ssrc, const Frame::Ptr &frame)
                     if (isFirstKeyFrame_) {
                         MEDIA_LOGD("TEST STATISTICS Miracast:first, agent ID:%{public}d, get video frame.",
                                    GetSinkAgentId());
-                        WfdSinkHiSysEvent::GetInstance().FirstSceneEndReport(__func__, "", SinkStage::FIRST_FRAME_PROCESSED,
-                                                                            SinkStageRes::SUCCESS);
+                        WfdSinkHiSysEvent::GetInstance().FirstSceneEndReport(__func__, "",
+                            SinkStage::FIRST_FRAME_PROCESSED, SinkStageRes::SUCCESS);
                         WfdSinkHiSysEvent::GetInstance().ChangeHisysEventScene(SinkBizScene::MIRRORING_STABILITY);
                         isFirstKeyFrame_ = false;
                     } else {
