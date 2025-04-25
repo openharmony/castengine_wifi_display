@@ -34,4 +34,4 @@ MIRACAST_SINK_BEHAVIOR:
     PEER_WIFI_MAC: {type: STRING, desc: wifi address of peer device}
     PEER_IP: {type: STRING, desc: IP address of peer device}
     PEER_DEV_NAME: {type: STRING, desc: device name of peer device}
-    SERVICE_DURATION: {type: INT64, desc:  duration of Use}
+    SERVICE_DURATION: {type: INT32, desc:  duration of Use}

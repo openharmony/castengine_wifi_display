@@ -181,7 +181,7 @@ void AudioAvCodecDecoder::OnFrame(const Frame::Ptr &frame)
         }
         if (inBufferQueue_.empty()) {
             SHARING_LOGW("Index queue is empty.");
-            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::AUDIO_DECODE,
+            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::AUDIO_DECODE,
                                                         SinkErrorCode::WIFI_DISPLAY_AUDIO_DECODE_TIMEOUT);
             return;
         }
@@ -220,7 +220,8 @@ void AudioAvCodecDecoder::OnFrame(const Frame::Ptr &frame)
 void AudioAvCodecDecoder::OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t errorCode)
 {
     SHARING_LOGE("onError, errorCode = %{public}d", errorCode);
-    WfdSinkHiSysEvent::GetInstance().ReportError(__func__, SinkStage::AUDIO_DECODE, SinkErrorCode::WIFI_DISPLAY_AUDIO_DECODE_FAILED);
+    WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::AUDIO_DECODE,
+                                                 SinkErrorCode::WIFI_DISPLAY_AUDIO_DECODE_FAILED);
 }
 
 void AudioAvCodecDecoder::OnInputBufferAvailable(uint32_t index, std::shared_ptr<MediaAVCodec::AVSharedMemory> buffer)
