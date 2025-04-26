@@ -24,6 +24,7 @@
 
 namespace OHOS {
 namespace Sharing {
+constexpr int32_t MAX_AUDIO_BUFFER_SIZE = 100 * 100 * 1024;
 constexpr uint32_t ADTS_HEADER_SIZE = 7;
 constexpr uint32_t ADTS_HEADER_BEGIN = 0xFF;
 constexpr uint32_t ADTS_HEADER_END = 0xFC;
@@ -73,6 +74,10 @@ AudioAACDecoder::~AudioAACDecoder()
     if (swrOutBuffer_) {
         av_freep(&swrOutBuffer_);
     }
+
+    if (codecCtx_) {
+        avcodec_free_context(&codecCtx_);
+    }
 }
 
 int32_t AudioAACDecoder::Init(const AudioTrack &audioTrack)
@@ -116,7 +121,7 @@ void AudioAACDecoder::OnFrame(const Frame::Ptr &frame)
         return;
     }
 
-    if (avPacket_ == nullptr || avFrame_ == nullptr) {
+    if (avPacket_ == nullptr || avFrame_ == nullptr || codecCtx_ == nullptr) {
         return;
     }
 
@@ -146,6 +151,11 @@ void AudioAACDecoder::OnFrame(const Frame::Ptr &frame)
 
         swrOutBufferSize_ =
             av_samples_get_buffer_size(nullptr, avFrame_->channels, avFrame_->nb_samples, AV_SAMPLE_FMT_S16, 0);
+        if (swrOutBufferSize_ <= 0 || swrOutBufferSize_ > MAX_AUDIO_BUFFER_SIZE) {
+            SHARING_LOGE("invalid buffer size %{public}d", swrOutBufferSize_);
+            return;
+        }
+
         swrOutBuffer_ = (uint8_t *)av_malloc(swrOutBufferSize_);
         if (swrOutBuffer_ == nullptr) {
             SHARING_LOGE("swrOutBuffer_ av_malloc failed!");
@@ -377,6 +387,9 @@ void AudioAACEncoder::DoSwr(const Frame::Ptr &frame)
 
     do {
         int sample_size = (int)(inChannels_ * inSampleBit_ / 8);
+        if (sample_size == 0) {
+            continue;
+        }
         in_samples = in_samples / sample_size;
 
         int frame_size = swr_convert(swr_, swrData_, enc_->frame_size, (const uint8_t **)in_sample, in_samples);

@@ -69,7 +69,7 @@ void SplitH264(const char *ptr, size_t len, size_t prefix, const std::function<v
     while (true) {
         auto nextStart = MemFind(start, end - start, "\x00\x00\x01", 3);
         if (nextStart) {
-            if (*(nextStart - 1) == 0x00) {
+            if ((nextStart > start) && *(nextStart - 1) == 0x00) {
                 nextStart -= 1;
                 nextPrefix = 4; // 4:prefix size
             } else {

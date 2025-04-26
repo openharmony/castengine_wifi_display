@@ -29,7 +29,7 @@ public:
 
     static void ParseAacConfig(const std::string &config, AdtsHeader &adts);
 
-    static void DumpAdtsHeader(const AdtsHeader &hed, uint8_t *out);
+    static void DumpAdtsHeader(const AdtsHeader &hed, uint8_t *out, size_t outSize);
     static int32_t DumpAacConfig(const std::string &config, size_t length, uint8_t *out, size_t outSize);
 
 public:

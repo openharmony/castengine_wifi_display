@@ -182,6 +182,7 @@ void Context::SendInteractionEvent(EventType eventType, ContextEventMsg::Ptr &ev
 {
     SHARING_LOGD("trace.");
     auto interactionMsg = std::make_shared<InteractionEventMsg>();
+    RETURN_IF_NULL(interactionMsg);
     interactionMsg->fromMgr = ModuleType::MODULE_CONTEXT;
     interactionMsg->srcId = GetId();
     interactionMsg->toMgr = ModuleType::MODULE_INTERACTION;

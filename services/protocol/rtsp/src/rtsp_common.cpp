@@ -32,8 +32,8 @@ std::string RtspCommon::GetRtspDate()
     if (t == nullptr) {
         return {};
     }
-    char buf[32] = {0};
-    if (strftime(buf, 128, "%a, %b %d %Y %H:%M:%S GMT", t) < 0) { // 128:fixed size
+    char buf[40] = {0};
+    if (strftime(buf, sizeof(buf), "%a, %b %d %Y %H:%M:%S GMT", t) < 0) {
         return {};
     }
     return buf;
