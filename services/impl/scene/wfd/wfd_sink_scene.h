@@ -68,7 +68,6 @@ public:
         bool GetErrorCode(Wifi::ErrCode errorCode, SinkErrorCode &sharingError);
 
     private:
-        void FillAndReportDeviceInfo(const Wifi::WifiP2pGroupInfo& group);
         std::weak_ptr<WfdSinkScene> parent_;
         WfdTrustListManager wfdTrustListManager_;
         static std::unordered_map<Wifi::ErrCode, SinkErrorCode> wifiErrorMapping_;
@@ -188,6 +187,7 @@ private:
                                   std::shared_ptr<WfdGetBoundDevicesRsp> &reply);
     int32_t HandleDeleteBoundDevice(std::shared_ptr<WfdDeleteBoundDeviceReq> &msg,
                                     std::shared_ptr<WfdCommonRsp> &reply);
+    void FillAndReportDeviceInfo(const ConnectionInfo &connectionInfo);
 
 private:
     std::atomic_bool isSinkRunning_ = false;
