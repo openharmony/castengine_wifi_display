@@ -237,7 +237,7 @@ std::shared_ptr<RtcpSdes> RtcpSdes::Create(const std::vector<std::string> &itemT
     if (ptr == nullptr) {
         return nullptr;
     }
-    memset_s(ptr, bytes, 0, bytes);
+    (void)memset_s(ptr, bytes, 0, bytes);
 
     auto itemPtr = &ptr->chunks_;
     for (auto &text : itemText) {

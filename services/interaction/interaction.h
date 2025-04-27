@@ -19,8 +19,8 @@
 #include "common/identifier.h"
 #include "event/event_base.h"
 #include "event/handle_event_base.h"
-#include "interaction/ipc_codec/ipc_msg.h"
 #include "interaction/interprocess/ipc_msg_adapter.h"
+#include "interaction/ipc_codec/ipc_msg.h"
 #include "interaction/scene/base_scene.h"
 
 namespace OHOS {
@@ -121,12 +121,14 @@ public:
     int32_t ReSize(int32_t windowId, int32_t width, int32_t height) override;
 
 private:
+    int32_t SendAgentEvent(uint32_t contextId, uint32_t agentId, EventType eventType,
+                           std::function<void(std::shared_ptr<AgentEventMsg> &)> setupMsg = nullptr);
     int32_t NotifyEvent(EventMsg::Ptr eventMsg);
 
 private:
     std::string rpcKey_;
     std::atomic<int32_t> requestId_ = 0;
-	
+
     BaseScene::Ptr scene_ = nullptr;
     IpcMsgAdapter::Ptr ipcAdapter_ = nullptr;
 };

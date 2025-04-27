@@ -94,6 +94,9 @@ private:
     void HandleProsumerState(SessionStatusMsg::Ptr &statusMsg);
     void HandleProsumerError(SessionStatusMsg::Ptr &statusMsg);
 
+    template<typename T, typename SetupFunc>
+    void SendChannelCommonEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventType, SetupFunc setupFunc);
+
     void SendContextEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventType);
     void SendChannelEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventType);
     void SendInteractionEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventType);

@@ -346,8 +346,8 @@ bool MediaDescription::ParseSpsPps()
                 auto ppsBase64 = sps_pps.substr(index + 1);
 
                 uint8_t *spsBuffer = (uint8_t *)malloc(spsBase64.size() * 3 / 4 + 1); // 3:fixed size, 4:fixed size
-                memset_s(spsBuffer, spsBase64.size() * 3 / 4 + 1, 0,
-                         spsBase64.size() * 3 / 4 + 1); // 3:fixed size, 4:fixed size
+                (void)memset_s(spsBuffer, spsBase64.size() * 3 / 4 + 1, 0,
+                               spsBase64.size() * 3 / 4 + 1); // 3:fixed size, 4:fixed size
                 uint32_t spsLength = Base64::Decode(spsBase64.c_str(), spsBase64.size(), spsBuffer);
                 sps_.reserve(spsLength);
                 for (uint32_t i = 0; i < spsLength; ++i) {
@@ -355,7 +355,7 @@ bool MediaDescription::ParseSpsPps()
                 }
 
                 uint8_t *ppsBuffer = (uint8_t *)malloc(ppsBase64.size() * 3 / 4 + 1); // 3:fixed size, 4:fixed size
-                memset_s(ppsBuffer, ppsBase64.size() * 3 / 4 + 1, 0, ppsBase64.size() * 3 / 4 + 1);
+                (void)memset_s(ppsBuffer, ppsBase64.size() * 3 / 4 + 1, 0, ppsBase64.size() * 3 / 4 + 1);
                 uint32_t ppsLength = Base64::Decode(ppsBase64.c_str(), ppsBase64.size(), ppsBuffer);
                 sps_.reserve(ppsLength);
                 for (uint32_t i = 0; i < ppsLength; ++i) {

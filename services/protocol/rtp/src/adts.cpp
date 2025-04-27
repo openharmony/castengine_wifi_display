@@ -19,9 +19,12 @@
 namespace OHOS {
 namespace Sharing {
 
-void AdtsHeader::DumpAdtsHeader(const AdtsHeader &hed, uint8_t *out)
+void AdtsHeader::DumpAdtsHeader(const AdtsHeader &hed, uint8_t *out, size_t outSize)
 {
     RETURN_IF_NULL(out);
+    if (outSize < ADTS_HEADER_LEN) {
+        return;
+    }
     out[0] = ((hed.syncword_ >> 4) & 0xFF);                      // 8bit, 4:byte offset
     out[1] = ((hed.syncword_ << 4) & 0xF0);                      // 4 bit, 4:byte offset
     out[1] |= ((hed.id_ << 3) & 0x08);                           // 1 bit, 3:byte offset
@@ -80,7 +83,7 @@ int32_t AdtsHeader::DumpAacConfig(const std::string &config, size_t length, uint
     AdtsHeader header;
     ParseAacConfig(config, header);
     header.aacFrameLength_ = (decltype(header.aacFrameLength_))(ADTS_HEADER_LEN + length);
-    DumpAdtsHeader(header, out);
+    DumpAdtsHeader(header, out, outSize);
     return ADTS_HEADER_LEN;
 }
 

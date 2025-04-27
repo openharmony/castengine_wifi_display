@@ -31,7 +31,7 @@ RtpDecoderAAC::RtpDecoderAAC(const RtpPlaylodParam &rpp) : rpp_(rpp)
         for (size_t i = 0; i < aacExtra->aacConfig_.size() / 2; ++i) { // 2:unit
             uint32_t cfg;
             auto ret = sscanf_s(aacExtra->aacConfig_.substr(i * 2, 2).data(), "%02X", &cfg); // 2:unit
-            if (ret != EOK) {
+            if (ret != 1) {
                 MEDIA_LOGE("sscanf_s failed.");
             }
             cfg &= 0x00FF;

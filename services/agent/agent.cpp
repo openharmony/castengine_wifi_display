@@ -19,8 +19,8 @@
 #include "common/event_channel.h"
 #include "common/reflect_registration.h"
 #include "common/sharing_log.h"
-#include "magic_enum.hpp"
 #include "common/sharing_sink_hisysevent.h"
+#include "magic_enum.hpp"
 
 namespace OHOS {
 namespace Sharing {
@@ -87,7 +87,7 @@ int32_t Agent::HandleEvent(SharingEvent &event)
     auto inputMsg = ConvertEventMsg<AgentEventMsg>(event);
     if (inputMsg == nullptr) {
         SHARING_LOGE("unknow msg.");
-        return -1;
+        return ERR_CONTEXT_AGENT_BASE;
     }
 
     switch (event.eventMsg->type) {
@@ -454,7 +454,8 @@ void Agent::SendInteractionEvent(SessionStatusMsg::Ptr &statusMsg, EventType eve
     }
 }
 
-void Agent::SendChannelEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventType)
+template <typename T, typename SetupFunc>
+void Agent::SendChannelCommonEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventType, SetupFunc setupFunc)
 {
     SHARING_LOGD("trace.");
     RETURN_IF_NULL(statusMsg);
@@ -464,7 +465,7 @@ void Agent::SendChannelEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventTy
         SHARING_LOGI("agentId: %{public}u, notify to channelmgr, eventType: %{public}s.", GetId(),
                      std::string(magic_enum::enum_name(statusMsg->msg->type)).c_str());
 
-        auto channelMsg = std::make_shared<ChannelEventMsg>();
+        auto channelMsg = std::make_shared<T>();
         RETURN_IF_NULL(channelMsg);
         channelMsg->agentId = GetId();
         channelMsg->toMgr = ModuleType::MODULE_MEDIACHANNEL;
@@ -474,160 +475,55 @@ void Agent::SendChannelEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventTy
         channelMsg->errorCode = statusMsg->msg->errorCode;
         channelMsg->requestId = statusMsg->msg->requestId;
 
+        setupFunc(channelMsg, statusMsg);
+
         AgentStatusMsg::Ptr agentMsg = std::make_shared<AgentStatusMsg>();
         RETURN_IF_NULL(agentMsg);
         agentMsg->msg = std::move(channelMsg);
         agentMsg->agentId = GetId();
         listener->OnAgentNotify(agentMsg);
     }
+}
+
+void Agent::SendChannelEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventType)
+{
+    SendChannelCommonEvent<ChannelEventMsg>(statusMsg, eventType, [](auto &channelMsg, auto &statusMsg) {});
 }
 
 void Agent::SendChannelAppendSurfaceEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventType)
 {
-    SHARING_LOGD("trace.");
-    RETURN_IF_NULL(statusMsg);
-    RETURN_IF_NULL(statusMsg->msg);
-    auto listener = agentListener_.lock();
-    if (listener) {
-        SHARING_LOGI("agentId: %{public}u, notify to channelmgr, eventType: %{public}s.", GetId(),
-                     std::string(magic_enum::enum_name(statusMsg->msg->type)).c_str());
-
-        auto channelMsg = std::make_shared<ChannelAppendSurfaceEventMsg>();
-        RETURN_IF_NULL(channelMsg);
-        channelMsg->agentId = GetId();
-        channelMsg->toMgr = ModuleType::MODULE_MEDIACHANNEL;
-        channelMsg->dstId = mediaChannelId_;
-        channelMsg->prosumerId = prosumerId_;
-        channelMsg->type = eventType;
+    SendChannelCommonEvent<ChannelAppendSurfaceEventMsg>(statusMsg, eventType, [](auto &channelMsg, auto &statusMsg) {
         channelMsg->surface = statusMsg->surface;
         channelMsg->sceneType = statusMsg->sceneType;
-        channelMsg->errorCode = statusMsg->msg->errorCode;
-        channelMsg->requestId = statusMsg->msg->requestId;
-
-        AgentStatusMsg::Ptr agentMsg = std::make_shared<AgentStatusMsg>();
-        RETURN_IF_NULL(agentMsg);
-        agentMsg->msg = std::move(channelMsg);
-        agentMsg->agentId = GetId();
-        listener->OnAgentNotify(agentMsg);
-    }
+    });
 }
 
 void Agent::SendChannelRemoveSurfaceEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventType)
 {
-    SHARING_LOGD("trace.");
-    RETURN_IF_NULL(statusMsg);
-    RETURN_IF_NULL(statusMsg->msg);
-    auto listener = agentListener_.lock();
-    if (listener) {
-        SHARING_LOGI("agentId: %{public}u, notify to channelmgr, eventType: %{public}s.", GetId(),
-                     std::string(magic_enum::enum_name(statusMsg->msg->type)).c_str());
-
-        auto channelMsg = std::make_shared<ChannelRemoveSurfaceEventMsg>();
-        RETURN_IF_NULL(channelMsg);
-        channelMsg->agentId = GetId();
-        channelMsg->toMgr = ModuleType::MODULE_MEDIACHANNEL;
-        channelMsg->dstId = mediaChannelId_;
-        channelMsg->prosumerId = prosumerId_;
-        channelMsg->type = eventType;
-        channelMsg->surfaceId = statusMsg->surfaceId;
-        channelMsg->errorCode = statusMsg->msg->errorCode;
-        channelMsg->requestId = statusMsg->msg->requestId;
-
-        AgentStatusMsg::Ptr agentMsg = std::make_shared<AgentStatusMsg>();
-        RETURN_IF_NULL(agentMsg);
-        agentMsg->msg = std::move(channelMsg);
-        agentMsg->agentId = GetId();
-        listener->OnAgentNotify(agentMsg);
-    }
+    SendChannelCommonEvent<ChannelRemoveSurfaceEventMsg>(
+        statusMsg, eventType, [](auto &channelMsg, auto &statusMsg) { channelMsg->surfaceId = statusMsg->surfaceId; });
 }
 
 void Agent::SendChannelSceneTypeEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventType)
 {
-    SHARING_LOGD("trace.");
-    RETURN_IF_NULL(statusMsg);
-    RETURN_IF_NULL(statusMsg->msg);
-    auto listener = agentListener_.lock();
-    if (listener) {
-        SHARING_LOGI("agentId: %{public}u, notify to channelmgr, eventType: %{public}s.", GetId(),
-                     std::string(magic_enum::enum_name(statusMsg->msg->type)).c_str());
-
-        auto channelMsg = std::make_shared<ChannelSetSceneTypeEventMsg>();
-        RETURN_IF_NULL(channelMsg);
-        channelMsg->agentId = GetId();
-        channelMsg->toMgr = ModuleType::MODULE_MEDIACHANNEL;
-        channelMsg->dstId = mediaChannelId_;
-        channelMsg->prosumerId = prosumerId_;
-        channelMsg->type = eventType;
+    SendChannelCommonEvent<ChannelSetSceneTypeEventMsg>(statusMsg, eventType, [](auto &channelMsg, auto &statusMsg) {
         channelMsg->surfaceId = statusMsg->surfaceId;
         channelMsg->sceneType = statusMsg->sceneType;
-        channelMsg->errorCode = statusMsg->msg->errorCode;
-        channelMsg->requestId = statusMsg->msg->requestId;
-
-        AgentStatusMsg::Ptr agentMsg = std::make_shared<AgentStatusMsg>();
-        RETURN_IF_NULL(agentMsg);
-        agentMsg->msg = std::move(channelMsg);
-        agentMsg->agentId = GetId();
-        listener->OnAgentNotify(agentMsg);
-    }
+    });
 }
 
 void Agent::SendChannelKeyRedirectEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventType)
 {
-    SHARING_LOGD("trace.");
-    RETURN_IF_NULL(statusMsg);
-    RETURN_IF_NULL(statusMsg->msg);
-    auto listener = agentListener_.lock();
-    if (listener) {
-        SHARING_LOGI("agentId: %{public}u, notify to channelmgr, eventType: %{public}s.", GetId(),
-                     std::string(magic_enum::enum_name(statusMsg->msg->type)).c_str());
-
-        auto channelMsg = std::make_shared<ChannelSetKeyRedirectEventMsg>();
-        RETURN_IF_NULL(channelMsg);
-        channelMsg->agentId = GetId();
-        channelMsg->toMgr = ModuleType::MODULE_MEDIACHANNEL;
-        channelMsg->dstId = mediaChannelId_;
-        channelMsg->prosumerId = prosumerId_;
-        channelMsg->type = eventType;
+    SendChannelCommonEvent<ChannelSetKeyRedirectEventMsg>(statusMsg, eventType, [](auto &channelMsg, auto &statusMsg) {
         channelMsg->surfaceId = statusMsg->surfaceId;
         channelMsg->keyRedirect = statusMsg->keyRedirect;
-        channelMsg->errorCode = statusMsg->msg->errorCode;
-        channelMsg->requestId = statusMsg->msg->requestId;
-
-        AgentStatusMsg::Ptr agentMsg = std::make_shared<AgentStatusMsg>();
-        RETURN_IF_NULL(agentMsg);
-        agentMsg->msg = std::move(channelMsg);
-        agentMsg->agentId = GetId();
-        listener->OnAgentNotify(agentMsg);
-    }
+    });
 }
 
 void Agent::SendChannelSetVolumeEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventType)
 {
-    SHARING_LOGD("trace.");
-    RETURN_IF_NULL(statusMsg);
-    RETURN_IF_NULL(statusMsg->msg);
-    auto listener = agentListener_.lock();
-    if (listener) {
-        SHARING_LOGI("agentId: %{public}u, notify to channelmgr, eventType: %{public}s.", GetId(),
-                     std::string(magic_enum::enum_name(statusMsg->msg->type)).c_str());
-
-        auto channelMsg = std::make_shared<ChannelSetVolumeEventMsg>();
-        RETURN_IF_NULL(channelMsg);
-        channelMsg->agentId = GetId();
-        channelMsg->toMgr = ModuleType::MODULE_MEDIACHANNEL;
-        channelMsg->dstId = mediaChannelId_;
-        channelMsg->prosumerId = prosumerId_;
-        channelMsg->type = eventType;
-        channelMsg->volume = statusMsg->volume;
-        channelMsg->errorCode = statusMsg->msg->errorCode;
-        channelMsg->requestId = statusMsg->msg->requestId;
-
-        AgentStatusMsg::Ptr agentMsg = std::make_shared<AgentStatusMsg>();
-        RETURN_IF_NULL(agentMsg);
-        agentMsg->msg = std::move(channelMsg);
-        agentMsg->agentId = GetId();
-        listener->OnAgentNotify(agentMsg);
-    }
+    SendChannelCommonEvent<ChannelSetVolumeEventMsg>(
+        statusMsg, eventType, [](auto &channelMsg, auto &statusMsg) { channelMsg->volume = statusMsg->volume; });
 }
 
 void Agent::SendContextEvent(SessionStatusMsg::Ptr &statusMsg, EventType eventType)

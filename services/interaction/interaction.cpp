@@ -143,6 +143,32 @@ int32_t Interaction::HandleEvent(SharingEvent &event)
     return 0;
 }
 
+int32_t Interaction::SendAgentEvent(uint32_t contextId, uint32_t agentId, EventType eventType,
+                                    std::function<void(std::shared_ptr<AgentEventMsg> &)> setupMsg)
+{
+    SHARING_LOGD("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
+    auto agentMsg = std::make_shared<AgentEventMsg>();
+    if (agentMsg == nullptr) {
+        return -1;
+    }
+    agentMsg->type = eventType;
+    agentMsg->toMgr = ModuleType::MODULE_CONTEXT;
+    agentMsg->dstId = contextId;
+    agentMsg->agentId = agentId;
+    if (setupMsg) {
+        setupMsg(agentMsg);
+    }
+
+    int32_t ret = NotifyEvent(agentMsg);
+    if (ret != -1) {
+        SHARING_LOGI("%{public}d success agentId: %{public}u.", eventType, agentId);
+    } else {
+        SHARING_LOGE("%{public}d failed agentId: %{public}u.", eventType, agentId);
+    }
+
+    return ret;
+}
+
 int32_t Interaction::NotifyEvent(EventMsg::Ptr eventMsg)
 {
     SHARING_LOGD("trace.");
@@ -254,58 +280,19 @@ int32_t Interaction::Stop(uint32_t contextId, uint32_t agentId)
 
 int32_t Interaction::Start(uint32_t contextId, uint32_t agentId)
 {
-    SHARING_LOGD("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
-    auto agentMsg = std::make_shared<AgentEventMsg>();
-    agentMsg->type = EventType::EVENT_AGENT_START;
-    agentMsg->toMgr = ModuleType::MODULE_CONTEXT;
-    agentMsg->dstId = contextId;
-    agentMsg->agentId = agentId;
-    int32_t ret = NotifyEvent(agentMsg);
-    if (ret != -1) {
-        SHARING_LOGI("start agent success agentId: %{public}u.", agentId);
-    } else {
-        SHARING_LOGE("start agent failed, agentId: %{public}u.", agentId);
-    }
-
-    return ret;
+    return SendAgentEvent(contextId, agentId, EventType::EVENT_AGENT_START);
 }
 
 int32_t Interaction::Pause(uint32_t contextId, uint32_t agentId, MediaType mediaType)
 {
-    SHARING_LOGD("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
-    auto agentMsg = std::make_shared<AgentEventMsg>();
-    agentMsg->type = EventType::EVENT_AGENT_PAUSE;
-    agentMsg->toMgr = ModuleType::MODULE_CONTEXT;
-    agentMsg->dstId = contextId;
-    agentMsg->agentId = agentId;
-    agentMsg->mediaType = mediaType;
-    int32_t ret = NotifyEvent(agentMsg);
-    if (ret != -1) {
-        SHARING_LOGI("pause agent success agentId: %{public}u.", agentId);
-    } else {
-        SHARING_LOGE("pause agent failed, agentId: %{public}u.", agentId);
-    }
-
-    return ret;
+    return SendAgentEvent(contextId, agentId, EventType::EVENT_AGENT_PAUSE,
+                          [mediaType](auto &msg) { msg->mediaType = mediaType; });
 }
 
 int32_t Interaction::Resume(uint32_t contextId, uint32_t agentId, MediaType mediaType)
 {
-    SHARING_LOGD("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
-    auto agentMsg = std::make_shared<AgentEventMsg>();
-    agentMsg->type = EventType::EVENT_AGENT_RESUME;
-    agentMsg->toMgr = ModuleType::MODULE_CONTEXT;
-    agentMsg->dstId = contextId;
-    agentMsg->agentId = agentId;
-    agentMsg->mediaType = mediaType;
-    int32_t ret = NotifyEvent(agentMsg);
-    if (ret != -1) {
-        SHARING_LOGI("resume agent success agentId: %{public}u.", agentId);
-    } else {
-        SHARING_LOGE("resume agent failed, agentId: %{public}u.", agentId);
-    }
-
-    return ret;
+    return SendAgentEvent(contextId, agentId, EventType::EVENT_AGENT_RESUME,
+                          [mediaType](auto &msg) { msg->mediaType = mediaType; });
 }
 
 int32_t Interaction::ForwardEvent(uint32_t contextId, uint32_t agentId, SharingEvent &event, bool isSync)
@@ -325,141 +312,56 @@ int32_t Interaction::ForwardEvent(uint32_t contextId, uint32_t agentId, SharingE
 
 int32_t Interaction::Play(uint32_t contextId, uint32_t agentId)
 {
-    SHARING_LOGI("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
-    auto agentMsg = std::make_shared<AgentEventMsg>();
-    agentMsg->type = EventType::EVENT_AGENT_PLAY_START;
-    agentMsg->toMgr = ModuleType::MODULE_CONTEXT;
-    agentMsg->dstId = contextId;
-    agentMsg->agentId = agentId;
-    int32_t ret = NotifyEvent(agentMsg);
-    if (ret != -1) {
-        SHARING_LOGI("agent play success agentId: %{public}u.", agentId);
-    } else {
-        SHARING_LOGE("agent play failed, agentId: %{public}u.", agentId);
-    }
-
-    return ret;
+    return SendAgentEvent(contextId, agentId, EventType::EVENT_AGENT_PLAY_START);
 }
 
 int32_t Interaction::Close(uint32_t contextId, uint32_t agentId)
 {
-    SHARING_LOGI("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
-    auto agentMsg = std::make_shared<AgentEventMsg>();
-    agentMsg->type = EventType::EVENT_AGENT_PLAY_STOP;
-    agentMsg->toMgr = ModuleType::MODULE_CONTEXT;
-    agentMsg->dstId = contextId;
-    agentMsg->agentId = agentId;
-    int32_t ret = NotifyEvent(agentMsg);
-    if (ret != -1) {
-        SHARING_LOGI("agent close success agentId: %{public}u.", agentId);
-    } else {
-        SHARING_LOGE("agent close failed, agentId: %{public}u.", agentId);
-    }
-
-    return ret;
+    return SendAgentEvent(contextId, agentId, EventType::EVENT_AGENT_PLAY_STOP);
 }
 
 int32_t Interaction::SetVolume(uint32_t contextId, uint32_t agentId, float volume)
 {
-    SHARING_LOGD("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
-    auto agentMsg = std::make_shared<AgentEventMsg>();
-    agentMsg->type = EventType::EVENT_AGENT_CHANNEL_SETVOLUME;
-    agentMsg->toMgr = ModuleType::MODULE_CONTEXT;
-    agentMsg->dstId = contextId;
-    agentMsg->agentId = agentId;
-    agentMsg->volume = volume;
-    int32_t ret = NotifyEvent(agentMsg);
-    if (ret != -1) {
-        SHARING_LOGI("agent set volume success agentId: %{public}u.", agentId);
-    } else {
-        SHARING_LOGE("agent set volume failed, agentId: %{public}u.", agentId);
-    }
-
-    return 0;
+    return SendAgentEvent(contextId, agentId, EventType::EVENT_AGENT_CHANNEL_SETVOLUME,
+                          [volume](auto &msg) { msg->volume = volume; });
 }
 
 int32_t Interaction::SetKeyPlay(uint32_t contextId, uint32_t agentId, uint64_t surfaceId, bool keyFrame)
 {
-    SHARING_LOGD("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
-    auto agentMsg = std::make_shared<AgentEventMsg>();
-    agentMsg->type = EventType::EVENT_AGENT_CHANNEL_SETSCENETYPE;
-    agentMsg->toMgr = ModuleType::MODULE_CONTEXT;
-    agentMsg->dstId = contextId;
-    agentMsg->agentId = agentId;
-    agentMsg->surfaceId = surfaceId;
-    agentMsg->sceneType = keyFrame ? SceneType::BACKGROUND : SceneType::FOREGROUND;
-
-    int32_t ret = NotifyEvent(agentMsg);
-    if (ret != -1) {
-        SHARING_LOGI("agent set key play success agentId: %{public}u.", agentId);
-    } else {
-        SHARING_LOGE("agent set key play failed, agentId: %{public}u.", agentId);
-    }
-
-    return ret;
+    return SendAgentEvent(contextId, agentId, EventType::EVENT_AGENT_CHANNEL_SETSCENETYPE,
+                          [surfaceId, keyFrame](auto &msg) {
+                              msg->surfaceId = surfaceId;
+                              msg->sceneType = keyFrame ? SceneType::BACKGROUND : SceneType::FOREGROUND;
+                          });
 }
 
 int32_t Interaction::SetKeyRedirect(uint32_t contextId, uint32_t agentId, uint64_t surfaceId, bool keyRedirect)
 {
-    SHARING_LOGD("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
-    auto agentMsg = std::make_shared<AgentEventMsg>();
-    agentMsg->type = EventType::EVENT_AGENT_CHANNEL_SETKEYREDIRECT;
-    agentMsg->toMgr = ModuleType::MODULE_CONTEXT;
-    agentMsg->dstId = contextId;
-    agentMsg->agentId = agentId;
-    agentMsg->surfaceId = surfaceId;
-    agentMsg->keyRedirect = keyRedirect;
-
-    int32_t ret = NotifyEvent(agentMsg);
-    if (ret != -1) {
-        SHARING_LOGI("agent set key play success agentId: %{public}u.", agentId);
-    } else {
-        SHARING_LOGE("agent set key play failed, agentId: %{public}u.", agentId);
-    }
-
-    return ret;
+    return SendAgentEvent(contextId, agentId, EventType::EVENT_AGENT_CHANNEL_SETKEYREDIRECT,
+                          [surfaceId, keyRedirect](auto &msg) {
+                              msg->surfaceId = surfaceId;
+                              msg->keyRedirect = keyRedirect;
+                          });
 }
 
 int32_t Interaction::AppendSurface(uint32_t contextId, uint32_t agentId, sptr<Surface> surface, SceneType sceneType)
 {
-    SHARING_LOGD("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
     RETURN_INVALID_IF_NULL(surface);
-    auto agentMsg = std::make_shared<AgentEventMsg>();
-    agentMsg->type = EventType::EVENT_AGENT_CHANNEL_APPENDSURFACE;
-    agentMsg->toMgr = ModuleType::MODULE_CONTEXT;
-    agentMsg->dstId = contextId;
-    agentMsg->agentId = agentId;
-    agentMsg->surface = surface;
-    agentMsg->sceneType = sceneType;
-    agentMsg->requestId = GetRequestId();
-    int32_t ret = NotifyEvent(agentMsg);
-    if (ret != -1) {
-        SHARING_LOGI("agent set surface success agentId: %{public}u.", agentId);
-    } else {
-        SHARING_LOGE("agent set surface failed, agentId: %{public}u.", agentId);
-    }
-
-    return ret;
+    return SendAgentEvent(contextId, agentId, EventType::EVENT_AGENT_CHANNEL_APPENDSURFACE,
+                          [this, surface, sceneType](auto &msg) {
+                              msg->surface = surface;
+                              msg->sceneType = sceneType;
+                              msg->requestId = GetRequestId();
+                          });
 }
 
 int32_t Interaction::RemoveSurface(uint32_t contextId, uint32_t agentId, uint64_t surfaceId)
 {
-    SHARING_LOGD("contextId: %{public}u, agentId: %{public}u.", contextId, agentId);
-    auto agentMsg = std::make_shared<AgentEventMsg>();
-    agentMsg->type = EventType::EVENT_AGENT_CHANNEL_REMOVESURFACE;
-    agentMsg->toMgr = ModuleType::MODULE_CONTEXT;
-    agentMsg->dstId = contextId;
-    agentMsg->agentId = agentId;
-    agentMsg->surfaceId = surfaceId;
-    agentMsg->requestId = GetRequestId();
-    int32_t ret = NotifyEvent(agentMsg);
-    if (ret != -1) {
-        SHARING_LOGI("agent del surface success agentId: %{public}u.", agentId);
-    } else {
-        SHARING_LOGE("agent del surface failed, agentId: %{public}u.", agentId);
-    }
-
-    return ret;
+    return SendAgentEvent(contextId, agentId, EventType::EVENT_AGENT_CHANNEL_REMOVESURFACE,
+                          [surfaceId, this](auto &msg) {
+                              msg->surfaceId = surfaceId;
+                              msg->requestId = GetRequestId();
+                          });
 }
 
 int32_t Interaction::DestroyWindow(int32_t windowId)

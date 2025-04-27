@@ -211,6 +211,7 @@ std::shared_ptr<BaseNetworkSession> UdpServer::FindOrCreateSession(const struct 
         auto ret = memcpy_s(&socketInfo->udpClientAddr_, sizeof(struct sockaddr_in), &addr, sizeof(struct sockaddr_in));
         if (ret != EOK) {
             MEDIA_LOGE("mem copy data failed.");
+            SocketUtils::CloseSocket(peerFd);
             return nullptr;
         }
         socketInfo->SetSocketType(SOCKET_TYPE_UDP);
@@ -221,6 +222,7 @@ std::shared_ptr<BaseNetworkSession> UdpServer::FindOrCreateSession(const struct 
             auto ret = memcpy_s(peerAddr.get(), sizeof(struct sockaddr_in), &addr, sizeof(struct sockaddr_in));
             if (ret != EOK) {
                 MEDIA_LOGE("mem copy data failed.");
+                SocketUtils::CloseSocket(peerFd);
                 return nullptr;
             }
             addrToFdMap_.insert(make_pair(peerAddr, peerFd));
@@ -255,7 +257,7 @@ bool UdpServer::BindAndConnectClinetFd(int32_t fd, const struct sockaddr_in &add
     }
 
     SocketUtils::ConnectSocket(fd, true, inet_ntoa(addr.sin_addr), addr.sin_port, ret);
-    if (ret < 0) {
+    if (ret < 0 && (errno != EINPROGRESS)) {
         SHARING_LOGE("connectSocket error: %{public}s!", strerror(errno));
         SocketUtils::CloseSocket(fd);
         return false;

@@ -95,10 +95,15 @@ void RtpDecoderTs::StartDecoding()
     }
 
     auto buffer = (uint8_t *)av_malloc(FF_BUFFER_SIZE);
+    if (buffer == nullptr) {
+        SHARING_LOGE("av_malloc failed.");
+        return;
+    }
     avioContext_ =
         avio_alloc_context(buffer, FF_BUFFER_SIZE, 0, this, &RtpDecoderTs::StaticReadPacket, nullptr, nullptr);
     if (avioContext_ == nullptr) {
         SHARING_LOGE("avio_alloc_context failed.");
+        av_freep(&buffer);
         return;
     }
     avFormatContext_->pb = avioContext_;
@@ -120,6 +125,10 @@ void RtpDecoderTs::StartDecoding()
     }
 
     AVPacket *packet = av_packet_alloc();
+    if (packet == nullptr) {
+        av_freep(&buffer);
+        return;
+    }
     while (!exit_ && av_read_frame(avFormatContext_, packet) >= 0) {
         if (exit_) {
             SHARING_LOGI("ignore av read frame.");
@@ -128,6 +137,7 @@ void RtpDecoderTs::StartDecoding()
         if (packet->stream_index == videoStreamIndex_) {
             SplitH264((char *)packet->data, (size_t)packet->size, 0, [&](const char *buf, size_t len, size_t prefix) {
                 if (H264_TYPE(buf[prefix]) == H264Frame::NAL_AUD) {
+                    av_packet_free(&packet);
                     return;
                 }
                 auto outFrame = std::make_shared<H264Frame>((uint8_t *)buf, len, (uint32_t)packet->dts,

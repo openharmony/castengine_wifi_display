@@ -44,6 +44,7 @@ VideoPlayController::VideoPlayController(uint32_t mediaChannelId)
 VideoPlayController::~VideoPlayController()
 {
     SHARING_LOGD("delete video play controller, mediachannelId: %{public}u.", mediachannelId_);
+    Release();
 }
 
 bool VideoPlayController::Init(VideoTrack &videoTrack)
@@ -356,12 +357,11 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
     }
     
     SHARING_LOGD("buffer size is %{public}d.", decodedData->Size());
-    if (firstFrame_ == true) {
-        firstFrame_ = false;
-        SHARING_LOGD("first frame.");
-    }
-
     int32_t dataSize = renderWidth * renderHeight * 3 / 2;
+    if (dataSize > static_cast<int32_t>(decodedData->Size())) {
+        SHARING_LOGE("invalid data size");
+        return -1;
+    }
     auto ret = memcpy_s(bufferVirAddr, dataSize, decodedData->Peek(), dataSize);
     if (ret != EOK) {
         SHARING_LOGE("copy data failed !");
@@ -374,6 +374,11 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
         },
         .timestamp = 0,
     };
+
+    if (firstFrame_ == true) {
+        firstFrame_ = false;
+        SHARING_LOGD("first frame.");
+    }
 
     surface_->FlushBuffer(buffer, -1, flushConfig);
     SHARING_LOGD("Render End.");
