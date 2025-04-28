@@ -137,7 +137,6 @@ void RtpDecoderTs::StartDecoding()
         if (packet->stream_index == videoStreamIndex_) {
             SplitH264((char *)packet->data, (size_t)packet->size, 0, [&](const char *buf, size_t len, size_t prefix) {
                 if (H264_TYPE(buf[prefix]) == H264Frame::NAL_AUD) {
-                    av_packet_free(&packet);
                     return;
                 }
                 auto outFrame = std::make_shared<H264Frame>((uint8_t *)buf, len, (uint32_t)packet->dts,
