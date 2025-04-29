@@ -167,7 +167,7 @@ void AudioPlayController::AudioPlayThread()
         if (audioPlayer_) {
             MEDIA_LOGD("process audio mediaChannelId: %{public}u, size: %{public}d.", mediachannelId_,
                        outData->buff->Size());
-            audioPlayer_->ProcessAudioData(outData->buff);
+            audioPlayer_->ProcessAudioData(outData->buff, outData->pts);
         }
     }
 

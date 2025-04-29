@@ -226,24 +226,24 @@ void VideoPlayController::VideoPlayThread()
                 auto sps = bufferReceiver_->GetSPS();
                 if (sps != nullptr && sps->buff != nullptr) {
                     MEDIA_LOGD("get sps from dispatcher.");
-                    ProcessVideoData(sps->buff->Peek(), sps->buff->Size());
+                    ProcessVideoData(sps->buff->Peek(), sps->buff->Size(), outData->pts);
                 }
                 auto pps = bufferReceiver_->GetPPS();
                 if (pps != nullptr && pps->buff != nullptr) {
                     MEDIA_LOGD("get pps from dispatcher.");
-                    ProcessVideoData(pps->buff->Peek(), pps->buff->Size());
+                    ProcessVideoData(pps->buff->Peek(), pps->buff->Size(), outData->pts);
                 }
             }
             MEDIA_LOGD("process video data, size: %{public}d, keyFrame: %{public}d.", outData->buff->Size(),
                        outData->keyFrame);
-            ProcessVideoData(outData->buff->Peek(), outData->buff->Size());
+            ProcessVideoData(outData->buff->Peek(), outData->buff->Size(), outData->pts);
         }
     }
 
     SHARING_LOGD("play thread exit, mediachannelId: %{public}u tid: %{public}d.", mediachannelId_, gettid());
 }
 
-void VideoPlayController::ProcessVideoData(const char *data, int32_t size)
+void VideoPlayController::ProcessVideoData(const char *data, int32_t size, uint64_t pts)
 {
     MEDIA_LOGD("trace.");
     if (data == nullptr || size <= 0) {
@@ -273,7 +273,7 @@ void VideoPlayController::ProcessVideoData(const char *data, int32_t size)
         return;
     }
 
-    bool ret = videoSinkDecoder_->DecodeVideoData(data, size);
+    bool ret = videoSinkDecoder_->DecodeVideoData(data, size, pts);
     if (ret == false) {
         SHARING_LOGE("sink decode data failed.");
     }

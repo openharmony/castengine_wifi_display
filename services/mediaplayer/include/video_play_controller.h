@@ -77,7 +77,7 @@ private:
     void StopVideoThread();
     void VideoPlayThread();
     void StartVideoThread();
-    void ProcessVideoData(const char *data, int32_t size);
+    void ProcessVideoData(const char *data, int32_t size, uint64_t pts);
     int32_t RenderInCopyMode(const DataBuffer::Ptr decodedData);
 
 private:

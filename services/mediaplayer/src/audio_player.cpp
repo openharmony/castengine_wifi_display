@@ -106,7 +106,7 @@ void AudioPlayer::Release()
     }
 }
 
-void AudioPlayer::ProcessAudioData(DataBuffer::Ptr data)
+void AudioPlayer::ProcessAudioData(DataBuffer::Ptr data, uint64_t pts)
 {
     MEDIA_LOGD("trace.");
     if (!isRunning_) {
@@ -120,6 +120,7 @@ void AudioPlayer::ProcessAudioData(DataBuffer::Ptr data)
     auto frame = FrameImpl::Create();
     frame->codecId_ = audioCodecId_;
     frame->Assign(data->Peek(), data->Size());
+    frame->pts_ = pts;
     audioDecoder_->OnFrame(frame);
 }
 
