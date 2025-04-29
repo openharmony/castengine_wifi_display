@@ -50,7 +50,7 @@ public:
     void Stop();
     void Release();
     void SetVolume(float volume);
-    void ProcessAudioData(DataBuffer::Ptr data);
+    void ProcessAudioData(DataBuffer::Ptr data, uint64_t pts);
     bool Start();
     bool Init(const AudioTrack &audioTrack);
 

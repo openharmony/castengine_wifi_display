@@ -206,7 +206,7 @@ bool VideoSinkDecoder::StopDecoder()
     return true;
 }
 
-bool VideoSinkDecoder::DecodeVideoData(const char *data, int32_t size)
+bool VideoSinkDecoder::DecodeVideoData(const char *data, int32_t size, uint64_t pts)
 {
     MEDIA_LOGD("decode data controlId: %{public}u.", controlId_);
     RETURN_FALSE_IF_NULL(videoDecoder_);

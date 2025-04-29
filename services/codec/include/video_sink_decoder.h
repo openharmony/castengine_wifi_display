@@ -47,7 +47,7 @@ public:
     void Stop();
     void Release();
     bool Init(CodecId videoCodecId = CODEC_H264);
-    bool DecodeVideoData(const char *data, int32_t size);
+    bool DecodeVideoData(const char *data, int32_t size, uint64_t pts);
 
     bool SetSurface(sptr<OHOS::Surface> surface);
     bool SetDecoderFormat(const VideoTrack &track);
