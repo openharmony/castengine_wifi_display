@@ -128,11 +128,11 @@ SocketInfo::Ptr UdpClient::GetSocketInfo()
 void UdpClient::OnClientReadable(int32_t fd)
 {
     MEDIA_LOGI("fd: %{public}d, thread_id: %{public}llu.", fd, GetThreadId());
-    int32_t retCode = 0;
+    ssize_t retCode = 0;
     do {
         DataBuffer::Ptr buf = std::make_shared<DataBuffer>(DEFAULT_READ_BUFFER_SIZE);
         retCode = read(fd, buf->Data(), DEFAULT_READ_BUFFER_SIZE);
-        MEDIA_LOGD("recvSocket len: %{public}d.", retCode);
+        MEDIA_LOGD("recvSocket len: %{public}d.", static_cast<int32_t>(retCode));
         if (retCode > 0) {
             buf->UpdateSize(retCode);
             auto callback = callback_.lock();

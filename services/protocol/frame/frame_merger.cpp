@@ -34,9 +34,6 @@ void FrameMerger::SetType(int32_t type)
 
 bool FrameMerger::InputFrame(const Frame::Ptr &frame, DataBuffer::Ptr &buffer, const onOutput &cb)
 {
-    if (buffer == nullptr) {
-        return false;
-    }
     RETURN_FALSE_IF_NULL(buffer);
 
     if (WillFlush(frame)) {

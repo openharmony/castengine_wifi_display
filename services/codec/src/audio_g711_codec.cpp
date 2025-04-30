@@ -44,7 +44,9 @@ void AudioG711Encoder::OnFrame(const Frame::Ptr &frame)
         outBuffer_.resize(outLength);
     }
 
-    Encode((int16_t *)payload, outLength, outBuffer_.data());
+    if (Encode((int16_t *)payload, outLength, outBuffer_.data()) == -1) {
+        return;
+    }
 
     auto g711Frame = FrameImpl::Create();
     RETURN_IF_NULL(g711Frame);

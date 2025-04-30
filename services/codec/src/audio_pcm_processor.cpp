@@ -84,6 +84,9 @@ void AudioPcmProcessor::OnFrame(const Frame::Ptr &frame)
     while (av_audio_fifo_size(fifo_) >= payloadSampleNum) {
         av_audio_fifo_read(fifo_, reinterpret_cast<void **>(payloadData), payloadSampleNum);
         auto pcmFrame = FrameImpl::Create();
+        if (pcmFrame == nullptr) {
+            continue;
+        }
         pcmFrame->pts_ = duration;
         pcmFrame->codecId_ = CODEC_PCM;
         pcmFrame->SetCapacity(LPCM_PES_PAYLOAD_PRIVATE_SIZE + LPCM_PES_PAYLOAD_DATA_SIZE);

@@ -301,6 +301,9 @@ std::shared_ptr<RtcpFB> RtcpFB::CreateInner(RtcpType type, int32_t fmt, const vo
         return nullptr;
     }
     auto ptr = (RtcpFB *)new char[bytes];
+    if (ptr == nullptr) {
+        return nullptr;
+    }
     if (fci && fciLen) {
         auto ret = memcpy_s((char *)ptr + sizeof(RtcpFB), fciLen, fci, fciLen);
         if (ret != EOK) {
