@@ -103,7 +103,7 @@ bool VideoPlayController::SetSurface(sptr<Surface> surface, bool keyFrame)
             return true;
         } else {
             SHARING_LOGD("set surface failed.");
-            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::RECEIVE_DATA,
+            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::SEND_M7_MSG,
                 SinkErrorCode::WIFI_DISPLAY_ADD_SURFACE_ERROR);
             return false;
         }

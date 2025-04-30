@@ -356,7 +356,7 @@ bool WfdRtpConsumer::StartNetworkServer(uint16_t port, NetworkFactory::ServerPtr
 
     if (!NetworkFactory::CreateUdpServer(port, localIp_, shared_from_this(), server)) {
         server.reset();
-        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "dsoftbus", SinkStage::SESSION_NEGOTIATION,
+        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "dsoftbus", SinkStage::SEND_M7_MSG,
                                                         SinkErrorCode::WIFI_DISPLAY_UDP_FAILED);
         return false;
     }

@@ -760,7 +760,7 @@ int32_t WfdSinkScene::HandleAppendSurface(std::shared_ptr<WfdAppendSurfaceReq> &
             lock.unlock();
             SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonymousMAC(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleAppendSurface can't find the dev");
-            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::RECEIVE_DATA,
+            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::SESSION_NEGOTIATION,
                                                         SinkErrorCode::WIFI_DISPLAY_BAD_PARAMETER);
             return -1;
         }
@@ -776,7 +776,7 @@ int32_t WfdSinkScene::HandleAppendSurface(std::shared_ptr<WfdAppendSurfaceReq> &
             lock.unlock();
             SHARING_LOGE("surface is too much.");
             OnInnerError(0, 0, SharingErrorCode::ERR_SERVICE_LIMIT, "HandleAppendSurface surface is too much");
-            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::RECEIVE_DATA,
+            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::SESSION_NEGOTIATION,
                                                         SinkErrorCode::WIFI_DISPLAY_ADD_SURFACE_ERROR);
             return -1;
         }
@@ -794,7 +794,7 @@ int32_t WfdSinkScene::HandleAppendSurface(std::shared_ptr<WfdAppendSurfaceReq> &
             SHARING_LOGW("this surface is using, surfaceId: %{public}" PRIx64 ".", surfaceId);
             lock.unlock();
             OnInnerError(0, 0, SharingErrorCode::ERR_STATE_EXCEPTION, "HandleAppendSurface this surface is using");
-            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::RECEIVE_DATA,
+            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::SESSION_NEGOTIATION,
                                                         SinkErrorCode::WIFI_DISPLAY_ADD_SURFACE_ERROR);
             return ERR_STATE_EXCEPTION;
         }
@@ -858,7 +858,7 @@ int32_t WfdSinkScene::HandleRemoveSurface(std::shared_ptr<WfdRemoveSurfaceReq> &
             lock.unlock();
             SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonymousMAC(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleRemoveSurface can't find the dev");
-            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::RECEIVE_DATA,
+            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::SESSION_NEGOTIATION,
                                                         SinkErrorCode::WIFI_DISPLAY_BAD_PARAMETER);
             return -1;
         }
@@ -891,7 +891,7 @@ int32_t WfdSinkScene::HandleSetMediaFormat(std::shared_ptr<SetMediaFormatReq> &m
             lock.unlock();
             SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonymousMAC(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleSetMediaFormat can not find dev");
-            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::RECEIVE_DATA,
+            WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::SESSION_NEGOTIATION,
                                                         SinkErrorCode::WIFI_DISPLAY_BAD_PARAMETER);
             return -1;
         }
@@ -1342,8 +1342,6 @@ void WfdSinkScene::FillAndReportDeviceInfo(const ConnectionInfo &connectionInfo)
     devInfo.peerIp = connectionInfo.ip.c_str();
     devInfo.peerNetId = std::to_string(netWorkId);
     devInfo.peerWifiMac = connectionInfo.mac.c_str();
-     SHARING_LOGI("devInfo.localIp:%{public}s, devInfo.localWifiMac:%{public}s, devInfo.localDevName:%{public}s, devInfo.localNetId:%{public}s, devInfo.peerDevName:%{public}s,devInfo.peerIp:%{public}s,devInfo.peerNetId:%{public}s, devInfo.peerWifiMac:%{public}s",
-                         devInfo.localIp.c_str(), devInfo.localWifiMac.c_str(), devInfo.localDevName.c_str(), devInfo.localNetId.c_str(), devInfo.peerDevName.c_str(), devInfo.peerIp.c_str(), devInfo.peerNetId.c_str(), devInfo.peerWifiMac.c_str());
 
     WfdSinkHiSysEvent::GetInstance().SetHiSysEventDevInfo(devInfo);
 }

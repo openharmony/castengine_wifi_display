@@ -593,11 +593,10 @@ void WfdSinkSession::HandleM7Response(const RtspResponse &response, const std::s
     keepAliveTimer_ = std::make_unique<TimeoutTimer>();
     keepAliveTimer_->SetTimeoutCallback([this]() {
         NotifyServiceError(ERR_NETWORK_ERROR);
-        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::RTP_DEMUX,
+        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::SEND_M7_MSG,
                                                     SinkErrorCode::WIFI_DISPLAY_RTSP_KEEPALIVE_TIMEOUT);
     });
     keepAliveTimer_->StartTimer(keepAliveTimeout_, "Waiting for WFD source M16/GET_PARAMETER KeepAlive request");
-    WfdSinkHiSysEvent::GetInstance().Report(__func__, "", SinkStage::SEND_M7_MSG, SinkStageRes::SUCCESS);
 }
 
 void WfdSinkSession::HandleM8Response(const RtspResponse &response, const std::string &message)
@@ -914,6 +913,7 @@ bool WfdSinkSession::SendM7Request()
         NotifyServiceError();
         return false;
     }
+    WfdSinkHiSysEvent::GetInstance().Report(__func__, "", SinkStage::SEND_M7_MSG, SinkStageRes::SUCCESS);
 
     return ret;
 }
