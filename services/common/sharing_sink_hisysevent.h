@@ -101,11 +101,8 @@ public:
     WfdSinkHiSysEvent(const WfdSinkHiSysEvent&) = delete;
     WfdSinkHiSysEvent& operator=(const WfdSinkHiSysEvent&) = delete;
 
-    static WfdSinkHiSysEvent& GetInstance()
-    {
-        static WfdSinkHiSysEvent instance;
-        return instance;
-    }
+    static WfdSinkHiSysEvent &GetInstance();
+
     struct SinkHisyseventDevInfo {
         std::string localNetId = "";
         std::string localWifiMac = "";
@@ -149,6 +146,8 @@ public:
     
     //更换场景
     void ChangeHisysEventScene(SinkBizScene scene);
+
+    int32_t GetCurrentScene();
 
 private:
     WfdSinkHiSysEvent() = default;

@@ -27,6 +27,12 @@ static constexpr char SHARING_SINK_ORG_PKG[] = "wifi_display_sink";
 static constexpr char SHARING_SINK_HOST_PKG[] = "cast_engine_service";
 static constexpr char SHARING_SINK_LOCAL_DEV_TYPE[] = "09C";
 
+WfdSinkHiSysEvent& WfdSinkHiSysEvent::GetInstance()
+{
+    static WfdSinkHiSysEvent instance;
+    return instance;
+}
+
 void WfdSinkHiSysEvent::SetHiSysEventDevInfo(WfdSinkHiSysEvent::SinkHisyseventDevInfo devInfo)
 {
     devInfo_.localDevName = GetAnonyDevName(devInfo.localDevName).c_str();
@@ -288,6 +294,11 @@ void WfdSinkHiSysEvent::P2PReportError(const std::string &funcName, SinkErrorCod
                     "PEER_WIFI_MAC", devInfo_.peerWifiMac.c_str(),
                     "PEER_IP", devInfo_.peerIp.c_str(),
                     "PEER_DEV_NAME", devInfo_.peerDevName.c_str());
+}
+
+int32_t WfdSinkHiSysEvent::GetCurrentScene()
+{
+    return sinkBizScene_;
 }
 
 }  // namespace Sharing
