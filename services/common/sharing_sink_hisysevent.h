@@ -15,8 +15,9 @@
 #ifndef WFD_SINK_HISYS_EVENT_H
 #define WFD_SINK_HISYS_EVENT_H
 
+#include <map>
+#include <mutex>
 #include <string>
-
 
 namespace OHOS {
 namespace Sharing {
@@ -95,6 +96,11 @@ enum class SinkErrorCode : int32_t {
     WIFI_DISPLAY_CONSUMER_ERROR
 };
 
+enum class MediaReportType : int32_t {
+    VIDEO,
+    AUDIO
+};
+
 class WfdSinkHiSysEvent {
 public:
 
@@ -149,6 +155,18 @@ public:
 
     int32_t GetCurrentScene();
 
+    void RecordMediaDecodeStartTime(MediaReportType type, uint64_t pts);
+
+    void MediaDecodeTimProc(MediaReportType type, uint64_t pts);
+
+    void Reset();
+
+private:
+    uint64_t GetCurTimeInUs();
+    void ReportDecodeError(MediaReportType type);
+    void RecordDecordStartTime(uint64_t pts, std::map<uint64_t, uint64_t>& decodeMap);
+    void ReportDecodeTime(uint64_t pts, std::map<uint64_t, uint64_t>& decodeMap, MediaReportType type);
+
 private:
     WfdSinkHiSysEvent() = default;
     ~ WfdSinkHiSysEvent() = default;
@@ -157,6 +175,14 @@ private:
     int32_t sinkBizScene_ = 0;
     bool hiSysEventStart_ = true;
     int32_t startTime_ = 0;
+
+    uint32_t audioFreezeCount_ = 0;
+    uint32_t videoFreezeCount_ = 0;
+    int64_t lastFreezeReportTime_ = 0;
+    bool isFreezeReportInTenMinute = false;
+    std::map<uint64_t, uint64_t> audioDecoderTime_{};
+    std::map<uint64_t, uint64_t> videoDecoderTime_{};
+    std::mutex decodeMutex_{};
 };
 
 }  // namespace Sharing

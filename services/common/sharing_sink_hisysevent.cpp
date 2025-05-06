@@ -26,6 +26,10 @@ static constexpr char SHARING_SINK_EVENT_NAME[] = "MIRACAST_SINK_BEHAVIOR";
 static constexpr char SHARING_SINK_ORG_PKG[] = "wifi_display_sink";
 static constexpr char SHARING_SINK_HOST_PKG[] = "cast_engine_service";
 static constexpr char SHARING_SINK_LOCAL_DEV_TYPE[] = "09C";
+static constexpr uint8_t DECODE_TIME_MAP_CAPACITY = 60;
+static constexpr int32_t DECODE_TIME_OUT = 300 * 1000; // 300ms
+static constexpr uint8_t FREEZE_COUNT = 5;
+static constexpr int32_t REPORT_INTERVAL_MS = 10 * 60 * 1000; // 10min
 
 WfdSinkHiSysEvent& WfdSinkHiSysEvent::GetInstance()
 {
@@ -60,6 +64,7 @@ void WfdSinkHiSysEvent::StartReport(const std::string &funcName, const std::stri
 {
     if (sinkBizScene_ == static_cast<int32_t>(SinkBizScene::ESTABLISH_MIRRORING)) {
         hiSysEventStart_ = true;
+        Reset();
     }
     if (hiSysEventStart_ == false) {
         SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
@@ -262,16 +267,18 @@ void WfdSinkHiSysEvent::ReportError(const std::string &funcName, const std::stri
     switch (static_cast<SinkBizScene>(sinkBizScene_)) {
         case SinkBizScene::ESTABLISH_MIRRORING:
             ReportEstablishMirroringError(funcName, toCallpkg, sinkStage, errorCode, duration);
+            hiSysEventStart_ = false;
             break;
         case SinkBizScene::MIRRORING_STABILITY:
             ReportStabilityError(funcName, toCallpkg, sinkStage, errorCode);
             break;
         case SinkBizScene::DISCONNECT_MIRRORING:
             ReportDisconnectError(funcName, toCallpkg, sinkStage, errorCode, duration);
+            hiSysEventStart_ = false;
+            break;
+        default:
             break;
     }
-
-    hiSysEventStart_ = false;
 }
 
 void WfdSinkHiSysEvent::P2PReportError(const std::string &funcName, SinkErrorCode errorCode)
@@ -301,5 +308,113 @@ int32_t WfdSinkHiSysEvent::GetCurrentScene()
     return sinkBizScene_;
 }
 
-}  // namespace Sharing
-}  // namespace OHOS
+void WfdSinkHiSysEvent::ReportDecodeError(MediaReportType type)
+{
+    if (hiSysEventStart_ == false) {
+        return;
+    }
+
+    std::chrono::system_clock::time_point nowTimePoint = std::chrono::system_clock::now();
+    int64_t nowTime = std::chrono::duration_cast<std::chrono::milliseconds>(nowTimePoint.time_since_epoch()).count();
+    if (lastFreezeReportTime_ == 0 || nowTime < lastFreezeReportTime_) {
+        lastFreezeReportTime_ = nowTime;
+    }
+
+    if ((nowTime - lastFreezeReportTime_) >= REPORT_INTERVAL_MS) {
+        Reset();
+    }
+
+    if (isFreezeReportInTenMinute) {
+        return;
+    }
+
+    if (type == MediaReportType::AUDIO) {
+        audioFreezeCount_++;
+    }
+    if (type == MediaReportType::VIDEO) {
+        videoFreezeCount_++;
+    }
+    if (audioFreezeCount_ >= FREEZE_COUNT) {
+        ReportStabilityError(__func__, "", SinkStage::AUDIO_DECODE, SinkErrorCode::WIFI_DISPLAY_AUDIO_DECODE_TIMEOUT);
+        lastFreezeReportTime_ = nowTime;
+        isFreezeReportInTenMinute = true;
+        SHARING_LOGE("ReportStabilityError audioFreeze");
+    }
+    if (videoFreezeCount_ >= FREEZE_COUNT) {
+        ReportStabilityError(__func__, "", SinkStage::VIDEO_DECODE, SinkErrorCode::WIFI_DISPLAY_VIDEO_DECODE_TIMEOUT);
+        lastFreezeReportTime_ = nowTime;
+        isFreezeReportInTenMinute = true;
+        SHARING_LOGE("ReportStabilityError videoFreeze");
+    }
+}
+
+void WfdSinkHiSysEvent::RecordMediaDecodeStartTime(MediaReportType type, uint64_t pts)
+{
+    std::unique_lock<std::mutex> decodeLock(decodeMutex_);
+    if (type == MediaReportType::AUDIO) {
+        RecordDecordStartTime(pts, audioDecoderTime_);
+    } else if (type == MediaReportType::VIDEO) {
+        RecordDecordStartTime(pts, videoDecoderTime_);
+    } else {
+        SHARING_LOGD("not process");
+    }
+}
+
+void WfdSinkHiSysEvent::MediaDecodeTimProc(MediaReportType type, uint64_t pts)
+{
+    std::unique_lock<std::mutex> decodeLock(decodeMutex_);
+    if (type == MediaReportType::AUDIO) {
+        ReportDecodeTime(pts, audioDecoderTime_, type);
+    } else if (type == MediaReportType::VIDEO) {
+        ReportDecodeTime(pts, videoDecoderTime_, type);
+    } else {
+        SHARING_LOGD("not process");
+    }
+}
+
+void WfdSinkHiSysEvent::Reset()
+{
+    isFreezeReportInTenMinute = false;
+    lastFreezeReportTime_ = 0;
+    videoDecoderTime_.clear();
+    audioDecoderTime_.clear();
+    videoFreezeCount_ = 0;
+    audioFreezeCount_ = 0;
+}
+
+uint64_t WfdSinkHiSysEvent::GetCurTimeInUs()
+{
+    return std::chrono::time_point_cast<std::chrono::microseconds>(std::chrono::system_clock::now())
+        .time_since_epoch()
+        .count();
+}
+
+void WfdSinkHiSysEvent::RecordDecordStartTime(uint64_t pts, std::map<uint64_t, uint64_t> &decodeMap)
+{
+    if (decodeMap.size() >= DECODE_TIME_MAP_CAPACITY) {
+        decodeMap.clear();
+    }
+    decodeMap[pts] = GetCurTimeInUs();
+}
+
+void WfdSinkHiSysEvent::ReportDecodeTime(uint64_t pts, std::map<uint64_t, uint64_t> &decodeMap, MediaReportType type)
+{
+    uint64_t decodeEndTime = GetCurTimeInUs();
+    auto decodeStartTime = decodeMap.find(pts);
+    if (decodeStartTime == decodeMap.end()) {
+        return;
+    }
+    if (decodeEndTime >= decodeStartTime->second) {
+        auto interval = decodeEndTime - decodeStartTime->second;
+        if (interval > DECODE_TIME_OUT) {
+            SHARING_LOGE("decode time out type %{public}d, time %{public}llu", type, interval);
+            decodeMap.erase(decodeStartTime);
+            ReportDecodeError(type);
+            return;
+        }
+    }
+    decodeMap.erase(decodeStartTime);
+}
+
+} // namespace Sharing
+} // namespace OHOS
