@@ -29,6 +29,14 @@ ohos_static_library("sharing_common") {
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/services/common",
   ]
+  cflags = [
+    "-fvisibility=default",
+    "-fvisibility-inlines-hidden",
+  ]
+
+  ldflags = [
+    "-Wl,--exclude-libs=ALL",
+  ]
 
   sources = [
     "common.cpp",

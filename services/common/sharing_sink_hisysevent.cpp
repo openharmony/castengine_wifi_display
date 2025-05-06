@@ -58,9 +58,6 @@ void WfdSinkHiSysEvent::ChangeHisysEventScene(SinkBizScene scene)
 void WfdSinkHiSysEvent::StartReport(const std::string &funcName, const std::string &toCallpkg,
                                     SinkStage sinkStage, SinkStageRes sinkStageRes)
 {
-    if (sinkBizScene_ == static_cast<int32_t>(SinkBizScene::ESTABLISH_MIRRORING)) {
-        hiSysEventStart_ = true;
-    }
     if (hiSysEventStart_ == false) {
         SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
         return;
@@ -276,6 +273,10 @@ void WfdSinkHiSysEvent::ReportError(const std::string &funcName, const std::stri
 
 void WfdSinkHiSysEvent::P2PReportError(const std::string &funcName, SinkErrorCode errorCode)
 {
+    if (hiSysEventStart_ == false) {
+        SHARING_LOGE("func:%{public}s, scece is Invalid", funcName.c_str());
+        return;
+    }
     HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME, HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
                     "FUNC_NAME", funcName.c_str(),
                     "BIZ_SCENE", static_cast<int32_t>(SinkBizScene::ESTABLISH_MIRRORING),
@@ -294,6 +295,7 @@ void WfdSinkHiSysEvent::P2PReportError(const std::string &funcName, SinkErrorCod
                     "PEER_WIFI_MAC", devInfo_.peerWifiMac.c_str(),
                     "PEER_IP", devInfo_.peerIp.c_str(),
                     "PEER_DEV_NAME", devInfo_.peerDevName.c_str());
+    hiSysEventStart_ = false;
 }
 
 int32_t WfdSinkHiSysEvent::GetCurrentScene()

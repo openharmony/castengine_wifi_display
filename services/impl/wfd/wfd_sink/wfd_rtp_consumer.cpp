@@ -310,6 +310,8 @@ void WfdRtpConsumer::OnRtpUnpackCallback(uint32_t ssrc, const Frame::Ptr &frame)
                         WfdSinkHiSysEvent::GetInstance().FirstSceneEndReport(__func__, "",
                             SinkStage::FIRST_FRAME_PROCESSED, SinkStageRes::SUCCESS);
                         WfdSinkHiSysEvent::GetInstance().ChangeHisysEventScene(SinkBizScene::MIRRORING_STABILITY);
+                        SHARING_LOGI("Address in A: %{public}p", &WfdSinkHiSysEvent::GetInstance());
+                        SHARING_LOGI("WfdSinkHiSysEvent::GetInstance().GetCurrentScene(): %{public}d", WfdSinkHiSysEvent::GetInstance().GetCurrentScene());
                         isFirstKeyFrame_ = false;
                     } else {
                         auto end = std::chrono::steady_clock::now();
