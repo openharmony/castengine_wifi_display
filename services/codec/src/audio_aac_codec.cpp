@@ -199,6 +199,14 @@ AudioAACEncoder::~AudioAACEncoder()
     if (swrData_) {
         av_freep(&swrData_);
     }
+
+    if (outBuffer_) {
+        av_freep(&outBuffer_);
+    }
+
+    if (enc_) {
+        avcodec_free_context(&enc_);
+    }
 }
 
 int AudioAACEncoder::InitSwr()
@@ -378,6 +386,7 @@ void AddAdtsHeader(uint8_t *data, int dataSize)
 
 void AudioAACEncoder::DoSwr(const Frame::Ptr &frame)
 {
+    RETURN_IF_NULL(frame);
     int err = 0;
     int error = 0;
     int in_samples = frame->Size();
