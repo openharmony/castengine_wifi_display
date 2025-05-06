@@ -53,6 +53,8 @@ bool AudioAvCodecDecoder::InitDecoder()
         (MediaAVCodec::AVCodecCodecName::AUDIO_DECODER_AAC_NAME).data());
     if (audioDecoder_ == nullptr) {
         SHARING_LOGE("create audio decoder failed.");
+        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::AUDIO_DECODE,
+                                                     SinkErrorCode::WIFI_DISPLAY_AUDIO_DECODE_FAILED);
         return false;
     }
     SHARING_LOGI("init audio decoder success.");
@@ -85,6 +87,8 @@ bool AudioAvCodecDecoder::Start()
     auto ret = audioDecoder->Start();
     if (ret != MediaAVCodec::AVCS_ERR_OK) {
         SHARING_LOGE("start decoder failed");
+        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::AUDIO_DECODE,
+                                                     SinkErrorCode::WIFI_DISPLAY_AUDIO_DECODE_FAILED);
         return false;
     }
     isRunning_ = true;
@@ -155,6 +159,8 @@ bool AudioAvCodecDecoder::SetDecoderFormat(const AudioTrack &audioTrack)
     format.PutIntValue("audio_sample_format", static_cast<int32_t>(MediaAVCodec::AudioSampleFormat::SAMPLE_S16LE));
     int32_t ret = audioDecoder->Configure(format);
     if (ret != MediaAVCodec::AVCS_ERR_OK) {
+        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::AUDIO_DECODE,
+                                                     SinkErrorCode::WIFI_DISPLAY_AUDIO_DECODE_FAILED);
         SHARING_LOGE("Configure decoder format failed, Error code %{public}d.", ret);
         return false;
     }
@@ -182,7 +188,7 @@ void AudioAvCodecDecoder::OnFrame(const Frame::Ptr &frame)
         if (inBufferQueue_.empty()) {
             SHARING_LOGW("Index queue is empty.");
             WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::AUDIO_DECODE,
-                                                        SinkErrorCode::WIFI_DISPLAY_AUDIO_DECODE_TIMEOUT);
+                                                         SinkErrorCode::WIFI_DISPLAY_AUDIO_DECODE_TIMEOUT);
             return;
         }
         auto pair_data = inBufferQueue_.front();
@@ -211,6 +217,8 @@ void AudioAvCodecDecoder::OnFrame(const Frame::Ptr &frame)
     } else {
         bufferFlag = MediaAVCodec::AVCODEC_BUFFER_FLAG_CODEC_DATA;
     }
+
+    WfdSinkHiSysEvent::GetInstance().RecordMediaDecodeStartTime(MediaReportType::AUDIO, bufferInfo.presentationTimeUs);
     int32_t ret = audioDecoder->QueueInputBuffer(bufferIndex, bufferInfo, bufferFlag);
     if (ret != MediaAVCodec::AVCS_ERR_OK) {
         SHARING_LOGE("Queue input buffer fail. Error code %{public}d.", ret);
@@ -257,6 +265,8 @@ void AudioAvCodecDecoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::
                      buffer->GetSize());
         return;
     }
+    WfdSinkHiSysEvent::GetInstance().MediaDecodeTimProc(MediaReportType::AUDIO, info.presentationTimeUs);
+
     auto frameBuffer = FrameImpl::Create();
     frameBuffer->SetSize(static_cast<uint32_t>(info.size));
     frameBuffer->codecId_ = CODEC_AAC;

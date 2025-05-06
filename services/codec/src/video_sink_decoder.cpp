@@ -66,6 +66,8 @@ bool VideoSinkDecoder::InitDecoder()
 
     if (videoDecoder_ == nullptr) {
         SHARING_LOGE("create video decoder failed!");
+        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::VIDEO_DECODE,
+                                                     SinkErrorCode::WIFI_DISPLAY_VIDEO_DECODE_FAILED);
         return false;
     }
     SHARING_LOGD("init video decoder success.");
@@ -85,6 +87,8 @@ bool VideoSinkDecoder::SetDecoderFormat(const VideoTrack &track)
     auto ret = videoDecoder_->Configure(format);
     if (ret != MediaAVCodec::AVCS_ERR_OK) {
         SHARING_LOGE("configure decoder format param failed!");
+        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::VIDEO_DECODE,
+                                                     SinkErrorCode::WIFI_DISPLAY_VIDEO_DECODE_FAILED);
         return false;
     }
     SHARING_LOGD("configure video decoder format success.");
@@ -121,6 +125,8 @@ bool VideoSinkDecoder::Start()
         isRunning_ = true;
         return true;
     } else {
+        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::VIDEO_DECODE,
+                                                     SinkErrorCode::WIFI_DISPLAY_VIDEO_DECODE_FAILED);
         return false;
     }
 }
@@ -229,9 +235,10 @@ bool VideoSinkDecoder::DecodeVideoData(const char *data, int32_t size, uint64_t 
     }
 
     MediaAVCodec::AVCodecBufferInfo bufferInfo;
-    bufferInfo.presentationTimeUs = 0;
+    bufferInfo.presentationTimeUs = pts;
     bufferInfo.size = size;
     bufferInfo.offset = 0;
+    WfdSinkHiSysEvent::GetInstance().RecordMediaDecodeStartTime(MediaReportType::VIDEO, bufferInfo.presentationTimeUs);
 
     auto p = data;
     p = *(p + 2) == 0x01 ? p + 3 : p + 4; // 2: offset, 3: offset, 4: offset
@@ -264,7 +271,7 @@ void VideoSinkDecoder::OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t
         listener->OnError(errorCode);
     }
     WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::VIDEO_DECODE,
-                                                SinkErrorCode::WIFI_DISPLAY_VIDEO_DECODE_FAILED);
+                                                 SinkErrorCode::WIFI_DISPLAY_VIDEO_DECODE_FAILED);
 }
 
 void VideoSinkDecoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::AVCodecBufferInfo info,
@@ -275,6 +282,8 @@ void VideoSinkDecoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::AVC
         MEDIA_LOGW("decoder is null!");
         return;
     }
+    WfdSinkHiSysEvent::GetInstance().MediaDecodeTimProc(MediaReportType::VIDEO, info.presentationTimeUs);
+
     if (forceSWDecoder_) {
         MEDIA_LOGD("forceSWDecoder_ is true.");
     }
