@@ -755,8 +755,6 @@ void WfdSinkSession::SetM3ResponseParam(std::list<std::string> &params, WfdRtspM
             m3Response.SetCustomParam(WFD_PARAM_RTCP_CAPABILITY, wfdParamsInfo_.microsofRtcpCapability);
         } else if (param == WFD_PARAM_IDR_REQUEST_CAPABILITY) {
             m3Response.SetCustomParam(WFD_PARAM_IDR_REQUEST_CAPABILITY, wfdParamsInfo_.idrRequestCapablity);
-        } else {
-            SetM3HweParam(m3Response, param);
         }
     }
 }
