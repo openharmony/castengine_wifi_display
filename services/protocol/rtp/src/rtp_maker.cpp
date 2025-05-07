@@ -20,6 +20,7 @@
 
 namespace OHOS {
 namespace Sharing {
+constexpr size_t MAX_USHORT = 65535;
 RtpMaker::RtpMaker(uint32_t ssrc, size_t mtuSize, uint8_t payloadType, uint32_t sampleRate, uint16_t seq)
     : pt_(payloadType), seq_(seq), ssrc_(ssrc), sampleRate_(sampleRate), mtuSize_(mtuSize)
 {
@@ -46,10 +47,13 @@ RtpPacket::Ptr RtpMaker::MakeRtp(const void *data, size_t len, bool mark, uint32
         return nullptr;
     }
 
-    uint16_t size = (uint16_t)(len + RtpPacket::RTP_HEADER_SIZE);
+    size_t size = len + (size_t)RtpPacket::RTP_HEADER_SIZE;
+    if (size == 0 || size > MAX_USHORT) {
+        return nullptr;
+    }
     auto rtp = std::make_shared<RtpPacket>();
-    rtp->SetCapacity(size);
-    rtp->SetSize(size);
+    rtp->SetCapacity((int32_t)size);
+    rtp->SetSize((int32_t)size);
 
     auto header = rtp->GetHeader();
     header->version_ = RtpPacket::RTP_VERSION;
