@@ -62,6 +62,17 @@ private:
     bool Start();
     bool InitRtpUnpacker();
     bool StartNetworkServer(uint16_t port, NetworkFactory::ServerPtr &server, int32_t &fd);
+    void HandleVideoKeyFrame();
+    
+    // 定义一个模板函数来处理 SPS 和 PPS 的更新逻辑
+    template <typename Getter, typename Setter>
+    void HandleNaluUpdate(std::shared_ptr<BufferDispatcher> dispatcher,
+                          const char *buf,
+                          size_t len,
+                          Getter getFunc,
+                          Setter setFunc);
+    void HandleSpsUpdate(std::shared_ptr<BufferDispatcher> dispatcher, const char *buf, size_t len);
+    void HandlePpsUpdate(std::shared_ptr<BufferDispatcher> dispatcher, const char *buf, size_t len);
 
 private:
     bool isFirstPacket_ = true;
