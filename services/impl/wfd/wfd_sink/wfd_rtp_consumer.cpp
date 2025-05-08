@@ -216,6 +216,66 @@ void WfdRtpConsumer::OnRtpUnpackNotify(int32_t errCode)
     SHARING_LOGD("errCode: %{public}d.", errCode);
 }
 
+// 定义一个模板函数来处理 SPS 和 PPS 的更新逻辑
+template <typename Getter, typename Setter>
+void WfdRtpConsumer::HandleNaluUpdate(std::shared_ptr<BufferDispatcher> dispatcher,
+                                      const char *buf,
+                                      size_t len,
+                                      Getter getFunc,
+                                      Setter setFunc)
+{
+    bool needUpdate = true;
+    auto oldNalu = (dispatcher.get()->*getFunc)();
+    if (oldNalu && oldNalu->buff) {
+        bool isSame = (oldNalu->buff->Size() == len) && (memcmp(oldNalu->buff->Peek(), buf, len) == 0);
+        SHARING_LOGD("compare result: %{pubilc}s", isSame? "same" : "different");
+        needUpdate =!isSame;
+    }
+
+    if (needUpdate) {
+        auto newNalu = std::make_shared<MediaData>();
+        newNalu->buff = std::make_shared<DataBuffer>();
+        newNalu->mediaType = MEDIA_TYPE_VIDEO;
+        newNalu->buff->Assign((char *)buf, len);
+        (dispatcher.get()->*setFunc)(newNalu);
+        SHARING_LOGI("updated with new parameters");
+    }
+}
+
+void WfdRtpConsumer::HandleSpsUpdate(std::shared_ptr<BufferDispatcher> dispatcher, const char *buf, size_t len)
+{
+    SHARING_LOGD("trace.");
+    HandleNaluUpdate(dispatcher, buf, len, &BufferDispatcher::GetSPS, &BufferDispatcher::SetSpsNalu);
+}
+
+void WfdRtpConsumer::HandlePpsUpdate(std::shared_ptr<BufferDispatcher> dispatcher, const char *buf, size_t len)
+{
+    SHARING_LOGD("trace.");
+    HandleNaluUpdate(dispatcher, buf, len, &BufferDispatcher::GetPPS, &BufferDispatcher::SetPpsNalu);
+}
+
+void WfdRtpConsumer::HandleVideoKeyFrame()
+{
+    if (isFirstKeyFrame_) {
+        MEDIA_LOGD("TEST STATISTICS Miracast:first, agent ID:%{public}d, get video frame.", GetSinkAgentId());
+        WfdSinkHiSysEvent::GetInstance().FirstSceneEndReport(__func__, "",
+            SinkStage::FIRST_FRAME_PROCESSED, SinkStageRes::SUCCESS);
+        WfdSinkHiSysEvent::GetInstance().ChangeHisysEventScene(SinkBizScene::MIRRORING_STABILITY);
+        isFirstKeyFrame_ = false;
+    } else {
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double, std::milli> diff = end - gopInterval_;
+        MEDIA_LOGD("TEST STATISTIC Miracast:interval:%{public}.0f ms, "
+            "agent ID:%{public}d, get video frame, gop:%{public}d, "
+            "average receiving frames time:%{public}.0f ms.",
+            diff.count(), GetSinkAgentId(), frameNums_, diff.count() / frameNums_);
+    }
+
+    frameNums_ = 1;
+    gopInterval_ = std::chrono::steady_clock::now();
+}
+
+
 void WfdRtpConsumer::OnRtpUnpackCallback(uint32_t ssrc, const Frame::Ptr &frame)
 {
     MEDIA_LOGD("trace.");
@@ -267,35 +327,15 @@ void WfdRtpConsumer::OnRtpUnpackCallback(uint32_t ssrc, const Frame::Ptr &frame)
                 }
 
                 if ((*(buf + prefix) & 0x1f) == 0x07) {
-                    auto spsOld = dispatcher->GetSPS();
-                    if (spsOld != nullptr && spsOld->buff != nullptr) {
-                        return;
-                    }
-
-                    // set sps into buffer dispathcer
-                    auto sps = std::make_shared<MediaData>();
-                    sps->buff = std::make_shared<DataBuffer>();
-                    sps->mediaType = MEDIA_TYPE_VIDEO;
-                    sps->buff->Assign((char *)buf, len);
-
-                    dispatcher->SetSpsNalu(sps);
+                    HandleSpsUpdate(dispatcher, buf, len);
                     return;
                 }
+
                 if ((*(buf + prefix) & 0x1f) == 0x08) {
-                    auto ppsOld = dispatcher->GetPPS();
-                    if (ppsOld != nullptr && ppsOld->buff != nullptr) {
-                        return;
-                    }
-
-                    // set pps into buffer dispather
-                    auto pps = std::make_shared<MediaData>();
-                    pps->buff = std::make_shared<DataBuffer>();
-                    pps->mediaType = MEDIA_TYPE_VIDEO;
-                    pps->buff->Assign((char *)buf, len);
-
-                    dispatcher->SetPpsNalu(pps);
+                    HandlePpsUpdate(dispatcher, buf, len);
                     return;
                 }
+                
                 auto mediaData = std::make_shared<MediaData>();
                 mediaData->buff = std::make_shared<DataBuffer>();
                 mediaData->mediaType = MEDIA_TYPE_VIDEO;
@@ -304,24 +344,7 @@ void WfdRtpConsumer::OnRtpUnpackCallback(uint32_t ssrc, const Frame::Ptr &frame)
                 mediaData->keyFrame = (*(buf + prefix) & 0x1f) == 0x05 ? true : false;
 
                 if (mediaData->keyFrame) {
-                    if (isFirstKeyFrame_) {
-                        MEDIA_LOGD("TEST STATISTICS Miracast:first, agent ID:%{public}d, get video frame.",
-                                   GetSinkAgentId());
-                        WfdSinkHiSysEvent::GetInstance().FirstSceneEndReport(__func__, "",
-                            SinkStage::FIRST_FRAME_PROCESSED, SinkStageRes::SUCCESS);
-                        WfdSinkHiSysEvent::GetInstance().ChangeHisysEventScene(SinkBizScene::MIRRORING_STABILITY);
-                        isFirstKeyFrame_ = false;
-                    } else {
-                        auto end = std::chrono::steady_clock::now();
-                        std::chrono::duration<double, std::milli> diff = end - gopInterval_;
-                        MEDIA_LOGD("TEST STATISTIC Miracast:interval:%{public}.0f ms, "
-                            "agent ID:%{public}d, get video frame, gop:%{public}d, "
-                            "average receiving frames time:%{public}.0f ms.",
-                            diff.count(), GetSinkAgentId(), frameNums_, diff.count() / frameNums_);
-                    }
-
-                    frameNums_ = 1;
-                    gopInterval_ = std::chrono::steady_clock::now();
+                    HandleVideoKeyFrame();
                 }
 
                 mediaData->buff->ReplaceData((char *)buf, len);

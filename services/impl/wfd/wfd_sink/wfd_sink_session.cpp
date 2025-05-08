@@ -447,6 +447,8 @@ void WfdSinkSession::HandleRequest(const RtspRequest &request, const std::string
         // this is M1 request
         SHARING_LOGD("Handle M1 request.");
         timeoutTimer_->StopTimer();
+        isFirstCast = true;
+        isFirstCreateProsumer_ = true;
         SendM1Response(incomingCSeq);
         SendM2Request();
         return;
@@ -506,7 +508,8 @@ void WfdSinkSession::HandleSetParamRequest(const RtspRequest &request, const std
     }
 
     bool ret = HandleM4Request(message);
-    if (ret) {
+    if (ret && isFirstCreateProsumer_) {
+        isFirstCreateProsumer_ = false;
         SessionStatusMsg::Ptr statusMsg = std::make_shared<SessionStatusMsg>();
         statusMsg->msg = std::make_shared<EventMsg>();
         statusMsg->msg->requestId = 0;
@@ -790,7 +793,7 @@ bool WfdSinkSession::HandleM4Request(const std::string &message)
     m4Request.GetVideoTrack(videoTrack_);
     m4Request.GetAudioTrack(audioTrack_);
     int incomingCSeq = m4Request.GetCSeq();
-    if (timeoutTimer_) {
+    if (timeoutTimer_ && isFirstCast) {
         timeoutTimer_->StartTimer(WFD_TIMEOUT_6_SECOND, "Waiting for M5/SET_PARAMETER Triger request");
     }
     // Send M4 response
@@ -802,6 +805,7 @@ bool WfdSinkSession::HandleM4Request(const std::string &message)
         return false;
     }
 
+    isFirstCast = false;
     return true;
 }
 
