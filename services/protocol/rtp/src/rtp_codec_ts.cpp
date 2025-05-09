@@ -187,6 +187,10 @@ int RtpDecoderTs::ReadPacket(uint8_t *buf, int buf_size)
     std::unique_lock<std::mutex> lock(queueMutex_);
     auto &rtp = dataQueue_.front();
     auto data = rtp->GetPayload();
+    if (data == nullptr) {
+        SHARING_LOGE("payload null");
+        return 0;
+    }
     int length = static_cast<int>(rtp->GetPayloadSize());
     if (length > buf_size) {
         SHARING_LOGE("rtp length exceed buf_size!");
