@@ -104,7 +104,6 @@ void AudioAvCodecDecoder::Stop()
     }
     if (StopDecoder()) {
         isRunning_ = false;
-        isFirstFrame_ = false;
     }
 }
 
@@ -201,6 +200,10 @@ void AudioAvCodecDecoder::OnFrame(const Frame::Ptr &frame)
         SHARING_LOGW("GetInputBuffer or GetFrameBuffer failed.");
         return;
     }
+    if (inputBuffer->GetSize() < frame->Size()) {
+        SHARING_LOGW("GetInputBuffer size invalid.");
+        return;
+    }
     if (memcpy_s(inputBuffer->GetBase(), inputBuffer->GetSize(), frame->Data(), frame->Size()) != EOK) {
         SHARING_LOGW("Copy data failed.");
         return;
@@ -211,13 +214,6 @@ void AudioAvCodecDecoder::OnFrame(const Frame::Ptr &frame)
         .offset = 0,
     };
     auto bufferFlag = MediaAVCodec::AVCODEC_BUFFER_FLAG_CODEC_DATA;
-    if (isFirstFrame_) {
-        bufferFlag = MediaAVCodec::AVCODEC_BUFFER_FLAG_CODEC_DATA;
-        isFirstFrame_ = false;
-    } else {
-        bufferFlag = MediaAVCodec::AVCODEC_BUFFER_FLAG_CODEC_DATA;
-    }
-
     WfdSinkHiSysEvent::GetInstance().RecordMediaDecodeStartTime(MediaReportType::AUDIO, bufferInfo.presentationTimeUs);
     int32_t ret = audioDecoder->QueueInputBuffer(bufferIndex, bufferInfo, bufferFlag);
     if (ret != MediaAVCodec::AVCS_ERR_OK) {

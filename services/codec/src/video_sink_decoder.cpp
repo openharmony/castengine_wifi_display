@@ -221,8 +221,8 @@ bool VideoSinkDecoder::DecodeVideoData(const char *data, int32_t size, uint64_t 
     auto inputIndex = inQueue_.front();
     MEDIA_LOGD("inQueue front: %{public}d.", inputIndex);
     auto inputBuffer = inBufferQueue_.front();
-    if (inputBuffer == nullptr) {
-        MEDIA_LOGE("GetInputBuffer failed controlId: %{public}u.", controlId_);
+    if (inputBuffer == nullptr || (inputBuffer->GetSize() < size)) {
+        MEDIA_LOGE("GetInputBuffer failed or bufferSize invalid, controlId: %{public}u.", controlId_);
         return false;
     }
     lock.unlock();

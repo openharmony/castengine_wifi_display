@@ -33,7 +33,6 @@ namespace Sharing {
 constexpr int P2P_LISTEN_INTERVAL = 500;
 constexpr int P2P_LISTEN_PERIOD = 500;
 constexpr int DM_MAX_NAME_LENGTH = 32;
-const std::string DEFAULT_P2P_IPADDR = "192.168.49.1";
 
 void WfdSinkScene::WfdSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
@@ -194,7 +193,8 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
         SHARING_LOGI("sink is gc");
         std::string remoteIp = info.GetGroupOwnerAddress();
         if (remoteIp == "" || remoteIp == "0.0.0.0") {
-            remoteIp = DEFAULT_P2P_IPADDR;
+            SHARING_LOGE("get remoteIp ip failed");
+            return;
         }
         parent->currentConnectDev_.ip = remoteIp;
         std::string interface = group.GetInterface();

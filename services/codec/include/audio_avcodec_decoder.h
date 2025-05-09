@@ -61,7 +61,6 @@ public:
     std::atomic_bool isRunning_ = false;
     std::shared_ptr<MediaAVCodec::AVCodecAudioDecoder> audioDecoder_ = nullptr;
     CodecId audioCodecId_ = CODEC_NONE;
-    bool isFirstFrame_ = true;
 };
 } // namespace Sharing
 } // namespace OHOS

@@ -122,7 +122,7 @@ int32_t InterIpcClient::CreateListenerObject()
 
     if (key_.empty()) {
         key_ = std::to_string(IPCSkeleton::GetCallingTokenID());
-        SHARING_LOGI("key is empty, using token As key: %{public}s.", key_.c_str());
+        SHARING_LOGI("key is empty, using token As key");
     }
 
     listenerStub_ = new (std::nothrow) InterIpcClientStub();
