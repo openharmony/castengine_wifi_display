@@ -169,7 +169,6 @@ bool AudioAvCodecDecoder::SetDecoderFormat(const AudioTrack &audioTrack)
 void AudioAvCodecDecoder::OnFrame(const Frame::Ptr &frame)
 {
     SHARING_LOGD("trace.");
-    SHARING_LOGI("Address in C: %{public}p", &WfdSinkHiSysEvent::GetInstance());
     auto audioDecoder = GetDecoder();
     RETURN_IF_NULL(audioDecoder);
     int32_t bufferIndex = 0;
@@ -182,7 +181,6 @@ void AudioAvCodecDecoder::OnFrame(const Frame::Ptr &frame)
         }
         if (inBufferQueue_.empty()) {
             SHARING_LOGW("Index queue is empty.");
-            SHARING_LOGI("WfdSinkHiSysEvent::GetInstance().GetCurrentScene(): %{public}d", WfdSinkHiSysEvent::GetInstance().GetCurrentScene());
             WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::AUDIO_DECODE,
                                                         SinkErrorCode::WIFI_DISPLAY_AUDIO_DECODE_TIMEOUT);
             return;

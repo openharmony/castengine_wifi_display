@@ -14,13 +14,6 @@
  */
 #ifndef WFD_SINK_HISYS_EVENT_H
 #define WFD_SINK_HISYS_EVENT_H
-#ifndef API_EXPORT
-#if defined(__GNUC__) || defined(__clang__)
-#define API_EXPORT __attribute__((visibility("default")))
-#else
-#define API_EXPORT
-#endif
-#endif
 
 #include <string>
 
@@ -102,7 +95,7 @@ enum class SinkErrorCode : int32_t {
     WIFI_DISPLAY_CONSUMER_ERROR
 };
 
-class API_EXPORT WfdSinkHiSysEvent {
+class WfdSinkHiSysEvent {
 public:
 
     WfdSinkHiSysEvent(const WfdSinkHiSysEvent&) = delete;

@@ -280,6 +280,8 @@ void VideoPlayController::ProcessVideoData(const char *data, int32_t size)
 
     bool ret = videoSinkDecoder_->DecodeVideoData(data, size);
     if (ret == false) {
+        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::VIDEO_DECODE,
+                                                     SinkErrorCode::WIFI_DISPLAY_VIDEO_DECODE_FAILED);
         SHARING_LOGE("sink decode data failed.");
     }
 }

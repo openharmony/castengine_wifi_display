@@ -278,10 +278,10 @@ bool WfdSinkScene::WfdP2pCallback::GetErrorCode(Wifi::ErrCode errorCode, SinkErr
     auto it = wifiErrorMapping_.find(errorCode);
     if (it != wifiErrorMapping_.end()) {
         sharingError = it->second;
-        SHARING_LOGE("wifi errorCode: %{public}d, sharingError:%{public}d", errorCode, sharingError);
+        SHARING_LOGI("wifi errorCode: %{public}d, sharingError:%{public}d", errorCode, sharingError);
         return true;
     } else {
-        SHARING_LOGE("unkonw wifi errorCode: %{public}d", errorCode);
+        SHARING_LOGI("unkonw wifi errorCode: %{public}d", errorCode);
         return false;
     }
 }
@@ -294,10 +294,10 @@ void WfdSinkScene::WfdP2pCallback::OnP2pActionResult(Wifi::P2pActionCallback act
         SinkErrorCode sharingErrorCode;
         if (code != Wifi::WIFI_OPT_SUCCESS) {
             if (GetErrorCode(code, sharingErrorCode)) {
-                SHARING_LOGE("wifi errorCode: %{public}d, sharingErrorCode:%{public}d", code, sharingErrorCode);
+                SHARING_LOGI("wifi errorCode: %{public}d, sharingErrorCode:%{public}d", code, sharingErrorCode);
                 WfdSinkHiSysEvent::GetInstance().P2PReportError(__func__, sharingErrorCode);
             } else {
-                SHARING_LOGE("default return action %{public}hhu, code %{public}d", action, code);
+                SHARING_LOGI("default return action %{public}hhu, code %{public}d", action, code);
                 WfdSinkHiSysEvent::GetInstance().P2PReportError(__func__, SinkErrorCode::WIFI_DISPLAY_P2P_FAILED);
             }
         }
@@ -1396,7 +1396,6 @@ void WfdSinkScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
                 GetAnonymousMAC(connectionInfo.mac).c_str(), GetAnonymousIp(connectionInfo.ip).c_str());
                 FillAndReportDeviceInfo(connectionInfo);
                 std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
-                SHARING_LOGI("Address in B: %{public}p", &WfdSinkHiSysEvent::GetInstance());
                 WfdSinkHiSysEvent::GetInstance().GetStartTime(startTime);
                 WfdSinkHiSysEvent::GetInstance().ChangeHisysEventScene(SinkBizScene::ESTABLISH_MIRRORING);
                 WfdSinkHiSysEvent::GetInstance().StartReport(__func__, "wpa_supplicant", SinkStage::P2P_CONNECT_SUCCESS,
