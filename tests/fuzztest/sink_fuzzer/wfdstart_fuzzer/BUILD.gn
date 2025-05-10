@@ -20,11 +20,17 @@ ohos_fuzztest("WfdStartFuzzTest") {
   sharing_root = "../../../../"
   fuzz_config_file = "../wfdstart_fuzzer"
 
-  include_dirs = [ "${sharing_root}/interfaces/innerkits/native/wfd/include" ]
+  include_dirs = [
+    "${sharing_root}/interfaces/innerkits/native/wfd/include",
+    "${sharing_root}/tests/fuzztest/sink_fuzzer/common_fuzzer",
+  ]
 
   deps = [ "${sharing_root}/interfaces/innerkits/native/wfd:sharingwfd_client" ]
 
   external_deps = [
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
     "c_utils:utils",
     "graphic_surface:surface",
     "hilog:libhilog",
@@ -38,7 +44,10 @@ ohos_fuzztest("WfdStartFuzzTest") {
     "-fno-omit-frame-pointer",
   ]
 
-  sources = [ "wfd_start_fuzzer.cpp" ]
+  sources = [
+    "${sharing_root}/tests/fuzztest/sink_fuzzer/common_fuzzer/add_mirror_token_fuzzer.cpp",
+    "wfd_start_fuzzer.cpp",
+  ]
 }
 
 group("fuzztest") {
