@@ -52,7 +52,7 @@ public:
         this->codecId_ = CODEC_H264;
     }
 
-    H264Frame(uint8_t *ptr, size_t size, uint32_t dts, uint32_t pts = 0, size_t prefix_size = 0)
+    H264Frame(uint8_t *ptr, size_t size, uint32_t dts, uint64_t pts = 0, size_t prefix_size = 0)
     {
         this->Assign((char *)ptr, (int32_t)size);
         dts_ = dts;

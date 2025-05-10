@@ -114,11 +114,23 @@ void RtpDecoderTs::StartDecoding()
         return;
     }
 
+    AVRational videoTimeBase;
+    AVRational audioTimeBase;
+    AVRational PtsTimeBase = {1, US_PER_SEC};
+
     for (int32_t i = 0; i < static_cast<int32_t>(avFormatContext_->nb_streams); i++) {
         if (avFormatContext_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+            videoTimeBase = avFormatContext_->streams[i]->time_base;
+            if (videoTimeBase.den == 0) {
+                videoTimeBase = AV_TIME_BASE_Q;
+            }
             videoStreamIndex_ = i;
             SHARING_LOGD("find video stream %{public}u.", i);
         } else if (avFormatContext_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+            audioTimeBase = avFormatContext_->streams[i]->time_base;
+            if (audioTimeBase.den == 0) {
+                audioTimeBase = AV_TIME_BASE_Q;
+            }
             audioStreamIndex_ = i;
             SHARING_LOGD("find audio stream %{public}u.", i);
         }
@@ -139,16 +151,18 @@ void RtpDecoderTs::StartDecoding()
                 if (H264_TYPE(buf[prefix]) == H264Frame::NAL_AUD) {
                     return;
                 }
+                uint64_t ptsUsec = av_rescale_q(packet->pts, videoTimeBase, PtsTimeBase);
                 auto outFrame = std::make_shared<H264Frame>((uint8_t *)buf, len, (uint32_t)packet->dts,
-                                                            (uint32_t)packet->pts, prefix);
+                                                            ptsUsec, prefix);
                 std::lock_guard<std::mutex> lock(frameLock);
                 if (onFrame_) {
                     onFrame_(outFrame);
                 }
             });
         } else if (packet->stream_index == audioStreamIndex_) {
+            uint64_t ptsUsec = av_rescale_q(packet->pts, audioTimeBase, PtsTimeBase);
             auto outFrame = std::make_shared<AACFrame>((uint8_t *)packet->data, packet->size, (uint32_t)packet->dts,
-                                                       (uint32_t)packet->pts);
+                                                       ptsUsec);
             std::lock_guard<std::mutex> lock(frameLock);
             if (onFrame_) {
                 onFrame_(outFrame);

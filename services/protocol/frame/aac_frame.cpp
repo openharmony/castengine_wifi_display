@@ -17,7 +17,7 @@
 
 namespace OHOS {
 namespace Sharing {
-AACFrame::AACFrame(uint8_t *ptr, size_t size, uint32_t dts, uint32_t pts, size_t prefix_size)
+AACFrame::AACFrame(uint8_t *ptr, size_t size, uint32_t dts, uint64_t pts, size_t prefix_size)
 {
     this->Assign((char *)ptr, (int32_t)size);
     dts_ = dts;

@@ -49,7 +49,7 @@ public:
 
     virtual uint32_t Dts() = 0;
 
-    virtual uint32_t Pts()
+    virtual uint64_t Pts()
     {
         return Dts();
     }
@@ -99,7 +99,7 @@ public:
         return dts_;
     }
 
-    uint32_t Pts() override
+    uint64_t Pts() override
     {
         return pts_ ? pts_ : dts_;
     }
@@ -128,7 +128,9 @@ public:
 
 public:
     uint32_t dts_ = 0;
-    uint32_t pts_ = 0;
+    uint64_t pts_ = 0;
+    uint32_t index = 0;
+    bool isNeedDrop = false;
 
     size_t prefixSize_ = 0;
     CodecId codecId_ = CODEC_NONE;

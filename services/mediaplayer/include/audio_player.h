@@ -51,8 +51,10 @@ public:
     void Release();
     void SetVolume(float volume);
     void ProcessAudioData(DataBuffer::Ptr data, uint64_t pts);
+    void DropOneFrame();
     bool Start();
     bool Init(const AudioTrack &audioTrack);
+    int64_t GetDecoderTimestamp();
 
 private:
     uint32_t playerId_ = -1;

@@ -46,6 +46,16 @@ public:
         SHARING_LOGD("trace.");
     }
 
+    virtual int64_t GetDecoderTimestamp()
+    {
+        return 0;
+    }
+
+    virtual void DropOneFrame()
+    {
+        SHARING_LOGD("trace.");
+    }
+
 public:
     bool inited_ = false;
 };
