@@ -149,6 +149,8 @@ public:
 
     int32_t GetCurrentScene();
 
+    void WaitCurrentSceneChange();
+
 private:
     WfdSinkHiSysEvent() = default;
     ~ WfdSinkHiSysEvent() = default;

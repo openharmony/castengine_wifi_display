@@ -220,6 +220,7 @@ void AudioAvCodecDecoder::OnFrame(const Frame::Ptr &frame)
 void AudioAvCodecDecoder::OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t errorCode)
 {
     SHARING_LOGE("onError, errorCode = %{public}d", errorCode);
+    WfdSinkHiSysEvent::GetInstance().WaitCurrentSceneChange();
     WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::AUDIO_DECODE,
                                                  SinkErrorCode::WIFI_DISPLAY_AUDIO_DECODE_FAILED);
 }

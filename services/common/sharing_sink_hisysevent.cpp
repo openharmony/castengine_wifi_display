@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <mutex>
 #include "sharing_sink_hisysevent.h"
 #include "hisysevent.h"
 #include "sharing_log.h"
@@ -21,6 +22,10 @@
 namespace OHOS {
 namespace Sharing {
 
+static std::mutex mutex_;
+static std::condition_variable inCond_;
+
+static uint32_t DECODE_ERROR_WAIT_MILLISECONDS = 50;
 static constexpr char SHARING_SINK_DFX_DOMAIN_NAME[] = "WIFI_DISPLAY";
 static constexpr char SHARING_SINK_EVENT_NAME[] = "MIRACAST_SINK_BEHAVIOR";
 static constexpr char SHARING_SINK_ORG_PKG[] = "wifi_display_sink";
@@ -52,7 +57,9 @@ void WfdSinkHiSysEvent::GetStartTime(std::chrono::system_clock::time_point start
 
 void WfdSinkHiSysEvent::ChangeHisysEventScene(SinkBizScene scene)
 {
+    std::lock_guard<std::mutex> lock(mutex_);
     sinkBizScene_ = static_cast<int32_t>(scene);
+    inCond_.notify_one();
 }
 
 void WfdSinkHiSysEvent::StartReport(const std::string &funcName, const std::string &toCallpkg,
@@ -301,6 +308,13 @@ void WfdSinkHiSysEvent::P2PReportError(const std::string &funcName, SinkErrorCod
 int32_t WfdSinkHiSysEvent::GetCurrentScene()
 {
     return sinkBizScene_;
+}
+
+void WfdSinkHiSysEvent::WaitCurrentSceneChange()
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    inCond_.wait_for(lock, std::chrono::milliseconds(DECODE_ERROR_WAIT_MILLISECONDS), [this]
+                     { return sinkBizScene_ == static_cast<int32_t>(SinkBizScene::MIRRORING_STABILITY); });
 }
 
 }  // namespace Sharing
