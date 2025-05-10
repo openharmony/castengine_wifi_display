@@ -313,8 +313,8 @@ int32_t WfdSinkHiSysEvent::GetCurrentScene()
 void WfdSinkHiSysEvent::WaitCurrentSceneChange()
 {
     std::unique_lock<std::mutex> lock(mutex_);
-    inCond_.wait_for(lock, std::chrono::milliseconds(DECODE_ERROR_WAIT_MILLISECONDS), [this]
-                     { return sinkBizScene_ == static_cast<int32_t>(SinkBizScene::MIRRORING_STABILITY); });
+    inCond_.wait_for(lock, std::chrono::milliseconds(DECODE_ERROR_WAIT_MILLISECONDS),
+                     [this] { return sinkBizScene_ == static_cast<int32_t>(SinkBizScene::MIRRORING_STABILITY); });
 }
 
 }  // namespace Sharing
