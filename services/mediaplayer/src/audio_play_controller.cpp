@@ -182,5 +182,15 @@ void AudioPlayController::SetVolume(float volume)
     }
 }
 
+int64_t AudioPlayController::GetAudioDecoderTimestamp()
+{
+    return audioPlayer_->GetDecoderTimestamp();
+}
+
+void AudioPlayController::DropOneFrame()
+{
+    audioPlayer_->DropOneFrame();
+}
+
 } // namespace Sharing
 } // namespace OHOS

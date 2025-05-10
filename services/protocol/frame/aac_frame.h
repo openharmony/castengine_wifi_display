@@ -28,7 +28,7 @@ public:
     using Ptr = std::shared_ptr<AACFrame>;
 
     AACFrame();
-    AACFrame(uint8_t *ptr, size_t size, uint32_t dts, uint32_t pts = 0, size_t prefix_size = 0);
+    AACFrame(uint8_t *ptr, size_t size, uint32_t dts, uint64_t pts = 0, size_t prefix_size = 0);
     ~AACFrame() override {}
 };
 

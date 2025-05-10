@@ -124,5 +124,15 @@ void AudioPlayer::ProcessAudioData(DataBuffer::Ptr data, uint64_t pts)
     audioDecoder_->OnFrame(frame);
 }
 
+int64_t AudioPlayer::GetDecoderTimestamp()
+{
+    return audioDecoder_->GetDecoderTimestamp();
+}
+
+void AudioPlayer::DropOneFrame()
+{
+    audioDecoder_->DropOneFrame();
+}
+
 } // namespace Sharing
 } // namespace OHOS

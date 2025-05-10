@@ -4,8 +4,13 @@
         "*AddAudioDestination*";
         "*CreateAudioEncoder*";
         "*CreateAudioDecoder*";
+        "*IsNeedDrop*";
+        "*DropOneFrame*";
         extern "C++" {
             OHOS::Sharing::AudioPlayer::*;
+            OHOS::Sharing::AudioPlayController::*;
+            OHOS::Sharing::MediaController::*;
+            OHOS::Sharing::VideoAudioSync::*;
             OHOS::Sharing::VideoPlayController::*;
             OHOS::Sharing::VideoSinkDecoder::*;
             OHOS::Sharing::VideoSourceEncoder::*;

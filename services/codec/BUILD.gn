@@ -29,6 +29,8 @@ ohos_shared_library("sharing_codec") {
     "$SHARING_ROOT_DIR/services/codec/include",
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/services/common",
+    "$SHARING_ROOT_DIR/services/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/mediachannel",
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
   ]
@@ -42,12 +44,15 @@ ohos_shared_library("sharing_codec") {
     "src/audio_pcm_processor.cpp",
     "src/codec_factory.cpp",
     "src/media_frame_pipeline.cpp",
+    "src/video_audio_sync.cpp",
     "src/video_sink_decoder.cpp",
     "src/video_source_encoder.cpp",
   ]
 
   deps = [
     "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/event:sharing_event_srcs",
+    "$SHARING_ROOT_DIR/services/mediaplayer:sharing_media_player_srcs",
     "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
@@ -56,6 +61,8 @@ ohos_shared_library("sharing_codec") {
   }
 
   external_deps = [
+    "audio_framework:audio_foundation",
+    "audio_framework:audio_renderer",
     "av_codec:av_codec_client",
     "c_utils:utilsbase",
     "graphic_surface:surface",

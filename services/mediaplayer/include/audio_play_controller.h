@@ -33,8 +33,10 @@ public:
     void Release();
     void SetVolume(float volume);
     void Stop(BufferDispatcher::Ptr &dispatcher);
+    void DropOneFrame();
     bool Init(AudioTrack &audioTrack);
     bool Start(BufferDispatcher::Ptr &dispatcher);
+    int64_t GetAudioDecoderTimestamp();
 
 protected:
     void StopAudioThread();

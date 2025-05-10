@@ -21,6 +21,7 @@
 #include "codec/include/video_sink_decoder.h"
 #include "common/event_comm.h"
 #include "common/sharing_log.h"
+#include "video_audio_sync.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -64,6 +65,7 @@ public:
     bool Init(VideoTrack &videoTrack);
     bool Start(BufferDispatcher::Ptr &dispatcher);
     bool SetSurface(sptr<Surface> surface, bool keyFrame = false);
+    void SetVideoAudioSync(std::shared_ptr<VideoAudioSync> videoAudioSync);
 
     // impl IBufferReceiverListener
     void OnAccelerationDoneNotify() override;
