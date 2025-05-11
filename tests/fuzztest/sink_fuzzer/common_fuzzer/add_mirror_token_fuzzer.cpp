@@ -30,7 +30,7 @@ void AddMirrorTokenFuzzer::AddMirrorToken()
         .aclsNum = 0,
         .dcaps = nullptr,
         .perms = perms,
-        .acle = nullptr,
+        .acls = nullptr,
         .processName = "mirror_fuzzer",
         .aplStr = "system_basic",
     };
