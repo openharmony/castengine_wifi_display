@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "add_mirror_token_fuzzer.h"
 #include "wfd_start_fuzzer.h"
 #include "wfd_sink.h"
 #include "securec.h"
@@ -58,6 +59,7 @@ namespace Sharing {
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
+    OHOS::Sharing::AddMirrorTokenFuzzer::AddMirrorToken();
     OHOS::Sharing::CreateSinkFuzzTest(data, size);
     return 0;
 }
