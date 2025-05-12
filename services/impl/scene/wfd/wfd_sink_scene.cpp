@@ -292,7 +292,7 @@ void WfdSinkScene::WfdP2pCallback::OnP2pActionResult(Wifi::P2pActionCallback act
     auto parent = parent_.lock();
     if (parent) {
         SinkErrorCode sharingErrorCode;
-        if (action == Wifi::P2pActionCallback::P2pConnect && code != Wifi::WIFI_OPT_SUCCESS) {
+        if (code != Wifi::WIFI_OPT_SUCCESS) {
             if (GetErrorCode(code, sharingErrorCode)) {
                 SHARING_LOGI("wifi errorCode: %{public}d, sharingErrorCode:%{public}d", code, sharingErrorCode);
                 WfdSinkHiSysEvent::GetInstance().P2PReportError(__func__, sharingErrorCode);

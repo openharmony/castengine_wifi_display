@@ -14,7 +14,8 @@
 import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
-ohos_static_library("sharing_common") {
+ohos_shared_library("sharing_common") {
+  install_enable = true
   sanitize = {
     cfi = true
     cfi_cross_dso = true
@@ -35,6 +36,9 @@ ohos_static_library("sharing_common") {
     "reflect_registration.cpp",
     "sharing_hisysevent.cpp",
     "sharing_sink_hisysevent.cpp",
+  ]
+  deps = [
+    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
   external_deps = [
