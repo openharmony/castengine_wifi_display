@@ -58,6 +58,9 @@ void WfdSinkHiSysEvent::ChangeHisysEventScene(SinkBizScene scene)
 void WfdSinkHiSysEvent::StartReport(const std::string &funcName, const std::string &toCallpkg,
                                     SinkStage sinkStage, SinkStageRes sinkStageRes)
 {
+    if (sinkBizScene_ == static_cast<int32_t>(SinkBizScene::ESTABLISH_MIRRORING)) {
+        hiSysEventStart_ = true;
+    }
     if (hiSysEventStart_ == false) {
         SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
         return;
