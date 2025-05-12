@@ -58,10 +58,6 @@ bool MediaController::Init(AudioTrack audioTrack, VideoTrack videoTrack)
             return false;
         }
     }
-    videoAudioSync_ = std::make_shared<VideoAudioSync>();
-    if (nullptr != videoAudioSync_) {
-        videoAudioSync_->SetAudioPlayController(audioPlayController_);
-    }
 
     return true;
 }
@@ -167,7 +163,6 @@ bool MediaController::AppendSurface(sptr<Surface> surface, SceneType sceneType)
 
         bool keyFrame = sceneType == SceneType::BACKGROUND ? true : false;
         if (videoPlayController->Init(videoTrack_) && videoPlayController->SetSurface(surface, keyFrame)) {
-            videoPlayController->SetVideoAudioSync(videoAudioSync_);
             videoPlayerMap_.emplace(surfaceId, videoPlayController);
         } else {
             SHARING_LOGD("videoPlayController init failed, mediachannelId: %{public}u.", mediachannelId_);

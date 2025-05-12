@@ -21,7 +21,7 @@
 #include "common/event_channel.h"
 #include "mediachannel/buffer_dispatcher.h"
 #include "video_play_controller.h"
-#include "video_audio_sync.h"
+
 
 namespace OHOS {
 namespace Sharing {
@@ -64,7 +64,6 @@ private:
     std::weak_ptr<MediaChannel> mediaChannel_;
     std::shared_ptr<AudioPlayController> audioPlayController_ = nullptr;
     std::map<uint64_t, std::shared_ptr<VideoPlayController>> videoPlayerMap_;
-    std::shared_ptr<VideoAudioSync> videoAudioSync_;
 
     AudioTrack audioTrack_;
     VideoTrack videoTrack_;

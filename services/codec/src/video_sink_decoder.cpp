@@ -114,12 +114,6 @@ void VideoSinkDecoder::SetVideoDecoderListener(VideoSinkDecoderListener::Ptr lis
     videoDecoderListener_ = listener;
 }
 
-void VideoSinkDecoder::SetVideoAudioSync(std::shared_ptr<VideoAudioSync> videoAudioSync)
-{
-    SHARING_LOGD("trace.");
-    videoAudioSync_ = videoAudioSync;
-}
-
 bool VideoSinkDecoder::Start()
 {
     SHARING_LOGD("trace.");
@@ -312,14 +306,8 @@ void VideoSinkDecoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::AVC
         }
     }
 
-    if (videoAudioSync_->IsNeedDrop(info.presentationTimeUs)) {
-        if (videoDecoder_->ReleaseOutputBuffer(index, false) != MediaAVCodec::AVCS_ERR_OK) {
-            MEDIA_LOGW("ReleaseOutputBuffer failed!");
-        }
-    } else {
-        if (videoDecoder_->ReleaseOutputBuffer(index, true) != MediaAVCodec::AVCS_ERR_OK) {
-            MEDIA_LOGW("ReleaseOutputBuffer failed!");
-        }
+    if (videoDecoder_->ReleaseOutputBuffer(index, true) != MediaAVCodec::AVCS_ERR_OK) {
+        MEDIA_LOGW("ReleaseOutputBuffer failed!");
     }
 }
 

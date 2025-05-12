@@ -48,8 +48,6 @@ private:
     static int StaticReadPacket(void *opaque, uint8_t *buf, int buf_size);
 
 private:
-    constexpr static int64_t US_PER_SEC = 1000 * 1000;
-
     bool exit_ = false;
     int videoStreamIndex_ = -1;
     int audioStreamIndex_ = -1;

@@ -23,7 +23,7 @@
 #include "common/event_comm.h"
 #include "frame.h"
 #include "utils/data_buffer.h"
-#include "video_audio_sync.h"
+
 
 namespace OHOS {
 namespace Sharing {
@@ -52,7 +52,6 @@ public:
     bool SetSurface(sptr<OHOS::Surface> surface);
     bool SetDecoderFormat(const VideoTrack &track);
     void SetVideoDecoderListener(VideoSinkDecoderListener::Ptr listener);
-    void SetVideoAudioSync(std::shared_ptr<VideoAudioSync> videoAudioSync);
 
     void OnOutputFormatChanged(const MediaAVCodec::Format &format) override;
     void OnError(MediaAVCodec::AVCodecErrorType errorType, int32_t errorCode) override;
@@ -83,7 +82,6 @@ public:
     VideoTrack videoTrack_;
     CodecId videoCodecId_ = CODEC_NONE;
     sptr<OHOS::Surface> surface_ = nullptr;
-    std::shared_ptr<VideoAudioSync> videoAudioSync_ = nullptr;
 };
 } // namespace Sharing
 } // namespace OHOS

@@ -92,7 +92,6 @@ bool AudioAvCodecDecoder::Start()
         return false;
     }
     isRunning_ = true;
-    StartRender();
     return true;
 }
 
@@ -123,7 +122,6 @@ bool AudioAvCodecDecoder::StopDecoder()
     auto audioDecoder = GetDecoder();
     RETURN_FALSE_IF_NULL(audioDecoder);
 
-    StopRender();
     auto ret = audioDecoder->Flush();
     if (ret != MediaAVCodec::AVCS_ERR_OK) {
         SHARING_LOGE("Flush audioDecoder failed");
@@ -265,151 +263,16 @@ void AudioAvCodecDecoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::
     }
     WfdSinkHiSysEvent::GetInstance().MediaDecodeTimProc(MediaReportType::AUDIO, info.presentationTimeUs);
 
-    std::chrono::microseconds nowUs =
-        std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
-    int64_t nowTimeUs = nowUs.count();
-    if (firstTimestampUs_ == 0) {
-        firstTimestampUs_ = info.presentationTimeUs;
-    }
-
     auto frameBuffer = FrameImpl::Create();
     frameBuffer->SetSize(static_cast<uint32_t>(info.size));
     frameBuffer->codecId_ = CODEC_AAC;
     frameBuffer->pts_ = static_cast<uint32_t>(info.presentationTimeUs);
     frameBuffer->Assign((char *)buffer->GetBase(), info.size);
-    frameBuffer->index = index;
-    frameBuffer->isNeedDrop = IsNeedDropFrame(nowTimeUs);
-    Render(frameBuffer);
-}
-
-bool AudioAvCodecDecoder::ReleaseOutputBuffer(uint32_t index)
-{
-    std::lock_guard<std::mutex> lock(decoderMutex_);
-    if (audioDecoder_ == nullptr) {
-        return false;
-    }
-    int32_t ret = audioDecoder_->ReleaseOutputBuffer(index);
+    DeliverFrame(frameBuffer);
+    int32_t ret = audioDecoder->ReleaseOutputBuffer(index);
     if (ret != MediaAVCodec::AVCS_ERR_OK) {
         SHARING_LOGE("ReleaseOutputBuffer fail. Error code %{public}d.", ret);
     }
-    return ret;
-}
-
-void AudioAvCodecDecoder::RenderOutBuffer()
-{
-    while (isRenderReady_.load()) {
-        std::shared_ptr<FrameImpl> frameBuffer;
-        {
-            std::unique_lock<std::mutex> lock(renderBufferMutex_);
-            if (renderBuffer_.empty()) {
-                renderCond_.wait_for(lock, std::chrono::milliseconds(NEXT_FRAME_WAIT_TIME));
-                continue;
-            }
-            frameBuffer = renderBuffer_.front();
-            renderBuffer_.pop();
-        }
-        std::chrono::microseconds nowUs =
-            std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
-        int64_t nowTimeUs = nowUs.count();
-
-        if (frameBuffer->isNeedDrop) {
-            SHARING_LOGE("Audio RenderBuffer is droped.");
-            ReleaseOutputBuffer(frameBuffer->index);
-            lastPlayTimeUs_ = nowTimeUs;
-            lastPlayPts_ = frameBuffer->pts_;
-            continue;
-        }
-        DeliverFrame(frameBuffer);
-        ReleaseOutputBuffer(frameBuffer->index);
-        lastPlayTimeUs_ = nowTimeUs;
-        lastPlayPts_ = frameBuffer->pts_;
-    }
-}
-
-void AudioAvCodecDecoder::Render(std::shared_ptr<FrameImpl> frameBuffer)
-{
-    std::lock_guard<std::mutex> lock(renderBufferMutex_);
-    if (!frameBuffer) {
-        SHARING_LOGE("frameBuffer is null");
-        return;
-    }
-    if (!isRenderReady_.load()) {
-        SHARING_LOGE("Failed to send data.");
-        ReleaseOutputBuffer(frameBuffer->index);
-        return;
-    }
-    if (renderBuffer_.size() > MAX_BUFFER_SIZE) {
-        ClearRenderBufferQueue();
-    }
-
-    renderBuffer_.push(frameBuffer);
-    renderCond_.notify_all();
-}
-
-bool AudioAvCodecDecoder::StopRender()
-{
-    SHARING_LOGD("Stop Render");
-    isRenderReady_ = false;
-    renderCond_.notify_all();
-    if (renderThread_.joinable()) {
-        renderThread_.join();
-    }
-    std::lock_guard<std::mutex> lock(renderBufferMutex_);
-    ClearRenderBufferQueue();
-    return true;
-}
-
-void AudioAvCodecDecoder::ClearRenderBufferQueue()
-{
-    while (!renderBuffer_.empty()) {
-        auto frameBuffer = renderBuffer_.front();
-        ReleaseOutputBuffer(frameBuffer->index);
-        renderBuffer_.pop();
-    }
-}
-
-bool AudioAvCodecDecoder::StartRender()
-{
-    isRenderReady_ = true;
-    renderThread_ = std::thread([this] {
-        this->RenderOutBuffer();
-    });
-    std::string name = "AudioSpeakerRun";
-    pthread_setname_np(renderThread_.native_handle(), name.c_str());
-    return true;
-}
-
-int64_t AudioAvCodecDecoder::GetDecoderTimestamp()
-{
-    int64_t timestamp = 0;
-    if (firstTimestampUs_ == 0) {
-        return timestamp;
-    }
-
-    std::chrono::microseconds nowUs =
-        std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
-    int64_t difftime = nowUs.count() - lastPlayTimeUs_;
-    if (difftime > NO_AUDIO_FRAME_INTERVAL) {
-        return timestamp;
-    }
-
-    timestamp = lastPlayPts_ + difftime - audioLatency_.load();
-    return timestamp;
-}
-
-bool AudioAvCodecDecoder::IsNeedDropFrame(int64_t nowTimeUs)
-{
-    if (isForceDrop_.load() && (nowTimeUs - lastDropTimeUs_ > AUDIO_DECODE_DROP_INTERVAL)) {
-        isForceDrop_ = false;
-        lastDropTimeUs_ = nowTimeUs;
-        return true;
-    }
-    return false;
-}
-
-void AudioAvCodecDecoder::DropOneFrame()
-{
-    isForceDrop_ = true;
 }
 
 void AudioAvCodecDecoder::OnOutputFormatChanged(const MediaAVCodec::Format &format)

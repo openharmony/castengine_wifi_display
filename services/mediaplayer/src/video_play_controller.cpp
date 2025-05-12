@@ -428,12 +428,5 @@ void VideoPlayController::OnKeyModeNotify(bool enable)
     mediaController->OnPlayControllerNotify(statusMsg);
 }
 
-void VideoPlayController::SetVideoAudioSync(std::shared_ptr<VideoAudioSync> videoAudioSync)
-{
-    if (videoSinkDecoder_ != nullptr) {
-        videoSinkDecoder_->SetVideoAudioSync(videoAudioSync);
-    }
-}
-
 } // namespace Sharing
 } // namespace OHOS
