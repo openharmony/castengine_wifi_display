@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-#include <mutex>
 #include "sharing_sink_hisysevent.h"
 #include "hisysevent.h"
 #include "sharing_log.h"
@@ -22,15 +21,11 @@
 namespace OHOS {
 namespace Sharing {
 
-static std::mutex g_mutex;
-static std::condition_variable g_inCond;
-
 static constexpr char SHARING_SINK_DFX_DOMAIN_NAME[] = "WIFI_DISPLAY";
 static constexpr char SHARING_SINK_EVENT_NAME[] = "MIRACAST_SINK_BEHAVIOR";
 static constexpr char SHARING_SINK_ORG_PKG[] = "wifi_display_sink";
 static constexpr char SHARING_SINK_HOST_PKG[] = "cast_engine_service";
 static constexpr char SHARING_SINK_LOCAL_DEV_TYPE[] = "09C";
-static constexpr uint8_t DECODE_ERROR_WAIT_MILLISECONDS = 50;
 
 WfdSinkHiSysEvent& WfdSinkHiSysEvent::GetInstance()
 {
@@ -57,9 +52,7 @@ void WfdSinkHiSysEvent::GetStartTime(std::chrono::system_clock::time_point start
 
 void WfdSinkHiSysEvent::ChangeHisysEventScene(SinkBizScene scene)
 {
-    std::lock_guard<std::mutex> lock(g_mutex);
     sinkBizScene_ = static_cast<int32_t>(scene);
-    g_inCond.notify_one();
 }
 
 void WfdSinkHiSysEvent::StartReport(const std::string &funcName, const std::string &toCallpkg,
@@ -280,10 +273,6 @@ void WfdSinkHiSysEvent::ReportError(const std::string &funcName, const std::stri
 
 void WfdSinkHiSysEvent::P2PReportError(const std::string &funcName, SinkErrorCode errorCode)
 {
-    if (hiSysEventStart_ == false) {
-        SHARING_LOGE("func:%{public}s, scece is Invalid", funcName.c_str());
-        return;
-    }
     HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME, HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
                     "FUNC_NAME", funcName.c_str(),
                     "BIZ_SCENE", static_cast<int32_t>(SinkBizScene::ESTABLISH_MIRRORING),
@@ -302,19 +291,11 @@ void WfdSinkHiSysEvent::P2PReportError(const std::string &funcName, SinkErrorCod
                     "PEER_WIFI_MAC", devInfo_.peerWifiMac.c_str(),
                     "PEER_IP", devInfo_.peerIp.c_str(),
                     "PEER_DEV_NAME", devInfo_.peerDevName.c_str());
-    hiSysEventStart_ = false;
 }
 
 int32_t WfdSinkHiSysEvent::GetCurrentScene()
 {
     return sinkBizScene_;
-}
-
-void WfdSinkHiSysEvent::WaitCurrentSceneChange()
-{
-    std::unique_lock<std::mutex> lock(g_mutex);
-    g_inCond.wait_for(lock, std::chrono::milliseconds(DECODE_ERROR_WAIT_MILLISECONDS),
-                      [this] { return sinkBizScene_ == static_cast<int32_t>(SinkBizScene::MIRRORING_STABILITY); });
 }
 
 }  // namespace Sharing
