@@ -313,6 +313,7 @@ void VideoSinkDecoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::AVC
     }
 
     if (videoAudioSync_->IsNeedDrop(info.presentationTimeUs)) {
+        SHARING_LOGI("ReleaseOutputBuffer drop one frame.");
         if (videoDecoder_->ReleaseOutputBuffer(index, false) != MediaAVCodec::AVCS_ERR_OK) {
             MEDIA_LOGW("ReleaseOutputBuffer failed!");
         }

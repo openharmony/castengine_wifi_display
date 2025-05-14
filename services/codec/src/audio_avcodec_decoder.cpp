@@ -275,7 +275,7 @@ void AudioAvCodecDecoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::
     auto frameBuffer = FrameImpl::Create();
     frameBuffer->SetSize(static_cast<uint32_t>(info.size));
     frameBuffer->codecId_ = CODEC_AAC;
-    frameBuffer->pts_ = static_cast<uint32_t>(info.presentationTimeUs);
+    frameBuffer->pts_ = static_cast<uint64_t>(info.presentationTimeUs);
     frameBuffer->Assign((char *)buffer->GetBase(), info.size);
     frameBuffer->index = index;
     frameBuffer->isNeedDrop = IsNeedDropFrame(nowTimeUs);
@@ -308,20 +308,15 @@ void AudioAvCodecDecoder::RenderOutBuffer()
             frameBuffer = renderBuffer_.front();
             renderBuffer_.pop();
         }
-        std::chrono::microseconds nowUs =
-            std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
-        int64_t nowTimeUs = nowUs.count();
 
         if (frameBuffer->isNeedDrop) {
             SHARING_LOGE("Audio RenderBuffer is droped.");
             ReleaseOutputBuffer(frameBuffer->index);
-            lastPlayTimeUs_ = nowTimeUs;
             lastPlayPts_ = frameBuffer->pts_;
             continue;
         }
         DeliverFrame(frameBuffer);
         ReleaseOutputBuffer(frameBuffer->index);
-        lastPlayTimeUs_ = nowTimeUs;
         lastPlayPts_ = frameBuffer->pts_;
     }
 }
@@ -386,19 +381,13 @@ int64_t AudioAvCodecDecoder::GetDecoderTimestamp()
         return timestamp;
     }
 
-    std::chrono::microseconds nowUs =
-        std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
-    int64_t difftime = nowUs.count() - lastPlayTimeUs_;
-    if (difftime > NO_AUDIO_FRAME_INTERVAL) {
-        return timestamp;
-    }
-
-    timestamp = lastPlayPts_ + difftime - audioLatency_.load();
+    timestamp = lastPlayPts_ - audioLatency_.load();
     return timestamp;
 }
 
 bool AudioAvCodecDecoder::IsNeedDropFrame(int64_t nowTimeUs)
 {
+    std::lock_guard<std::mutex> lock(decoderMutex_);
     if (isForceDrop_.load() && (nowTimeUs - lastDropTimeUs_ > AUDIO_DECODE_DROP_INTERVAL)) {
         isForceDrop_ = false;
         lastDropTimeUs_ = nowTimeUs;
@@ -409,6 +398,7 @@ bool AudioAvCodecDecoder::IsNeedDropFrame(int64_t nowTimeUs)
 
 void AudioAvCodecDecoder::DropOneFrame()
 {
+    std::lock_guard<std::mutex> lock(decoderMutex_);
     isForceDrop_ = true;
 }
 

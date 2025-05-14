@@ -56,13 +56,12 @@ bool VideoAudioSync::ProcessAVSyncStrategy(int64_t videoTimestamp)
     if (earlyUs < VIDEO_TOO_LATE_US) {
         SHARING_LOGE("Video is too late, something may wrong!");
     } else if (earlyUs < VIDEO_LATE_US && continueDropCount_ <= 0) {
-        SHARING_LOGI("Drop one vedio farme.");
         ++continueDropCount_;
         return true;
     } else if (earlyUs > AUDIO_TOO_LATE_US) {
         SHARING_LOGE("Audio is too late, something may wrong!");
+        std::this_thread::sleep_for(std::chrono::microseconds(DROP_ONE_FRAME_TIME));
     } else if (earlyUs > AUDIO_LATE_US) {
-        SHARING_LOGI("Drop one audio farme.");
         audioPlayController_->DropOneFrame();
     }
 

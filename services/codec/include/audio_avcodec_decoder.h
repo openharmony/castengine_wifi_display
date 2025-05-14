@@ -81,11 +81,10 @@ public:
 private:
     int64_t firstTimestampUs_{0};
     int64_t lastPlayPts_{0};
-    int64_t lastPlayTimeUs_{0};
-    int64_t lastDropTimeUs_{0};
 
     std::atomic<bool> isRenderReady_{false};
     std::atomic<int64_t> audioLatency_{50 * 1000};
+    std::atomic<int64_t> lastDropTimeUs_{0};
     std::condition_variable renderCond_;
     std::thread renderThread_;
     std::queue<std::shared_ptr<FrameImpl>> renderBuffer_;
