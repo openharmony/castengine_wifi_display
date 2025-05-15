@@ -407,7 +407,7 @@ void WfdSinkHiSysEvent::ReportDecodeTime(uint64_t pts, std::map<uint64_t, uint64
     if (decodeEndTime >= decodeStartTime->second) {
         auto interval = decodeEndTime - decodeStartTime->second;
         if (interval > DECODE_TIME_OUT) {
-            SHARING_LOGE("decode time out type %{public}d, time %{public}llu", type, interval);
+            SHARING_LOGE("decode time out type %{public}d, time %{public}" PRIu64, type, interval);
             decodeMap.erase(decodeStartTime);
             ReportDecodeError(type);
             return;
