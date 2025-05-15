@@ -93,11 +93,11 @@ bool VideoPlayController::SetSurface(sptr<Surface> surface, bool keyFrame)
     }
 
     if (forceSWDecoder_) {
-        bool isVaild = true;
+        bool isValid = true;
         if (isSurfaceNoCopy_) {
-            isVaild = videoSinkDecoder_->SetSurface(surface);
+            isValid = videoSinkDecoder_->SetSurface(surface);
         }
-        if (isVaild) {
+        if (isValid) {
             enableSurface_ = true;
             surface_ = surface;
             SHARING_LOGD("set surface success.");
@@ -352,7 +352,6 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
     }
 
     void *bufferVirAddr = buffer->GetVirAddr();
-    
     if (bufferVirAddr == nullptr) {
         SHARING_LOGD("bufferVirAddr is nullptr.");
         return -1;
@@ -360,7 +359,12 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
     
     SHARING_LOGD("buffer size is %{public}d.", decodedData->Size());
     int32_t dataSize = renderWidth * renderHeight * 3 / 2;
-    if (dataSize > static_cast<int32_t>(decodedData->Size()) || (dataSize > buffer->GetSize())) {
+    if (dataSize < 0){
+        SHARING_LOGE("dataSize < 0");
+        return -1;
+    }
+    uint32_t dataSizeUint = static_cast<uint32_t>(dataSize);
+    if (dataSizeUint > static_cast<int32_t>(decodedData->Size()) || (dataSizeUint > buffer->GetSize())) {
         SHARING_LOGE("invalid data size");
         return -1;
     }

@@ -115,6 +115,7 @@ bool SocketUtils::CreateSocket(int32_t socketType, int32_t &fd)
     fd = -1;
     if (socketType != SOCK_STREAM && socketType != SOCK_DGRAM) {
         SHARING_LOGE("type error: %{public}d!", socketType);
+        return false;
     }
 
     fd = socket(AF_INET, socketType, (socketType == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP));

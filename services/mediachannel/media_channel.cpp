@@ -330,7 +330,7 @@ int32_t MediaChannel::HandleEvent(SharingEvent &event)
         }
     }
 
-    return 0;
+    return SharingErrorCode::ERR_OK;
 }
 
 int32_t MediaChannel::Release()

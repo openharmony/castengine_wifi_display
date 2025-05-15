@@ -184,12 +184,17 @@ void AudioPlayController::SetVolume(float volume)
 
 int64_t AudioPlayController::GetAudioDecoderTimestamp()
 {
-    return audioPlayer_->GetDecoderTimestamp();
+    if (audioPlayer_) {
+        return audioPlayer_->GetDecoderTimestamp();
+    }
+    return 0;
 }
 
 void AudioPlayController::DropOneFrame()
 {
-    audioPlayer_->DropOneFrame();
+    if (audioPlayer_) {
+        audioPlayer_->DropOneFrame();
+    }
 }
 
 } // namespace Sharing

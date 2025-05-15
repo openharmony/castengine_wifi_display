@@ -129,7 +129,7 @@ int32_t WfdTrustListManager::DeleteBoundDeviceGroup(std::string &deviceAddress)
     SHARING_LOGI("trace");
     std::vector<Wifi::WifiP2pGroupInfo> groups;
     if (p2pInstance_ == nullptr || preferencesUtil_ == nullptr) {
-        SHARING_LOGE("GetAllBoundDevices nullptr");
+        SHARING_LOGE("DeleteBoundDeviceGroup nullptr");
         return OPERATE_ERR;
     }
     int32_t result = OPERATE_OK;
