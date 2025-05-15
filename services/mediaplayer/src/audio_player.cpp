@@ -103,6 +103,7 @@ void AudioPlayer::Release()
     }
     if (audioDecoder_ != nullptr) {
         audioDecoder_->Release();
+        audioDecoder_ = nullptr;
     }
 }
 
@@ -126,12 +127,17 @@ void AudioPlayer::ProcessAudioData(DataBuffer::Ptr data, uint64_t pts)
 
 int64_t AudioPlayer::GetDecoderTimestamp()
 {
-    return audioDecoder_->GetDecoderTimestamp();
+    if (audioDecoder_) {
+        return audioDecoder_->GetDecoderTimestamp();
+    }
+    return 0;
 }
 
 void AudioPlayer::DropOneFrame()
 {
-    audioDecoder_->DropOneFrame();
+    if (audioDecoder_) {
+        audioDecoder_->DropOneFrame();
+    }
 }
 
 } // namespace Sharing

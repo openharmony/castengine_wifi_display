@@ -83,7 +83,7 @@ private:
     int64_t lastPlayPts_{0};
 
     std::atomic<bool> isRenderReady_{false};
-    std::atomic<int64_t> audioLatency_{50 * 1000};
+    std::atomic<int64_t> audioLatency_{0 * 1000};
     std::atomic<int64_t> lastDropTimeUs_{0};
     std::condition_variable renderCond_;
     std::thread renderThread_;

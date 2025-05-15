@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace Sharing {
 
-constexpr int RTSP_MASSGE_MAX_LINES = 1440;
+constexpr int RTSP_MESSGE_MAX_LINES = 1440;
 
 std::string RtspCommon::GetRtspDate()
 {
@@ -106,7 +106,7 @@ RtspError RtspCommon::ParseMessage(const std::string &message, std::vector<std::
                 header.emplace(token, value);
             }
         }
-        if (i > RTSP_MASSGE_MAX_LINES) {
+        if (i > RTSP_MESSGE_MAX_LINES) {
             break;
         }
     }

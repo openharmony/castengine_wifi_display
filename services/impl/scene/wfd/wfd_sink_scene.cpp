@@ -717,8 +717,11 @@ int32_t WfdSinkScene::HandleStart(std::shared_ptr<WfdSinkStartReq> &msg, std::sh
             WfdP2pStart();
             break;
         case (int32_t)Wifi::P2pState::P2P_STATE_CLOSED:
+            if (Wifi::ErrCode::WIFI_OPT_SUCCESS != p2pInstance_->EnableP2p()) {
+                SHARING_LOGE("EnableP2p failed");
+                return -1;
+            }
             isSinkRunning_ = true;
-            p2pInstance_->EnableP2p();
             break;
         default:
             SHARING_LOGI("none process case.");

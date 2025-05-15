@@ -114,7 +114,7 @@ void KvOperator::SyncKvStore(const std::string &key, const std::string &deviceId
     std::vector<std::string> deviceIds = { deviceId };
     DistributedKv::Status status = kvStorePtr_->Sync(deviceIds, DistributedKv::SyncMode::PULL,
         dataQuery, shared_from_this());
-    MEDIA_LOGE("kvstore sync end, status %{public}d.", status);
+    MEDIA_LOGI("kvstore sync end, status %{public}d.", status);
 }
 
 void KvOperator::SyncCompleted(const std::map<std::string, DistributedKv::Status> &results)

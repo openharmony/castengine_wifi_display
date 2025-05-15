@@ -182,11 +182,12 @@ int32_t WfdRtpConsumer::Release()
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double, std::milli> diff = end - gopInterval_;
 
-    SHARING_LOGD(
-        "TEST STATISTIC Miracast:finish, interval:%{public}.0f ms, agent ID:%{public}d, "
-        "get video frame, gop:%{public}d, average receiving frames time:%{public}.0f ms.",
-        diff.count(), GetSinkAgentId(), frameNums_, diff.count() / frameNums_);
-
+    if (frameNums_ > 0) {
+        SHARING_LOGD(
+            "TEST STATISTIC Miracast:finish, interval:%{public}.0f ms, agent ID:%{public}d, "
+            "get video frame, gop:%{public}d, average receiving frames time:%{public}.0f ms.",
+            diff.count(), GetSinkAgentId(), frameNums_, diff.count() / frameNums_);
+    }
     Stop();
     return 0;
 }
@@ -264,10 +265,12 @@ void WfdRtpConsumer::HandleVideoKeyFrame()
     } else {
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double, std::milli> diff = end - gopInterval_;
-        MEDIA_LOGD("TEST STATISTIC Miracast:interval:%{public}.0f ms, "
-            "agent ID:%{public}d, get video frame, gop:%{public}d, "
-            "average receiving frames time:%{public}.0f ms.",
-            diff.count(), GetSinkAgentId(), frameNums_, diff.count() / frameNums_);
+        if (frameNums_ > 0) {
+            MEDIA_LOGD("TEST STATISTIC Miracast:interval:%{public}.0f ms, "
+                       "agent ID:%{public}d, get video frame, gop:%{public}d, "
+                       "average receiving frames time:%{public}.0f ms.",
+                       diff.count(), GetSinkAgentId(), frameNums_, diff.count() / frameNums_);
+        }
     }
 
     frameNums_ = 1;

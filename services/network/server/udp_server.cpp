@@ -74,7 +74,6 @@ void UdpServer::Stop()
             kv.second->Shutdown();
             kv.second.reset();
         }
-        SocketUtils::CloseSocket(kv.first);
     }
 
     if (socket_ != nullptr) {
@@ -172,14 +171,9 @@ void UdpServer::OnServerReadable(int32_t fd)
             SHARING_LOGE("onReadable error: %{public}s!", strerror(errno));
             break;
         }
-
-        if (retCode == 0) {
-            SHARING_LOGE("onReadable error: %{public}s!", strerror(errno));
-            reading = false;
-        }
     }
 
-    MEDIA_LOGD("fd: %{public}d, thread_id: %{public}llu tid:%{public}d exit.", fd, GetThreadId(), gettid());
+    MEDIA_LOGE("fd: %{public}d, thread_id: %{public}llu tid:%{public}d exit.", fd, GetThreadId(), gettid());
 }
 
 std::shared_ptr<BaseNetworkSession> UdpServer::FindOrCreateSession(const struct sockaddr_in &addr)
@@ -195,8 +189,8 @@ std::shared_ptr<BaseNetworkSession> UdpServer::FindOrCreateSession(const struct 
     } else if (socket_ != nullptr) {
         MEDIA_LOGD("not find, create session!");
         int32_t peerFd = 0;
-        SocketUtils::CreateSocket(SOCK_DGRAM, peerFd);
-        if (peerFd == 0 || !BindAndConnectClinetFd(peerFd, addr)) {
+        bool createSocketResult = SocketUtils::CreateSocket(SOCK_DGRAM, peerFd);
+        if (!createSocketResult || !BindAndConnectClinetFd(peerFd, addr)) {
             SHARING_LOGE("create socket failed!");
             return nullptr;
         }

@@ -36,7 +36,7 @@ void SinkAgent::OnSessionNotify(SessionStatusMsg::Ptr &statusMsg)
 {
     SHARING_LOGD("trace.");
     RETURN_IF_NULL(statusMsg);
-    SHARING_LOGI("session notify status: %{public}s, agentId: %{pubilc}u.",
+    SHARING_LOGI("session notify status: %{public}s, agentId: %{public}u.",
                  std::string(magic_enum::enum_name((SessionNotifyStatus)statusMsg->status)).c_str(), GetId());
     statusMsg->prosumerId = prosumerId_;
     switch (statusMsg->status) {

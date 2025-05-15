@@ -27,7 +27,9 @@ VideoAudioSync::VideoAudioSync()
 VideoAudioSync::~VideoAudioSync()
 {
     SHARING_LOGD("Destruct in");
-    audioPlayController_.reset();
+    if (audioPlayController_) {
+        audioPlayController_.reset();
+    }
 }
 
 bool VideoAudioSync::IsNeedDrop(int64_t videoTimestamp)
@@ -43,10 +45,11 @@ bool VideoAudioSync::IsNeedDrop(int64_t videoTimestamp)
 bool VideoAudioSync::ProcessAVSyncStrategy(int64_t videoTimestamp)
 {
     int64_t audioPts = 0;
-    if (nullptr != audioPlayController_) {
-        audioPts = audioPlayController_->GetAudioDecoderTimestamp();
+    if (audioPlayController_ == nullptr) {
+        return false;
     }
 
+    audioPts = audioPlayController_->GetAudioDecoderTimestamp();
     if (audioPts == 0) {
         continueDropCount_ = 0;
         return false;

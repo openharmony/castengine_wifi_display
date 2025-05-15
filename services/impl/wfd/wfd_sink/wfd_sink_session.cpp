@@ -726,7 +726,7 @@ bool WfdSinkSession::SendM3Response(int32_t cseq, std::list<std::string> &params
         return ret;
     }
 
-    return 0;
+    return true;
 }
 
 void WfdSinkSession::SetM3ResponseParam(std::list<std::string> &params, WfdRtspM3Response &m3Response)

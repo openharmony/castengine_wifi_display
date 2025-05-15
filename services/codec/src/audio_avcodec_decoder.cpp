@@ -25,7 +25,7 @@ namespace OHOS {
 namespace Sharing {
 AudioAvCodecDecoder::AudioAvCodecDecoder()
 {
-    SHARING_LOGD("tracs");
+    SHARING_LOGD("trace");
 }
 
 AudioAvCodecDecoder::~AudioAvCodecDecoder()
