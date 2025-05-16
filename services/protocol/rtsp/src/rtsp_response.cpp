@@ -92,7 +92,7 @@ RtspError RtspResponse::Parse(const std::string &response)
     if (tokens_.find(RTSP_TOKEN_SESSION) != tokens_.end()) {
         session_ = tokens_.at(RTSP_TOKEN_SESSION);
         auto si = session_.find(';');
-        if (si != std::string::npos) {
+        if (si != std::string::npos && si != session_.size() - 1) {
             std::string to = session_.substr(si + 1);
             auto ti = to.find('=');
             if (ti != std::string::npos) {
