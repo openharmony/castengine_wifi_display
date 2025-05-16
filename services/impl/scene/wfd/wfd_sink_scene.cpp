@@ -23,6 +23,7 @@
 #include "extend/magic_enum/magic_enum.hpp"
 #include "iservice_registry.h"
 #include "network/socket/socket_utils.h"
+#include "kits/c/wifi_hid2d.h"
 #include "system_ability_definition.h"
 #include "utils/utils.h"
 #include "wfd_session_def.h"
@@ -687,6 +688,20 @@ void WfdSinkScene::OnRequest(std::shared_ptr<BaseMsg> msg, std::shared_ptr<BaseM
             SHARING_LOGW("unknown msg request.");
             break;
     }
+}
+
+
+void WfdSinkScene::SetWifiScene(uint32_t scene) {
+    SHARING_LOGI("SetWifiScene %{public}u start", scene);
+    std::string ifName = "p2p0";
+    Hid2dUpperScene upperScene;
+    upperScene.scene = scene;
+    upperScene.fps = -1;
+    upperScene.bw = 0;
+    if (Hid2dSetUpperScene(ifName.c_str(), &upperScene) != 0) {
+        SHARING_LOGE("SetWifiScene scene: %{public}u error", scene);
+    }
+    SHARING_LOGI("SetWifiScene %{public}u over", scene);
 }
 
 int32_t WfdSinkScene::HandleStart(std::shared_ptr<WfdSinkStartReq> &msg, std::shared_ptr<WfdCommonRsp> &reply)
@@ -1417,7 +1432,7 @@ void WfdSinkScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
         SHARING_LOGI("connected, devMac: %{private}s, devIp: %{private}s.", GetAnonymousMAC(connectionInfo.mac).c_str(),
             GetAnonymousIp(connectionInfo.ip).c_str());
     }
-
+    SetWifiScene(1);
     OnConnectionChanged(connectionInfo);
 }
 
@@ -1736,6 +1751,7 @@ void WfdSinkScene::P2pRemoveClient(ConnectionInfo &connectionInfo)
 {
     SHARING_LOGI("p2p remove client: %{private}s.", GetAnonymousMAC(connectionInfo.mac).c_str());
     currentConnectDev_.mac = "";
+    SetWifiScene(0);
     if (!p2pInstance_) {
         SHARING_LOGE("p2p instance is null");
         return;

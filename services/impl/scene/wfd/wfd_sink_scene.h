@@ -143,6 +143,7 @@ protected:
     void OnRequest(std::shared_ptr<BaseMsg> msg, std::shared_ptr<BaseMsg> &reply) final;
 
 private:
+    static void SetWifiScene(uint32_t scene);
     void InitP2pName();
     void RegisterP2pListener();
     void RegisterWifiStatusChangeListener();
