@@ -227,9 +227,10 @@ void WfdRtpConsumer::HandleNaluUpdate(std::shared_ptr<BufferDispatcher> dispatch
     bool needUpdate = true;
     auto oldNalu = (dispatcher.get()->*getFunc)();
     if (oldNalu && oldNalu->buff) {
-        bool isSame = (oldNalu->buff->Size() == len) && (memcmp(oldNalu->buff->Peek(), buf, len) == 0);
-        SHARING_LOGD("compare result: %{pubilc}s", isSame? "same" : "different");
-        needUpdate =!isSame;
+        bool isSame =
+            (static_cast<size_t>(oldNalu->buff->Size()) == len) && (memcmp(oldNalu->buff->Peek(), buf, len) == 0);
+        SHARING_LOGD("compare result: %{pubilc}s", isSame ? "same" : "different");
+        needUpdate = !isSame;
     }
 
     if (needUpdate) {
@@ -276,7 +277,6 @@ void WfdRtpConsumer::HandleVideoKeyFrame()
     frameNums_ = 1;
     gopInterval_ = std::chrono::steady_clock::now();
 }
-
 
 void WfdRtpConsumer::OnRtpUnpackCallback(uint32_t ssrc, const Frame::Ptr &frame)
 {

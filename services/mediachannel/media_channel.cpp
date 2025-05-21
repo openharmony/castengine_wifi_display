@@ -363,6 +363,10 @@ void MediaChannel::SetMediaChannelListener(std::weak_ptr<IMediaChannelListener> 
 SharingErrorCode MediaChannel::HandleAppendSurface(SharingEvent &event)
 {
     SHARING_LOGD("trace.");
+    if (consumer_ == nullptr) {
+        SHARING_LOGE("consumer is not inited.");
+        return SharingErrorCode::ERR_GENERAL_ERROR;
+    }
     auto channelMsg = ConvertEventMsg<ChannelAppendSurfaceEventMsg>(event);
     if (channelMsg == nullptr) {
         SHARING_LOGD("unknow msg.");

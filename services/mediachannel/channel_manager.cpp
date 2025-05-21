@@ -45,6 +45,11 @@ SharingErrorCode ChannelManager::HandleMediaChannelCreate(SharingEvent &event)
     }
 
     auto channel = std::make_shared<MediaChannel>();
+    if (channel == nullptr) {
+        SHARING_LOGE("channel is null");
+        return SharingErrorCode::ERR_GENERAL_ERROR;
+    }
+
     channel->SetContextId(eventMsg->srcId);
     eventMsg->srcId = channel->GetId();
     {

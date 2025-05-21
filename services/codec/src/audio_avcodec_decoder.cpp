@@ -150,7 +150,7 @@ bool AudioAvCodecDecoder::SetDecoderFormat(const AudioTrack &audioTrack)
     RETURN_FALSE_IF_NULL(audioDecoder);
 
     int32_t sampleRate =
-        audioTrack.sampleRate == 0 ? AUDIO_DECODE_DEFAULT_SAMPLERRATE : static_cast<int32_t>(audioTrack.sampleRate);
+        audioTrack.sampleRate == 0 ? AUDIO_DECODE_DEFAULT_SAMPLERATE : static_cast<int32_t>(audioTrack.sampleRate);
     int32_t channelCount =
         audioTrack.channels == 0 ? AUDIO_DECODE_DEFAULT_CHANNEL_COUNT : static_cast<int32_t>(audioTrack.channels);
 
@@ -312,12 +312,12 @@ void AudioAvCodecDecoder::RenderOutBuffer()
         if (frameBuffer->isNeedDrop) {
             SHARING_LOGE("Audio RenderBuffer is droped.");
             ReleaseOutputBuffer(frameBuffer->index);
-            lastPlayPts_ = frameBuffer->pts_;
+            lastPlayPts_ = static_cast<int64_t>(frameBuffer->pts_);
             continue;
         }
         DeliverFrame(frameBuffer);
         ReleaseOutputBuffer(frameBuffer->index);
-        lastPlayPts_ = frameBuffer->pts_;
+        lastPlayPts_ = static_cast<int64_t>(frameBuffer->pts_);
     }
 }
 

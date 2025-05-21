@@ -364,7 +364,7 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
         return -1;
     }
     uint32_t dataSizeUint = static_cast<uint32_t>(dataSize);
-    if (dataSizeUint > static_cast<int32_t>(decodedData->Size()) || (dataSizeUint > buffer->GetSize())) {
+    if (dataSizeUint > static_cast<uint32_t>(decodedData->Size()) || (dataSizeUint > buffer->GetSize())) {
         SHARING_LOGE("invalid data size");
         return -1;
     }

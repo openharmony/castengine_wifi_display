@@ -836,11 +836,17 @@ bool WfdSinkSession::HandleTriggerMethod(int32_t cseq, const std::string &method
         if (timeoutTimer_) {
             timeoutTimer_->StopTimer();
         }
-        SendCommonResponse(cseq);
+        if (!SendCommonResponse(cseq)) {
+            NotifyServiceError();
+            return false;
+        }
         SendM6Request();
     } else if (method == RTSP_METHOD_TEARDOWN) {
         SHARING_LOGW("sessionId: %{public}u, receive Tearndown msg: %{public}s.", GetId(), method.c_str());
-        SendCommonResponse(cseq);
+        if (!SendCommonResponse(cseq)) {
+            NotifyServiceError();
+            return false;
+        }
         SendM8Request();
     } else {
         SHARING_LOGE("ignore UNSUPPORTED triggered method '%{public}s'.", method.c_str());
@@ -948,9 +954,9 @@ bool WfdSinkSession::SendM8Request()
     if (!ret) {
         SHARING_LOGE("sessionId: %{public}u, failed to send M8 request, cseq: %{public}d.", GetId(), cseq_);
         responseHandlers_.erase(cseq_);
+    } else {
+        SHARING_LOGI("sessionId: %{public}u,Send TEARDOWN ok.", GetId());
     }
-
-    SHARING_LOGI("sessionId: %{public}u,Send TEARDOWN ok.", GetId());
     wfdState_ = WfdSessionState::STOPPING;
     return ret;
 }

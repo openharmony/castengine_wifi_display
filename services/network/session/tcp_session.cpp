@@ -65,7 +65,7 @@ bool TcpSession::Send(const char *buf, int32_t nSize)
     RETURN_FALSE_IF_NULL(buf);
     if (socket_) {
         int32_t ret = SocketUtils::SendSocket(socket_->GetPeerFd(), buf, nSize);
-        if ((ret != 0)) {
+        if (ret > 0) {
             return true;
         } else {
             SHARING_LOGE("send Failed, Shutdown!");

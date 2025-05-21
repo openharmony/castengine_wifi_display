@@ -690,8 +690,8 @@ void WfdSinkScene::OnRequest(std::shared_ptr<BaseMsg> msg, std::shared_ptr<BaseM
     }
 }
 
-
-void WfdSinkScene::SetWifiScene(uint32_t scene) {
+void WfdSinkScene::SetWifiScene(uint32_t scene)
+{
     SHARING_LOGI("SetWifiScene %{public}u start", scene);
     std::string ifName = "p2p0";
     Hid2dUpperScene upperScene;
@@ -1628,7 +1628,7 @@ void WfdSinkScene::OnInnerDestroy(uint32_t contextId, uint32_t agentId, AgentTyp
     for (auto itemSurface = devSurfaceItemMap_.begin(); itemSurface != devSurfaceItemMap_.end();) {
         if ((itemSurface->second != nullptr) && (contextId == itemSurface->second->contextId) &&
             (agentId == itemSurface->second->agentId)) {
-            devSurfaceItemMap_.erase(itemSurface++);
+            itemSurface = devSurfaceItemMap_.erase(itemSurface);
         } else {
             itemSurface++;
         }
