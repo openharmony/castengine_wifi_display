@@ -40,6 +40,12 @@ RtpUnpackImpl::~RtpUnpackImpl()
 void RtpUnpackImpl::ParseRtp(const char *data, size_t len)
 {
     RETURN_IF_NULL(data);
+    if (len < sizeof(RtpHeader)) {
+        SHARING_LOGE("RtpHeader size error");
+        WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::RTP_DEMUX,
+                        SinkErrorCode::WIFI_DISPLAY_RTP_DATA_INVALID);
+        return;
+    }
     RtpHeader *header = (RtpHeader *)data;
     auto pt = header->pt_;
     auto decoder = rtpDecoder_[pt];

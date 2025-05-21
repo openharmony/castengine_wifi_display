@@ -37,7 +37,10 @@ DataShareHelper &DataShareHelper::GetInstance()
 
 DataShareHelper::~DataShareHelper()
 {
-    helper_ = nullptr;
+    if (helper_ != nullptr) {
+        helper_->Release();
+        helper_ = nullptr;
+    }
 }
 
 int32_t DataShareHelper::RegisterObserver(const sptr<AAFwk::IDataAbilityObserver> &observer)

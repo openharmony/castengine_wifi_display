@@ -160,7 +160,7 @@ void TcpClient::OnClientReadable(int32_t fd)
             SHARING_LOGE("recvSocket failed!");
             Disconnect();
         }
-    } while (retCode == (int32_t)DEFAULT_READ_BUFFER_SIZE);
+    } while (retCode > 0);
 }
 
 } // namespace Sharing

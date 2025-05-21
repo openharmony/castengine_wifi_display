@@ -241,7 +241,7 @@ bool VideoSinkDecoder::DecodeVideoData(const char *data, int32_t size, uint64_t 
     }
 
     MediaAVCodec::AVCodecBufferInfo bufferInfo;
-    bufferInfo.presentationTimeUs = pts;
+    bufferInfo.presentationTimeUs = static_cast<int64_t>(pts);
     bufferInfo.size = size;
     bufferInfo.offset = 0;
     WfdSinkHiSysEvent::GetInstance().RecordMediaDecodeStartTime(MediaReportType::VIDEO, bufferInfo.presentationTimeUs);

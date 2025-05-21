@@ -37,10 +37,9 @@ int PreferencesUtil::PutString(const std::string &key, const std::string &value)
         SHARING_LOGE("get profiles failed. errcode_ %{public}d.", errCode_);
         return NativePreferences::E_ERROR;
     }
-    preferencesMutex_.lock();
+    std::lock_guard<std::mutex> lock(preferencesMutex_);
     int result = ptr->PutString(key, value);
     ptr->FlushSync();
-    preferencesMutex_.unlock();
     return result;
 }
 
@@ -52,22 +51,8 @@ std::string PreferencesUtil::GetString(const std::string &key)
         return "";
     }
     std::string defaultValue = "";
-    preferencesMutex_.lock();
+    std::lock_guard<std::mutex> lock(preferencesMutex_);
     std::string result = ptr->GetString(key, defaultValue);
-    preferencesMutex_.unlock();
-    return result;
-}
-
-bool PreferencesUtil::HasKey(const std::string &key)
-{
-    std::shared_ptr<NativePreferences::Preferences> ptr = GetProfiles(path_, errCode_);
-    if (ptr == nullptr) {
-        SHARING_LOGE("get profiles failed. errcode_ %{public}d.", errCode_);
-        return NativePreferences::E_ERROR;
-    }
-    preferencesMutex_.lock();
-    int result = ptr->HasKey(key);
-    preferencesMutex_.unlock();
     return result;
 }
 
@@ -78,10 +63,9 @@ int PreferencesUtil::DeleteKey(const std::string &key)
         SHARING_LOGE("get profiles failed. errcode_ %{public}d.", errCode_);
         return NativePreferences::E_ERROR;
     }
-    preferencesMutex_.lock();
+    std::lock_guard<std::mutex> lock(preferencesMutex_);
     int result = ptr->Delete(key);
     ptr->FlushSync();
-    preferencesMutex_.unlock();
     return result;
 }
 
@@ -92,9 +76,8 @@ int PreferencesUtil::Clear()
         SHARING_LOGE("get profiles failed. errcode_ %{public}d.", errCode_);
         return NativePreferences::E_ERROR;
     }
-    preferencesMutex_.lock();
+    std::lock_guard<std::mutex> lock(preferencesMutex_);
     int result = ptr->Clear();
-    preferencesMutex_.unlock();
     return result;
 }
 

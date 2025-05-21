@@ -24,7 +24,7 @@
 namespace OHOS {
 namespace Sharing {
 constexpr static uint32_t AUDIO_DECODE_WAIT_MILLISECONDS = 5000;
-constexpr static uint32_t AUDIO_DECODE_DEFAULT_SAMPLERRATE = 48000;
+constexpr static uint32_t AUDIO_DECODE_DEFAULT_SAMPLERATE = 48000;
 constexpr static uint32_t AUDIO_DECODE_DEFAULT_CHANNEL_COUNT = 2;
 constexpr static uint32_t ERROR_DECODER_INIT = -1;
 constexpr static uint32_t MAX_BUFFER_SIZE = 30;

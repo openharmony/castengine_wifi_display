@@ -151,18 +151,18 @@ void RtpDecoderTs::StartDecoding()
                 if (H264_TYPE(buf[prefix]) == H264Frame::NAL_AUD) {
                     return;
                 }
-                uint64_t ptsUsec = av_rescale_q(packet->pts, videoTimeBase, PtsTimeBase);
+                int64_t ptsUsec = av_rescale_q(packet->pts, videoTimeBase, PtsTimeBase);
                 auto outFrame = std::make_shared<H264Frame>((uint8_t *)buf, len, (uint32_t)packet->dts,
-                                                            ptsUsec, prefix);
+                                                            (uint64_t)ptsUsec, prefix);
                 std::lock_guard<std::mutex> lock(frameLock);
                 if (onFrame_) {
                     onFrame_(outFrame);
                 }
             });
         } else if (packet->stream_index == audioStreamIndex_) {
-            uint64_t ptsUsec = av_rescale_q(packet->pts, audioTimeBase, PtsTimeBase);
+            int64_t ptsUsec = av_rescale_q(packet->pts, audioTimeBase, PtsTimeBase);
             auto outFrame = std::make_shared<AACFrame>((uint8_t *)packet->data, packet->size, (uint32_t)packet->dts,
-                                                       ptsUsec);
+                                                        (uint64_t)ptsUsec);
             std::lock_guard<std::mutex> lock(frameLock);
             if (onFrame_) {
                 onFrame_(outFrame);

@@ -29,7 +29,6 @@ public:
 
     int PutString(const std::string &key, const std::string &valut);
     std::string GetString(const std::string &key);
-    bool HasKey(const std::string &key);
     int DeleteKey(const std::string &key);
     int Clear();
     void Flush();
@@ -39,7 +38,7 @@ private:
     std::shared_ptr<NativePreferences::Preferences> GetProfiles(const std::string &path, int &errCode);
 
 private:
-    std::shared_mutex preferencesMutex_;
+    std::mutex preferencesMutex_;
     int errCode_ = NativePreferences::E_OK;
     std::string path_;
 };
