@@ -31,9 +31,9 @@ public:
 
     int32_t GetConfig(SharingData::Ptr &value);
     int32_t SaveConfig(SharingData::Ptr &value);
+    int32_t ReadModuleConfig(Json::Value &module, SharingData::Ptr &value);
 
 private:
-    int32_t ReadModuleConfig(Json::Value &module, SharingData::Ptr &value);
     int32_t SaveModuleConfig(Json::Value &module, const SharingDataGroupByModule::Ptr &value);
 };
 

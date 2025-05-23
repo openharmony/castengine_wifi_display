@@ -446,7 +446,9 @@ void WfdSinkSession::HandleRequest(const RtspRequest &request, const std::string
     if (rtspMethod == RTSP_METHOD_OPTIONS) {
         // this is M1 request
         SHARING_LOGD("Handle M1 request.");
-        timeoutTimer_->StopTimer();
+        if (timeoutTimer_) {
+            timeoutTimer_->StopTimer();
+        }
         isFirstCast = true;
         isFirstCreateProsumer_ = true;
         SendM1Response(incomingCSeq);
@@ -459,11 +461,16 @@ void WfdSinkSession::HandleRequest(const RtspRequest &request, const std::string
         if (!params.empty()) {
             // this is M3 request
             SHARING_LOGD("Handle M3 request.");
-            timeoutTimer_->StopTimer();
+            if (timeoutTimer_) {
+                timeoutTimer_->StopTimer();
+            }
             SendM3Response(incomingCSeq, params);
         } else {
             // M16: Keep-Alive message
             SHARING_LOGD("Handle M16/Keep-Alive request.");
+            if (keepAliveTimer_ == nullptr) {
+                return;
+            }
             keepAliveTimer_->StopTimer();
             SendCommonResponse(incomingCSeq);
             keepAliveTimer_->StartTimer(keepAliveTimeout_,

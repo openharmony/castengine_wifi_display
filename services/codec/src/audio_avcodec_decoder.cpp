@@ -292,7 +292,7 @@ bool AudioAvCodecDecoder::ReleaseOutputBuffer(uint32_t index)
     if (ret != MediaAVCodec::AVCS_ERR_OK) {
         SHARING_LOGE("ReleaseOutputBuffer fail. Error code %{public}d.", ret);
     }
-    return ret;
+    return ret == MediaAVCodec::AVCS_ERR_OK;
 }
 
 void AudioAvCodecDecoder::RenderOutBuffer()

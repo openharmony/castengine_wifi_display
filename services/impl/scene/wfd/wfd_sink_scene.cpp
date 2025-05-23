@@ -737,6 +737,7 @@ int32_t WfdSinkScene::HandleStart(std::shared_ptr<WfdSinkStartReq> &msg, std::sh
                 return -1;
             }
             isSinkRunning_ = true;
+            WfdP2pStart();
             break;
         default:
             SHARING_LOGI("none process case.");

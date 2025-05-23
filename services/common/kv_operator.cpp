@@ -143,11 +143,5 @@ bool KvOperator::JsonToString(const nlohmann::json &jsonObj, std::string &str)
     return true;
 }
 
-bool KvOperator::QueryFromJson(const nlohmann::json &jsonObj, const std::string &key, std::string &val)
-{
-    val = jsonObj.at(key.c_str());
-    return true;
-}
-
 } // namespace Media
 } // namespace OHOS
