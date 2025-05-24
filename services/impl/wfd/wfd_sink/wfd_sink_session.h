@@ -43,6 +43,7 @@ public:
     void UpdateMediaStatus(SessionStatusMsg::Ptr &statusMsg) override;
 
     int32_t HandleEvent(SharingEvent &event) override;
+    void HandleRequest(const RtspRequest &request, const std::string &message);
 
 protected:
     void NotifyProsumerInit(SessionStatusMsg::Ptr &statusMsg);
@@ -68,7 +69,6 @@ private:
 
     bool HandleM4Request(const std::string &message);
     bool HandleTriggerMethod(int32_t cseq, const std::string &method);
-    void HandleRequest(const RtspRequest &request, const std::string &message);
     void HandleSetParamRequest(const RtspRequest &request, const std::string &message);
 
     void HandleM2Response(const RtspResponse &response, const std::string &message);

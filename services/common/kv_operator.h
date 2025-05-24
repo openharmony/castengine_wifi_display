@@ -47,7 +47,6 @@ public:
 
     bool StringToJson(const std::string &str, nlohmann::json &jsonObj);
     bool JsonToString(const nlohmann::json &jsonObj, std::string &str);
-    bool QueryFromJson(const nlohmann::json &jsonObj, const std::string &key, std::string &val);
 
 private:
     std::shared_ptr<DistributedKv::SingleKvStore> kvStorePtr_;

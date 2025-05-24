@@ -154,7 +154,7 @@ bool WfdRtpConsumer::Start()
         return false;
     }
 
-    SHARING_LOGD("start reveiver server success.");
+    SHARING_LOGD("start receiver server success.");
     isRunning_ = true;
     return true;
 }
@@ -229,7 +229,7 @@ void WfdRtpConsumer::HandleNaluUpdate(std::shared_ptr<BufferDispatcher> dispatch
     if (oldNalu && oldNalu->buff) {
         bool isSame =
             (static_cast<size_t>(oldNalu->buff->Size()) == len) && (memcmp(oldNalu->buff->Peek(), buf, len) == 0);
-        SHARING_LOGD("compare result: %{pubilc}s", isSame ? "same" : "different");
+        SHARING_LOGD("compare result: %{public}s", isSame ? "same" : "different");
         needUpdate = !isSame;
     }
 
