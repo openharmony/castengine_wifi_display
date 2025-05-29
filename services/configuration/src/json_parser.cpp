@@ -85,8 +85,8 @@ int32_t JsonParser::SaveConfig(SharingData::Ptr &value)
 
 int32_t JsonParser::ReadModuleConfig(Json::Value &modules, SharingData::Ptr &value)
 {
-    if (modules.empty()) {
-        SHARING_LOGE("this module is empty.");
+    if (modules.empty() || !modules.isObject()) {
+        SHARING_LOGE("this module invalid");
         return -1;
     }
 
