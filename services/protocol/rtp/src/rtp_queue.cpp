@@ -140,7 +140,9 @@ void RtpPacketSortor::PopPacket()
 
         auto hit = pktSortCacheMap_.upper_bound((nextSeqOut_ - pktSortCacheMap_.size()));
         while (hit != pktSortCacheMap_.end()) {
-            onSort_(hit->first, hit->second);
+            if (onSort_) {
+                onSort_(hit->first, hit->second);
+            }
             hit = pktSortCacheMap_.erase(hit);
         }
 
@@ -157,7 +159,9 @@ void RtpPacketSortor::PopIterator(std::map<uint16_t, RtpPacket::Ptr>::iterator i
     auto data = std::move(it->second);
     pktSortCacheMap_.erase(it);
     nextSeqOut_ = seq + 1;
-    onSort_(seq, data);
+    if (onSort_) {
+        onSort_(seq, data);
+    }
 }
 
 void RtpPacketSortor::TryPopPacket()
