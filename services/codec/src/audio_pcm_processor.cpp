@@ -79,6 +79,9 @@ void AudioPcmProcessor::OnFrame(const Frame::Ptr &frame)
     PcmLittleToBigEndian(frame->Data(), frame->Size());
     uint8_t *captureData[] = {frame->Data()};
     uint8_t *payloadData[] = {data};
+    if (sampleSize_ == 0) {
+        return;
+    }
     int32_t payloadSampleNum = (int32_t)(LPCM_PES_PAYLOAD_DATA_SIZE / sampleSize_);
     av_audio_fifo_write(fifo_, reinterpret_cast<void **>(captureData), frame->Size() / sampleSize_);
     while (av_audio_fifo_size(fifo_) >= payloadSampleNum) {
@@ -102,6 +105,9 @@ void AudioPcmProcessor::OnFrame(const Frame::Ptr &frame)
 
 void AudioPcmProcessor::PcmLittleToBigEndian(uint8_t *data, int32_t size)
 {
+    if (channels_ == 0) {
+        return;
+    }
     int32_t sampleSize = (int32_t)(sampleSize_ / channels_);
     if (sampleSize <= 1) {
         return;
