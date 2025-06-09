@@ -68,7 +68,10 @@ void *pthread_handle_message(void *sock_fd)
 
 int main(int argc, char **argv)
 {
-    int listener, kdpfd, nfds, n;
+    int listener;
+    int kdpfd;
+    int nfds;
+    int n;
     socklen_t len;
     struct sockaddr_in my_addr;
     unsigned int myport;
