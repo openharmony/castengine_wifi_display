@@ -92,6 +92,11 @@ public:
         return socketPeerFd_;
     }
 
+    void resetPeerFd()
+    {
+        socketPeerFd_ = -1;
+    }
+
     void SetSocketState(SocketState state)
     {
         MEDIA_LOGD("trace.");
