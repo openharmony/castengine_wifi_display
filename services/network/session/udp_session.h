@@ -17,6 +17,7 @@
 #define OHOS_SHARING_UDP_SESSION_H
 
 #include "base_network_session.h"
+#include <mutex>
 
 namespace OHOS {
 namespace Sharing {
@@ -35,6 +36,8 @@ public:
     void OnSessionReadble(int32_t fd) override;
     bool Send(const char *buf, int32_t nSize) override;
     bool Send(const DataBuffer::Ptr &buf, int32_t nSize) override;
+private:
+    std::mutex mutex_;
 };
 } // namespace Sharing
 } // namespace OHOS

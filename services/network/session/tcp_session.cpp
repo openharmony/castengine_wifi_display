@@ -83,6 +83,7 @@ bool TcpSession::Send(const char *buf, int32_t nSize)
 void TcpSession::Shutdown()
 {
     SHARING_LOGD("trace.");
+    std::lock_guard<std::mutex> lock(mutex_);
     if (socket_) {
         if (eventListener_) {
             eventListener_->RemoveFdListener(socket_->GetPeerFd());
@@ -96,6 +97,7 @@ void TcpSession::Shutdown()
 void TcpSession::OnSessionReadble(int32_t fd)
 {
     MEDIA_LOGD("fd: %{public}d, thread_id: %{public}llu.", fd, GetThreadId());
+    std::lock_guard<std::mutex> lock(mutex_);
     if (socket_ == nullptr) {
         SHARING_LOGE("onReadable nullptr!");
         return;
