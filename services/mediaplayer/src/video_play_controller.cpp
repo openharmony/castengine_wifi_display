@@ -335,8 +335,6 @@ int32_t VideoPlayController::RenderInCopyMode(DataBuffer::Ptr decodedData)
 
     BufferRequestConfig requestConfig = {
         .width = renderWidth, .height = renderHeight, .strideAlignment = 8,
-        // .format = PIXEL_FMT_RGBA_8888,
-        // .usage = HBM_USE_CPU_READ | HBM_USE_CPU_WRITE | HBM_USE_MEM_DMA,
         .format = GRAPHIC_PIXEL_FMT_YCRCB_420_SP,
         .usage = BUFFER_USAGE_CPU_READ | BUFFER_USAGE_CPU_WRITE | BUFFER_USAGE_MEM_DMA,
         .timeout = 0,

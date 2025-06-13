@@ -29,7 +29,7 @@ public:
 
     void OnRemoteDied(std::string deviceId) final
     {
-        SHARING_LOGD("on RPC remote died deviceId: %{public}s.", deviceId.c_str());
+        SHARING_LOGD("on RPC remote died deviceId: %{public}s.", GetAnonymousDeviceId(deviceId).c_str());
         auto service = service_.lock();
         if (service != nullptr) {
             service->DelPeerProxy(deviceId);
