@@ -480,7 +480,7 @@ int32_t SocketUtils::ReadSocket(int32_t fd, DataBuffer::Ptr buf, int32_t &error)
 
 int32_t SocketUtils::RecvSocket(int32_t fd, char *buf, uint32_t len, int32_t flags, int32_t &error)
 {
-    SHARING_LOGD("trace.");
+    SHARING_LOGI("RecvSocket fd is %{public}d", fd);
     if (fd < 0 || buf == nullptr || len == 0) {
         SHARING_LOGE("invalid param.");
         return -1;

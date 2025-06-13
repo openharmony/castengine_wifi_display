@@ -89,6 +89,7 @@ void TcpSession::Shutdown()
         }
         SocketUtils::ShutDownSocket(socket_->GetPeerFd());
         SocketUtils::CloseSocket(socket_->GetPeerFd());
+        socket_->resetPeerFd();
         socket_.reset();
     }
 }
