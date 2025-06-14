@@ -1572,7 +1572,7 @@ void BufferDispatcher::ActiveDataRef(MediaType type, bool keyFrame)
         if (keyFrame && keyModeReceiver && keyIndexList_.empty()) {
             notifier->videoIndex = circularBuffer_.size() - 1;
         }
-        if ((!keyModeReceiver || (keyModeReceiver && keyFrame))) {
+        if (!keyModeReceiver || keyFrame) {
             if (index != INVALID_INDEX) {
                 bitRef |= RECV_FLAG_BASE << (index * 2 + 1); // 2: fix offset, get video notifyer id
             }
