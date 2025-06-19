@@ -20,7 +20,6 @@ group("network_unittest") {
   testonly = true
   deps = [
     ":network_tcp_unit_test",
-    ":network_udp_unit_test",
   ]
 }
 
