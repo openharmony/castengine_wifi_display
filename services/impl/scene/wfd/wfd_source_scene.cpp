@@ -161,8 +161,13 @@ void WfdSourceScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pL
     SHARING_LOGI("OnP2pConnectionChanged ConnectState: %{public}d.", state);
 
     auto scene = scene_.lock();
-    if (scene == nullptr || scene->p2pInstance_ == nullptr) {
+    if (scene == nullptr) {
         SHARING_LOGW("scene is nullptr.");
+        return;
+    }
+
+    if (scene->p2pInstance_ == nullptr) {
+        SHARING_LOGW("p2pInstance is nullptr.");
         return;
     }
 
