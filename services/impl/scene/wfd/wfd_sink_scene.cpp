@@ -282,7 +282,7 @@ bool WfdSinkScene::WfdP2pCallback::GetErrorCode(Wifi::ErrCode errorCode, SinkErr
         SHARING_LOGI("wifi errorCode: %{public}d, sharingError:%{public}d", errorCode, sharingError);
         return true;
     } else {
-        SHARING_LOGI("unkonw wifi errorCode: %{public}d", errorCode);
+        SHARING_LOGI("unknow wifi errorCode: %{public}d", errorCode);
         return false;
     }
 }
