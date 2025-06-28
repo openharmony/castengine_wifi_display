@@ -28,6 +28,7 @@ namespace OHOS {
 namespace Sharing {
 uint16_t SocketUtils::minPort_ = MIN_PORT;
 uint16_t SocketUtils::maxPort_ = MAX_PORT;
+const uint32_t ERRNO_MAX_LEN = 256;
 
 bool SocketUtils::CreateTcpServer(const char *ip, unsigned port, int32_t &fd)
 {
@@ -120,7 +121,9 @@ bool SocketUtils::CreateSocket(int32_t socketType, int32_t &fd)
 
     fd = socket(AF_INET, socketType, (socketType == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP));
     if (fd < 0) {
-        SHARING_LOGE("error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("error: %{public}s!", errmsg);
         return false;
     }
     SHARING_LOGD("success fd: %{public}d.", fd);
@@ -137,12 +140,16 @@ bool SocketUtils::BindSocket(int32_t fd, const std::string &host, uint16_t port)
         addr.sin_addr.s_addr = INADDR_ANY;
     } else {
         if (inet_pton(AF_INET, host.c_str(), &addr.sin_addr) <= 0) {
-            SHARING_LOGE("error: %{public}s!", strerror(errno));
+            char errmsg[ERRNO_MAX_LEN] = {0};
+            strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+            SHARING_LOGE("error: %{public}s!", errmsg);
             return false;
         }
     }
     if (::bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-        SHARING_LOGE("error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("error: %{public}s!", errmsg);
         return false;
     }
 
@@ -153,7 +160,9 @@ bool SocketUtils::ListenSocket(int32_t fd, uint32_t backlog)
 {
     SHARING_LOGD("trace.");
     if (::listen(fd, backlog) == -1) {
-        SHARING_LOGE("error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("error: %{public}s!", errmsg);
         return false;
     }
 
@@ -172,7 +181,9 @@ bool SocketUtils::ConnectSocket(int32_t fd, bool isAsync, const std::string &ip,
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(port);
     if (inet_pton(AF_INET, ip.c_str(), &serverAddr.sin_addr) <= 0) {
-        SHARING_LOGE("inet_pton ip error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("inet_pton ip error: %{public}s!", errmsg);
         return false;
     }
 
@@ -224,7 +235,9 @@ bool SocketUtils::CheckAsyncConnect(int32_t fd)
     }
 
     if ((rc < 0) || (rc == 2)) { // 2: select error
-        SHARING_LOGE("async connect error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("async connect error: %{public}s!", errmsg);
     }
 
     return false;
@@ -244,7 +257,9 @@ bool SocketUtils::SetReuseAddr(int32_t fd, bool isReuse)
     SHARING_LOGD("trace.");
     int32_t on = isReuse ? 1 : 0;
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) != 0) {
-        SHARING_LOGE("error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("error: %{public}s!", errmsg);
         return false;
     }
 
@@ -256,7 +271,9 @@ bool SocketUtils::SetReusePort(int32_t fd, bool isReuse)
     SHARING_LOGD("trace.");
     int32_t on = isReuse ? 1 : 0;
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on)) != 0) {
-        SHARING_LOGE("error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("error: %{public}s!", errmsg);
         return false;
     }
 
@@ -270,7 +287,9 @@ bool SocketUtils::SetCloseWait(int32_t fd, int32_t second)
     sLinger.l_onoff = (second > 0);
     sLinger.l_linger = second;
     if (setsockopt(fd, SOL_SOCKET, SO_LINGER, &sLinger, sizeof(linger)) == -1) {
-        SHARING_LOGE("error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("error: %{public}s!", errmsg);
         return false;
     }
 
@@ -283,7 +302,9 @@ bool SocketUtils::SetCloExec(int32_t fd, bool isOn)
 
     int32_t flags = fcntl(fd, F_GETFD);
     if (flags == -1) {
-        SHARING_LOGE("fcntl error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("fcntl error: %{public}s!", errmsg);
         return false;
     }
 
@@ -295,7 +316,9 @@ bool SocketUtils::SetCloExec(int32_t fd, bool isOn)
     }
 
     if (fcntl(fd, F_SETFD, flags) == -1) {
-        SHARING_LOGE("error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("error: %{public}s!", errmsg);
         return false;
     }
 
@@ -307,7 +330,9 @@ bool SocketUtils::SetNoDelay(int32_t fd, bool isOn)
     SHARING_LOGD("trace.");
     int32_t on = isOn;
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on)) != 0) {
-        SHARING_LOGE("error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("error: %{public}s!", errmsg);
         return false;
     }
 
@@ -342,7 +367,9 @@ bool SocketUtils::SetSendBuf(int32_t fd, int32_t size)
 {
     SHARING_LOGD("trace.");
     if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size)) != 0) {
-        SHARING_LOGE("error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("error: %{public}s!", errmsg);
         return false;
     }
 
@@ -353,7 +380,9 @@ bool SocketUtils::SetRecvBuf(int32_t fd, int32_t size)
 {
     SHARING_LOGD("trace.");
     if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &size, sizeof(size)) != 0) {
-        SHARING_LOGE("error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("error: %{public}s!", errmsg);
         return false;
     }
 
@@ -394,7 +423,9 @@ int32_t SocketUtils::SendSocket(int32_t fd, const char *buf, int32_t len)
                 break;
             }
         } else {
-            SHARING_LOGE("error: %{public}s!", strerror(errno));
+            char errmsg[ERRNO_MAX_LEN] = {0};
+            strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+            SHARING_LOGE("error: %{public}s!", errmsg);
             bytes = 0;
             sending = false;
             break;
@@ -413,14 +444,18 @@ int32_t SocketUtils::Sendto(int32_t fd, const char *buf, size_t len, const char 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(nPort);
     if (inet_pton(AF_INET, ip, &addr.sin_addr) <= 0) {
-        SHARING_LOGE("inet_pton error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("inet_pton error: %{public}s!", errmsg);
         return -1;
     }
     int32_t retCode = sendto(fd, buf, len, 0, (struct sockaddr *)&addr, sizeof(addr));
     if (retCode < 0 && (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN)) {
     } else if (retCode > 0) {
     } else {
-        SHARING_LOGE("sendto error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("sendto error: %{public}s!", errmsg);
         retCode = 0;
     }
 
@@ -440,7 +475,9 @@ int32_t SocketUtils::ReadSocket(int32_t fd, char *buf, uint32_t len, int32_t &er
     if (retCode < 0 && (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN)) {
     } else if (retCode > 0) {
     } else {
-        SHARING_LOGE("error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("error: %{public}s!", errmsg);
         retCode = 0;
     }
 
@@ -472,7 +509,9 @@ int32_t SocketUtils::ReadSocket(int32_t fd, DataBuffer::Ptr buf, int32_t &error)
     } else if (bytesRead < 0 && (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN)) {
     } else {
         bytesRead = 0;
-        SHARING_LOGE("error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("error: %{public}s!", errmsg);
     }
 
     return bytesRead;
@@ -491,7 +530,9 @@ int32_t SocketUtils::RecvSocket(int32_t fd, char *buf, uint32_t len, int32_t fla
     if (retCode < 0 && (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN)) {
     } else if (retCode > 0) {
     } else {
-        SHARING_LOGE("error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("error: %{public}s!", errmsg);
         retCode = 0;
     }
 
@@ -505,7 +546,9 @@ int32_t SocketUtils::AcceptSocket(int32_t fd, struct sockaddr_in *clientAddr, so
     RETURN_INVALID_IF_NULL(addrLen);
     int32_t clientFd = accept(fd, reinterpret_cast<struct sockaddr *>(clientAddr), addrLen);
     if (clientFd < 0) {
-        SHARING_LOGE("accept error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("accept error: %{public}s!", errmsg);
     }
 
     return clientFd;
@@ -518,19 +561,23 @@ bool SocketUtils::GetIpPortInfo(int32_t fd, std::string &strLocalAddr, std::stri
     struct sockaddr_in localAddr;
     socklen_t localAddrLen = sizeof(localAddr);
     if (-1 == getsockname(fd, (struct sockaddr *)&localAddr, &localAddrLen)) {
-        SHARING_LOGE("getsockname error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("getsockname error: %{public}s!", errmsg);
         return false;
     }
 
     struct sockaddr_in remoteAddr;
     socklen_t remoteAddrLen = sizeof(remoteAddr);
     if (-1 == getpeername(fd, (struct sockaddr *)&remoteAddr, &remoteAddrLen)) {
-        SHARING_LOGE("getpeername error: %{public}s!", strerror(errno));
+        char errmsg[ERRNO_MAX_LEN] = {0};
+        strerror_r(errno, errmsg, ERRNO_MAX_LEN);
+        SHARING_LOGE("getpeername error: %{public}s!", errmsg);
         return false;
     }
 
-    strLocalAddr = inet_ntoa(localAddr.sin_addr);
-    strRemoteAddr = inet_ntoa(remoteAddr.sin_addr);
+    strLocalAddr = ConvertSinAddrToStr(localAddr);
+    strRemoteAddr = ConvertSinAddrToStr(remoteAddr);
 
     localPort = ntohs(localAddr.sin_port);
     remotePort = ntohs(remoteAddr.sin_port);

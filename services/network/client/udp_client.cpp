@@ -101,9 +101,11 @@ bool UdpClient::Send(const char *buf, int32_t nSize)
             return true;
         } else {
             if (socket_) {
+                char errmsg[256] = {0};
+                strerror_r(errno, errmsg, sizeof(errmsg));
                 MEDIA_LOGE("send [%{public}s:%{public}d]Failed, %{public}s.",
                            GetAnonyString(socket_->GetPeerIp()).c_str(), (int32_t)socket_->GetPeerPort(),
-                           strerror(errno));
+                           errmsg);
             }
 
             return false;
@@ -140,7 +142,9 @@ void UdpClient::OnClientReadable(int32_t fd)
                 callback->OnClientReadData(fd, std::move(buf));
             }
         } else if (retCode == 0) {
-            SHARING_LOGE("recvSocket failed, error:%{public}s!", strerror(errno));
+            char errmsg[256] = {0};
+            strerror_r(errno, errmsg, sizeof(errmsg));
+            SHARING_LOGE("recvSocket failed, error:%{public}s!", errmsg);
             Disconnect();
         }
     } while (retCode > 0);

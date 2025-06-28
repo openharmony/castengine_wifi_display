@@ -28,12 +28,12 @@ std::string RtspCommon::GetRtspDate()
     if (now <= 0) {
         return {};
     }
-    struct tm *t = gmtime(&now);
-    if (t == nullptr) {
+    struct tm t = {0};
+    if (gmtime_r(&now, &t) == NULL) {
         return {};
     }
     char buf[40] = {0};
-    if (strftime(buf, sizeof(buf), "%a, %b %d %Y %H:%M:%S GMT", t) < 0) {
+    if (strftime(buf, sizeof(buf), "%a, %b %d %Y %H:%M:%S GMT", &t) < 0) {
         return {};
     }
     return buf;

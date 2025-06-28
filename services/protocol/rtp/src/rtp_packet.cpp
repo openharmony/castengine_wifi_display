@@ -120,6 +120,9 @@ uint32_t RtpPacket::GetStamp()
 
 uint32_t RtpPacket::GetStampMS()
 {
+    if (sampleRate_ == 0) {
+        return 0;
+    }
     return GetStamp() * uint64_t(1000) / sampleRate_; // 1000:unit
 }
 
