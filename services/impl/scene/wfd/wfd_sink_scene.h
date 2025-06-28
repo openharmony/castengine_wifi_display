@@ -68,6 +68,7 @@ public:
         bool GetErrorCode(Wifi::ErrCode errorCode, SinkErrorCode &sharingError);
 
     private:
+        std::mutex mutex_;
         std::weak_ptr<WfdSinkScene> parent_;
         WfdTrustListManager wfdTrustListManager_;
         static std::unordered_map<Wifi::ErrCode, SinkErrorCode> wifiErrorMapping_;

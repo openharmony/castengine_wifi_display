@@ -78,6 +78,7 @@ int PreferencesUtil::Clear()
     }
     std::lock_guard<std::mutex> lock(preferencesMutex_);
     int result = ptr->Clear();
+    ptr->FlushSync();
     return result;
 }
 

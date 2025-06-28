@@ -114,6 +114,7 @@ std::string GetLocalP2pAddress(const std::string &interface);
 std::string GetAnonymousIp(const std::string &ip);
 std::string GetAnonymousMAC(const std::string &mac);
 std::string GetAnonymousDeviceId(const std::string &deviceId);
+std::string ConvertSinAddrToStr(const struct sockaddr_in &addr);
 } // namespace Sharing
 } // namespace OHOS
 #endif

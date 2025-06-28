@@ -1071,7 +1071,7 @@ int32_t BufferDispatcher::WriteDataIntoBuffer(const DataSpec::Ptr &data)
         audioFrameCnt_++;
     } else {
         lastVideoIndex_ = circularBuffer_.size() - 1;
-        if (!keyOnly_ || (keyOnly_ && IsKeyVideoFrame(data))) {
+        if (!keyOnly_ || IsKeyVideoFrame(data)) {
             ActiveDataRef(MEDIA_TYPE_VIDEO, IsKeyVideoFrame(data));
         }
         videoFrameCnt_++;

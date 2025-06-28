@@ -696,7 +696,9 @@ void WfdRtspM4Request::GetVideoTrack(VideoTrack &videoTrack)
     char *endPtr = nullptr;
     int nativeValue = std::strtol(videoFormats.front().c_str(), &endPtr, HEX_LENGTH);
     if (errno == ERANGE || endPtr == videoFormats.front().c_str() || *endPtr != '\0') {
-        SHARING_LOGE("%{public}s error : %{public}s!", __FUNCTION__, strerror(errno));
+        char errmsg[256] = {0};
+        strerror_r(errno, errmsg, sizeof(errmsg));
+        SHARING_LOGE("%{public}s error : %{public}s!", __FUNCTION__, errmsg);
         return;
     }
     

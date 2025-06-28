@@ -131,6 +131,7 @@ void WfdSinkScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::Wif
                     break;
                 }
                 case Wifi::P2pDeviceStatus::PDS_CONNECTED: {
+                    std::lock_guard<std::mutex> lock(mutex_);
                     parent->currentConnectDev_.mac = itDev.GetDeviceAddress();
                     parent->currentConnectDev_.deviceName = itDev.GetDeviceName();
                     parent->currentConnectDev_.primaryDeviceType = itDev.GetPrimaryDeviceType();
@@ -188,6 +189,7 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
     SHARING_LOGI("group frequency %{public}d", group.GetFrequency());
     if (info.IsGroupOwner()) {
         SHARING_LOGI("sink is go");
+        std::lock_guard<std::mutex> lock(mutex_);
         parent->localIp_ = info.GetGroupOwnerAddress();
         return;
     } else {
@@ -197,12 +199,15 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
             SHARING_LOGE("get remoteIp ip failed");
             return;
         }
-        parent->currentConnectDev_.ip = remoteIp;
-        std::string interface = group.GetInterface();
-        parent->localIp_ = GetLocalP2pAddress(interface);
-        if (parent->localIp_.empty()) {
-            SHARING_LOGW("get local ip failed");
-            return;
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            parent->currentConnectDev_.ip = remoteIp;
+            std::string interface = group.GetInterface();
+            parent->localIp_ = GetLocalP2pAddress(interface);
+            if (parent->localIp_.empty()) {
+                SHARING_LOGW("get local ip failed");
+                return;
+            }
         }
         wfdTrustListManager_.AddBoundDevice(group);
     }
@@ -282,7 +287,7 @@ bool WfdSinkScene::WfdP2pCallback::GetErrorCode(Wifi::ErrCode errorCode, SinkErr
         SHARING_LOGI("wifi errorCode: %{public}d, sharingError:%{public}d", errorCode, sharingError);
         return true;
     } else {
-        SHARING_LOGI("unkonw wifi errorCode: %{public}d", errorCode);
+        SHARING_LOGI("unknow wifi errorCode: %{public}d", errorCode);
         return false;
     }
 }

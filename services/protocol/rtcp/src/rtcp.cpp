@@ -119,11 +119,11 @@ std::string RtcpSR::GetNtpStamp() const
     tv.tv_usec = (decltype(tv.tv_usec))(ntplsw_ / ((double)(((uint64_t)1) << 32) * 1.0e-6)); // 32:byte offset, 6:-
 
     char ts[30] = {0};
-    auto tm = localtime(&tv.tv_sec);
-    if (tm == nullptr) {
+    struct tm local = {0};
+    if (localtime_r(&tv.tv_sec, &local) == NULL) {
         return {};
     }
-    if (strftime(ts, sizeof(ts), "%Y-%m-%d %H:%M:%S", tm) < 0) {
+    if (strftime(ts, sizeof(ts), "%Y-%m-%d %H:%M:%S", &local) < 0) {
         return {};
     }
     if (sprintf_s(ts + strlen(ts), sizeof(ts) - strlen(ts), ".%06lld", static_cast<long long>(tv.tv_usec)) < 0) {

@@ -332,7 +332,9 @@ std::string GetLocalP2pAddress(const std::string &interface)
     int32_t ret = ioctl(socketFd, SIOCGIFADDR, &request);
     close(socketFd);
     if (ret < 0) {
-        SHARING_LOGE("get ifr conf failed = %{public}d, error %{public}s", ret, strerror(errno));
+        char errmsg[256] = {0};
+        strerror_r(errno, errmsg, sizeof(errmsg));
+        SHARING_LOGE("get ifr conf failed = %{public}d, error %{public}s", ret, errmsg);
         return "";
     }
 
@@ -382,6 +384,15 @@ std::string GetAnonymousDeviceId(const std::string &deviceId)
     }
     return deviceId.substr(0, DEVICE_ID_VISIBLE_LEN) + "**" +
         deviceId.substr(deviceId.length() - DEVICE_ID_VISIBLE_LEN);
+}
+std::string ConvertSinAddrToStr(const struct sockaddr_in &addr)
+{
+    char ipString[IP_LEN] = {0};
+    if (inet_ntop(addr.sin_family, &addr.sin_addr, ipString, IP_LEN) == nullptr) {
+        SHARING_LOGE("inet_ntop failed");
+        return "";
+    }
+    return std::string(ipString);
 }
 } // namespace Sharing
 } // namespace OHOS

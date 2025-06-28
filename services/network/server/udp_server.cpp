@@ -145,13 +145,17 @@ void UdpServer::OnServerReadable(int32_t fd)
 
         if (retCode < 0) {
             if (errno != EAGAIN) {
-                MEDIA_LOGD("on read data error %{public}d : %{public}s!", errno, strerror(errno));
+                char errmsg[256] = {0};
+                strerror_r(errno, errmsg, sizeof(errmsg));
+                MEDIA_LOGD("on read data error %{public}d : %{public}s!", errno, errmsg);
                 callback->OnServerException(fd);
                 break;
             }
 
             if (firstRead && retry < 5) { // 5: retry 5 times
-                SHARING_LOGE("first read error %{public}d : %{public}s retry: %{public}d", errno, strerror(errno),
+                char errmsg[256] = {0};
+                strerror_r(errno, errmsg, sizeof(errmsg));
+                SHARING_LOGE("first read error %{public}d : %{public}s retry: %{public}d", errno, errmsg,
                              retry);
                 usleep(1000 * 5); // 1000 * 5: sleep 1000 * 5 millionseconds
                 retry++;
@@ -168,7 +172,9 @@ void UdpServer::OnServerReadable(int32_t fd)
                 callback->OnServerReadData(fd, std::move(buf), session);
             }
         } else {
-            SHARING_LOGE("onReadable error: %{public}s!", strerror(errno));
+            char errmsg[256] = {0};
+            strerror_r(errno, errmsg, sizeof(errmsg));
+            SHARING_LOGE("onReadable error: %{public}s!", errmsg);
             break;
         }
     }
@@ -252,7 +258,9 @@ bool UdpServer::BindAndConnectClinetFd(int32_t fd, const struct sockaddr_in &add
 
     SocketUtils::ConnectSocket(fd, true, inet_ntoa(addr.sin_addr), addr.sin_port, ret);
     if (ret < 0 && (errno != EINPROGRESS)) {
-        SHARING_LOGE("connectSocket error: %{public}s!", strerror(errno));
+        char errmsg[256] = {0};
+        strerror_r(errno, errmsg, sizeof(errmsg));
+        SHARING_LOGE("connectSocket error: %{public}s!", errmsg);
         SocketUtils::CloseSocket(fd);
         return false;
     }

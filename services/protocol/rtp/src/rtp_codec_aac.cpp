@@ -61,7 +61,9 @@ void RtpDecoderAAC::InputRtp(const RtpPacket::Ptr &rtp)
     if (end < ptr) {
         return;
     }
-
+    if (auHeaderCount == 0) {
+        return;
+    }
     if (!lastDts_) {
         lastDts_ = stamp;
     }
