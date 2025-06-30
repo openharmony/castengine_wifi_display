@@ -385,6 +385,7 @@ std::string GetAnonymousDeviceId(const std::string &deviceId)
     return deviceId.substr(0, DEVICE_ID_VISIBLE_LEN) + "**" +
         deviceId.substr(deviceId.length() - DEVICE_ID_VISIBLE_LEN);
 }
+
 std::string ConvertSinAddrToStr(const struct sockaddr_in &addr)
 {
     char ipString[IP_LEN] = {0};

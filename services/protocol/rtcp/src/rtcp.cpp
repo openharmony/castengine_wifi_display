@@ -120,7 +120,7 @@ std::string RtcpSR::GetNtpStamp() const
 
     char ts[30] = {0};
     struct tm local = {0};
-    if (localtime_r(&tv.tv_sec, &local) == NULL) {
+    if (!localtime_r(&tv.tv_sec, &local)) {
         return {};
     }
     if (strftime(ts, sizeof(ts), "%Y-%m-%d %H:%M:%S", &local) < 0) {
