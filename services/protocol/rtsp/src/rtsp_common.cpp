@@ -29,7 +29,7 @@ std::string RtspCommon::GetRtspDate()
         return {};
     }
     struct tm t = {0};
-    if (gmtime_r(&now, &t) == NULL) {
+    if (!gmtime_r(&now, &t)) {
         return {};
     }
     char buf[40] = {0};
