@@ -55,6 +55,9 @@ RtpPacket::Ptr RtpMaker::MakeRtp(const void *data, size_t len, bool mark, uint32
         return nullptr;
     }
     auto rtp = std::make_shared<RtpPacket>();
+    if (!rtp) {
+        return nullptr;
+    }
     rtp->SetCapacity(size);
     rtp->SetSize(size);
 
