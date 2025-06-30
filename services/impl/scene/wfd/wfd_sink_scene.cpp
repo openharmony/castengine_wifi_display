@@ -1458,7 +1458,11 @@ void WfdSinkScene::OnP2pPeerDisconnected(ConnectionInfo &connectionInfo)
             SHARING_LOGW("can not find dev, mac: %{private}s.", GetAnonymousMAC(connectionInfo.mac).c_str());
             return;
         }
-
+        if (itemDev->second == nullptr) {
+            lock.unlock();
+            SHARING_LOGW("connectionInfo is nullptr!");
+            return;
+        }
         contextId = itemDev->second->contextId;
         agentId = itemDev->second->agentId;
         connectionInfo.surfaceId = itemDev->second->surfaceId;
@@ -1510,7 +1514,11 @@ void WfdSinkScene::OnP2pPeerDisconnected(std::string &mac)
             SHARING_LOGW("can not find dev, mac: %{private}s.", GetAnonymousMAC(mac).c_str());
             return;
         }
-
+        if (itemDev->second == nullptr) {
+            lock.unlock();
+            SHARING_LOGW("connectionInfo is nullptr!");
+            return;
+        }
         contextId = itemDev->second->contextId;
         agentId = itemDev->second->agentId;
         connectionInfo = itemDev->second;
