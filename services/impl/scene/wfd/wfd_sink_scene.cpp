@@ -1434,6 +1434,7 @@ void WfdSinkScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
         connectionInfo.audioFormatId = audioFormatId_;
 
         std::shared_ptr<ConnectionInfo> connectionInfoPtr = std::make_shared<ConnectionInfo>(connectionInfo);
+        RETURN_IF_NULL(connectionInfoPtr);
         devConnectionMap_.emplace(connectionInfo.mac, connectionInfoPtr);
         SHARING_LOGI("connected, devMac: %{private}s, devIp: %{private}s.", GetAnonymousMAC(connectionInfo.mac).c_str(),
             GetAnonymousIp(connectionInfo.ip).c_str());
@@ -1453,7 +1454,7 @@ void WfdSinkScene::OnP2pPeerDisconnected(ConnectionInfo &connectionInfo)
     {
         std::unique_lock<std::mutex> lock(mutex_);
         auto itemDev = devConnectionMap_.find(connectionInfo.mac);
-        if (itemDev == devConnectionMap_.end() || !itemDev->second) {
+        if (itemDev == devConnectionMap_.end()) {
             lock.unlock();
             SHARING_LOGW("can not find dev, mac: %{private}s.", GetAnonymousMAC(connectionInfo.mac).c_str());
             return;
@@ -1504,7 +1505,7 @@ void WfdSinkScene::OnP2pPeerDisconnected(std::string &mac)
     {
         std::unique_lock<std::mutex> lock(mutex_);
         auto itemDev = devConnectionMap_.find(mac);
-        if (itemDev == devConnectionMap_.end() || !itemDev->second) {
+        if (itemDev == devConnectionMap_.end()) {
             lock.unlock();
             SHARING_LOGW("can not find dev, mac: %{private}s.", GetAnonymousMAC(mac).c_str());
             return;
