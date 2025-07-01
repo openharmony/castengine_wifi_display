@@ -48,6 +48,7 @@ void RtpPacketSortor::InputRtp(TrackType type, uint8_t *ptr, size_t len)
     }
 
     auto rtp = std::make_shared<RtpPacket>();
+    RETURN_IF_NULL(rtp);
     rtp->ReplaceData(reinterpret_cast<char*>(ptr), len);
     rtp->sampleRate_ = (uint32_t)sampleRate_;
     rtp->type_ = type;
