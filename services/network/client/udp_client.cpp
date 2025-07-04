@@ -104,7 +104,7 @@ bool UdpClient::Send(const char *buf, int32_t nSize)
                 char errmsg[256] = {0};
                 strerror_r(errno, errmsg, sizeof(errmsg));
                 MEDIA_LOGE("send [%{public}s:%{public}d]Failed, %{public}s.",
-                           GetAnonyString(socket_->GetPeerIp()).c_str(), (int32_t)socket_->GetPeerPort(),
+                           GetAnonymousIp(socket_->GetPeerIp()).c_str(), (int32_t)socket_->GetPeerPort(),
                            errmsg);
             }
 

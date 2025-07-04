@@ -94,11 +94,11 @@ bool TcpSocket::Connect(const std::string &peerIp, uint16_t peerPort, int32_t &r
     setsockopt(fd, IPPROTO_IP, IP_TOS, &value, sizeof(value));
 
     if (!SocketUtils::ConnectSocket(fd, isAsync, peerIp, peerPort, retCode)) {
-        SHARING_LOGE("connect socket failed, ip: %{public}s, port: %{public}d.", GetAnonyString(peerIp).c_str(),
+        SHARING_LOGE("connect socket failed, ip: %{public}s, port: %{public}d.", GetAnonymousIp(peerIp).c_str(),
                      peerPort);
         return false;
     } else {
-        SHARING_LOGI("connect socket success, ip: %{public}s, port: %{public}d.", GetAnonyString(peerIp).c_str(),
+        SHARING_LOGI("connect socket success, ip: %{public}s, port: %{public}d.", GetAnonymousIp(peerIp).c_str(),
                      peerPort);
     }
 

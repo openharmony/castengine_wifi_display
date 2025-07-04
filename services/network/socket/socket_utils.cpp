@@ -582,7 +582,7 @@ bool SocketUtils::GetIpPortInfo(int32_t fd, std::string &strLocalAddr, std::stri
     localPort = ntohs(localAddr.sin_port);
     remotePort = ntohs(remoteAddr.sin_port);
     SHARING_LOGD("localAddr: %{public}s localPort: %{public}d remoteAddr: %{public}s remotePort: %{public}d",
-                 GetAnonyString(strLocalAddr).c_str(), localPort, GetAnonyString(strRemoteAddr).c_str(), remotePort);
+                 GetAnonymousIp(strLocalAddr).c_str(), localPort, GetAnonymousIp(strRemoteAddr).c_str(), remotePort);
     return true;
 }
 } // namespace Sharing

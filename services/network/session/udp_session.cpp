@@ -83,7 +83,7 @@ bool UdpSession::Send(const char *buf, int32_t nSize)
         return false;
     }
     MEDIA_LOGD("fd: %{public}d, address: %{public}s, port: %{public}d, len: %{public}d.", socket_->GetLocalFd(),
-               GetAnonyString(ConvertSinAddrToStr(socket_->udpClientAddr_)).c_str(), socket_->udpClientAddr_.sin_port,
+               GetAnonymousIp(ConvertSinAddrToStr(socket_->udpClientAddr_)).c_str(), socket_->udpClientAddr_.sin_port,
                socket_->udpClientLen_);
     RETURN_FALSE_IF_NULL(buf);
 
@@ -120,7 +120,7 @@ void UdpSession::OnSessionReadble(int32_t fd)
             socklen_t len = sizeof(struct sockaddr_in);
             retCode = ::recvfrom(fd, buf->Data(), DEFAULT_READ_BUFFER_SIZE, 0, (struct sockaddr *)&clientAddr, &len);
             MEDIA_LOGD("recvSocket len: %{public}d, address: %{public}s, port: %{public}d.", retCode,
-                       GetAnonyString(ConvertSinAddrToStr(clientAddr)).c_str(), clientAddr.sin_port);
+                       GetAnonymousIp(ConvertSinAddrToStr(clientAddr)).c_str(), clientAddr.sin_port);
 
             if (retCode > 0) {
                 buf->UpdateSize(retCode);
