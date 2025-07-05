@@ -131,7 +131,7 @@ void WfdSinkScene::WfdP2pCallback::OnP2pPeersChanged(const std::vector<Wifi::Wif
                     break;
                 }
                 case Wifi::P2pDeviceStatus::PDS_CONNECTED: {
-                    std::lock_guard<std::mutex> lock(mutex_);
+                    std::unique_lock<std::mutex> lock(parent->currentConnectDevMutex_);
                     parent->currentConnectDev_.mac = itDev.GetDeviceAddress();
                     parent->currentConnectDev_.deviceName = itDev.GetDeviceName();
                     parent->currentConnectDev_.primaryDeviceType = itDev.GetPrimaryDeviceType();
@@ -172,10 +172,18 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
     Wifi::P2pConnectedState state = info.GetConnectState();
     if (state == Wifi::P2pConnectedState::P2P_DISCONNECTED) {
         SHARING_LOGI("OnP2pConnectionChanged disconnected");
-        if (parent->currentConnectDev_.mac != "") {
-            parent->OnP2pPeerDisconnected(parent->currentConnectDev_.mac);
+        std::string mac;
+        {
+            std::unique_lock<std::mutex> lock(parent->currentConnectDevMutex_);
+            mac = parent->currentConnectDev_.mac;
         }
-        parent->localIp_ = "";
+        if (mac != "") {
+            parent->OnP2pPeerDisconnected(mac);
+        }
+        {
+            std::unique_lock<std::mutex> lock(parent->localIpMutex_);
+            parent->localIp_ = "";
+        }
         parent->WfdP2pStart();
         return;
     }
@@ -189,7 +197,7 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
     SHARING_LOGI("group frequency %{public}d", group.GetFrequency());
     if (info.IsGroupOwner()) {
         SHARING_LOGI("sink is go");
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::unique_lock<std::mutex> lock(parent->localIpMutex_);
         parent->localIp_ = info.GetGroupOwnerAddress();
         return;
     } else {
@@ -200,9 +208,12 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
             return;
         }
         {
-            std::lock_guard<std::mutex> lock(mutex_);
+            std::unique_lock<std::mutex> lock(parent->currentConnectDevMutex_);
             parent->currentConnectDev_.ip = remoteIp;
-            std::string interface = group.GetInterface();
+        }
+        std::string interface = group.GetInterface();
+        {
+            std::unique_lock<std::mutex> lock(parent->localIpMutex_);
             parent->localIp_ = GetLocalP2pAddress(interface);
             if (parent->localIp_.empty()) {
                 SHARING_LOGW("get local ip failed");
@@ -211,7 +222,14 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
         }
         wfdTrustListManager_.AddBoundDevice(group);
     }
-    parent->OnP2pPeerConnected(parent->currentConnectDev_);
+    ConnectionInfo currentConnectDev;
+    {
+        std::unique_lock<std::mutex> lock(parent->currentConnectDevMutex_);
+        currentConnectDev = parent->currentConnectDev_;
+    }
+    parent->OnP2pPeerConnected(currentConnectDev);
+    std::unique_lock<std::mutex> lock(parent->currentConnectDevMutex_);
+    parent->currentConnectDev_ = currentConnectDev;
 }
 
 void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &info)
@@ -245,7 +263,10 @@ void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &in
             connectionInfo.ctrlPort = itDev.GetWfdInfo().GetCtrlPort();
             connectionInfo.deviceName = itDev.GetDeviceName();
             connectionInfo.state = ConnectionState::CONNECTED;
-            parent->currentConnectDev_ = connectionInfo;
+            {
+                std::unique_lock<std::mutex> lock(parent->currentConnectDevMutex_);
+                parent->currentConnectDev_ = connectionInfo;
+            }
             SHARING_LOGD("device connected, mac: %{private}s, ip: %{private}s, port: %{private}d",
                 GetAnonymousMAC(connectionInfo.mac).c_str(), GetAnonymousIp(connectionInfo.ip).c_str(),
                 connectionInfo.ctrlPort);
@@ -337,7 +358,15 @@ void WfdSinkScene::WifiCallback::OnWifiConnectionChanged(int state, const OHOS::
     if (state == static_cast<int32_t>(Wifi::ConnState::CONNECTED) ||
         state == static_cast<int32_t>(Wifi::ConnState::DISCONNECTED)) {
         auto parent = parent_.lock();
-        if (parent && parent->isSinkRunning_ && parent->currentConnectDev_.mac == "") {
+        if (!parent) {
+            return;
+        }
+        std::string mac;
+        {
+            std::unique_lock<std::mutex> lock(parent->currentConnectDevMutex_);
+            mac = parent->currentConnectDev_.mac;
+        }
+        if (parent->isSinkRunning_ && mac == "") {
             parent->WfdP2pStart();
         }
     }
@@ -460,8 +489,13 @@ void WfdSinkScene::OnWifiAbilityResume()
 void WfdSinkScene::OnWifiAbilityDied()
 {
     SHARING_LOGI("%{public}s.", __FUNCTION__);
-    if (currentConnectDev_.mac != "") {
-        OnP2pPeerDisconnected(currentConnectDev_.mac);
+    std::string mac;
+    {
+        std::unique_lock<std::mutex> lock(currentConnectDevMutex_);
+        mac = currentConnectDev_.mac;
+    }
+    if (mac != "") {
+        OnP2pPeerDisconnected(mac);
     }
     isInitialized_ = false;
 }
@@ -1042,7 +1076,10 @@ int32_t WfdSinkScene::HandlePlay(std::shared_ptr<WfdPlayReq> &msg, std::shared_p
         startSessionMsg->dstId = contextId;
         startSessionMsg->agentId = agentId;
         startSessionMsg->remoteIp = itemDev->second->ip;
-        startSessionMsg->localIp = localIp_;
+        {
+            std::unique_lock<std::mutex> lock(localIpMutex_);
+            startSessionMsg->localIp = localIp_;
+        }
         startSessionMsg->mac = itemDev->second->mac;
         startSessionMsg->remotePort = itemDev->second->ctrlPort;
         startSessionMsg->videoFormat = itemDev->second->videoFormatId;
@@ -1358,7 +1395,10 @@ void WfdSinkScene::FillAndReportDeviceInfo(const ConnectionInfo &connectionInfo)
     p2pInstance_->QueryP2pLocalDevice(deviceInfo);
 
     WfdSinkHiSysEvent::SinkHisyseventDevInfo devInfo;
-    devInfo.localIp = localIp_.c_str();
+    {
+        std::unique_lock<std::mutex> lock(localIpMutex_);
+        devInfo.localIp = localIp_.c_str();
+    }
     devInfo.localWifiMac = deviceInfo.GetDeviceAddress();
     devInfo.localDevName = deviceInfo.GetDeviceName();
     devInfo.localNetId = std::to_string(netWorkId);
@@ -1496,7 +1536,7 @@ void WfdSinkScene::OnP2pPeerDisconnected(ConnectionInfo &connectionInfo)
     sharingAdapter->DestroyAgent(contextId, agentId);
 }
 
-void WfdSinkScene::OnP2pPeerDisconnected(std::string &mac)
+void WfdSinkScene::OnP2pPeerDisconnected(const std::string &mac)
 {
     SHARING_LOGD("trace.");
     uint32_t contextId = INVALID_ID;
@@ -1755,7 +1795,10 @@ void WfdSinkScene::OnConnectionChanged(ConnectionInfo &connectionInfo)
 void WfdSinkScene::P2pRemoveClient(ConnectionInfo &connectionInfo)
 {
     SHARING_LOGI("p2p remove client: %{private}s.", GetAnonymousMAC(connectionInfo.mac).c_str());
-    currentConnectDev_.mac = "";
+    {
+        std::unique_lock<std::mutex> lock(currentConnectDevMutex_);
+        currentConnectDev_.mac = "";
+    }
     SetWifiScene(0);
     if (!p2pInstance_) {
         SHARING_LOGE("p2p instance is null");
