@@ -22,6 +22,8 @@ namespace OHOS {
 namespace Sharing {
 
 std::string GetAddressHash(const std::string &address);
+std::string Sha256(const std::string &text, bool isUpper = false);
+std::string Sha256(const void *data, size_t size, bool isUpper = false);
 
 } // namespace Sharing
 } // namespace OHOS

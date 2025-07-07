@@ -19,11 +19,15 @@
 #include <mutex>
 #include <sstream>
 #include <vector>
+#include "<openssl/sha.h>"
 #include "sharing_log.h"
 #include "utils/crypto.h"
 
 namespace OHOS {
 namespace Sharing {
+constexpr int32_t HEX_TO_UINT8 = 2;
+constexpr int WIDTH = 4;
+constexpr unsigned char MASK = 0x0F;
 const int BYTE_HEX_LEN = 2;
 std::string ByteToHexStr(const std::vector<uint8_t> &data, uint32_t pos, uint32_t len, bool isNeed0x)
 {
@@ -58,5 +62,30 @@ std::string GetAddressHash(const std::string &address)
     std::string addressStr = std::string(address);
     return GetUdidHash(addressStr);
 }
+
+std::string Sha256(const std::string &text, bool isUpper)
+{
+    return Sha256(text.data(), text.size(), isUpper);
+}
+
+std::string Sha256(const void *data, size_t size, bool isUpper)
+{
+    unsigned char hash[SHA256_DIGEST_LENGTH * HEX_TO_UINT8 + 1] = "";
+    SHA256_CTX ctx;
+    SHA256_Init(&ctx);
+    SHA256_Update(&ctx, data, size);
+    SHA256_Final(&hash[SHA256_DIGEST_LENGTH], &ctx);
+    const char* hexCode = isUpper ? "0123456789ABCDEF" : "0123456789abcdef";
+    for (int32_t i = 0; i < SHA256_DIGEST_LENGTH; ++i)
+    {
+        unsigned char value = hash[SHA256_DIGEST_LENGTH + i];
+        hash[i * HEX_TO_UINT8] = hexCode[(value >> WIDTH) & MASK];
+        hash[i * HEX_TO_UINT8 + 1] = hexCode[value & MASK];
+    }
+    hash[SHA256_DIGEST_LENGTH * HEX_TO_UINT8] = 0;
+    std::stringstream ss;
+    ss << hash;
+    return ss.str();
+    
 } // namespace Sharing
 } // namespace OHOS
