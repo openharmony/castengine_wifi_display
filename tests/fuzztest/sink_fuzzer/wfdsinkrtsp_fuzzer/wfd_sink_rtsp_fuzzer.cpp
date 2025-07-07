@@ -21,7 +21,6 @@
 #include "wfd_sink_rtsp_fuzzer.h"
 #include "protocol/rtsp/include/rtsp_response.h"
 #include "protocol/rtsp/include/rtsp_request.h"
-#include "common/sharing_log.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -47,7 +46,6 @@ bool RtpUnpackImplParseRtpFuzzTest(const uint8_t *data, size_t size)
 
 bool RtspRequestFuzzTest(const uint8_t *data, size_t size)
 {
-    SHARING_LOG("RtspRequestFuzzTest");
     if (data == nullptr || size == 0) {
         return false;
     }
@@ -55,16 +53,15 @@ bool RtspRequestFuzzTest(const uint8_t *data, size_t size)
     FuzzedDataProvider fdp(data, size);
 
     std::string str = fdp.ConsumeRandomLengthString();
-    int32_t intVal1 = fdp.ConsumeIntegralInRange<int32_t>();
-    int32_t intVal2 = fdp.ConsumeIntegralInRange<int32_t>();
+    int32_t intVal = fdp.ConsumeIntegralInRange<int32_t>(PORT_MIN, PORT_MAX);
     RtspRequest request;
-    request.SetSession(str).AddCustomHeader(str).SetTimeout(intVal1).Stringify();
+    request.SetSession(str).AddCustomHeader(str).SetTimeout(intVal).Stringify();
     request.GetToken(str);
 
-    RtspRequestOptions options(intVal1, str);
+    RtspRequestOptions options(intVal, str);
     options.SetRequire(str).Stringify();
 
-    RtspRequestDescribe describe(intVal1, str);
+    RtspRequestDescribe describe(intVal, str);
     describe.Stringify();
 
     RtspRequestSetup setup;
@@ -76,7 +73,7 @@ bool RtspRequestFuzzTest(const uint8_t *data, size_t size)
     RtspRequestPlay play;
     play.SetRangeStart(fdp.ConsumeFloatingPoint<float>()).Stringify();
 
-    RtspRequestGetParameter getParameter(intVal1, intVal2);
+    RtspRequestGetParameter getParameter(intVal, str);
     getParameter.Stringify();
     getParameter.AddBodyItem(str).Stringify();
 

@@ -69,6 +69,8 @@ ohos_source_set("sharing_wfd_srcs") {
     "graphic_surface:surface",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
+    "openssl:libcrypto_shared",
+    "openssl:libssl_shared",
     "samgr:samgr_proxy",
     "wifi:wifi_sdk",
     "window_manager:libdm",
