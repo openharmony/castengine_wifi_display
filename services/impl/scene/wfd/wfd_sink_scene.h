@@ -68,7 +68,6 @@ public:
         bool GetErrorCode(Wifi::ErrCode errorCode, SinkErrorCode &sharingError);
 
     private:
-        std::mutex mutex_;
         std::weak_ptr<WfdSinkScene> parent_;
         WfdTrustListManager wfdTrustListManager_;
         static std::unordered_map<Wifi::ErrCode, SinkErrorCode> wifiErrorMapping_;
@@ -155,7 +154,7 @@ private:
     void ErrorCodeFiltering(int32_t &code);
     void P2pRemoveClient(ConnectionInfo &connectionInfo);
 
-    void OnP2pPeerDisconnected(std::string &mac);
+    void OnP2pPeerDisconnected(const std::string &mac);
     void OnP2pPeerConnected(ConnectionInfo &connectionInfo);
     void OnConnectionChanged(ConnectionInfo &connectionInfo);
     void OnP2pPeerDisconnected(ConnectionInfo &connectionInfo);
@@ -202,6 +201,8 @@ private:
 
     std::string localIp_;
     ConnectionInfo currentConnectDev_;
+    std::mutex localIpMutex_;
+    std::mutex currentConnectDevMutex_;
     std::mutex mutex_;
     std::shared_ptr<Wifi::WifiP2p> p2pInstance_;
     std::map<uint64_t, std::shared_ptr<DevSurfaceItem>> devSurfaceItemMap_;
