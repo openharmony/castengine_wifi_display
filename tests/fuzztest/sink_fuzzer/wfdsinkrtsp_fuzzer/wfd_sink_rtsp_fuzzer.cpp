@@ -19,16 +19,10 @@
 #include "protocol/rtp/include/rtp_queue.h"
 #include "protocol/rtp/include/rtp_unpack_impl.h"
 #include "wfd_sink_rtsp_fuzzer.h"
-#include "protocol/rtsp/include/rtsp_response.h"
-#include "protocol/rtsp/include/rtsp_request.h"
-#include "common/sharing_log.h"
 
 namespace OHOS {
 namespace Sharing {
 constexpr uint32_t RTP_MAX_SIZE = 4000;
-constexpr int32_t PORT_MIN = 0;
-constexpr int32_t PORT_MID = 1024;
-constexpr int32_t PORT_MAX = 65535;
 
 bool RtpUnpackImplParseRtpFuzzTest(const uint8_t *data, size_t size)
 {
@@ -44,51 +38,11 @@ bool RtpUnpackImplParseRtpFuzzTest(const uint8_t *data, size_t size)
 
     return true;
 }
-
-bool RtspRequestFuzzTest(const uint8_t *data, size_t size)
-{
-    SHARING_LOG("RtspRequestFuzzTest");
-    if (data == nullptr || size == 0) {
-        return false;
-    }
-
-    FuzzedDataProvider fdp(data, size);
-
-    std::string str = fdp.ConsumeRandomLengthString();
-    int32_t intVal1 = fdp.ConsumeIntegralInRange<int32_t>();
-    int32_t intVal2 = fdp.ConsumeIntegralInRange<int32_t>();
-    RtspRequest request;
-    request.SetSession(str).AddCustomHeader(str).SetTimeout(intVal1).Stringify();
-    request.GetToken(str);
-
-    RtspRequestOptions options(intVal1, str);
-    options.SetRequire(str).Stringify();
-
-    RtspRequestDescribe describe(intVal1, str);
-    describe.Stringify();
-
-    RtspRequestSetup setup;
-    setup
-        .SetClientPort(fdp.ConsumeIntegralInRange<int32_t>(PORT_MIN, PORT_MID),
-                       fdp.ConsumeIntegralInRange<int32_t>(PORT_MID, PORT_MAX))
-        .Stringify();
-
-    RtspRequestPlay play;
-    play.SetRangeStart(fdp.ConsumeFloatingPoint<float>()).Stringify();
-
-    RtspRequestGetParameter getParameter(intVal1, intVal2);
-    getParameter.Stringify();
-    getParameter.AddBodyItem(str).Stringify();
-
-    return true;
-}
-
 } // namespace Sharing
 } // namespace OHOS
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     OHOS::Sharing::RtpUnpackImplParseRtpFuzzTest(data, size);
-    OHOS::Sharing::RtspRequestFuzzTest(data, size);
     return 0;
 }

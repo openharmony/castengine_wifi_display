@@ -25,19 +25,9 @@ ohos_fuzztest("WfdSinkRtspFuzzTest") {
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/rtp",
     "$SHARING_ROOT_DIR/services/protocol/rtp/include",
-    "$SHARING_ROOT_DIR/services/interaction/ipc_codec",
-    "$SHARING_ROOT_DIR/services/protocol/rtsp/include",
-    "$SHARING_ROOT_DIR/services/utils",
-    "$SHARING_ROOT_DIR/services/common",
   ]
 
-  deps = [ 
-    "$SHARING_ROOT_DIR/services/protocol/rtp:sharing_rtp",
-    "$SHARING_ROOT_DIR/services/protocol/rtsp:sharing_rtsp",
-    "$SHARING_ROOT_DIR/services/utils:sharing_utils",
-    "$SHARING_ROOT_DIR/services/interaction/ipc_codec:ipc_codec_srcs",
-    "$SHARING_ROOT_DIR/services/common:sharing_common",
-    ]
+  deps = [ "$SHARING_ROOT_DIR/services/protocol/rtp:sharing_rtp" ]
 
   external_deps = [
     "c_utils:utils",
