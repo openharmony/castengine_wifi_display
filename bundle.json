@@ -57,7 +57,8 @@
         "bounds_checking_function",
         "preferences",
         "data_share",
-        "os_account"
+        "os_account",
+        "openssl"
       ],
       "third_party": [
         "cJSON",
