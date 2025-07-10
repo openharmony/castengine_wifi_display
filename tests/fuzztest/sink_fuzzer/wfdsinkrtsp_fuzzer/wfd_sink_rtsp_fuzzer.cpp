@@ -40,7 +40,6 @@ bool RtpUnpackImplParseRtpFuzzTest(const uint8_t *data, size_t size)
     size_t fuzzedLen = provider.ConsumeIntegralInRange<size_t>(0, RTP_MAX_SIZE);
     RtpUnpackImpl rtpUnpack;
     rtpUnpack.ParseRtp(fuzzedData, fuzzedLen);
-
     return true;
 }
 
@@ -76,7 +75,6 @@ bool RtspRequestFuzzTest(const uint8_t *data, size_t size)
     RtspRequestGetParameter getParameter(intVal, str);
     getParameter.Stringify();
     getParameter.AddBodyItem(str).Stringify();
-
     return true;
 }
 
