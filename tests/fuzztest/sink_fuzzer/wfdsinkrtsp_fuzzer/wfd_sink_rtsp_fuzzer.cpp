@@ -40,6 +40,7 @@ bool RtpUnpackImplParseRtpFuzzTest(const uint8_t *data, size_t size)
     size_t fuzzedLen = provider.ConsumeIntegralInRange<size_t>(0, RTP_MAX_SIZE);
     RtpUnpackImpl rtpUnpack;
     rtpUnpack.ParseRtp(fuzzedData, fuzzedLen);
+
     return true;
 }
 
@@ -48,9 +49,7 @@ bool RtspRequestFuzzTest(const uint8_t *data, size_t size)
     if (data == nullptr || size == 0) {
         return false;
     }
-
     FuzzedDataProvider fdp(data, size);
-
     std::string str = fdp.ConsumeRandomLengthString();
     int32_t intVal = fdp.ConsumeIntegralInRange<int32_t>(PORT_MIN, PORT_MAX);
     RtspRequest request;
@@ -75,6 +74,7 @@ bool RtspRequestFuzzTest(const uint8_t *data, size_t size)
     RtspRequestGetParameter getParameter(intVal, str);
     getParameter.Stringify();
     getParameter.AddBodyItem(str).Stringify();
+
     return true;
 }
 
