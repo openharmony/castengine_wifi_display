@@ -71,9 +71,9 @@ bool RtspRequestFuzzTest(const uint8_t *data, size_t size)
     RtspRequestPlay play;
     play.SetRangeStart(fdp.ConsumeFloatingPoint<float>()).Stringify();
 
-    RtspRequestGetParameter getParameter(intVal, str);
-    getParameter.Stringify();
-    getParameter.AddBodyItem(str).Stringify();
+    RtspRequestGetParameter requestGetParam(intVal, str);
+    requestGetParam.Stringify();
+    requestGetParam.AddBodyItem(str).Stringify();
 
     return true;
 }
