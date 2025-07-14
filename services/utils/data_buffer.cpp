@@ -146,6 +146,9 @@ void DataBuffer::PushData(const char *data, int dataLen)
                 return;
             }
         }
+        if (strlen(data) < dataLen) {
+            return;
+        }
         auto ret = memcpy_s(newBuffer + size_, capacity_ - size_, data, dataLen);
         if (ret != EOK) {
             return;
@@ -178,16 +181,16 @@ void DataBuffer::ReplaceData(const char *data, int dataLen)
 
 void DataBuffer::SetCapacity(int capacity)
 {
-    if (data_) {
-        delete[] data_;
-    }
-    
-    if (capacity == 0) {
+    if (capacity <= 0) {
         return;
     }
-    if (capacity > 0) {
-        data_ = new uint8_t[capacity];
+
+    if (data_) {
+        delete[] data_;
+        data_ = nullptr;
     }
+    
+    data_ = new uint8_t[capacity];
     capacity_ = capacity;
 }
 
