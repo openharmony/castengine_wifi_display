@@ -49,6 +49,7 @@ ohos_executable("sharing_network_server_demo") {
   ]
 
   external_deps = [
+    "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
   ]
