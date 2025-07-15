@@ -40,7 +40,10 @@ ohos_unittest("network_tcp_unit_test") {
     "//third_party/googletest:gtest_main",
   ]
 
-  external_deps = [ "hilog:libhilog" ]
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog"
+  ]
 
   subsystem_name = "castplus"
   part_name = "sharing_framework"
