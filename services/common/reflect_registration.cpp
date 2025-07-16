@@ -58,9 +58,7 @@ void ReflectRegistration::Unregister(const std::string &descriptor)
 ReflectRegistration::~ReflectRegistration()
 {
     std::lock_guard<std::mutex> lockGuard(creatorMutex_);
-    for (auto it = creators_.begin(); it != creators_.end();) {
-        it = creators_.erase(it);
-    }
+    creators_.clear();
 }
 
 } // namespace Sharing
