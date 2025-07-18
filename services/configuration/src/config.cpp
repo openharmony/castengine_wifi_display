@@ -125,18 +125,12 @@ int32_t Config::SetConfig(const std::string &module, const std::string &tag, con
     RETURN_INVALID_IF_NULL(datas_);
     if (!datas_->HasModule(module)) {
         auto modelValue = std::make_shared<SharingDataGroupByModule>(module);
-        if (modelValue == nullptr) {
-            return CONFIGURE_ERROR_NONE;
-        }
         modelValue->PutSharingValue(tag, key, value);
         return SetConfig(module, modelValue);
     }
 
     if (!datas_->HasTag(module, tag)) {
         auto tagValue = std::make_shared<SharingDataGroupByTag>(tag);
-        if (tagValue == nullptr) {
-            return CONFIGURE_ERROR_NONE;
-        }
         tagValue->PutSharingValue(key, value);
         return SetConfig(module, tag, tagValue);
     }
