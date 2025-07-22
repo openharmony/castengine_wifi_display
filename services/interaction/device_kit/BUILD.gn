@@ -31,6 +31,7 @@ ohos_static_library("dmkit") {
   sources = [ "dm_kit.cpp" ]
 
   external_deps = [
+    "bounds_checking_function:libsec_static",
     "device_manager:devicemanagersdk",
     "hilog:libhilog",
   ]
