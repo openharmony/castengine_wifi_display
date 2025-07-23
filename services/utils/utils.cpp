@@ -23,7 +23,6 @@
 #include <thread>
 #include "common/common_macro.h"
 #include "common/media_log.h"
-#include <charconv>
 
 namespace OHOS {
 namespace Sharing {
@@ -38,9 +37,7 @@ unsigned long long GetThreadId()
     std::stringstream buf;
     buf << tid;
     std::string stid = buf.str();
-    unsigned long long threadId = 0;
-    std::from_chars(stid.data(), stid.data() + stid.size(), threadId);
-    return threadId;
+    return std::stoull(stid);
 }
 
 std::vector<std::string> Split(const std::string &s, const char *delim)
