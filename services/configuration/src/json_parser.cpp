@@ -31,7 +31,7 @@ int32_t JsonParser::GetConfig(SharingData::Ptr &value)
     ifs.open("/etc/sharing_config.json");
 
     if (!ifs.is_open()) {
-        SHARING_LOGE("cannot open /etc/sharing_config.json.");
+        SHARING_LOGE("cannot open configuration file.");
         return -1;
     }
 
@@ -62,7 +62,7 @@ int32_t JsonParser::SaveConfig(SharingData::Ptr &value)
     ofs.open("/data/sharing_config.json", std::ios::out | std::ios::trunc | std::ios::binary);
 
     if (!ofs.is_open()) {
-        SHARING_LOGE("open file /data/sharing_config.json err.");
+        SHARING_LOGE("open configuration file err.");
         return -1;
     }
 
