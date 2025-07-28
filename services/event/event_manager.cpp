@@ -21,6 +21,7 @@
 
 namespace OHOS {
 namespace Sharing {
+constexpr uint32_t MAX_SHARING_EVENT_NUM = 5000;
 
 EventManager::EventManager()
 {
@@ -106,6 +107,10 @@ int32_t EventManager::PushEvent(const SharingEvent &event)
     SHARING_LOGI("push a async event, type: %{public}u %{public}s.", event.eventMsg->type,
                  std::string(magic_enum::enum_name(event.eventMsg->type)).c_str());
     std::unique_lock<std::mutex> locker(mutex_);
+    if (events_.size() >= MAX_SHARING_EVENT_NUM) {
+        SHARING_LOGE("events size excced the limit");
+        return -1;
+    }
     events_.emplace(event);
     hasEvent_.notify_one();
     return 0;
