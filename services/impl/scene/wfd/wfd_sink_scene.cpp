@@ -1737,6 +1737,7 @@ void WfdSinkScene::OnInnerEvent(SharingEvent &event)
             auto msg = ConvertEventMsg<InteractionEventMsg>(event);
             SHARING_LOGD("On acceleration done, contextId: %{public}d agentId: %{public}d.", msg->contextId,
                          msg->agentId);
+            std::unique_lock<std::mutex> lock(mutex_);
             for (auto connectInfoPair : devConnectionMap_) {
                 if (connectInfoPair.second != nullptr && connectInfoPair.second->contextId == msg->contextId &&
                     connectInfoPair.second->agentId == msg->agentId) {
