@@ -58,13 +58,11 @@
         "preferences",
         "data_share",
         "os_account",
+        "cJSON",
         "openssl"
       ],
       "third_party": [
-        "cJSON",
-        "jsoncpp",
-        "openssl",
-        "ffmpeg"
+        "jsoncpp"
       ]
     },
     "build": {

@@ -16,9 +16,6 @@ import("//build/ohos.gni")
 config("loop_back_demo_config") {
   include_dirs = [
     "./include",
-    "//foundation/multimedia/audio_framework/interfaces/inner_api/native/audiocommon/include",
-    "//foundation/multimedia/audio_framework/interfaces/inner_api/native/audiocapturer/include",
-    "//foundation/multimedia/audio_framework/interfaces/inner_api/native/audiorenderer/include",
   ]
 
   cflags = [
