@@ -59,11 +59,9 @@
         "data_share",
         "os_account",
         "cJSON",
+        "jsoncpp",
         "openssl"
       ],
-      "third_party": [
-        "jsoncpp"
-      ]
     },
     "build": {
       "group_type": {
