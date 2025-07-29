@@ -75,13 +75,6 @@ int32_t Config::GetConfig(const std::string &module, const std::string &tag, con
     return CONFIGURE_ERROR_NONE;
 }
 
-int32_t Config::SetConfig(const SharingData::Ptr &datas)
-{
-    SHARING_LOGD("trace.");
-    datas_ = datas;
-    SaveConfig();
-    return CONFIGURE_ERROR_NONE;
-}
 
 int32_t Config::SetConfig(const std::string &module, const SharingDataGroupByModule::Ptr &values)
 {

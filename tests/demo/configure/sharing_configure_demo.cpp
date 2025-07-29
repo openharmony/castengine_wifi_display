@@ -48,12 +48,7 @@ int main()
             sleep(1);
         }
         // SharingConfigureSetConfigTest_002
-        else if (inputCmd == "2") {
-            SharingData::Ptr datas = nullptr;
-            auto ret = Config::GetInstance().GetConfig(datas);
-            ret = Config::GetInstance().SetConfig(datas);
-            sleep(1);
-        } else if (inputCmd == "3") {
+        else if (inputCmd == "3") {
             SharingDataGroupByModule::Ptr values = nullptr;
             auto ret = Config::GetInstance().GetConfig("mediachannel", values);
             values->Print();
@@ -137,80 +132,6 @@ int main()
                 "%{public}d,size: %{public}d.",
                 bret1, bret2, bret3, bret4, bret5, bret6, values1.size());
             ret = Config::GetInstance().SetConfig("mediachannel", values);
-            sleep(1);
-        } else if (inputCmd == "7") {
-            SharingData::Ptr datas = nullptr;
-            auto ret = Config::GetInstance().GetConfig(datas);
-            datas->Print();
-
-            std::string anyValue = std::string("007");
-            SharingValue::Ptr valueS = std::make_shared<SharingValue>(anyValue);
-            datas->PutSharingValue("id", valueS, "context", "newtag");
-            datas->Print();
-
-            {
-                SharingValue::Ptr valueS = std::make_shared<SharingValue>(800);
-                valueS->Print();
-                datas->PutSharingValue("age", valueS, "context", "newtag");
-                datas->Print();
-            }
-            {
-                SharingValue::Ptr valueS = std::make_shared<SharingValue>(1);
-                valueS->Print();
-                datas->PutSharingValue("female", valueS, "context", "newtag");
-                datas->Print();
-            }
-            {
-                SharingValue::Ptr valueS = std::make_shared<SharingValue>(1);
-                valueS->Print();
-                datas->PutSharingValue("class", valueS, "context", "newtag");
-                datas->Print();
-            }
-
-            {
-                std::unordered_map<std::string, SharingValue::Ptr> mapdata;
-                SharingValue::Ptr valueS1 = std::make_shared<SharingValue>(80);
-                mapdata.emplace(std::make_pair("http", valueS1));
-                SharingValue::Ptr valueS2 = std::make_shared<SharingValue>(443);
-                mapdata.emplace(std::make_pair("ssl", valueS2));
-                datas->PutSharingValues(mapdata, "tomcat", "web");
-                SHARING_LOGD("mapdata size: %{public}d,", mapdata.size());
-            }
-
-            {
-                SharingValue::Ptr value = nullptr;
-                value = datas->GetSharingValue("ssl", "tomcat", "web");
-                value->Print();
-            }
-            {
-                SharingDataGroupByModule::Ptr values = nullptr;
-                datas->GetSharingValues(values, "tomcat");
-                values->Print();
-            }
-            {
-                SharingDataGroupByTag::Ptr values = nullptr;
-                datas->GetSharingValues(values, "tomcat", "web");
-                values->Print();
-            }
-            {
-                std::unordered_map<std::string, SharingValue::Ptr> mapdata;
-                datas->GetSharingValues(mapdata, "tomcat", "web");
-                SHARING_LOGD("mapdata size: %{public}d,", mapdata.size());
-            }
-
-            bool bret1 = datas->HasKey("http");
-            bool bret2 = datas->HasTag("rtmpport");
-            bool bret3 = datas->HasKey("http1");
-            bool bret4 = datas->HasTag("rtmpport2");
-            bool bret5 = datas->HasModule("mediachannel");
-            bool bret6 = datas->HasModule("mediachannel2");
-            SHARING_LOGD(
-                "hasKey: %{public}d,HasTag: %{public}d,HasKey: %{public}d,HasTag: %{public}d,HasModule: %{public}d,"
-                "HasModule="
-                "%{public}d.",
-                bret1, bret2, bret3, bret4, bret5, bret6);
-
-            ret = Config::GetInstance().SetConfig(datas);
             sleep(1);
         }
     }
