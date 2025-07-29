@@ -66,7 +66,6 @@ public:
     int32_t GetConfig(const std::string &module, const std::string &tag, const std::string &key,
                       SharingValue::Ptr &value);
 
-    int32_t SetConfig(const SharingData::Ptr &datas);
     int32_t SetConfig(const std::string &module, const SharingDataGroupByModule::Ptr &values);
     int32_t SetConfig(const std::string &module, const std::string &tag, const SharingDataGroupByTag::Ptr &values);
     int32_t SetConfig(const std::string &module, const std::string &tag, const std::string &key,
