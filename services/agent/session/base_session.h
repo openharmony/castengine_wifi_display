@@ -56,7 +56,7 @@ public:
 protected:
     void Notify(SessionStatusMsg::Ptr &statusMsg)
     {
-        SHARING_LOGD("trace.");
+        SHARING_LOGD("trace. ");
         auto listener = listener_.lock();
         if (listener) {
             listener->OnSessionNotify(statusMsg);
