@@ -43,7 +43,6 @@ ohos_source_set("sharing_media_channel_srcs") {
   ]
 
   include_dirs = [
-    "//utils/native/base/include",
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/services/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/mediachannel",
@@ -55,10 +54,6 @@ ohos_source_set("sharing_media_channel_srcs") {
     "$SHARING_ROOT_DIR/services/protocol/rtp",
     "$SHARING_ROOT_DIR/services/protocol/rtp/interfaces",
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
-    "//base/security/access_token/interfaces/innerkits/accesstoken/include",
-    "//base/security/access_token/interfaces/innerkits/token_setproc/include",
-    "//drivers/peripheral/camera/interfaces/metadata/include",
-    "//utils/system/safwk/native/include",
   ]
 
   external_deps = [

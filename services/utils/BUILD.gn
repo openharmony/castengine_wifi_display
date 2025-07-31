@@ -15,7 +15,7 @@ import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 config("sharing_utils_config") {
-  include_dirs = [ "//third_party/openssl/include/" ]
+  include_dirs = []
 }
 
 ohos_static_library("sharing_utils") {
@@ -43,14 +43,13 @@ ohos_static_library("sharing_utils") {
     "utils.cpp",
   ]
 
-  deps = [
-    "//third_party/openssl:libcrypto_shared",
-    "//third_party/openssl:libssl_shared",
-  ]
+  deps = []
 
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
+    "openssl:libcrypto_shared",
+    "openssl:libssl_shared",
   ]
 
   part_name = "sharing_framework"

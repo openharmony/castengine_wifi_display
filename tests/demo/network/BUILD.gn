@@ -25,7 +25,6 @@ group("test_package") {
 
 config("sharing_network_demo_config") {
   include_dirs = [
-    "//utils/native/base/include",
     "$SHARING_ROOT_DIR/services",
   ]
 }

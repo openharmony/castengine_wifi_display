@@ -56,7 +56,6 @@ ohos_shared_library("sharing_service") {
     "protocol/rtp:sharing_rtp",
     "protocol/rtsp:sharing_rtsp",
     "utils:sharing_utils",
-    "//third_party/cJSON:cjson_static",
   ]
 
   if (sharing_framework_support_wfd) {
@@ -76,6 +75,7 @@ ohos_shared_library("sharing_service") {
     "audio_framework:audio_capturer",
     "audio_framework:audio_client",
     "audio_framework:audio_renderer",
+    "cJSON:cjson_static",
     "graphic_2d:librender_service_base",
     "graphic_surface:surface",
     "hilog:libhilog",
