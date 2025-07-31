@@ -37,8 +37,12 @@ std::vector<BoundDeviceInfo> WfdTrustListManager::GetAllBoundDevices()
     }
     p2pInstance_->QueryP2pGroups(groups);
     std::map<std::string, BoundDeviceInfo> deviceMap;
+    Wifi::WifiP2pDevice localDevice;
+    p2pInstance_->QueryP2pLocalDevice(localDevice);
+    std::string localMac = localDevice.GetDeviceAddress();
     for (Wifi::WifiP2pGroupInfo groupInfo : groups) {
-        if (groupInfo.IsGroupOwner()) {
+        std::string ownerMac = groupInfo.GetOwner().GetDeviceAddress();
+        if (localMac == ownerMac) {
             std::vector<Wifi::WifiP2pDevice> clientDevices = groupInfo.GetClientDevices();
             if (clientDevices.empty()) {
                 SHARING_LOGE("clientDevices empty");
@@ -48,7 +52,7 @@ std::vector<BoundDeviceInfo> WfdTrustListManager::GetAllBoundDevices()
                 AddBoundDeviceItem(deviceMap, groupInfo, MaskAddress(device.GetDeviceAddress()));
             }
         } else {
-            AddBoundDeviceItem(deviceMap, groupInfo, MaskAddress(groupInfo.GetOwner().GetDeviceAddress()));
+            AddBoundDeviceItem(deviceMap, groupInfo, MaskAddress(ownerMac));
         }
     }
     for (auto device : deviceMap) {
@@ -134,9 +138,13 @@ int32_t WfdTrustListManager::DeleteBoundDeviceGroup(std::string &deviceAddress)
     }
     int32_t result = OPERATE_OK;
     p2pInstance_->QueryP2pGroups(groups);
+    Wifi::WifiP2pDevice localDevice;
+    p2pInstance_->QueryP2pLocalDevice(localDevice);
+    std::string localMac = localDevice.GetDeviceAddress();
     for (Wifi::WifiP2pGroupInfo groupInfo : groups) {
-        if (!groupInfo.IsGroupOwner()) {
-            if (MaskAddress(groupInfo.GetOwner().GetDeviceAddress()) != deviceAddress) {
+        std::string ownerMac = groupInfo.GetOwner().GetDeviceAddress();
+        if (localMac != ownerMac) {
+            if (MaskAddress(ownerMac) != deviceAddress) {
                 continue;
             }
             if (!DeleteP2pGroup(groupInfo.GetOwner(), deviceAddress, groupInfo)) {
