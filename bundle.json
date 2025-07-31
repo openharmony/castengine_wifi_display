@@ -61,7 +61,7 @@
         "cJSON",
         "jsoncpp",
         "openssl"
-      ],
+      ]
     },
     "build": {
       "group_type": {
