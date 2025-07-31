@@ -18,11 +18,22 @@ config("sharing_service_config") {
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/services/utils",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
     "//foundation/CastEngine/castengine_wifi_display/services/interaction/domain",
     "//foundation/CastEngine/castengine_wifi_display/services/interaction/device_kit",
     "//foundation/CastEngine/castengine_wifi_display/services/interaction/ipc_codec",
     "//foundation/CastEngine/castengine_wifi_display/services/interaction/domain/rpc",
+    "//foundation/communication/wifi/wifi/frameworks/native/include",
+    "//foundation/communication/wifi/wifi/frameworks/native/interfaces",
+    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include/",
+    "//foundation/communication/ipc/ipc/native/c/ipc/include",
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
+    "//foundation/systemabilitymgr/safwk/services/safwk/include",
+    "//utils/native/base/include",
+    "//foundation/distributeddatamgr/kv_store/interfaces/innerkits/distributeddata/include",
+    "//third_party/json/include",
+    "//foundation/ability/ability_runtime/interfaces/inner_api",
+    "//foundation/ability/ability_runtime/interfaces/kits/native",
     "$SHARING_ROOT_DIR/tests:coverage_flags",
   ]
 
@@ -78,10 +89,7 @@ ohos_source_set("sharing_interaction_srcs") {
     "device_manager:devicemanagersdk",
     "graphic_surface:surface",
     "hilog:libhilog",
-    "ipc:ipc_core",
     "kv_store:distributeddata_inner",
-    "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
     "wifi:wifi_sdk",
   ]
 

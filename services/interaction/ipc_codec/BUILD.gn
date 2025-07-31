@@ -33,6 +33,10 @@ ohos_static_library("ipc_codec_srcs") {
 
   include_dirs = [
     ".",
+    "//foundation/communication/wifi/wifi/frameworks/native/include",
+    "//foundation/communication/wifi/wifi/frameworks/native/interfaces",
+    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include/",
+    "//foundation/communication/ipc/ipc/native/c/ipc/include",
     "//foundation/CastEngine/castengine_wifi_display/services",
     "//foundation/CastEngine/castengine_wifi_display/services/common",
   ]

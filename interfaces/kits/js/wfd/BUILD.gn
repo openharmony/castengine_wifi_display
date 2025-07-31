@@ -72,7 +72,6 @@ ohos_shared_library("sharingwfd_napi") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "safwk:system_ability_fwk",
   ]
 
   subsystem_name = "castplus"

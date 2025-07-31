@@ -25,10 +25,16 @@ ohos_source_set("sharing_agent_srcs") {
   }
 
   include_dirs = [
+    "//utils/native/base/include",
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/services/network",
     "$SHARING_ROOT_DIR/services/network/interfaces",
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
+    "//foundation/multimedia/audio_framework/interfaces/inner_api/native/audiomanager/include",
+    "//foundation/multimedia/audio_framework/interfaces/inner_api/native/audiocommon/include",
+    "//foundation/multimedia/audio_framework/interfaces/inner_api/native/audiorenderer/include",
+    "//foundation/multimedia/audio_framework/frameworks/native/audiopolicy/include",
+    "//foundation/multimedia/audio_framework/services/audio_service/client/include",
   ]
 
   sources = [
@@ -41,10 +47,6 @@ ohos_source_set("sharing_agent_srcs") {
     "$SHARING_ROOT_DIR:wifi_display_default_config",
   ]
   external_deps = [
-    "audio_framework:audio_foundation",
-    "audio_framework:audio_manager_client",
-    "audio_framework:audio_policy_client",
-    "audio_framework:audio_renderer",
     "graphic_surface:surface",
     "hilog:libhilog",
   ]

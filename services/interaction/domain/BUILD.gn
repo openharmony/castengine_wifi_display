@@ -29,6 +29,13 @@ ohos_shared_library("domain_manager") {
     "//foundation/CastEngine/castengine_wifi_display/services/interaction/device_kit",
     "//foundation/CastEngine/castengine_wifi_display/services/interaction/domain/rpc",
     "//foundation/CastEngine/castengine_wifi_display/services/interaction/ipc_codec",
+    "//foundation/communication/wifi/wifi/frameworks/native/include",
+    "//foundation/communication/wifi/wifi/frameworks/native/interfaces",
+    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include/",
+    "//foundation/communication/ipc/ipc/native/c/ipc/include",
+    "//foundation/systemabilitymgr/safwk/services/safwk/include",
+    "//utils/native/base/include",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
   ]
   sources = [ "domain_manager.cpp" ]
 

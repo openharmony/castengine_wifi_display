@@ -26,6 +26,7 @@ ohos_shared_library("sharing_common") {
   }
 
   include_dirs = [
+    "//utils/native/base/include",
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/services/common",
   ]
@@ -50,6 +51,9 @@ ohos_shared_library("sharing_common") {
   subsystem_name = "castplus"
 }
 
+ABILITY_RUNTIME_PATH = "//foundation/ability/ability_runtime"
+ABILITY_RUNTIME_INNER_API_PATH = "${ABILITY_RUNTIME_PATH}/interfaces/inner_api"
+ABILITY_RUNTIME_SERVICES_PATH = "${ABILITY_RUNTIME_PATH}/services"
 
 ohos_static_library("kv_operator") {
   sanitize = {
@@ -60,14 +64,19 @@ ohos_static_library("kv_operator") {
 
   sources = [ "kv_operator.cpp" ]
 
-  include_dirs = []
+  include_dirs = [
+    "//third_party/json/include",
+    "//foundation/distributeddatamgr/kv_store/interfaces/innerkits/distributeddata/include",
+    "${ABILITY_RUNTIME_INNER_API_PATH}/ability_manager/include",
+    "${ABILITY_RUNTIME_PATH}/interfaces/kits/native/ability/native",
+    "${ABILITY_RUNTIME_INNER_API_PATH}/dataobs_manager/include",
+    "${ABILITY_RUNTIME_INNER_API_PATH}/app_manager/include/appmgr",
+    "${ABILITY_RUNTIME_SERVICES_PATH}/common/include",
+    "${ABILITY_RUNTIME_PATH}/interfaces/kits/native/appkit/ability_runtime/context/",
+  ]
 
   external_deps = [
-    "ability_runtime:ability_manager",
-    "ability_runtime:abilitykit_native",
     "ability_runtime:app_context",
-    "ability_runtime:app_manager",
-    "ability_runtime:dataobs_manager",
     "ability_runtime:runtime",
     "hilog:libhilog",
     "kv_store:distributeddata_inner",
