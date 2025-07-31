@@ -20,8 +20,12 @@ config("sharing_service_config") {
     "$SHARING_ROOT_DIR/frameworks/innerkitsimpl/native/wfd",
     "$SHARING_ROOT_DIR/services/interaction/ipc_codec",
     "$SHARING_ROOT_DIR/services/interaction/device_kit",
+    "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include",
     "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd/include",
+    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include/",
+    "//foundation/communication/ipc/ipc/native/c/ipc/include",
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
+    "//utils/native/base/include",
   ]
 
   cflags = [ "-Wno-c++20-extensions" ]

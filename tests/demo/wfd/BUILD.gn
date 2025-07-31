@@ -19,6 +19,8 @@ config("sharing_wfd_demo_config") {
     "$SHARING_ROOT_DIR/interfaces/innerkits/native/wfd/include",
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
     "//foundation/CastEngine/castengine_wifi_display/services",
+    "//foundation/window/window_manager/interfaces/innerkits/wm",
+    "//foundation/graphic/graphic_2d/interfaces/inner_api",
   ]
 }
 
