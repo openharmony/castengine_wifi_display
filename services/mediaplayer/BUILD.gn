@@ -44,8 +44,6 @@ ohos_source_set("sharing_media_player_srcs") {
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
     "$SHARING_ROOT_DIR/services/mediachannel",
     "$SHARING_ROOT_DIR/services/codec/include",
-    "//foundation/multimedia/audio_framework/interfaces/inner_api/native/audiomanager/include",
-    "//foundation/multimedia/audio_framework/interfaces/inner_api/native/audiocommon/include",
   ]
 
   configs = [
@@ -62,6 +60,8 @@ ohos_source_set("sharing_media_player_srcs") {
   ]
 
   external_deps = [
+    "audio_framework:audio_foundation",
+    "audio_framework:audio_manager_client",
     "audio_framework:audio_renderer",
     "av_codec:av_codec_client",
     "graphic_surface:surface",

@@ -35,6 +35,7 @@ ohos_fuzztest("WfdStartFuzzTest") {
     "graphic_surface:surface",
     "hilog:libhilog",
     "ipc:ipc_single",
+    "selinux_adapter:librestorecon"
   ]
 
   cflags = [

@@ -29,8 +29,6 @@ ohos_source_set("sharing_configure_srcs") {
     "$SHARING_ROOT_DIR/services/",
     "$SHARING_ROOT_DIR/services/event",
     "$SHARING_ROOT_DIR/services/common",
-    "//third_party/jsoncpp/include",
-    "//utils/native/base/include",
   ]
 
   sources = [
@@ -44,12 +42,13 @@ ohos_source_set("sharing_configure_srcs") {
     "$SHARING_ROOT_DIR:wifi_display_default_config",
   ]
 
-  deps = [ "//third_party/jsoncpp:jsoncpp" ]
+  deps = []
 
   external_deps = [
     "graphic_surface:surface",
     "hilog:libhilog",
     "ipc:ipc_core",
+    "jsoncpp:jsoncpp",
     "safwk:system_ability_fwk",
   ]
 

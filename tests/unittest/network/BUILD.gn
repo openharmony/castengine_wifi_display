@@ -42,7 +42,8 @@ ohos_unittest("network_tcp_unit_test") {
 
   external_deps = [
     "c_utils:utils",
-    "hilog:libhilog"
+    "hilog:libhilog",
+    "eventhandler:libeventhandler"
   ]
 
   subsystem_name = "castplus"
