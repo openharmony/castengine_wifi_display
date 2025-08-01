@@ -61,6 +61,12 @@
         "cJSON",
         "jsoncpp",
         "openssl"
+      ],
+      "third_party": [
+        "cJSON",
+        "jsoncpp",
+        "openssl",
+        "ffmpeg"
       ]
     },
     "build": {
