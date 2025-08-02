@@ -389,24 +389,28 @@ AudioFormat WfdRtspM3Response::GetAudioCodecs(WfdAudioCodec &codec)
     int32_t audioFormat0 = -1;
     int32_t audioFormat1 = -1;
     std::string format;
+    bool isSupportAAC = false;
+    bool isSupportPCM = false;
     auto audioCaps = RtspCommon::Split(value, ", ");
     for (size_t i = 0; i < audioCaps.size(); i++) {
         std::string audioCap = audioCaps[i];
         std::stringstream ss(audioCap);
         ss >> format >> audioFormat0 >> audioFormat1;
-        if (format == "LPCM") { // LPCM
-            if (codec.codecId != CODEC_AAC && audioFormat0 > 1) {
-                codec.codecId = CODEC_PCM;
-                codec.format = AUDIO_48000_16_2;
-            }
-        } else if (format == "AAC") { // AAC
-            codec.codecId = CODEC_AAC;
-            codec.format = AUDIO_48000_16_2;
-        } else if (format == "AC3") { // AC3
-            if (audioFormat0 == 1) {
-            }
+        if (format == "LPCM" && audioFormat0 > 1) { // LPCM
+            isSupportPCM = true;
             continue;
         }
+        if (format == "AAC") { // AAC
+            isSupportAAC = true;
+            continue;
+        }
+    }
+    if (isSupportPCM && !isSupportAAC) {
+        codec.codecId = CODEC_PCM;
+        codec.format = AUDIO_48000_16_2;
+    } else {
+        codec.codecId = CODEC_AAC;
+        codec.format = AUDIO_48000_16_2;
     }
 
     return codec.format;
