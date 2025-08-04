@@ -72,7 +72,11 @@ static void SetupPadding(RtcpHeader *rtcp, size_t paddingSize)
 
     if (paddingSize) {
         rtcp->padding_ = 1;
-        ((uint8_t *)rtcp)[rtcp->GetSize() - 1] = paddingSize & 0xFF;
+        int32_t size = rtcp->GetSize();
+        if (size - 1 < 0 || size - 1 >= (int32_t)sizeof(RtcpHeader)) {
+            return;
+        }
+        ((uint8_t *)rtcp)[size - 1] = paddingSize & 0xFF;
     } else {
         rtcp->padding_ = 0;
     }
