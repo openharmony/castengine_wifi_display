@@ -47,6 +47,7 @@ int32_t DomainRpcManager::SendDomainRequest(std::string remoteId, std::shared_pt
     SHARING_LOGD("msg from %{public}s -> to %{public}s.", GetAnonyString(BaseMsg->fromDevId).c_str(),
                  GetAnonyString(BaseMsg->toDevId).c_str());
 
+    std::unique_lock lock(mutex_);
     if (rpcClients_.find(BaseMsg->toDevId) != rpcClients_.end()) {
         rpcClients_[BaseMsg->toDevId]->SendDomainRequest(remoteId, BaseMsg);
     } else {
@@ -59,6 +60,7 @@ int32_t DomainRpcManager::SendDomainRequest(std::string remoteId, std::shared_pt
 bool DomainRpcManager::IsPeerExist(std::string peerId)
 {
     SHARING_LOGD("trace.");
+    std::unique_lock lock(mutex_);
     if (rpcClients_.find(peerId) != rpcClients_.end()) {
         return true;
     }
@@ -70,8 +72,11 @@ int32_t DomainRpcManager::AddDomainRpcService(DomainRpcService *service)
 {
     SHARING_LOGD("trace.");
     RETURN_INVALID_IF_NULL(service);
-    localService_ = service;
-    localService_->SetPeerListener(shared_from_this());
+    {
+        std::unique_lock lock(mutex_);
+        localService_ = service;
+        localService_->SetPeerListener(shared_from_this());
+    }
     DomainManager::GetInstance()->AddServiceManager(shared_from_this());
     return 0;
 }
