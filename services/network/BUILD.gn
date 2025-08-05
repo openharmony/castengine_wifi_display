@@ -29,7 +29,6 @@ ohos_shared_library("sharing_network") {
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/services/utils",
-    "//utils/native/base/include",
   ]
 
   sources = [

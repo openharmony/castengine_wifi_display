@@ -58,7 +58,10 @@
         "preferences",
         "data_share",
         "os_account",
-        "openssl"
+        "cJSON",
+        "jsoncpp",
+        "openssl",
+        "selinux_adapter"
       ],
       "third_party": [
         "cJSON",

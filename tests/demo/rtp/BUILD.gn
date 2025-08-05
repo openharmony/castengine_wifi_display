@@ -20,7 +20,6 @@ config("sharing_demo_config") {
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/rtp",
     "$SHARING_ROOT_DIR/services/protocol/rtp/include",
-    "//utils/native/base/include",
   ]
 }
 

@@ -51,5 +51,7 @@ ohos_static_library("sharing_rtsp") {
     "bounds_checking_function:libsec_static",
     "hilog:libhilog",
   ]
+  
+  subsystem_name = "castplus"
   part_name = "sharing_framework"
 }
