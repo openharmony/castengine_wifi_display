@@ -27,7 +27,6 @@ ohos_unittest("network_tcp_unit_test") {
   module_out_path = module_out_path
 
   include_dirs = [
-    "//utils/native/base/include",
     "$SHARING_ROOT_DIR/services",
   ]
 
@@ -37,13 +36,13 @@ ohos_unittest("network_tcp_unit_test") {
     "$SHARING_ROOT_DIR/services/common:sharing_common",
     "$SHARING_ROOT_DIR/services/network:sharing_network",
     "$SHARING_ROOT_DIR/services/utils:sharing_utils",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
     "c_utils:utils",
     "hilog:libhilog",
-    "eventhandler:libeventhandler"
+    "eventhandler:libeventhandler",
+    "googletest:gtest_main"
   ]
 
   subsystem_name = "castplus"
@@ -54,7 +53,6 @@ ohos_unittest("network_udp_unit_test") {
   module_out_path = module_out_path
 
   include_dirs = [
-    "//utils/native/base/include",
     "$SHARING_ROOT_DIR/services",
   ]
 
@@ -64,10 +62,12 @@ ohos_unittest("network_udp_unit_test") {
     "$SHARING_ROOT_DIR/services/common:sharing_common",
     "$SHARING_ROOT_DIR/services/network:sharing_network",
     "$SHARING_ROOT_DIR/services/utils:sharing_utils",
-    "//third_party/googletest:gtest_main",
   ]
 
-  external_deps = [ "hilog:libhilog" ]
+  external_deps = [
+    "hilog:libhilog",
+    "googletest:gtest_main"
+    ]
 
   subsystem_name = "castplus"
   part_name = "sharing_framework"
