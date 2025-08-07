@@ -39,7 +39,6 @@ ohos_shared_library("sharingwfd_client") {
     integer_overflow = true
   }
 
-  include_dirs = [ "//foundation/systemabilitymgr/samgr/interfaces/innerkits/samgr_proxy/include" ]
 
   sources = [
     "$SHARING_ROOT_DIR/frameworks/innerkitsimpl/native/wfd/wfd_sink_impl.cpp",
