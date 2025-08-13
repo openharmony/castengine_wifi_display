@@ -44,6 +44,7 @@ ohos_shared_library("sharing_common") {
     "graphic_surface:surface",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
+    "samgr:samgr_proxy",
   ]
 
   part_name = "sharing_framework"
