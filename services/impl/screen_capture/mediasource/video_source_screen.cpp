@@ -103,7 +103,11 @@ uint64_t VideoSourceScreen::CreateVirtualScreen(const VideoSourceConfigure &conf
                                          DEFAULT_SCREEN_DENSITY,
                                          encoderSurface_,
                                          DEFAULT_SCREEN_FLAGS,
-                                         false};
+                                         false,
+                                         {},
+                                         Rosen::VirtualScreenType::UNKNOWN,
+                                         true,
+                                         Rosen::VirtualScreenFlag::DEFAULT};
 
     screenId_ = Rosen::ScreenManager::GetInstance().CreateVirtualScreen(option);
     SHARING_LOGI("virtualScreen id is: %{public}" PRIu64 ".", screenId_);
