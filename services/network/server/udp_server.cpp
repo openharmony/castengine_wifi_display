@@ -190,6 +190,7 @@ std::shared_ptr<BaseNetworkSession> UdpServer::FindOrCreateSession(const struct 
         [&addr](std::pair<std::shared_ptr<struct sockaddr_in>, int32_t> value) {
             return value.first->sin_addr.s_addr == addr.sin_addr.s_addr && value.first->sin_port == addr.sin_port;
         });
+    std::unique_lock<std::shared_mutex> lk(mutex_);
     if (it != addrToFdMap_.end()) {
         return sessionMap_[it->second];
     } else if (socket_ != nullptr) {

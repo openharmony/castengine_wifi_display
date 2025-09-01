@@ -159,10 +159,6 @@ int32_t SharingDataGroupByModule::PutSharingValue(const std::string &tag, const 
     auto iter = datass_.find(tag);
     if (iter == datass_.end()) {
         auto grpData = std::make_shared<SharingDataGroupByTag>(tag);
-        if (grpData == nullptr) {
-            SHARING_LOGE("CONFIGURE_ERROR_NOT_FIND.");
-            return CONFIGURE_ERROR_NOT_FIND;
-        }
         grpData->PutSharingValue(key, value);
         datass_.emplace(std::make_pair(tag, grpData));
         return CONFIGURE_ERROR_NONE;
