@@ -1626,13 +1626,10 @@ void WfdSinkScene::OnInnerError(uint32_t contextId, uint32_t agentId, SharingErr
     msg->agentId = agentId;
     msg->errorCode = errorCode;
 
-    {
-        std::unique_lock<std::mutex> lock(mutex_);
-        for (auto &item : devConnectionMap_) {
-            if ((contextId == item.second->contextId) && (agentId == item.second->agentId)) {
-                msg->mac = item.second->mac;
-                break;
-            }
+    for (auto &item : devConnectionMap_) {
+        if ((contextId == item.second->contextId) && (agentId == item.second->agentId)) {
+            msg->mac = item.second->mac;
+            break;
         }
     }
 
