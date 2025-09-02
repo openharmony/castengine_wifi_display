@@ -1421,7 +1421,13 @@ void WfdSinkScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
     auto sharingAdapter = sharingAdapter_.lock();
     RETURN_IF_NULL(sharingAdapter);
 
-    if (devConnectionMap_.size() >= (uint32_t)accessDevMaximum_) {
+    uint32_t len = 0;
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        len = devConnectionMap_.size();
+    }
+
+    if (len >= static_cast<uint32_t>(accessDevMaximum_)) {
         SHARING_LOGE("too more device.");
         P2pRemoveClient(connectionInfo);
 
@@ -1761,6 +1767,7 @@ void WfdSinkScene::OnInnerEvent(SharingEvent &event)
         }
         case EVENT_INTERACTION_DECODER_DIED: {
             auto msg = ConvertEventMsg<InteractionEventMsg>(event);
+            std::unique_lock<std::mutex> lock(mutex_);
             auto surfaceItem = devSurfaceItemMap_.find(msg->surfaceId);
             if (surfaceItem != devSurfaceItemMap_.end() && surfaceItem->second != nullptr) {
                 auto itConnection = devConnectionMap_.find(surfaceItem->second->deviceId);
