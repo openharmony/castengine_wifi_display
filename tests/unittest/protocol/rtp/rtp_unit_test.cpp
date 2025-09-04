@@ -1135,7 +1135,7 @@ HWTEST_F(RtpUnitTest, RtpUnitTest_093, Function | SmallTest | Level2)
     EXPECT_NE(rtpPacket, nullptr);
     rtpPacket->Resize(sizeof(RtpHeader));
     rtpSortor->pktSortCacheMap_.emplace(seq, std::move(rtpPacket));
-    rtpSortor->PopPacket();
+    rtpSortor->TryPopPacket();
 }
 
 HWTEST_F(RtpUnitTest, RtpUnitTest_094, Function | SmallTest | Level2)

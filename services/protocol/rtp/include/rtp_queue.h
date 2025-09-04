@@ -28,7 +28,7 @@ public:
     using Ptr = std::shared_ptr<RtpPacketSortor>;
     using OnSort = std::function<void(uint16_t seq, const RtpPacket::Ptr &packet)>;
 
-    RtpPacketSortor(int32_t sampleRate, size_t kMax = 1024, size_t kMin = 16);
+    RtpPacketSortor(int32_t sampleRate, size_t kMax = 1024, size_t kMin = SORT_CACHE_MIN_SIZE);
     ~RtpPacketSortor() = default;
 
     void Clear();
@@ -40,23 +40,23 @@ public:
     uint32_t GetSSRC() const;
 
     size_t GetJitterSize() const;
-    size_t GetCycleCount() const;
 
 private:
-    void PopPacket();
+    bool IsSeqValid(uint16_t seq) const;
     void SetSortSize();
     void TryPopPacket();
     void PopIterator(std::map<uint16_t, RtpPacket::Ptr>::iterator it);
 
 private:
+    static const size_t SORT_CACHE_MIN_SIZE = 64;
+
     uint16_t nextSeqOut_ = 0;
 
     uint32_t ssrc_ = 0;
     int32_t sampleRate_ = 0;
 
-    size_t kMin_ = 16;
+    size_t kMin_ = SORT_CACHE_MIN_SIZE;
     size_t kMax_ = 1024;
-    size_t seqCycleCount_ = 0;
     size_t maxSortSize_ = kMin_;
 
     std::map<uint16_t, RtpPacket::Ptr> pktSortCacheMap_;

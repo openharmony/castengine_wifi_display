@@ -64,6 +64,7 @@ void RtpDecoderTs::InputRtp(const RtpPacket::Ptr &rtp)
     MEDIA_LOGD("trace.");
     RETURN_IF_NULL(rtp);
     if (exit_) {
+        SHARING_LOGE("ignore rtp seq:%{public}d, exit", rtp->GetSeq());
         return;
     }
 
@@ -73,6 +74,7 @@ void RtpDecoderTs::InputRtp(const RtpPacket::Ptr &rtp)
 
     auto payload_size = rtp->GetPayloadSize();
     if (payload_size <= 0) {
+        SHARING_LOGE("ignore rtp seq:%{public}d, payload size invalid", rtp->GetSeq());
         return;
     }
 

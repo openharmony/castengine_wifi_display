@@ -41,7 +41,7 @@ void RtpUnpackImpl::ParseRtp(const char *data, size_t len)
 {
     RETURN_IF_NULL(data);
     if (len < sizeof(RtpHeader)) {
-        SHARING_LOGE("RtpHeader size error");
+        SHARING_LOGE("ignore rtp, invalid len");
         WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::RTP_DEMUX,
                         SinkErrorCode::WIFI_DISPLAY_RTP_DATA_INVALID);
         return;
@@ -52,6 +52,7 @@ void RtpUnpackImpl::ParseRtp(const char *data, size_t len)
 
     if (!decoder) {
         if (rtpDecoder_.size() > 2) { // 2:fixed size
+            SHARING_LOGE("fail to create decoder, invalid decoder size");
             return;
         }
         switch (pt) {
@@ -71,12 +72,15 @@ void RtpUnpackImpl::ParseRtp(const char *data, size_t len)
                     WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::RTP_DEMUX,
                         SinkErrorCode::WIFI_DISPLAY_RTP_DATA_INVALID);
                 }
+                SHARING_LOGE("fail to create decoder, unsupported pt:%{public}d", pt);
                 return;
         }
     }
 
     if (rtpSort_[pt]) {
         rtpSort_[pt]->InputRtp(TRACK_VIDEO, (unsigned char *)data, len);
+    } else {
+        SHARING_LOGE("ignore rtp, not have sorter of pt:%{public}d", pt);
     }
 }
 
