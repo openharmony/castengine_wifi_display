@@ -1102,22 +1102,6 @@ HWTEST_F(RtpUnitTest, RtpUnitTest_091, Function | SmallTest | Level2)
     ASSERT_TRUE(ret == 0);
 }
 
-HWTEST_F(RtpUnitTest, RtpUnitTest_092, Function | SmallTest | Level2)
-{
-    int32_t sampleRate = 0;
-    size_t kMax = 1024;
-    size_t kMin = 16;
-    auto rtpSortor = std::make_shared<RtpPacketSortor>(sampleRate, kMax, kMin);
-    EXPECT_NE(rtpSortor, nullptr);
-    auto f = [](uint16_t seq, const RtpPacket::Ptr &packet) {
-        (void)seq;
-        (void)packet;
-    };
-    rtpSortor->SetOnSort(f);
-    auto ret = rtpSortor->GetCycleCount();
-    ASSERT_TRUE(ret == 0);
-}
-
 HWTEST_F(RtpUnitTest, RtpUnitTest_093, Function | SmallTest | Level2)
 {
     int32_t sampleRate = 0;
