@@ -30,7 +30,13 @@ constexpr static uint32_t ERROR_DECODER_INIT = -1;
 constexpr static uint32_t MAX_BUFFER_SIZE = 30;
 constexpr static uint32_t NEXT_FRAME_WAIT_TIME = 20;
 constexpr static int32_t AUDIO_DECODE_DROP_INTERVAL = 2000 * 1000;
-constexpr static int32_t NO_AUDIO_FRAME_INTERVAL = 300 * 1000 * 1000;
+constexpr static int32_t NO_AUDIO_FRAME_INTERVAL = 300 * 1000;
+
+enum AudioFrameState : int8_t {
+    INIT = 0,
+    NO_FRAME = 1,
+    HAS_FRAME = 2
+};
 
 class AudioAvCodecDecoder : public AudioDecoder,
                             public MediaAVCodec::AVCodecCallback {
@@ -81,6 +87,8 @@ public:
 private:
     int64_t firstTimestampUs_{0};
     int64_t lastPlayPts_{0};
+    int64_t lastRenderTimeUs_{0};
+    AudioFrameState audioFrameState_ = AudioFrameState::INIT;
 
     std::atomic<bool> isRenderReady_{false};
     std::atomic<int64_t> audioLatency_{0 * 1000};
