@@ -269,6 +269,7 @@ void AudioAvCodecDecoder::OnOutputBufferAvailable(uint32_t index, MediaAVCodec::
         std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
     int64_t nowTimeUs = nowUs.count();
     if (firstTimestampUs_ == 0) {
+        SHARING_LOGI("decode first audio frame");
         firstTimestampUs_ = info.presentationTimeUs;
     }
 
@@ -318,6 +319,9 @@ void AudioAvCodecDecoder::RenderOutBuffer()
         DeliverFrame(frameBuffer);
         ReleaseOutputBuffer(frameBuffer->index);
         lastPlayPts_ = static_cast<int64_t>(frameBuffer->pts_);
+        std::chrono::microseconds nowUs =
+            std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
+        lastRenderTimeUs_ = nowUs.count();
     }
 }
 
@@ -381,8 +385,23 @@ int64_t AudioAvCodecDecoder::GetDecoderTimestamp()
         return timestamp;
     }
 
-    timestamp = lastPlayPts_ - audioLatency_.load();
-    return timestamp;
+    std::chrono::microseconds nowUs =
+        std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
+    int64_t diffTime = nowUs.count() - lastRenderTimeUs_;
+    if (diffTime > NO_AUDIO_FRAME_INTERVAL) {
+        if (audioFrameState_ == AudioFrameState::INIT || audioFrameState_ == AudioFrameState::HAS_FRAME) {
+            SHARING_LOGW("no audio frame interval");
+            audioFrameState_ = AudioFrameState::NO_FRAME;
+        }
+        return timestamp;
+    } else {
+        if (audioFrameState_ == AudioFrameState::INIT || audioFrameState_ == AudioFrameState::NO_FRAME) {
+            SHARING_LOGI("has audio frame interval");
+            audioFrameState_ = AudioFrameState::HAS_FRAME;
+        }
+        timestamp = lastPlayPts_ - audioLatency_.load();
+        return timestamp;
+    }
 }
 
 bool AudioAvCodecDecoder::IsNeedDropFrame(int64_t nowTimeUs)

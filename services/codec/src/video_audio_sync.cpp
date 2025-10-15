@@ -56,6 +56,8 @@ bool VideoAudioSync::ProcessAVSyncStrategy(int64_t videoTimestamp)
     }
 
     int64_t earlyUs = videoTimestamp - audioPts;
+    SHARING_LOGD("videoTimestamp: %{public}" PRId64 "; audioPts: %{public}" PRId64 "; earlyUs: %{public}" PRId64 "",
+                 videoTimestamp, audioPts, earlyUs);
     if (earlyUs < VIDEO_TOO_LATE_US) {
         SHARING_LOGE("Video is too late, something may wrong!");
     } else if (earlyUs < VIDEO_LATE_US && continueDropCount_ <= 0) {
