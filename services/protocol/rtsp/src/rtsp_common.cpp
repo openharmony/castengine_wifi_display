@@ -115,8 +115,8 @@ RtspError RtspCommon::ParseMessage(const std::string &message, std::vector<std::
     if (messageV.size() == 2 && header.find(RTSP_TOKEN_CONTENT_TYPE) != header.end() && // 2:fixed size
         header.find(RTSP_TOKEN_CONTENT_LENGTH) != header.end()) {
         int32_t length = atoi(header.at(RTSP_TOKEN_CONTENT_LENGTH).c_str());
-        if (length == 0) {
-            SHARING_LOGW("Content-Length == 0.");
+        if (length == 0 || messageV.size() <= 1) {
+            SHARING_LOGW("Content-Length == 0 or no body.");
             return {};
         }
 

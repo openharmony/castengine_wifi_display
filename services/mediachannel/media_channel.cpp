@@ -189,7 +189,7 @@ void MediaChannel::OnMediaControllerNotify(ProsumerStatusMsg::Ptr &msg)
 
     switch (msg->status) {
         case CONNTROLLER_NOTIFY_ACCELERATION:
-            SendAgentEvent(msg, EVENT_AGEINT_ACCELERATION_DONE);
+            SendAgentEvent(msg, EVENT_AGENT_ACCELERATION_DONE);
             break;
         case CONNTROLLER_NOTIFY_DECODER_DIED:
             SendAgentEvent(msg, EVENT_AGENT_DECODER_DIED);

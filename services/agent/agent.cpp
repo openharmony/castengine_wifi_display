@@ -185,7 +185,7 @@ int32_t Agent::HandleEvent(SharingEvent &event)
             statusMsg->keyRedirect = inputMsg->keyRedirect;
             SendChannelKeyRedirectEvent(statusMsg, EVENT_MEDIA_CHANNEL_KEY_REDIRECT);
             break;
-        case EventType::EVENT_AGEINT_ACCELERATION_DONE:
+        case EventType::EVENT_AGENT_ACCELERATION_DONE:
             statusMsg->surfaceId = inputMsg->surfaceId;
             SendInteractionEvent(statusMsg, EVENT_INTERACTION_ACCELERATION_DONE);
             break;
