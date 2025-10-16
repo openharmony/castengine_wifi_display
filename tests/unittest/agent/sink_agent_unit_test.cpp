@@ -596,7 +596,7 @@ HWTEST_F(SinkAgentUnitTest, SinkAgent_051, Function | SmallTest | Level2)
 {
     auto sinkAgent = std::make_shared<SinkAgent>();
     ASSERT_TRUE(sinkAgent != nullptr);
-    auto ret = sinkAgent->GetRunStep(EVENT_AGEINT_ACCELERATION_DONE);
+    auto ret = sinkAgent->GetRunStep(EVENT_AGENT_ACCELERATION_DONE);
     ASSERT_TRUE(ret == AGENT_STEP_IDLE);
 }
 
@@ -663,7 +663,7 @@ HWTEST_F(SinkAgentUnitTest, SinkAgent_059, Function | SmallTest | Level2)
     SharingEvent event;
     event.eventMsg = std::make_shared<ContextEventMsg>();
     ASSERT_TRUE(event.eventMsg != nullptr);
-    event.eventMsg->type = EVENT_AGEINT_ACCELERATION_DONE;
+    event.eventMsg->type = EVENT_AGENT_ACCELERATION_DONE;
     event.eventMsg->dstId = 0;
     bool isCached = false;
     auto ret = sinkAgent->CheckRunStep(event, isCached);

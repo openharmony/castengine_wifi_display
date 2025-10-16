@@ -596,7 +596,7 @@ HWTEST_F(SrcAgentUnitTest, SrcAgent_051, Function | SmallTest | Level2)
 {
     auto srcAgent = std::make_shared<SrcAgent>();
     ASSERT_TRUE(srcAgent != nullptr);
-    auto ret = srcAgent->GetRunStep(EVENT_AGEINT_ACCELERATION_DONE);
+    auto ret = srcAgent->GetRunStep(EVENT_AGENT_ACCELERATION_DONE);
     ASSERT_TRUE(ret == AGENT_STEP_IDLE);
 }
 
@@ -663,7 +663,7 @@ HWTEST_F(SrcAgentUnitTest, SrcAgent_059, Function | SmallTest | Level2)
     SharingEvent event;
     event.eventMsg = std::make_shared<ContextEventMsg>();
     ASSERT_TRUE(event.eventMsg != nullptr);
-    event.eventMsg->type = EVENT_AGEINT_ACCELERATION_DONE;
+    event.eventMsg->type = EVENT_AGENT_ACCELERATION_DONE;
     event.eventMsg->dstId = 0;
     bool isCached = false;
     auto ret = srcAgent->CheckRunStep(event, isCached);

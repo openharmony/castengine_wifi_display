@@ -176,8 +176,12 @@ bool MediaController::AppendSurface(sptr<Surface> surface, SceneType sceneType)
 
         if (isPlaying_) {
             auto mediaChannel = mediaChannel_.lock();
-            auto dispatcher = mediaChannel->GetDispatcher();
-            videoPlayController->Start(dispatcher);
+            if (mediaChannel) {
+                auto dispatcher = mediaChannel->GetDispatcher();
+                if (dispatcher) {
+                    videoPlayController->Start(dispatcher);
+                }
+            }
         }
 
         videoPlayController->SetMediaController(shared_from_this());
@@ -195,8 +199,12 @@ void MediaController::RemoveSurface(uint64_t surfaceId)
         auto videoPlayController = videoPlayerMap_.find(surfaceId);
         if (videoPlayController != videoPlayerMap_.end()) {
             auto mediaChannel = mediaChannel_.lock();
-            auto dispatcher = mediaChannel->GetDispatcher();
-            videoPlayController->second->Stop(dispatcher);
+            if (mediaChannel) {
+                auto dispatcher = mediaChannel->GetDispatcher();
+                if (dispatcher) {
+                    videoPlayController->second->Stop(dispatcher);
+                }
+            }
             videoPlayController->second->Release();
             videoPlayerMap_.erase(surfaceId);
         }
