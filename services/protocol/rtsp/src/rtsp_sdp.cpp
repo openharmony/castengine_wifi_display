@@ -151,7 +151,7 @@ int32_t MediaDescription::GetU(uint8_t bitCount, const uint8_t *buf, uint32_t &p
     uint32_t value = 0;
     for (uint32_t i = 0; i < bitCount; i++) {
         value <<= 1;
-        if (pos >= 8 * strlen(buf)) { // 8:unit
+        if (pos >= 8 * strlen((char *)buf)) { // 8:unit
             break;
         }
         if (buf[pos / 8] & (0x80 >> (pos % 8))) { // 8:unit
