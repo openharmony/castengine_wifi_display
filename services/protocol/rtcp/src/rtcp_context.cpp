@@ -58,7 +58,7 @@ void RtcpSenderContext::OnRtcp(RtcpHeader *rtcp)
         case RtcpType::RTCP_RR: {
             auto rtcpRR = (RtcpRR *)rtcp;
             for (auto &item : rtcpRR->GetItemList()) {
-                if (!item->lastSrStamp_) {
+                if (item == nullptr || !item->lastSrStamp_) {
                     continue;
                 }
                 auto it = senderReportNtp_.find(item->lastSrStamp_);
@@ -79,6 +79,7 @@ void RtcpSenderContext::OnRtcp(RtcpHeader *rtcp)
         }
         case RtcpType::RTCP_XR: {
             auto rtcp_xr = (RtcpXRRRTR *)rtcp;
+            RETURN_IF_NULL(rtcp_xr);
             if (rtcp_xr->bt_ == 4) { // 4:xrXrrtr
                 xrXrrtrRecvLastRr_[rtcp_xr->ssrc_] =
                     ((rtcp_xr->ntpmsw_ & 0xFFFF) << 16) | ((rtcp_xr->ntplsw_ >> 16) & 0xFFFF); // 16:byte offset

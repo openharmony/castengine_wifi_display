@@ -190,6 +190,7 @@ void RtpEncoderH264::InputFrame(const Frame::Ptr &frame)
 {
     RETURN_IF_NULL(frame);
     auto ptr = frame->Data() + frame->PrefixSize();
+    RETURN_IF_NULL(ptr);
     switch (H264_TYPE(ptr[0])) {
         case H264Frame::NAL_SPS: {
             sps_ = frame;
