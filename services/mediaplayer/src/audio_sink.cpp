@@ -293,10 +293,16 @@ int32_t AudioSink::Write(uint8_t *buffer, size_t size)
 
     size_t bytesWritten = 0;
     int32_t bytesSingle = 0;
+    int32_t failNum = 0;
     while (audioRenderer_ && bytesWritten < size && running_) {
         bytesSingle = audioRenderer_->Write(buffer + bytesWritten, size - bytesWritten);
         if (bytesSingle <= 0) {
             MEDIA_LOGE("audioRenderer Write failed. playerId: %{public}u.", playerId_);
+            failNum++;
+            if (failNum >= MAX_AUDIO_WRITE_FAIL_NUM) {
+                MEDIA_LOGE("audioRenderer write failed too many times, playerId: %{public}u.", playerId_);
+                break;
+            }
             continue;
         }
 

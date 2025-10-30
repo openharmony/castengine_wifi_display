@@ -26,6 +26,8 @@
 namespace OHOS {
 namespace Sharing {
 
+constexpr int32_t MAX_AUDIO_WRITE_FAIL_NUM = 5;
+
 enum PlayerMessageType {
     MEDIA_PLAYER_INFO_UNKNOWN,
 };
