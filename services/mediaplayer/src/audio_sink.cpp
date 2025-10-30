@@ -55,6 +55,7 @@ int32_t AudioSink::Prepare(int32_t channels, int32_t sampleRate)
     }
 
     int32_t res = SetParameters(16, channels, sampleRate);
+    audioRenderer_->SetRendererCallback(shared_from_this());
     SHARING_LOGD("leave.");
     return res;
 }
@@ -69,6 +70,7 @@ int32_t AudioSink::Start()
 
     audioRenderer_->Start();
     running_ = true;
+    needWrite_ = true;
     return PLAYER_SUCCESS;
 }
 
@@ -86,6 +88,7 @@ int32_t AudioSink::Stop()
     }
 
     running_ = false;
+    needWrite_ = false;
     audioRenderer_->Stop();
     SHARING_LOGD("success, playerId: %{public}u.", playerId_);
     return PLAYER_SUCCESS;
@@ -294,7 +297,7 @@ int32_t AudioSink::Write(uint8_t *buffer, size_t size)
     size_t bytesWritten = 0;
     int32_t bytesSingle = 0;
     int32_t failNum = 0;
-    while (audioRenderer_ && bytesWritten < size && running_) {
+    while (audioRenderer_ && bytesWritten < size && running_ && needWrite_) {
         bytesSingle = audioRenderer_->Write(buffer + bytesWritten, size - bytesWritten);
         if (bytesSingle <= 0) {
             MEDIA_LOGE("audioRenderer Write failed. playerId: %{public}u.", playerId_);
@@ -316,6 +319,28 @@ int32_t AudioSink::Write(uint8_t *buffer, size_t size)
 
     MEDIA_LOGD("recv data(len:%{public}zu.)", size);
     return PLAYER_SUCCESS;
+}
+
+void AudioSink::OnInterrupt(const AudioStandard::InterruptEvent &interruptEvent)
+{
+    SHARING_LOGI("OnInterrupt hintType: %{public}d", interruptEvent.hintType);
+    switch (interruptEvent.hintType) {
+        case AudioStandard::InterruptHint::INTERRUPT_HINT_PAUSE:
+            // 音频流暂停，暂停音频写入
+            needWrite_ = false;
+            break;
+        case AudioStandard::InterruptHint::INTERRUPT_HINT_RESUME:
+            // 音频流恢复，恢复音频写入和重新起播
+            Start();
+            break;
+        default:
+            break;
+    }
+}
+
+void AudioSink::OnStateChange(const AudioStandard::RendererState state, const AudioStandard::StateChangeCmdType cmdType)
+{
+    SHARING_LOGI("OnStateChange state: %{public}d", state);
 }
 
 } // namespace Sharing
