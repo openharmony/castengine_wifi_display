@@ -54,7 +54,8 @@ enum PlayerErrorType {
     PLAYER_ERROR_EMPTY_INSTANCE
 };
 
-class AudioSink {
+class AudioSink : public AudioStandard::AudioRendererCallback,
+                  public std::enable_shared_from_this<AudioSink> {
 public:
     AudioSink(uint32_t playerId);
     virtual ~AudioSink();
@@ -77,9 +78,13 @@ public:
     int32_t GetParameters(int32_t &bitsPerSample, int32_t &channels, int32_t &sampleRate);
 
     int32_t Write(uint8_t *buffer, size_t size);
+    void OnStateChange(const AudioStandard::RendererState state,
+                       const AudioStandard::StateChangeCmdType cmdType) override;
+    void OnInterrupt(const AudioStandard::InterruptEvent &interruptEvent) override;
 
 private:
     bool running_ = false;
+    bool needWrite_ = false;
     uint32_t playerId_ = -1;
 
     std::mutex mutex_;
