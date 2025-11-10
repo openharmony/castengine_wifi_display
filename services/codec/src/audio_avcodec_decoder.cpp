@@ -238,7 +238,7 @@ void AudioAvCodecDecoder::OnInputBufferAvailable(uint32_t index, std::shared_ptr
         if (buffer == nullptr) {
             return;
         }
-        inBufferQueue_.push({index, buffer});
+        inBufferQueue_.emplace(index, buffer);
     }
     inCond_.notify_all();
 }

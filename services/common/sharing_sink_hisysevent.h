@@ -120,7 +120,7 @@ public:
         std::string peerDevName = "";
     };
     //获取对端设备信息
-    void SetHiSysEventDevInfo(SinkHisyseventDevInfo devInfo);
+    void SetHiSysEventDevInfo(const SinkHisyseventDevInfo &devInfo);
 
     void GetStartTime(std::chrono::system_clock::time_point startTime);
 

@@ -31,7 +31,7 @@ public:
         className_ = name;
     }
 
-    std::string GetClassName() const
+    const std::string &GetClassName() const
     {
         return className_;
     }

@@ -28,7 +28,7 @@ struct ProsumerStatusMsg {
     uint32_t agentId = INVALID_ID;
     uint32_t prosumerId = INVALID_ID;
     uint64_t surfaceId = INVALID_ID;
-    MediaType mediaType;
+    MediaType mediaType = MEDIA_TYPE_AV;
     EventMsg::Ptr eventMsg = nullptr;
     SharingErrorCode errorCode = ERR_OK;
 };
@@ -39,14 +39,14 @@ struct ChannelEventMsg : public EventMsg {
     std::string className;
     uint32_t agentId = INVALID_ID;
     uint32_t prosumerId = INVALID_ID;
-    MediaType mediaType;
+    MediaType mediaType = MEDIA_TYPE_AV;
 };
 
 struct ChannelAppendSurfaceEventMsg : public ChannelEventMsg {
     using Ptr = std::shared_ptr<ChannelAppendSurfaceEventMsg>;
 
     sptr<Surface> surface = nullptr;
-    SceneType sceneType;
+    SceneType sceneType = FOREGROUND;
 };
 
 struct ChannelRemoveSurfaceEventMsg : public ChannelEventMsg {
@@ -59,7 +59,7 @@ struct ChannelSetSceneTypeEventMsg : public ChannelEventMsg {
     using Ptr = std::shared_ptr<ChannelSetSceneTypeEventMsg>;
 
     uint64_t surfaceId = 0;
-    SceneType sceneType;
+    SceneType sceneType = FOREGROUND;
 };
 
 struct ChannelSetVolumeEventMsg : public ChannelEventMsg {

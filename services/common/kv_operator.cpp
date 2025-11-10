@@ -61,7 +61,7 @@ void KvOperator::CloseKvStore()
     MEDIA_LOGI("Close KvStore for %{public}s init success!", KVSTORE_APPID.appId.c_str());
 }
 
-bool KvOperator::GetValues(const std::string &key,  std::string &val)
+bool KvOperator::GetValues(const std::string &key, std::string &val)
 {
     if (kvStorePtr_ == nullptr) {
         MEDIA_LOGE("kvstore is nullptr.");
@@ -73,7 +73,7 @@ bool KvOperator::GetValues(const std::string &key,  std::string &val)
     DistributedKv::Status status = kvStorePtr_->Get(k, v);
     if (status != DistributedKv::Status::SUCCESS) {
         MEDIA_LOGE("get kvstore failed %{public}d.", status);
-        val = "";
+        val.clear();
         return false;
     }
 
