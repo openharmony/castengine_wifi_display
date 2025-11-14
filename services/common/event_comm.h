@@ -249,13 +249,7 @@ std::shared_ptr<T> ConvertEventMsg(SharingEvent &event)
         SHARING_LOGE("event msg null.");
         return nullptr;
     }
-    auto eventMsg = std::static_pointer_cast<T>(event.eventMsg);
-    if (eventMsg == nullptr) {
-        SHARING_LOGE("null.");
-        return nullptr;
-    }
-
-    return eventMsg;
+    return std::static_pointer_cast<T>(event.eventMsg);
 }
 
 } // namespace Sharing

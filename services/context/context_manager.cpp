@@ -254,7 +254,7 @@ void ContextManager::DestroyContext(uint32_t contextId)
             }
             contexts_.erase(itr);
         }
-        if (0 == contexts_.size()) {
+        if (contexts_.empty()) {
             paFlag = true;
         }
     }

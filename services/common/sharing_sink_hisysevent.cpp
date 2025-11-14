@@ -37,7 +37,7 @@ WfdSinkHiSysEvent& WfdSinkHiSysEvent::GetInstance()
     return instance;
 }
 
-void WfdSinkHiSysEvent::SetHiSysEventDevInfo(WfdSinkHiSysEvent::SinkHisyseventDevInfo devInfo)
+void WfdSinkHiSysEvent::SetHiSysEventDevInfo(const WfdSinkHiSysEvent::SinkHisyseventDevInfo &devInfo)
 {
     devInfo_.localDevName = GetAnonyDevName(devInfo.localDevName).c_str();
     devInfo_.localIp = GetAnonymousIp(devInfo.localIp).c_str();

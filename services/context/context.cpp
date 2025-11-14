@@ -270,8 +270,9 @@ uint32_t Context::HandleCreateAgent(const std::string &className, AgentType agen
     } else {
         std::lock_guard<std::mutex> lock(mutex_);
         Agent::Ptr sinkAgent = nullptr;
-        if (agents_.find(sinkAgentId) != agents_.end()) {
-            sinkAgent = agents_.find(sinkAgentId)->second;
+        auto it = agents_.find(sinkAgentId);
+        if (it != agents_.end()) {
+            sinkAgent = it->second;
         }
         if (sinkAgent != nullptr && !sinkAgent->GetDestroy()) {
             auto srcAgent = std::make_shared<SrcAgent>();

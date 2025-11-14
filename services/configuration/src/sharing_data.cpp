@@ -130,25 +130,18 @@ bool SharingDataGroupByTag::HasKey(const std::string &key)
 void SharingDataGroupByTag::ForEach(Each each)
 {
     SHARING_LOGD("trace.");
-    auto iter = datas_.begin();
-    while (iter != datas_.end()) {
-        std::string key = iter->first;
-        each(key, iter->second);
-        iter++;
+    for (auto &[key, value] : datas_) {
+        each(key, value);
     }
 }
 
 void SharingDataGroupByTag::Print()
 {
     SHARING_LOGD("trace.");
-    auto iter = datas_.begin();
-    while (iter != datas_.end()) {
-        std::string key = iter->first;
-        SharingValue::Ptr value = iter->second;
+    for (auto &[key, value] : datas_) {
         if (value) {
             value->Print();
         }
-        iter++;
     }
 }
 
@@ -160,7 +153,7 @@ int32_t SharingDataGroupByModule::PutSharingValue(const std::string &tag, const 
     if (iter == datass_.end()) {
         auto grpData = std::make_shared<SharingDataGroupByTag>(tag);
         grpData->PutSharingValue(key, value);
-        datass_.emplace(std::make_pair(tag, grpData));
+        datass_.emplace(tag, grpData);
         return CONFIGURE_ERROR_NONE;
     }
 
@@ -179,7 +172,7 @@ int32_t SharingDataGroupByModule::PutSharingValues(const std::string &tag,
             return CONFIGURE_ERROR_NOT_FIND;
         }
         grpData->PutSharingValues(values);
-        datass_.emplace(std::make_pair(tag, grpData));
+        datass_.emplace(tag, grpData);
         return CONFIGURE_ERROR_NONE;
     }
 

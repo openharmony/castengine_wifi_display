@@ -22,11 +22,12 @@ namespace Sharing {
 std::shared_ptr<void> ReflectRegistration::CreateObject(const std::string &descriptor)
 {
     std::lock_guard<std::mutex> lockGuard(creatorMutex_);
-    if (creators_.find(descriptor) == creators_.end()) {
+    auto it = creators_.find(descriptor);
+    if (it == creators_.end()) {
         return nullptr;
     }
 
-    return creators_[descriptor]();
+    return it->second();
 }
 
 bool ReflectRegistration::Register(const std::string &descriptor, Constructor creator)

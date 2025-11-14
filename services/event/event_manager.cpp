@@ -123,23 +123,21 @@ int32_t EventManager::PushSyncEvent(const SharingEvent &event)
     SHARING_LOGI("push a sync event, type: %{public}u %{public}s.", event.eventMsg->type,
                  std::string(magic_enum::enum_name(event.eventMsg->type)).c_str());
 
-    for (auto listenMap : listeners_) {
-        if (listenMap.first == event.listenerType) {
-            SHARING_LOGD("find Listener type %{public}d %{public}s.", event.eventMsg->type,
+    auto it = listeners_.find(event.listenerType);
+    if (it != listeners_.end()) {
+        SHARING_LOGD("find Listener type %{public}d %{public}s.", event.eventMsg->type,
+                     std::string(magic_enum::enum_name(event.eventMsg->type)).c_str());
+        auto listener = it->second.front();
+        std::packaged_task<BindedTask> task(std::bind(&EventListener::OnEvent, listener, event));
+        auto future = task.get_future();
+        PushTask(task);
+        if (future.wait_for(timeoutInterval_) == std::future_status::ready) {
+            SHARING_LOGD("task dispatched success %{public}s.",
                          std::string(magic_enum::enum_name(event.eventMsg->type)).c_str());
-            auto listener = listenMap.second.front();
-            std::packaged_task<BindedTask> task(std::bind(&EventListener::OnEvent, listener, event));
-            auto future = task.get_future();
-            PushTask(task);
-            if (future.wait_for(timeoutInterval_) == std::future_status::ready) {
-                SHARING_LOGD("task dispatched success %{public}s.",
-                             std::string(magic_enum::enum_name(event.eventMsg->type)).c_str());
-                return future.get();
-            } else {
-                SHARING_LOGW("task timeout %{public}s.",
-                             std::string(magic_enum::enum_name(event.eventMsg->type)).c_str());
-                return -1;
-            }
+            return future.get();
+        } else {
+            SHARING_LOGW("task timeout %{public}s.", std::string(magic_enum::enum_name(event.eventMsg->type)).c_str());
+            return -1;
         }
     }
 
@@ -156,15 +154,14 @@ void EventManager::ProcessEvent()
         } else {
             auto event = events_.front();
             events_.pop();
-            for (auto &listenMap : listeners_) {
-                if (listenMap.first == event.listenerType) {
-                    for (auto &listener : listenMap.second) {
-                        SHARING_LOGD("task dispatched success.");
-                        std::packaged_task<BindedTask> task(std::bind(&EventListener::OnEvent, listener, event));
-                        PushTask(task);
-                    }
-                    break;
-                }
+            auto it = listeners_.find(event.listenerType);
+            if (it == listeners_.end()) {
+                continue;
+            }
+            for (auto &listener : it->second) {
+                SHARING_LOGD("task dispatched success.");
+                std::packaged_task<BindedTask> task(std::bind(&EventListener::OnEvent, listener, event));
+                PushTask(task);
             }
         }
     }
