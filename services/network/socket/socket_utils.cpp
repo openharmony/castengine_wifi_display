@@ -493,7 +493,7 @@ int32_t SocketUtils::ReadSocket(int32_t fd, DataBuffer::Ptr buf, int32_t &error)
     }
 
     auto size = buf->Capacity() - buf->Size();
-    if (size < READ_BUF_SIZE) {
+    if (size < (int32_t)READ_BUF_SIZE) {
         uint32_t bufferReaderSize = (uint32_t)buf->Size();
         if (bufferReaderSize > MAX_READ_BUF_SIZE) {
             SHARING_LOGE("error data size!");

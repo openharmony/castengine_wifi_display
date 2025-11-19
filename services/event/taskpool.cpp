@@ -16,7 +16,7 @@
 #include "taskpool.h"
 namespace OHOS {
 namespace Sharing {
-constexpr uint32_t MAX_THREAD_NUM = 50;
+constexpr int32_t MAX_THREAD_NUM = 50;
 
 TaskPool::TaskPool()
 {
