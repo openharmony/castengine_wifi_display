@@ -135,22 +135,17 @@ void AudioAACDecoder::OnFrame(const Frame::Ptr &frame)
     avcodec_receive_frame(codecCtx_, avFrame_);
 
     if (swrContext_ == nullptr) {
-        swrContext_ = swr_alloc_set_opts(nullptr, (int64_t)avFrame_->channel_layout, // out_ch_layout
-                                         AV_SAMPLE_FMT_S16,                          // out_sample_fmt
-                                         avFrame_->sample_rate,                      // out_sample_rate
-                                         (int64_t)avFrame_->channel_layout,          // in_ch_layout
-                                         (AVSampleFormat)avFrame_->format,           // AV_SAMPLE_FMT_FLTP
-                                         avFrame_->sample_rate,                      // out_sample_rate
-                                         0, nullptr);
-        if (swrContext_ == nullptr) {
+        int ret = swr_alloc_set_opts2(&swrContext_, &avFrame_->ch_layout, AV_SAMPLE_FMT_S16, avFrame_->sample_rate,
+            &avFrame_->ch_layout, (AVSampleFormat)avFrame_->format, avFrame_->sample_rate, 0, nullptr);
+        if (swrContext_ == nullptr || ret) {
             SHARING_LOGE("swrContext_ alloc failed!");
             return;
         }
 
         swr_init(swrContext_);
 
-        swrOutBufferSize_ =
-            av_samples_get_buffer_size(nullptr, avFrame_->channels, avFrame_->nb_samples, AV_SAMPLE_FMT_S16, 0);
+        swrOutBufferSize_ = av_samples_get_buffer_size(
+            nullptr, avFrame_->ch_layout.nb_channels, avFrame_->nb_samples, AV_SAMPLE_FMT_S16, 0);
         if (swrOutBufferSize_ <= 0 || swrOutBufferSize_ > MAX_AUDIO_BUFFER_SIZE) {
             SHARING_LOGE("invalid buffer size %{public}d", swrOutBufferSize_);
             return;
@@ -220,9 +215,12 @@ int AudioAACEncoder::InitSwr()
         in_sample_fmt = AV_SAMPLE_FMT_U8;
     }
     int in_sample_rate = (int)inSampleRate_;
-    swr_ = swr_alloc_set_opts(NULL, enc_->channel_layout, enc_->sample_fmt, enc_->sample_rate, in_ch_layout,
-                              in_sample_fmt, in_sample_rate, 0, NULL);
-    if (!swr_) {
+    AVChannelLayout in_av_ch_layout;
+    int ret = av_channel_layout_from_mask(&in_av_ch_layout, in_ch_layout);
+    CHECK_AND_RETURN_RET_LOG(!ret, -1, "channel layout is not supported.");
+    ret = swr_alloc_set_opts2(&swr_, &enc_->ch_layout, enc_->sample_fmt, enc_->sample_rate,
+        &in_av_ch_layout, in_sample_fmt, in_sample_rate, 0, NULL);
+    if (!swr_ || ret) {
         SHARING_LOGE("alloc swr failed.");
     }
 
@@ -233,11 +231,12 @@ int AudioAACEncoder::InitSwr()
                      av_make_error_string(errBuf, AV_ERROR_MAX_STRING_SIZE, error));
     }
 
-    if (!(swrData_ = (uint8_t **)calloc(enc_->channels, sizeof(*swrData_)))) {
+    if (!(swrData_ = (uint8_t **)calloc(enc_->ch_layout.nb_channels, sizeof(*swrData_)))) {
         SHARING_LOGE("alloc swr buffer failed!");
     }
 
-    if ((error = av_samples_alloc(swrData_, NULL, enc_->channels, enc_->frame_size, enc_->sample_fmt, 0)) < 0) {
+    if ((error = av_samples_alloc(swrData_, NULL, enc_->ch_layout.nb_channels,
+        enc_->frame_size, enc_->sample_fmt, 0)) < 0) {
         SHARING_LOGE("alloc swr buffer(%{public}d:%{public}s)\n", error,
                      av_make_error_string(errBuf, AV_ERROR_MAX_STRING_SIZE, error));
     }
@@ -248,8 +247,7 @@ int AudioAACEncoder::InitSwr()
 void AudioAACEncoder::InitEncoderCtx(uint32_t channels, uint32_t sampleBit, uint32_t sampleRate)
 {
     enc_->sample_rate = (int32_t)sampleRate; // dst_samplerate;
-    enc_->channels = (int32_t)channels;      // dst_channels;
-    enc_->channel_layout = (uint64_t)av_get_default_channel_layout(channels);
+    av_channel_layout_default(&enc_->ch_layout, channels);
     enc_->bit_rate = AUDIO_BIT_RATE_12800;
     enc_->time_base.num = 1;
     enc_->time_base.den = (int32_t)sampleRate;
@@ -295,7 +293,7 @@ int32_t AudioAACEncoder::Init(uint32_t channels, uint32_t sampleBit, uint32_t sa
     }
     encFrame_->format = enc_->sample_fmt;
     encFrame_->nb_samples = enc_->frame_size;
-    encFrame_->channel_layout = enc_->channel_layout;
+    av_channel_layout_copy(&encFrame_->ch_layout, &enc_->ch_layout);
 
     if (av_frame_get_buffer(encFrame_, 0) < 0) {
         SHARING_LOGE("Could not get audio frame buffer");
@@ -306,11 +304,11 @@ int32_t AudioAACEncoder::Init(uint32_t channels, uint32_t sampleBit, uint32_t sa
         SHARING_LOGE("Could not allocate audio encode out packet");
         return 1;
     }
-    if (!(fifo_ = av_audio_fifo_alloc(enc_->sample_fmt, enc_->channels, enc_->frame_size))) {
+    if (!(fifo_ = av_audio_fifo_alloc(enc_->sample_fmt, enc_->ch_layout.nb_channels, enc_->frame_size))) {
         SHARING_LOGE("Could not allocate FIFO");
         return 1;
     }
-    auto bufferSize = av_samples_get_buffer_size(nullptr, encFrame_->channels, encFrame_->nb_samples,
+    auto bufferSize = av_samples_get_buffer_size(nullptr, encFrame_->ch_layout.nb_channels, encFrame_->nb_samples,
                                                  AVSampleFormat(encFrame_->format), 0);
     outBuffer_ = (uint8_t *)av_malloc(bufferSize);
     if (outBuffer_ == nullptr) {
