@@ -75,6 +75,7 @@ bool RtspRequestFuzzTest(const uint8_t *data, size_t size)
     RtspRequestGetParameter requestGetParam(intVal, str);
     requestGetParam.Stringify();
     requestGetParam.AddBodyItem(str).Stringify();
+
     return true;
 }
 
