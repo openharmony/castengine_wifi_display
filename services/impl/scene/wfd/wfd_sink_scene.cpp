@@ -1775,6 +1775,14 @@ void WfdSinkScene::OnInnerEvent(SharingEvent &event)
             }
             break;
         }
+        case EventType::EVENT_WFD_NOTIFY_IS_PC_SOURCE: {
+            auto msg = ConvertEventMsg<WfdSceneEventMsg>(event);
+            if (!msg) {
+                break;
+            }
+            NotifyIsPcSource();
+            break;
+        }
         default:
             SHARING_LOGI("none process case.");
             break;
@@ -1860,6 +1868,17 @@ void WfdSinkScene::OnRemoteDied()
     if (sharingAdapter) {
         sharingAdapter->ReleaseScene(GetId());
     }
+}
+
+void WfdSinkScene::NotifyIsPcSource()
+{
+    SHARING_LOGD("trace.");
+    auto ipcAdapter = ipcAdapter_.lock();
+    RETURN_IF_NULL(ipcAdapter);
+
+    auto msg = std::make_shared<WfdIsPcSourceMsg>();
+    auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
+    ipcAdapter->SendRequest(msg, reply);
 }
 
 REGISTER_CLASS_REFLECTOR(WfdSinkScene);

@@ -89,6 +89,10 @@ RtspError RtspResponse::Parse(const std::string &response)
         date_ = tokens_.at(RTSP_TOKEN_DATE);
     }
 
+    if (tokens_.find(RTSP_TOKEN_SERVER) != tokens_.end()) {
+        server_ = tokens_.at(RTSP_TOKEN_SERVER);
+    }
+
     if (tokens_.find(RTSP_TOKEN_SESSION) != tokens_.end()) {
         session_ = tokens_.at(RTSP_TOKEN_SESSION);
         auto si = session_.find(';');

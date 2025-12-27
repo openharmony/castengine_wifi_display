@@ -57,6 +57,7 @@ namespace Sharing {
 #define RTSP_TOKEN_REQUIRE          "Require"
 #define RTSP_TOKEN_AUTHORIZATION    "Authorization"
 #define RTSP_TOKEN_WWW_AUTHENTICATE "WWW-Authenticate"
+#define RTSP_TOKEN_SERVER           "Server"
 
 #define RTSP_STATUS_CONTINUE         100
 #define RTSP_STATUS_OK               200

@@ -552,6 +552,11 @@ void WfdSinkSession::HandleM2Response(const RtspResponse &response, const std::s
         SHARING_LOGE("WFD source peer do not support all methods.");
         NotifyServiceError();
     }
+
+    if (response.GetServer().find("MSMiracastSource") != std::string::npos) {
+        NotifyAgentPrivateEvent(EVENT_WFD_NOTIFY_IS_PC_SOURCE);
+        SHARING_LOGI("is PC Source.");
+    }
 }
 
 void WfdSinkSession::HandleM6Response(const RtspResponse &response, const std::string &message)

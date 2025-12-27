@@ -53,6 +53,8 @@ public:
 
     int32_t GetStatus() const { return status_; }
 
+    std::string GetServer() const { return server_; }
+
     std::string GetSession() const { return session_; }
 
     std::string GetDigestRealm() const { return digestRealm_; }
@@ -82,6 +84,7 @@ private:
     std::string session_;
     std::string customHeaders_;
     std::string digestRealm_;
+    std::string server_;
 
     std::unordered_map<std::string, std::string> tokens_;
 };

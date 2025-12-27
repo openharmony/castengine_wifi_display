@@ -190,6 +190,8 @@ private:
                                     std::shared_ptr<WfdCommonRsp> &reply);
     void FillAndReportDeviceInfo(const ConnectionInfo &connectionInfo);
 
+    void NotifyIsPcSource();
+
 private:
     std::atomic_bool isSinkRunning_ = false;
     std::atomic_bool isInitialized_ = false;
