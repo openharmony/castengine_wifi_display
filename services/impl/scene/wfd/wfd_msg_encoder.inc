@@ -40,3 +40,4 @@ IPC_MESSAGE_ENCODE_BIND(DestroyScreenCaptureReq, DestroyScreenCaptureReq::MSG_ID
 IPC_MESSAGE_ENCODE_BIND(WfdGetBoundDevicesReq, WfdGetBoundDevicesReq::MSG_ID)
 IPC_MESSAGE_ENCODE_BIND(WfdGetBoundDevicesRsp, WfdGetBoundDevicesRsp::MSG_ID)
 IPC_MESSAGE_ENCODE_BIND(WfdDeleteBoundDeviceReq, WfdDeleteBoundDeviceReq::MSG_ID)
+IPC_MESSAGE_ENCODE_BIND(WfdIsPcSourceMsg, WfdIsPcSourceMsg::MSG_ID)

@@ -52,7 +52,8 @@ enum WfdMsgId {
     WFD_SOURCE_DESTROY_SCREEN_CAPTUREREQ_REQ,
     WFD_GET_BOUND_DEVICES_REQ,
     WFD_GET_BOUND_DEVICES_RSP,
-    WFD_DELETE_BOUND_DEVICE_REQ
+    WFD_DELETE_BOUND_DEVICE_REQ,
+    WFD_IS_PC_SOURCE_MSG
     // domain msg
 };
 
@@ -560,6 +561,17 @@ struct WfdDeleteBoundDeviceReq : public BaseMsg {
     IPC_BIND_ATTR(deviceAddress)
 
     std::string deviceAddress;
+};
+
+struct WfdIsPcSourceMsg : public BaseMsg {
+    enum { MSG_ID = WfdMsgId::WFD_IS_PC_SOURCE_MSG };
+
+    int32_t GetMsgId() final
+    {
+        return MSG_ID;
+    }
+
+    IPC_BIND_ATTR0
 };
 
 } // namespace Sharing
