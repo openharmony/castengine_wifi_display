@@ -335,8 +335,7 @@ void RtpEncoderTs::StartEncoding()
     audioStream->codecpar->codec_type = AVMEDIA_TYPE_AUDIO;
     audioStream->codecpar->codec_id = audioCodeId_;
     audioStream->codecpar->codec_tag = 0;
-    audioStream->codecpar->channel_layout = (uint64_t)av_get_default_channel_layout(AUDIO_CHANNEL_STEREO);
-    audioStream->codecpar->channels = AUDIO_CHANNEL_STEREO;
+    av_channel_layout_default(&audioStream->codecpar->ch_layout, AUDIO_CHANNEL_STEREO);
     audioStream->codecpar->sample_rate = AUDIO_SAMPLE_RATE_48000;
     audioStream->time_base.num = 1;
     audioStream->time_base.den = AUDIO_SAMPLE_RATE_48000;
@@ -419,7 +418,7 @@ void RtpEncoderTs::RemoveFrameAfterMuxing()
     dataQueue_.pop();
 }
 
-int RtpEncoderTs::WritePacket(void *opaque, uint8_t *buf, int buf_size)
+int RtpEncoderTs::WritePacket(void *opaque, const uint8_t *buf, int buf_size)
 {
     RETURN_INVALID_IF_NULL(opaque);
     RETURN_INVALID_IF_NULL(buf);

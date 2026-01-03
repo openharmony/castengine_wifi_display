@@ -80,7 +80,7 @@ private:
     void RemoveFrameAfterMuxing();
     Frame::Ptr ReadFrame(AVPacket *packet);
     void SaveFrame(Frame::Ptr frame);
-    static int WritePacket(void *opaque, uint8_t *buf, int buf_size);
+    static int WritePacket(void *opaque, const uint8_t *buf, int buf_size);
 
 private:
     bool exit_ = false;
