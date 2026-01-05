@@ -41,7 +41,7 @@ MediaController::~MediaController()
     SHARING_LOGD("delete media controller, mediachannelId: %{public}u.", mediachannelId_);
 }
 
-bool MediaController::Init(AudioTrack audioTrack, VideoTrack videoTrack)
+bool MediaController::Init(AudioTrack audioTrack, VideoTrack videoTrack, bool isPcSource)
 {
     SHARING_LOGD("trace.");
     audioTrack_ = audioTrack;
@@ -53,7 +53,7 @@ bool MediaController::Init(AudioTrack audioTrack, VideoTrack videoTrack)
 
     if (CODEC_NONE != audioTrack_.codecId) {
         audioPlayController_ = std::make_shared<AudioPlayController>(mediachannelId_);
-        if (!audioPlayController_->Init(audioTrack_)) {
+        if (!audioPlayController_->Init(audioTrack_, isPcSource)) {
             SHARING_LOGE("audio play init error.");
             return false;
         }

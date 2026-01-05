@@ -59,6 +59,7 @@ public:
     virtual bool IsPasued();
     virtual bool IsRunning();
     virtual bool IsCapture();
+    virtual bool IsPcSource();
 
     virtual int32_t Release() = 0;
     virtual uint32_t GetSinkAgentId();
@@ -74,6 +75,7 @@ protected:
     bool isInit_ = false;
     bool isPaused_ = false;
     bool isRunning_ = false;
+    bool isPcSource_ = false;
     uint32_t sinkAgentId_ = INVALID_ID;
     std::weak_ptr<IConsumerListener> listener_;
 

@@ -259,6 +259,7 @@ void WfdSinkSession::NotifyProsumerInit(SessionStatusMsg::Ptr &statusMsg)
     eventMsg->ip = localIp_;
     eventMsg->audioTrack = audioTrack_;
     eventMsg->videoTrack = videoTrack_;
+    eventMsg->isPcSource = isPcSource_;
 
     statusMsg->msg = std::move(eventMsg);
     statusMsg->status = NOTIFY_SESSION_PRIVATE_EVENT;
@@ -554,6 +555,7 @@ void WfdSinkSession::HandleM2Response(const RtspResponse &response, const std::s
     }
 
     if (response.GetServer().find("MSMiracastSource") != std::string::npos) {
+        isPcSource_ = true;
         NotifyAgentPrivateEvent(EVENT_WFD_NOTIFY_IS_PC_SOURCE);
         SHARING_LOGI("is PC Source.");
     }

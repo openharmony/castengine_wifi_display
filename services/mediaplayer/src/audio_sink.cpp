@@ -343,5 +343,11 @@ void AudioSink::OnStateChange(const AudioStandard::RendererState state, const Au
     SHARING_LOGI("OnStateChange state: %{public}d", state);
 }
 
+void AudioSink::SetIsPcSource(bool isPcSource)
+{
+    SHARING_LOGI("isPcSource: %{public}s", isPcSource ? "true" : "false");
+    isPcSource_ = isPcSource;
+}
+
 } // namespace Sharing
 } // namespace OHOS
