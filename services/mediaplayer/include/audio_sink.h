@@ -81,9 +81,11 @@ public:
     void OnStateChange(const AudioStandard::RendererState state,
                        const AudioStandard::StateChangeCmdType cmdType) override;
     void OnInterrupt(const AudioStandard::InterruptEvent &interruptEvent) override;
+    void SetIsPcSource(bool isPcSource);
 
 private:
     bool running_ = false;
+    bool isPcSource_ = false;
     bool needWrite_ = false;
     uint32_t playerId_ = -1;
 

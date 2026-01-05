@@ -94,6 +94,7 @@ private:
     bool connected_ = false;
     bool isFirstCast = true;
     bool isFirstCreateProsumer_ = true;
+    bool isPcSource_ = false;
 
     uint16_t localRtpPort_ = 0;
     uint16_t remoteRtspPort_ = 0;

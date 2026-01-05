@@ -34,7 +34,7 @@ public:
     void SetVolume(float volume);
     void Stop(BufferDispatcher::Ptr &dispatcher);
     void DropOneFrame();
-    bool Init(AudioTrack &audioTrack);
+    bool Init(AudioTrack &audioTrack, bool isPcSource);
     bool Start(BufferDispatcher::Ptr &dispatcher);
     int64_t GetAudioDecoderTimestamp();
 

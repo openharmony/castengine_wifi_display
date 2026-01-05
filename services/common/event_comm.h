@@ -186,6 +186,7 @@ struct SessionStatusMsg : public AgentStatusMsg {
     sptr<Surface> surface = nullptr;
     MediaType mediaType;
     SceneType sceneType;
+    bool isPcSource;
 };
 
 struct WindowProperty {
