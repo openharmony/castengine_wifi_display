@@ -98,7 +98,10 @@ std::shared_ptr<RtcpSR> RtcpSR::Create(int32_t itemCount)
     SetupHeader(ptr, RtcpType::RTCP_SR, itemCount, bytes);
     SetupPadding(ptr, bytes - realSize);
 
-    return std::shared_ptr<RtcpSR>(ptr, [](RtcpSR *ptr) { delete[] (char *)ptr; });
+    return std::shared_ptr<RtcpSR>(ptr, [](RtcpSR *ptr) {
+        delete[] (char *)ptr;
+        ptr = nullptr;
+    });
 }
 
 RtcpSR &RtcpSR::SetNtpStamp(timeval tv)
@@ -198,7 +201,10 @@ std::shared_ptr<RtcpRR> RtcpRR::Create(size_t itemCount)
     }
     SetupHeader(ptr, RtcpType::RTCP_RR, itemCount, bytes);
     SetupPadding(ptr, bytes - realSize);
-    return std::shared_ptr<RtcpRR>(ptr, [](RtcpRR *ptr) { delete[] (char *)ptr; });
+    return std::shared_ptr<RtcpRR>(ptr, [](RtcpRR *ptr) {
+        delete[] (char *)ptr;
+        ptr = nullptr;
+    });
 }
 
 std::vector<ReportItem *> RtcpRR::GetItemList()
@@ -256,7 +262,10 @@ std::shared_ptr<RtcpSdes> RtcpSdes::Create(const std::vector<std::string> &itemT
 
     SetupHeader(ptr, RtcpType::RTCP_SDES, itemText.size(), bytes);
     SetupPadding(ptr, bytes - realSize);
-    return std::shared_ptr<RtcpSdes>(ptr, [](RtcpSdes *ptr) { delete[] (char *)ptr; });
+    return std::shared_ptr<RtcpSdes>(ptr, [](RtcpSdes *ptr) {
+        delete[] (char *)ptr;
+        ptr = nullptr;
+    });
 }
 
 std::vector<SdesChunk *> RtcpSdes::GetChunkList()
@@ -316,7 +325,10 @@ std::shared_ptr<RtcpFB> RtcpFB::CreateInner(RtcpType type, int32_t fmt, const vo
     }
     SetupHeader(ptr, type, fmt, bytes);
     SetupPadding(ptr, bytes - realSize);
-    return std::shared_ptr<RtcpFB>((RtcpFB *)ptr, [](RtcpFB *ptr) { delete[] (char *)ptr; });
+    return std::shared_ptr<RtcpFB>((RtcpFB *)ptr, [](RtcpFB *ptr) {
+        delete[] (char *)ptr;
+        ptr = nullptr;
+    });
 }
 
 //------------------------------ RtcpBye ------------------------------//
@@ -349,7 +361,10 @@ std::shared_ptr<RtcpBye> RtcpBye::Create(const std::vector<uint32_t> &ssrcs, con
         }
     }
 
-    return std::shared_ptr<RtcpBye>(ptr, [](RtcpBye *ptr) { delete[] (char *)ptr; });
+    return std::shared_ptr<RtcpBye>(ptr, [](RtcpBye *ptr) {
+        delete[] (char *)ptr;
+        ptr = nullptr;
+    });
 }
 
 std::vector<uint32_t> RtcpBye::GetSSRC() const
@@ -387,7 +402,10 @@ std::shared_ptr<RtcpXRDLRR> RtcpXRDLRR::Create(size_t itemCount)
     }
     SetupHeader(ptr, RtcpType::RTCP_XR, 0, bytes);
     SetupPadding(ptr, bytes - realSize);
-    return std::shared_ptr<RtcpXRDLRR>(ptr, [](RtcpXRDLRR *ptr) { delete[] (char *)ptr; });
+    return std::shared_ptr<RtcpXRDLRR>(ptr, [](RtcpXRDLRR *ptr) {
+        delete[] (char *)ptr;
+        ptr = nullptr;
+    });
 }
 
 std::vector<RtcpXRDLRRReportItem *> RtcpXRDLRR::GetItemList()
