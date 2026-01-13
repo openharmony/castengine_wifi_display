@@ -73,7 +73,7 @@ void TimeoutTimer::StartTimer(int timeout, std::string info, std::function<void(
         callback_ = std::move(callback);
     }
     taskSignal_.notify_all();
-    SHARING_LOGD("start timeout timer (%{public}s) leave.", info.c_str());
+    SHARING_LOGD("start timeout timer leave.");
 }
 
 void TimeoutTimer::StopTimer()
