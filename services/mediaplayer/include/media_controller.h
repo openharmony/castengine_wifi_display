@@ -45,7 +45,7 @@ public:
     void Stop();
     void Start();
     void Release();
-    bool Init(AudioTrack audioTrack, VideoTrack videoTrack);
+    bool Init(AudioTrack audioTrack, VideoTrack videoTrack, bool isPcSource);
 
     void RemoveSurface(uint64_t surfaceId);
     bool AppendSurface(sptr<Surface> surface, SceneType sceneType);

@@ -53,6 +53,12 @@ bool BaseConsumer::IsCapture()
     return false;
 }
 
+bool BaseConsumer::IsPcSource()
+{
+    SHARING_LOGD("trace.");
+    return isPcSource_;
+}
+
 uint32_t BaseConsumer::GetSinkAgentId()
 {
     SHARING_LOGD("trace.");
