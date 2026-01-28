@@ -27,12 +27,13 @@ AudioPlayer::~AudioPlayer()
     Release();
 }
 
-bool AudioPlayer::Init(const AudioTrack &audioTrack)
+bool AudioPlayer::Init(const AudioTrack &audioTrack, bool isPcSource)
 {
     SHARING_LOGD("trace.");
     playerId_ = GetId();
     audioCodecId_ = audioTrack.codecId;
     audioSink_ = std::make_shared<AudioSink>(playerId_);
+    audioSink_->SetIsPcSource(isPcSource);
     audioDecoderReceiver_ = std::make_shared<AudioDecoderReceiver>(audioSink_);
 
     audioDecoder_ = CodecFactory::CreateAudioDecoder(audioCodecId_);

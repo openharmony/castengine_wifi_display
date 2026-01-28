@@ -34,6 +34,8 @@ struct WfdProducerEventMsg : public ChannelEventMsg {
 struct WfdConsumerEventMsg : public ChannelEventMsg {
     using Ptr = std::shared_ptr<WfdProducerEventMsg>;
 
+    bool isPcSource;
+
     uint16_t port = 0;
 
     std::string ip;

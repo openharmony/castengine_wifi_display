@@ -53,7 +53,7 @@ public:
     void ProcessAudioData(DataBuffer::Ptr data, uint64_t pts);
     void DropOneFrame();
     bool Start();
-    bool Init(const AudioTrack &audioTrack);
+    bool Init(const AudioTrack &audioTrack, bool isPcSource);
     int64_t GetDecoderTimestamp();
 
 private:

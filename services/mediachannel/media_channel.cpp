@@ -953,7 +953,8 @@ SharingErrorCode MediaChannel::InitPlayController()
             audioTrack = consumer_->GetAudioTrack();
         }
         VideoTrack videoTrack = consumer_->GetVideoTrack();
-        if (!playController_->Init(audioTrack, videoTrack)) {
+        bool isPcSource = consumer_->IsPcSource();
+        if (!playController_->Init(audioTrack, videoTrack, isPcSource)) {
             SHARING_LOGE("player controller Init error.");
             playController_ = nullptr;
             return SharingErrorCode::ERR_DECODE_FORMAT;

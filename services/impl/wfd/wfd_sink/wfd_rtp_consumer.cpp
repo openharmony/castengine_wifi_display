@@ -66,6 +66,7 @@ void WfdRtpConsumer::HandleProsumerInitState(SharingEvent &event)
     if (msg) {
         port_ = msg->port;
         localIp_ = msg->ip;
+        isPcSource_ = msg->isPcSource;
         if (msg->audioTrack.codecId != CodecId::CODEC_NONE) {
             audioTrack_ = msg->audioTrack;
         }
