@@ -800,6 +800,7 @@ void WfdSinkSession::SetM3HweParam(WfdRtspM3Response &m3Response, std::string &p
 bool WfdSinkSession::HandleM4Request(const std::string &message)
 {
     SHARING_LOGD("trace.");
+
     WfdRtspM4Request m4Request;
     m4Request.Parse(message);
     rtspUrl_ = m4Request.GetPresentationUrl();
