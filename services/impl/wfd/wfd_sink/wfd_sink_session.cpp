@@ -810,6 +810,7 @@ bool WfdSinkSession::HandleM4Request(const std::string &message)
     if (timeoutTimer_ && isFirstCast) {
         timeoutTimer_->StartTimer(WFD_TIMEOUT_6_SECOND, "Waiting for M5/SET_PARAMETER Triger request");
     }
+
     // Send M4 response
     if (!SendCommonResponse(incomingCSeq)) {
         if (timeoutTimer_) {
