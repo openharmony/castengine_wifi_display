@@ -15,7 +15,7 @@ namespace Sharing {
 
 /**
  * @brief 屏幕捕获消费者设备测试类
- * 
+ *
  * 该类包含对ScreenCaptureConsumer的各种DT测试用例，测试覆盖：
  * 1. 构造和销毁
  * 2. 初始化功能

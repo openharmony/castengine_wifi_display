@@ -1580,7 +1580,7 @@ HWTEST_F(ScreenCaptureConsumerDTTest, ScreenCaptureConsumerDT_IsSilentFrame_002,
 HWTEST_F(ScreenCaptureConsumerDTTest, ScreenCaptureConsumerDT_IsSilentFrame_003, TestSize.Level1)
 {
     auto consumer = std::make_shared<ScreenCaptureConsumer>();
-    uint8_t nonSilentBuffer[10] = {1, 2, 3, 4, 5, 6 ,7, 8, 9, 10};
+    uint8_t nonSilentBuffer[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     EXPECT_FALSE(consumer->IsSilentFrame(nonSilentBuffer, 10));
 }
 
