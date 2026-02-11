@@ -326,7 +326,7 @@ TEST_F(AudioAACEncoderTest, InitSwr_SamplesAllocFailedTest)
     
     // 设置swr_alloc_set_opts2成功
     EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_,
-                                               testing::_, testing::_, testing::_, testing::_))
+        testing::_, testing::_, testing::_, testing::_))
         .WillOnce(Return(reinterpret_cast<SwrContext*>(0x1)));
     
     EXPECT_CALL(*mockSwr_, swr_init(testing::_))
@@ -381,8 +381,8 @@ TEST_F(AudioAACEncoderTest, OnFrame_SwrInitFailedTest)
         .WillRepeatedly(reinterpret_cast<uint8_t*>(0x1));
     
     // 设置swr_alloc_set_opts2成功
-    EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_, 
-                                               testing::_, testing::_, testing::_, testing::_))
+    EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_,
+        testing::_, testing::_, testing::_, testing::_))
         .WillOnce(Return(reinterpret_cast<SwrContext*>(0x1)));
     
     // 设置swr_init失败
