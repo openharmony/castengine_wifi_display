@@ -88,7 +88,7 @@ protected:
             .WillRepeatedly(Return(0));
         
         // 设置swr_alloc_set_opts2的默认行为
-        EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_, 
+        EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_,
             testing::_, testing::_, testing::_, testing::_))
             .WillRepeatedly(Return(reinterpret_cast<SwrContext*>(0x1)));
         

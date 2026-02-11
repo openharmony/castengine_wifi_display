@@ -79,7 +79,7 @@ protected:
         // 设置av_samples_get_buffer_size的默认行为
         EXPECT_CALL(*mockUtil_, av_samples_get_buffer_size(testing::_, testing::_, testing::_,
             testing::_, testing::_))
-            .WillRepeatedly(Return(1024));
+            .WillRepeatedly(Return(1024)); // 1024 单位转换
         
         // 设置av_malloc的默认行为
         EXPECT_CALL(*mockCodec_, av_malloc(testing::_))
