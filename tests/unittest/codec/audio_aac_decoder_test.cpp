@@ -262,8 +262,8 @@ TEST_F(AudioAACDecoderTest, OnFrameSuccessTest)
         .WillOnce(Return(0));
     
     // 值1024: 1KB的样本缓冲区大小，用于音频转换测试
-    EXPECT_CALL(*mockUtil_, av_samples_get_buffer_size(testing::_, testing::_, testing::_, 
-                                                       testing::_, testing::_))
+    EXPECT_CALL(*mockUtil_, av_samples_get_buffer_size(testing::_, testing::_, testing::_,
+        testing::_, testing::_))
         .WillOnce(Return(1024));
     
     // 值1024: 分配1024字节的内存用于音频数据转换
@@ -362,7 +362,7 @@ TEST_F(AudioAACDecoderTest, OnFrame_BufferSizeFailedTest)
         .WillOnce(Return(0));
     
     // 值0x1: 模拟非空的有效指针，表示重采样器分配成功
-    EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_, 
+    EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_,
         testing::_, testing::_, testing::_, testing::_))
         .WillOnce(Return(reinterpret_cast<SwrContext*>(0x1)));
     
@@ -426,7 +426,7 @@ TEST_F(AudioAACDecoderTest, OnFrame_AvMallocFailedTest)
     // 值1024: 1KB的样本缓冲区大小，用于音频转换测试
     EXPECT_CALL(*mockUtil_, av_samples_get_buffer_size(testing::_, testing::_, testing::_,
         testing::_, testing::_))
-        .WillOnce(Return(1024));
+        .WillOnce(Return(1024)); // 1024 单位转换
     
     // 设置av_malloc返回nullptr
     EXPECT_CALL(*mockCodec_, av_malloc(1024)) // 1024 内存
@@ -500,7 +500,7 @@ TEST_F(AudioAACDecoderTest, OnFrame_SwrConvertFailedTest)
     // 使用std::copy替代memcpy进行数据拷贝
     auto frame = CreateTestFrame(testData.data(), testData.size());
     
-    EXPECT_NO_THROW(decoder_->OnFrame(frame););
+    EXPECT_NO_THROW(decoder_->OnFrame(frame));
 }
 
 } // namespace Sharing
