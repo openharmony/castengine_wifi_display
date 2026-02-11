@@ -698,5 +698,444 @@ HWTEST_F(WfdSourceSceneTest, HandleRemoveDevice_002, TestSize.Level1)
     EXPECT_EQ(ret, -1);
 }
 
+HWTEST_F(WfdSourceSceneTest, ResetCheckWfdConnectionTimer_001, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    sourceScene_->SetCheckWfdConnectionTimer();
+    sourceScene_->ResetCheckWfdConnectionTimer();
+}
+
+HWTEST_F(WfdSourceSceneTest, ResetCheckWfdConnectionTimer_002, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    sourceScene_->ResetCheckWfdConnectionTimer();
+}
+
+HWTEST_F(WfdSourceSceneTest, Release_001, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    EXPECT_CALL(*(sourceScene_->mockWifiP2pInstance_), RemoveGroup())
+        .WillOnce(Return(Wifi::ErrCode::WIFI_OPT_SUCCESS));
+
+    sourceScene_->Release();
+}
+
+HWTEST_F(WfdSourceSceneTest, Release_002, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), ForwardEvent(_, _, _, _))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), DestroyAgent(_, _))
+        .Times(2)
+        .WillRepeatedly(Return(0));
+    EXPECT_CALL(*(sourceScene_->mockWifiP2pInstance_), RemoveGroup())
+        .WillOnce(Return(Wifi::ErrCode::WIFI_OPT_SUCCESS));
+
+    BackupConnDev();
+    sourceScene_->Release();
+    RestoreConnDev();
+}
+
+HWTEST_F(WfdSourceSceneTest, OnDomainMsg_001, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    std::shared_ptr<BaseDomainMsg> msg = std::make_shared<BaseDomainMsg>();
+    sourceScene_->OnDomainMsg(msg);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnRequest_001, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    std::shared_ptr<WfdSourceStartDiscoveryReq> msg = std::make_shared<WfdSourceStartDiscoveryReq>();
+    std::shared_ptr<BaseMsg> reply;
+    EXPECT_CALL(*(sourceScene_->mockWifiP2pInstance_), GetP2pEnableStatus(_))
+        .WillOnce(DoAll(SetArgReferee<0>(static_cast<int32_t>(Wifi::P2pState::P2P_STATE_NONE)),
+        Return(Wifi::ErrCode::WIFI_OPT_SUCCESS)));
+    EXPECT_CALL(*(sourceScene_->mockIpcAdapter_), SendRequest(_, _))
+        .WillOnce(Return(0));
+
+    sourceScene_->OnRequest(msg, reply);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnRequest_002, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    std::shared_ptr<WfdSourceStopDiscoveryReq> msg = std::make_shared<WfdSourceStopDiscoveryReq>();
+    std::shared_ptr<BaseMsg> reply;
+    EXPECT_CALL(*(sourceScene_->mockWifiP2pInstance_), StopDiscoverDevices())
+        .WillOnce(Return(Wifi::ErrCode::WIFI_OPT_SUCCESS));
+
+    sourceScene_->OnRequest(msg, reply);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnRequest_003, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    std::shared_ptr<WfdSourceAddDeviceReq> msg = std::make_shared<WfdSourceAddDeviceReq>();
+    std::shared_ptr<BaseMsg> reply;
+    msg->screenId = 0;
+    EXPECT_CALL(*(sourceScene_->mockWifiP2pInstance_), P2pConnect(_))
+        .WillOnce(Return(Wifi::ErrCode::WIFI_OPT_SUCCESS));
+
+    sourceScene_->OnRequest(msg, reply);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnRequest_004, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    std::shared_ptr<WfdSourceRemoveDeviceReq> msg = std::make_shared<WfdSourceRemoveDeviceReq>();
+    std::shared_ptr<BaseMsg> reply;
+    msg->deviceId = "AA.BB.CC.DD.EE.FF";
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), ForwardEvent(_, _, _, _))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), DestroyAgent(_, _))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*(sourceScene_->mockWifiP2pInstance_), RemoveGroup())
+        .WillOnce(Return(Wifi::ErrCode::WIFI_OPT_SUCCESS));
+
+    BackupConnDev();
+    sourceScene_->OnRequest(msg, reply);
+    RestoreConnDev();
+}
+
+HWTEST_F(WfdSourceSceneTest, OnRequest_005, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    std::shared_ptr<DestroyScreenCaptureReq> msg = std::make_shared<DestroyScreenCaptureReq>();
+    std::shared_ptr<BaseMsg> reply;
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), DestroyAgent(_, _))
+        .WillOnce(Return(0));
+
+    sourceScene_->OnRequest(msg, reply);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnRequest_006, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    std::shared_ptr<BaseMsg> msg = std::make_shared<BaseMsg>();
+    std::shared_ptr<BaseMsg> reply;
+
+    sourceScene_->OnRequest(msg, reply);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pPersistentGroupsChanged_001, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    sourceScene_->wfdP2pCallback_->OnP2pPersistentGroupsChanged();
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pPrivatePeersChanged_001, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    std::string priWfdInfo = "test_wfd_info";
+    sourceScene_->wfdP2pCallback_->OnP2pPrivatePeersChanged(priWfdInfo);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pServicesChanged_001, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    std::vector<Wifi::WifiP2pServiceInfo> srvInfo;
+    sourceScene_->wfdP2pCallback_->OnP2pServicesChanged(srvInfo);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pGcJoinGroup_001, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    OHOS::Wifi::GcInfo info;
+    sourceScene_->wfdP2pCallback_->OnP2pGcJoinGroup(info);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pGcLeaveGroup_001, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    OHOS::Wifi::GcInfo info;
+    sourceScene_->wfdP2pCallback_->OnP2pGcLeaveGroup(info);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pDiscoveryChanged_001, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    sourceScene_->wfdP2pCallback_->OnP2pDiscoveryChanged(true);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pDiscoveryChanged_002, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    sourceScene_->wfdP2pCallback_->OnP2pDiscoveryChanged(false);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pActionResult_001, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    sourceScene_->wfdP2pCallback_->OnP2pActionResult(Wifi::P2pActionCallback::CREATE_GROUP, 
+                                                     Wifi::ErrCode::WIFI_OPT_SUCCESS);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnConfigChanged_001, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    char data[] = "test_data";
+    sourceScene_->wfdP2pCallback_->OnConfigChanged(Wifi::CfgType::CFG_TYPE_MAX, data, sizeof(data));
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pChrErrCodeReport_001, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    sourceScene_->wfdP2pCallback_->OnP2pChrErrCodeReport(0);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pConnectionChanged_002, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    Wifi::WifiP2pLinkedInfo info;
+    info.SetConnectState(Wifi::P2pConnectedState::P2P_DISCONNECTED);
+
+    sourceScene_->wfdP2pCallback_->OnP2pConnectionChanged(info);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pConnectionChanged_003, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    Wifi::WifiP2pLinkedInfo info;
+    info.SetConnectState(Wifi::P2pConnectedState::P2P_CONNECTED);
+    info.SetIsGroupOwnerAddress("");
+
+    sourceScene_->wfdP2pCallback_->OnP2pConnectionChanged(info);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pConnectionChanged_004, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    Wifi::WifiP2pLinkedInfo info;
+    info.SetConnectState(Wifi::P2pConnectedState::P2P_CONNECTED);
+    info.SetIsGroupOwnerAddress("1.1.1.1");
+
+    EXPECT_CALL(*(sourceScene_->mockWifiP2pInstance_), GetCurrentGroup(_))
+        .WillOnce(Return(Wifi::ErrCode::WIFI_OPT_FAILED));
+
+    sourceScene_->wfdP2pCallback_->OnP2pConnectionChanged(info);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pThisDeviceChanged_002, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    Wifi::WifiP2pDevice device;
+    Wifi::WifiP2pLinkedInfo info;
+    info.SetConnectState(Wifi::P2pConnectedState::P2P_CONNECTED);
+    EXPECT_CALL(*(sourceScene_->mockWifiP2pInstance_), QueryP2pLinkedInfo(_))
+        .WillOnce(DoAll(SetArgReferee<0>(info),
+        Return(Wifi::ErrCode::WIFI_OPT_SUCCESS)));
+
+    sourceScene_->wfdP2pCallback_->OnP2pThisDeviceChanged(device);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pThisDeviceChanged_003, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    Wifi::WifiP2pDevice device;
+    EXPECT_CALL(*(sourceScene_->mockWifiP2pInstance_), QueryP2pLinkedInfo(_))
+        .WillOnce(Return(Wifi::ErrCode::WIFI_OPT_FAILED));
+
+    sourceScene_->wfdP2pCallback_->OnP2pThisDeviceChanged(device);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pPeersChanged_002, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    std::vector<Wifi::WifiP2pDevice> devices;
+    Wifi::WifiP2pDevice device;
+    device.SetP2pDeviceStatus(Wifi::P2pDeviceStatus::PDS_UNAVAILABLE);
+    devices.emplace_back(device);
+
+    sourceScene_->wfdP2pCallback_->OnP2pPeersChanged(devices);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pPeersChanged_003, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    std::vector<Wifi::WifiP2pDevice> devices;
+    Wifi::WifiP2pDevice device;
+    device.SetP2pDeviceStatus(Wifi::P2pDeviceStatus::PDS_AVAILABLE);
+    Wifi::WifiP2pWfdInfo info;
+    info.setSessionAvailable(false);
+    device.SetWfdInfo(info);
+    devices.emplace_back(device);
+
+    sourceScene_->wfdP2pCallback_->OnP2pPeersChanged(devices);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pPeersChanged_004, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+    ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
+
+    std::vector<Wifi::WifiP2pDevice> devices;
+
+    sourceScene_->wfdP2pCallback_->OnP2pPeersChanged(devices);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pPeerConnected_003, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    sourceScene_->isSourceRunning_ = false;
+    ConnectionInfo connectionInfo;
+    connectionInfo.mac = "AA.BB.CC.DD.EE.FF";
+
+    sourceScene_->OnP2pPeerConnected(connectionInfo);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnP2pPeerConnected_004, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    ConnectionInfo connectionInfo;
+    connectionInfo.mac = "AA.BB.CC.DD.EE.FF";
+    connectionInfo.state = ConnectionState::CONNECTED;
+    EXPECT_CALL(*(sourceScene_->mockIpcAdapter_), SendRequest(_, _))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), CreateAgent(_, _, _, _))
+        .WillOnce(DoAll(SetArgReferee<0>(1), SetArgReferee<1>(1), Return(0)));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), ForwardEvent(_, _, _, _))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), Start(_, _))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), CreateAgent(_, _, _, _))
+        .WillOnce(DoAll(SetArgReferee<0>(2), SetArgReferee<1>(2), Return(0)));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), ForwardEvent(_, _, _, _))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), Start(_, _))
+        .WillOnce(Return(0));
+
+    sourceScene_->OnP2pPeerConnected(connectionInfo);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnConnectionChanged_002, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    ConnectionInfo connectionInfo;
+    connectionInfo.state = ConnectionState::CONNECTED;
+    connectionInfo.mac = "AA.BB.CC.DD.EE.FF";
+    EXPECT_CALL(*(sourceScene_->mockIpcAdapter_), SendRequest(_, _))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), CreateAgent(_, _, _, _))
+        .WillOnce(DoAll(SetArgReferee<0>(1), SetArgReferee<1>(1), Return(0)));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), ForwardEvent(_, _, _, _))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), Start(_, _))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), CreateAgent(_, _, _, _))
+        .WillOnce(DoAll(SetArgReferee<0>(2), SetArgReferee<1>(2), Return(0)));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), ForwardEvent(_, _, _, _))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), Start(_, _))
+        .WillOnce(Return(0));
+
+    sourceScene_->OnConnectionChanged(connectionInfo);
+}
+
+HWTEST_F(WfdSourceSceneTest, OnConnectionChanged_003, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    ConnectionInfo connectionInfo;
+    connectionInfo.state = ConnectionState::CONNECTED;
+    EXPECT_CALL(*(sourceScene_->mockIpcAdapter_), SendRequest(_, _))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), CreateAgent(_, _, _, _))
+        .WillOnce(DoAll(SetArgReferee<0>(INVALID_ID), SetArgReferee<1>(INVALID_ID), Return(0)));
+
+    sourceScene_->OnConnectionChanged(connectionInfo);
+}
+
+HWTEST_F(WfdSourceSceneTest, AppendCast_003, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), CreateAgent(_, _, _, _))
+        .WillOnce(DoAll(SetArgReferee<0>(1), SetArgReferee<1>(2), Return(0)));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), ForwardEvent(_, _, _, _))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), Start(_, _))
+        .WillOnce(Return(0));
+
+    BackupConnDev();
+    sourceScene_->connDev_->isRunning = true;
+    int32_t ret = sourceScene_->AppendCast("AA.BB.CC.DD.EE.FF");
+    RestoreConnDev();
+    EXPECT_EQ(ret, 0);
+}
+
+HWTEST_F(WfdSourceSceneTest, AppendCast_004, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), CreateAgent(_, _, _, _))
+        .WillOnce(DoAll(SetArgReferee<0>(INVALID_ID), SetArgReferee<1>(INVALID_ID), Return(0)));
+    EXPECT_CALL(*(sourceScene_->mockIpcAdapter_), SendRequest(_, _))
+        .WillOnce(Return(0));
+
+    BackupConnDev();
+    int32_t ret = sourceScene_->AppendCast("AA.BB.CC.DD.EE.FF");
+    RestoreConnDev();
+    EXPECT_EQ(ret, -1);
+}
+
+HWTEST_F(WfdSourceSceneTest, WfdP2pStop_002, TestSize.Level1)
+{
+    ASSERT_TRUE(sourceScene_ != nullptr);
+
+    EXPECT_CALL(*(sourceScene_->mockWifiP2pInstance_), RemoveGroup())
+        .WillOnce(Return(Wifi::ErrCode::WIFI_OPT_SUCCESS));
+
+    sourceScene_->WfdP2pStop();
+}
+
 } // namespace Sharing
 } // namespace OHOS
