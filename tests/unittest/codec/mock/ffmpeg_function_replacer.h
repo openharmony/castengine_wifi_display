@@ -33,11 +33,11 @@ typedef int (*AvCodecSendPacketFunc)(AVCodecContext *avctx, const AVPacket *avpk
 typedef int (*AvCodecReceiveFrameFunc)(AVCodecContext *avctx, AVFrame *frame);
 typedef int (*AvCodecReceivePacketFunc)(AVCodecContext *avctx, AVPacket *avpkt);
 typedef void (*AvInitPacketFunc)(AVPacket *pkt);
-typedef int (*AvSamplesGetBufferSizeFunc)(int *linesize, int nb_channels, int nb_samples, 
+typedef int (*AvSamplesGetBufferSizeFunc)(int *linesize, int nb_channels, int nb_samples,
     enum AVSampleFormat sample_fmt, int align);
 typedef uint8_t* (*AvMallocFunc)(size_t size);
 typedef void (*AvFreepFunc)(void *ptr);
-typedef SwrContext* (*SwrAllocSetOpts2Func)(SwrContext **ps, const AVChannelLayout *out_ch_layout, 
+typedef SwrContext* (*SwrAllocSetOpts2Func)(SwrContext **ps, const AVChannelLayout *out_ch_layout,
     AVSampleFormat out_sample_fmt, int out_sample_rate, const AVChannelLayout *in_ch_layout,
     AVSampleFormat in_sample_fmt, int in_sample_rate, int64_t channel_map, void *log_ctx);
 typedef SwrContext* (*SwrAllocFunc)(void);
@@ -55,7 +55,7 @@ typedef int (*AvAudioFifoReallocFunc)(AVAudioFifo *af, int nb_samples);
 typedef int (*AvAudioFifoWriteFunc)(AVAudioFifo *af, void **data, int nb_samples);
 typedef int (*AvAudioFifoReadFunc)(AVAudioFifo *af, void **data, int nb_samples);
 typedef int (*AvAudioFifoSizeFunc)(AVAudioFifo *af);
-typedef int (*AvSamplesAllocFunc)(uint8_t **audio_data, int *linesize, int nb_channels, 
+typedef int (*AvSamplesAllocFunc)(uint8_t **audio_data, int *linesize, int nb_channels,
     int nb_samples, enum AVSampleFormat sample_fmt, int align);
 typedef int (*AvSamplesCopyFunc)(uint8_t **dst, uint8_t *const *src, int dst_offset, int src_offset,
     int nb_samples, int nb_channels, enum AVSampleFormat sample_fmt);

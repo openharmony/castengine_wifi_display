@@ -15,12 +15,14 @@ namespace Sharing {
 // Global mock manager class
 class MockGlobalManager {
 public:
-    static MockGlobalManager& GetInstance() {
+    static MockGlobalManager& GetInstance()
+    {
         static MockGlobalManager instance;
         return instance;
     }
 
-    void SetMocks(MockLibavCodec* codec, MockLibSwresample* swr, MockLibavUtil* util) {
+    void SetMocks(MockLibavCodec* codec, MockLibSwresample* swr, MockLibavUtil* util)
+    {
         mockCodec_ = codec;
         mockSwr_ = swr;
         mockUtil_ = util;

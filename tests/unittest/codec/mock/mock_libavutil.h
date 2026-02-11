@@ -27,7 +27,7 @@ public:
     MOCK_METHOD(int, av_audio_fifo_write, (AVAudioFifo *af, void **data, int nb_samples));
     MOCK_METHOD(int, av_audio_fifo_read, (AVAudioFifo *af, void **data, int nb_samples));
     MOCK_METHOD(int, av_audio_fifo_size, (AVAudioFifo *af));
-    MOCK_METHOD(int, av_samples_alloc, (uint8_t **audio_data, int *linesize, int nb_channels, 
+    MOCK_METHOD(int, av_samples_alloc, (uint8_t **audio_data, int *linesize, int nb_channels,
         int nb_samples, enum AVSampleFormat sample_fmt, int align));
     MOCK_METHOD(int, av_samples_copy, (uint8_t **dst, uint8_t *const *src, int dst_offset, int src_offset,
         int nb_samples, int nb_channels, enum AVSampleFormat sample_fmt));

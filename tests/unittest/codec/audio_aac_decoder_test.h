@@ -20,7 +20,8 @@ namespace Sharing {
 
 class AudioAACDecoderTest : public ::testing::Test {
 protected:
-    void SetUp() override {
+    void SetUp() override
+    {
         // 初始化mock对象
         mockCodec_ = std::make_unique<MockLibavCodec>();
         mockSwr_ = std::make_unique<MockLibSwresample>();
@@ -36,14 +37,16 @@ protected:
         decoder_ = std::make_unique<AudioAACDecoder>();
     }
 
-    void TearDown() override {
+    void TearDown() override
+    {
         mockCodec_.reset();
         mockSwr_.reset();
         mockUtil_.reset();
         decoder_.reset();
     }
 
-    void SetupDefaultBehavior() {
+    void SetupDefaultBehavior()
+    {
         // 设置avcodec_find_decoder的默认行为
         EXPECT_CALL(*mockCodec_, avcodec_find_decoder(AV_CODEC_ID_AAC))
             .WillRepeatedly(Return(reinterpret_cast<const AVCodec*>(0x1)));
@@ -65,7 +68,7 @@ protected:
             .WillRepeatedly(Return(reinterpret_cast<AVFrame*>(0x1)));
         
         // 设置swr_alloc_set_opts2的默认行为
-        EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_, 
+        EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_,
                                                    testing::_, testing::_, testing::_, testing::_))
             .WillRepeatedly(Return(reinterpret_cast<SwrContext*>(0x1)));
         
@@ -74,8 +77,8 @@ protected:
             .WillRepeatedly(Return(0));
         
         // 设置av_samples_get_buffer_size的默认行为
-        EXPECT_CALL(*mockUtil_, av_samples_get_buffer_size(testing::_, testing::_, testing::_, 
-                                                          testing::_, testing::_))
+        EXPECT_CALL(*mockUtil_, av_samples_get_buffer_size(testing::_, testing::_, testing::_,
+            testing::_, testing::_))
             .WillRepeatedly(Return(1024));
         
         // 设置av_malloc的默认行为
@@ -84,9 +87,10 @@ protected:
     }
 
     // 创建测试Frame
-    FrameImpl::Ptr CreateTestFrame(const uint8_t* data, size_t size, CodecId codecId = CODEC_AAC) {
+    FrameImpl::Ptr CreateTestFrame(const uint8_t* data, size_t size, CodecId codecId = CODEC_AAC)
+    {
         // 内存大小合法性校验
-        if (size == 0 || size > 100 * 1024 * 1024) { // 设置合理的上限，比如100MB
+        if (size == 0 || size > 100 * 1024 * 1024) { // 100 大小 1024 单位转换 设置合理的上限，比如100MB
             SHARING_LOGE("Invalid frame size: %{public}zu", size);
             return nullptr;
         }
@@ -106,12 +110,13 @@ protected:
     }
 
     // 创建AudioTrack
-    AudioTrack CreateDefaultAudioTrack() {
+    AudioTrack CreateDefaultAudioTrack()
+    {
         AudioTrack track;
-        track.channels = 2;
-        track.sampleBit = 16;
-        track.sampleRate = 44100;
-        track.sampleFormat = 1;
+        track.channels = 2; // 2 通道数
+        track.sampleBit = 16; // 16 采样
+        track.sampleRate = 44100; // 44100 采样
+        track.sampleFormat = 1; // 1 音频构造
         track.codecId = CODEC_AAC;
         return track;
     }

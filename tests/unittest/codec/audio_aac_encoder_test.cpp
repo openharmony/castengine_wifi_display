@@ -220,7 +220,7 @@ TEST_F(AudioAACEncoderTest, Init_FifoAllocFailedTest)
         .WillOnce(Return(reinterpret_cast<AVFrame*>(0x1)));
     
     EXPECT_CALL(*mockCodec_, av_frame_get_buffer(testing::_, testing::_))
-WillOnce(Return(        .0));
+        .WillOnce(Return(0));
     
     EXPECT_CALL(*mockCodec_, av_packet_alloc())
         .WillOnce(Return(reinterpret_cast<AVPacket*>(0x1)));

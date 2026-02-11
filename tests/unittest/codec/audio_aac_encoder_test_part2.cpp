@@ -67,7 +67,7 @@ TEST_F(AudioAACEncoderTest, Init_AvMallocFailedTest)
 // TC_ENC_012: InitSwr - 立体声测试
 TEST_F(AudioAACEncoderTest, InitSwr_StereoTest)
 {
-    SetupAudioConfig(2, 16, 44100);
+    SetupAudioConfig(2, 16, 44100); // 2 双通道 16 采样 44100立体声的构造参数
     
     auto frame = CreateTestFrame(nullptr, 0);
     EXPECT_NO_THROW({
@@ -188,8 +188,8 @@ TEST_F(AudioAACEncoderTest, InitSwr_AllocFailedTest)
         .WillRepeatedly(reinterpret_cast<uint8_t*>(0x1));
     
     // 设置swr_alloc_set_opts2返回nullptr
-    EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_, 
-                                               testing::_, testing::_, testing::_, testing::_))
+    EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_,
+        testing::_, testing::_, testing::_, testing::_))
         .WillOnce(Return(nullptr));
     
     auto frame = CreateTestFrame(nullptr, 0);

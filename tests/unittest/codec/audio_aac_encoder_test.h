@@ -20,7 +20,8 @@ namespace Sharing {
 
 class AudioAACEncoderTest : public ::testing::Test {
 protected:
-    void SetUp() override {
+    void SetUp() override
+    {
         // 初始化mock对象
         mockCodec_ = std::make_unique<MockLibavCodec>();
         mockSwr_ = std::make_unique<MockLibSwresample>();
@@ -36,14 +37,16 @@ protected:
         encoder_ = std::make_unique<AudioAACEncoder>();
     }
 
-    void TearDown() override {
+    void TearDown() override
+    {
         mockCodec_.reset();
         mockSwr_.reset();
         mockUtil_.reset();
         encoder_.reset();
     }
 
-    void SetupDefaultBehavior() {
+    void SetupDefaultBehavior()
+    {
         // 设置avcodec_find_encoder的默认行为
         EXPECT_CALL(*mockCodec_, avcodec_find_encoder(AV_CODEC_ID_AAC))
             .WillRepeatedly(Return(reinterpret_cast<const AVCodec*>(0x1)));
@@ -86,7 +89,7 @@ protected:
         
         // 设置swr_alloc_set_opts2的默认行为
         EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_, 
-                                                   testing::_, testing::_, testing::_, testing::_))
+            testing::_, testing::_, testing::_, testing::_))
             .WillRepeatedly(Return(reinterpret_cast<SwrContext*>(0x1)));
         
         // 设置swr_init的默认行为
@@ -120,9 +123,10 @@ protected:
     }
 
     // 创建测试Frame
-    FrameImpl::Ptr CreateTestFrame(const uint8_t* data, size_t size, CodecId codecId = CODEC_PCM) {
+    FrameImpl::Ptr CreateTestFrame(const uint8_t* data, size_t size, CodecId codecId = CODEC_PCM)
+    {
         // 内存大小合法性校验
-        if (size == 0 || size > 100 * 1024 * 1024) { // 设置合理的上限，比如100MB
+        if (size == 0 || size > 100 * 1024 * 1024) { // 1024 设置合理的上限，比如100MB
             SHARING_LOGE("Invalid frame size: %{public}zu", size);
             return nullptr;
         }
@@ -138,13 +142,14 @@ protected:
         // 创建Frame对象，通过构造函数传递DataBuffer
         auto frame = FrameImpl::CreateFrom(std::move(dataBuffer));
         frame->codecId_ = codecId;
-        frame->dts_ = 1000;
-        frame->pts_ = 1000;
+        frame->dts_ = 1000; // 1000 构造帧数据
+        frame->pts_ = 1000; // 1000 构造帧数据
         return frame;
     }
 
     // 设置不同的音频配置
-    void SetupAudioConfig(uint32_t channels, uint32_t sampleBit, uint32_t sampleRate) {
+    void SetupAudioConfig(uint32_t channels, uint32_t sampleBit, uint32_t sampleRate)
+    {
         EXPECT_CALL(*mockCodec_, avcodec_find_encoder(AV_CODEC_ID_AAC))
             .WillRepeatedly(Return(reinterpret_cast<const AVCodec*>(0x1)));
         

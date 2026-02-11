@@ -16,9 +16,10 @@ public:
     MockLibSwresample() = default;
     virtual ~MockLibSwresample() = default;
 
-    MOCK_METHOD(SwrContext*, swr_alloc_set_opts2, 
+    MOCK_METHOD(SwrContext*, swr_alloc_set_opts2,
         (SwrContext **ps, const AVChannelLayout *out_ch_layout, AVSampleFormat out_sample_fmt, int out_sample_rate,
-        const AVChannelLayout *in_ch_layout, AVSampleFormat in_sample_fmt, int in_sample_rate, int64_t channel_map, void *log_ctx));
+        const AVChannelLayout *in_ch_layout, AVSampleFormat in_sample_fmt, int in_sample_rate, int64_t channel_map,
+        void *log_ctx));
     MOCK_METHOD(SwrContext*, swr_alloc, ());
     MOCK_METHOD(void, swr_free, (SwrContext **swr));
     MOCK_METHOD(int, swr_init, (SwrContext *s));
