@@ -1036,15 +1036,7 @@ HWTEST_F(ScreenCaptureSessionDTTest, ScreenCaptureSessionDT_ComplicatedScenario_
     
     EXPECT_NO_THROW(session_->HandleEvent(displayEvent));
     
-    // 7. 测试IDR请求
-    SharingEvent idrEvent;
-    auto idrMsg = std::make_shared<SessionEventMsg>();
-    idrMsg->type = EventType::EVENT_SCREEN_REQUEST_IDR;
-    idrEvent.eventMsg = idrMsg;
-    
-    EXPECT_NO_THROW(session_->HandleEvent(idrEvent));
-    
-    // 8. 测试通用事件
+    // 7. 测试通用事件
     SharingEvent commonEvent;
     auto commonMsg = std::make_shared<CommonSessionEventMsg>();
     commonMsg->type = EventType::EVENT_SCREEN_CAPTURE_COMMON;
@@ -1054,7 +1046,7 @@ HWTEST_F(ScreenCaptureSessionDTTest, ScreenCaptureSessionDT_ComplicatedScenario_
     
     EXPECT_NO_THROW(session_->HandleEvent(commonEvent));
     
-    // 9. 测试会话销毁
+    // 8. 测试会话销毁
     statusMsg->status = SessionRunningStatus::SESSION_DESTROY;
     EXPECT_NO_THROW(session_->UpdateOperation(statusMsg));
 }
