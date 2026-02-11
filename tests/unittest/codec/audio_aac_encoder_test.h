@@ -13,6 +13,7 @@
 #include "mock/mock_libswresample.h"
 #include "mock/mock_libavutil.h"
 #include "protocol/frame/frame.h"
+#include <algorithm> // 添加std::copy所需的头文件
 
 namespace OHOS {
 namespace Sharing {
@@ -120,13 +121,22 @@ protected:
 
     // 创建测试Frame
     FrameImpl::Ptr CreateTestFrame(const uint8_t* data, size_t size, CodecId codecId = CODEC_PCM) {
-        auto frame = FrameImpl::Create();
-        frame->data_ = new uint8_t[size];
-        frame->size_ = size;
-        frame->capacity_ = size;
-        if (data) {
-            memcpy(frame->data_, data, size);
+        // 内存大小合法性校验
+        if (size == 0 || size > 100 * 1024 * 1024) { // 设置合理的上限，比如100MB
+            SHARING_LOGE("Invalid frame size: %{public}zu", size);
+            return nullptr;
         }
+        
+        // 创建DataBuffer
+        DataBuffer dataBuffer(size);
+        if (data) {
+            // 使用std::copy替代memcpy进行数据拷贝，更安全且符合C++标准
+            std::copy(data, data + size, dataBuffer.Data());
+            dataBuffer.SetSize(size);
+        }
+        
+        // 创建Frame对象，通过构造函数传递DataBuffer
+        auto frame = FrameImpl::CreateFrom(std::move(dataBuffer));
         frame->codecId_ = codecId;
         frame->dts_ = 1000;
         frame->pts_ = 1000;

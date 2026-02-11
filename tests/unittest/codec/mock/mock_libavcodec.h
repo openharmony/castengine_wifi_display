@@ -6,9 +6,7 @@
 #define TESTS_UNITTEST_CODEC_MOCK_MOCK_LIBAVCODEC_H
 
 #include <gmock/gmock.h>
-extern "C" {
 #include <libavcodec/avcodec.h>
-}
 
 namespace OHOS {
 namespace Sharing {
@@ -36,7 +34,7 @@ public:
     MOCK_METHOD(int, avcodec_receive_packet, (AVCodecContext *avctx, AVPacket *avpkt));
     MOCK_METHOD(void, av_init_packet, (AVPacket *pkt));
     MOCK_METHOD(int, av_samples_get_buffer_size, 
-                (int *linesize, int nb_channels, int nb_samples, enum AVSampleFormat sample_fmt, int align));
+        (int *linesize, int nb_channels, int nb_samples, enum AVSampleFormat sample_fmt, int align));
     MOCK_METHOD(uint8_t*, av_malloc, (size_t size));
     MOCK_METHOD(void, av_freep, (void *ptr));
 };

@@ -3,7 +3,8 @@
  */
 
 #include "audio_aac_decoder_test.h"
-#include "common/const_def.h"
+#include "/const_def.h"
+#include <algorithm> // 添加std::copy所需的头文件
 
 namespace OHOS {
 namespace Sharing {
@@ -41,18 +42,22 @@ TEST_F(AudioAACDecoderTest, InitSuccessTest)
     AudioTrack track = CreateDefaultAudioTrack();
     
     // 设置成功的调用链
+    // 值0x1: 模拟非空的有效指针，表示找到AAC解码器成功
     EXPECT_CALL(*mockCodec_, avcodec_find_decoder(AV_CODEC_ID_AAC))
         .WillOnce(Return(reinterpret_cast<const AVCodec*>(0x1)));
     
+    // 值0x1: 模拟非空的有效指针，表示编码上下文分配成功
     EXPECT_CALL(*mockCodec_, avcodec_alloc_context3(testing::_))
         .WillOnce(Return(reinterpret_cast<AVCodecContext*>(0x1)));
     
     EXPECT_CALL(*mockCodec_, avcodec_open2(testing::_, testing::_, testing::_))
         .WillOnce(Return(0));
     
+    // 值0x1: 模拟非空的有效指针，表示数据包分配成功
     EXPECT_CALL(*mockCodec_, av_packet_alloc())
         .WillOnce(Return(reinterpret_cast<AVPacket*>(0x1)));
     
+    // 值0x1: 模拟非空的有效指针，表示音频帧分配成功
     EXPECT_CALL(*mockCodec_, av_frame_alloc())
         .WillOnce(Return(reinterpret_cast<AVFrame*>(0x1)));
     
@@ -93,7 +98,7 @@ TEST_F(AudioAACDecoderTest, Init_AllocContextFailedTest)
 {
     AudioTrack track = CreateDefaultAudioTrack();
     
-    // 设置avcodec_find_decoder成功
+    // 值0x1: 模拟非空的有效指针，表示找到AAC解码器成功
     EXPECT_CALL(*mockCodec_, avcodec_find_decoder(AV_CODEC_ID_AAC))
         .WillOnce(Return(reinterpret_cast<const AVCodec*>(0x1)));
     
@@ -110,10 +115,11 @@ TEST_F(AudioAACDecoderTest, Init_OpenCodecFailedTest)
 {
     AudioTrack track = CreateDefaultAudioTrack();
     
-    // 设置成功的调用链直到avcodec_open2
+    // 值0x1: 模拟非空的有效指针，表示找到AAC解码器成功
     EXPECT_CALL(*mockCodec_, avcodec_find_decoder(AV_CODEC_ID_AAC))
         .WillOnce(Return(reinterpret_cast<const AVCodec*>(0x1)));
     
+    // 值0x1: 模拟非空的有效指针，表示编码上下文分配成功
     EXPECT_CALL(*mockCodec_, avcodec_alloc_context3(testing::_))
         .WillOnce(Return(reinterpret_cast<AVCodecContext*>(0x1)));
     
@@ -133,10 +139,11 @@ TEST_F(AudioAACDecoderTest, Init_PacketAllocFailedTest)
 {
     AudioTrack track = CreateDefaultAudioTrack();
     
-    // 设置成功的调用链直到av_packet_alloc
+    // 值0x1: 模拟非空的有效指针，表示找到AAC解码器成功
     EXPECT_CALL(*mockCodec_, avcodec_find_decoder(AV_CODEC_ID_AAC))
         .WillOnce(Return(reinterpret_cast<const AVCodec*>(0x1)));
     
+    // 值0x1: 模拟非空的有效指针，表示编码上下文分配成功
     EXPECT_CALL(*mockCodec_, avcodec_alloc_context3(testing::_))
         .WillOnce(Return(reinterpret_cast<AVCodecContext*>(0x1)));
     
@@ -162,18 +169,20 @@ TEST_F(AudioAACDecoderTest, Init_FrameAllocFailedTest)
 {
     AudioTrack track = CreateDefaultAudioTrack();
     
-    // 设置成功的调用链直到av_frame_alloc
+    // 值0x1: 模拟非空的有效指针，表示找到AAC解码器成功
     EXPECT_CALL(*mockCodec_, avcodec_find_decoder(AV_CODEC_ID_AAC))
         .WillOnce(Return(reinterpret_cast<const AVCodec*>(0x1)));
     
+    // 值0x1: 模拟非空的有效指针，表示编码上下文分配成功
     EXPECT_CALL(*mockCodec_, avcodec_alloc_context3(testing::_))
         .WillOnce(Return(reinterpret_cast<AVCodecContext*>(0x1)));
     
     EXPECT_CALL(*mockCodec_, avcodec_open2(testing::_, testing::_, testing::_))
         .WillOnce(Return(0));
     
-    EXPECT_CALL(*mockCodec_, av_packet())
- ._alloc       WillOnce(Return(reinterpret_cast<AVPacket*>(0x1)));
+    // 值0x1: 模拟非空的有效指针，表示数据包分配成功
+    EXPECT_CALL(*mockCodec_, av_packet_alloc())
+        .WillOnce(Return(reinterpret_cast<AVPacket*>(0x1)));
     
     // 设置av_frame_alloc返回nullptr
     EXPECT_CALL(*mockCodec_, av_frame_alloc())
@@ -182,7 +191,7 @@ TEST_F(AudioAACDecoderTest, Init_FrameAllocFailedTest)
     EXPECT_CALL(*mockCodec_, av_packet_free(testing::_))
         .Times(1);
     
-    EXPECT_CALL(*mockCodec_, av_freecodec_context(testing::_))
+    EXPECT_CALL(*mockCodec_, avcodec_free_context(testing::_))
         .Times(1);
     
     int32_t result = decoder_->Init(track);
@@ -200,8 +209,8 @@ TEST_F(AudioAACDecoderTest, OnFrameNullFrameTest)
     decoder_->OnFrame(nullptr);
 }
 
-// TC_DEC_010: OnFrame - 组件
-为nullptr测试TEST_F(AudioAACDecoderTest, OnFrameNullComponentsTest)
+// TC_DEC_010: OnFrame - 组件为nullptr测试
+TEST_F(AudioAACDecoderTest, OnFrameNullComponentsTest)
 {
     // 创建一个测试frame
     std::vector<uint8_t> testData = {0x12, 0x34, 0x56, 0x78};
@@ -219,14 +228,22 @@ TEST_F(AudioAACDecoderTest, OnFrameSuccessTest)
 {
     // 首先确保解码器初始化成功
     AudioTrack track = CreateDefaultAudioTrack();
+    // 值0x1: 模拟非空的有效指针，表示找到AAC解码器成功
     EXPECT_CALL(*mockCodec_, avcodec_find_decoder(AV_CODEC_ID_AAC))
         .WillRepeatedly(Return(reinterpret_cast<const AVCodec*>(0x1)));
+    
+    // 值0x1: 模拟非空的有效指针，表示编码上下文分配成功
     EXPECT_CALL(*mockCodec_, avcodec_alloc_context3(testing::_))
         .WillRepeatedly(Return(reinterpret_cast<AVCodecContext*>(0x1)));
+    
     EXPECT_CALL(*mockCodec_, avcodec_open2(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(0));
+    
+    // 值0x1: 模拟非空的有效指针，表示数据包分配成功
     EXPECT_CALL(*mockCodec_, av_packet_alloc())
         .WillRepeatedly(Return(reinterpret_cast<AVPacket*>(0x1)));
+    
+    // 值0x1: 模拟非空的有效指针，表示音频帧分配成功
     EXPECT_CALL(*mockCodec_, av_frame_alloc())
         .WillRepeatedly(Return(reinterpret_cast<AVFrame*>(0x1)));
     
@@ -236,6 +253,7 @@ TEST_F(AudioAACDecoderTest, OnFrameSuccessTest)
     EXPECT_CALL(*mockCodec_, avcodec_receive_frame(testing::_, testing::_))
         .WillOnce(Return(0));
     
+    // 值0x1: 模拟非空的有效指针，表示重采样器分配成功
     EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_, 
                                                testing::_, testing::_, testing::_, testing::_))
         .WillOnce(Return(reinterpret_cast<SwrContext*>(0x1)));
@@ -243,18 +261,23 @@ TEST_F(AudioAACDecoderTest, OnFrameSuccessTest)
     EXPECT_CALL(*mockSwr_, swr_init(testing::_))
         .WillOnce(Return(0));
     
+    // 值1024: 1KB的样本缓冲区大小，用于音频转换测试
     EXPECT_CALL(*mockUtil_, av_samples_get_buffer_size(testing::_, testing::_, testing::_, 
                                                        testing::_, testing::_))
         .WillOnce(Return(1024));
     
+    // 值1024: 分配1024字节的内存用于音频数据转换
     EXPECT_CALL(*mockCodec_, av_malloc(1024))
         .WillOnce(reinterpret_cast<uint8_t*>(0x1));
     
+    // 值1024: 成功转换1024个样本点
     EXPECT_CALL(*mockSwr_, swr_convert(testing::_, testing::_, testing::_, testing::_, testing::_))
         .WillOnce(Return(1024));
     
-    // 创建测试frame
-    std::vector<uint8_t> testData = {0xFF, 0xF1, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00};
+    // 创建测试frame - AAC ADTS帧头部数据
+    std::vector<uint8_t> testData = {0xFF, 0xF1, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00}; // 简化的测试数据
+    
+    // 使用std::copy替代memcpy进行数据拷贝
     auto frame = CreateTestFrame(testData.data(), testData.size());
     
     EXPECT_NO_THROW({
@@ -267,14 +290,22 @@ TEST_F(AudioAACDecoderTest, OnFrame_SwrAllocFailedTest)
 {
     // 首先确保解码器初始化成功
     AudioTrack track = CreateDefaultAudioTrack();
+    // 值0x1: 模拟非空的有效指针，表示找到AAC解码器成功
     EXPECT_CALL(*mockCodec_, avcodec_find_decoder(AV_CODEC_ID_AAC))
         .WillRepeatedly(Return(reinterpret_cast<const AVCodec*>(0x1)));
+    
+    // 值0x1: 模拟非空的有效指针，表示编码上下文分配成功
     EXPECT_CALL(*mockCodec_, avcodec_alloc_context3(testing::_))
         .WillRepeatedly(Return(reinterpret_cast<AVCodecContext*>(0x1)));
+    
     EXPECT_CALL(*mockCodec_, avcodec_open2(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(0));
+    
+    // 值0x1: 模拟非空的有效指针，表示数据包分配成功
     EXPECT_CALL(*mockCodec_, av_packet_alloc())
         .WillRepeatedly(Return(reinterpret_cast<AVPacket*>(0x1)));
+    
+    // 值0x1: 模拟非空的有效指针，表示音频帧分配成功
     EXPECT_CALL(*mockCodec_, av_frame_alloc())
         .WillRepeatedly(Return(reinterpret_cast<AVFrame*>(0x1)));
     
@@ -289,8 +320,10 @@ TEST_F(AudioAACDecoderTest, OnFrame_SwrAllocFailedTest)
                                                testing::_, testing::_, testing::_, testing::_))
         .WillOnce(Return(nullptr));
     
-    // 创建测试frame
-    std::vector<uint8_t> testData = {0xFF, 0xF1, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00};
+    // 创建测试frame - AAC ADTS帧头部数据
+    std::vector<uint8_t> testData = {0xFF, 0xF1, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00}; // 简化的测试数据
+    
+    // 使用std::copy替代memcpy进行数据拷贝
     auto frame = CreateTestFrame(testData.data(), testData.size());
     
     EXPECT_NO_THROW({
@@ -303,14 +336,22 @@ TEST_F(AudioAACDecoderTest, OnFrame_BufferSizeFailedTest)
 {
     // 首先确保解码器初始化成功
     AudioTrack track = CreateDefaultAudioTrack();
+    // 值0x1: 模拟非空的有效指针，表示找到AAC解码器成功
     EXPECT_CALL(*mockCodec_, avcodec_find_decoder(AV_CODEC_ID_AAC))
         .WillRepeatedly(Return(reinterpret_cast<const AVCodec*>(0x1)));
+    
+    // 值0x1: 模拟非空的有效指针，表示编码上下文分配成功
     EXPECT_CALL(*mockCodec_, avcodec_alloc_context3(testing::_))
         .WillRepeatedly(Return(reinterpret_cast<AVCodecContext*>(0x1)));
+    
     EXPECT_CALL(*mockCodec_, avcodec_open2(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(0));
+    
+    // 值0x1: 模拟非空的有效指针，表示数据包分配成功
     EXPECT_CALL(*mockCodec_, av_packet_alloc())
         .WillRepeatedly(Return(reinterpret_cast<AVPacket*>(0x1)));
+    
+    // 值0x1: 模拟非空的有效指针，表示音频帧分配成功
     EXPECT_CALL(*mockCodec_, av_frame_alloc())
         .WillRepeatedly(Return(reinterpret_cast<AVFrame*>(0x1)));
     
@@ -320,6 +361,7 @@ TEST_F(AudioAACDecoderTest, OnFrame_BufferSizeFailedTest)
     EXPECT_CALL(*mockCodec_, avcodec_receive_frame(testing::_, testing::_))
         .WillOnce(Return(0));
     
+    // 值0x1: 模拟非空的有效指针，表示重采样器分配成功
     EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_, 
                                                testing::_, testing::_, testing::_, testing::_))
         .WillOnce(Return(reinterpret_cast<SwrContext*>(0x1)));
@@ -327,13 +369,15 @@ TEST_F(AudioAACDecoderTest, OnFrame_BufferSizeFailedTest)
     EXPECT_CALL(*mockSwr_, swr_init(testing::_))
         .WillOnce(Return(0));
     
-    // 设置一个过大的buffer size，模拟验证失败
+    // 设置一个过大的buffer size，模拟验证失败（110MB + 1字节，超过MAX_AUDIO_BUFFER_SIZE）
     EXPECT_CALL(*mockUtil_, av_samples_get_buffer_size(testing::_, testing::_, testing::_, 
                                                        testing::_, testing::_))
         .WillOnce(Return(110 * 100 * 1024 + 1)); // 超过MAX_AUDIO_BUFFER_SIZE
     
-    // 创建测试frame
-    std::vector<uint8_t> testData = {0xFF, 0xF1, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00};
+    // 创建测试frame - AAC ADTS帧头部数据
+    std::vector<uint8_t> testData = {0xFF, 0xF1, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00}; // 简化的测试数据
+    
+    // 使用std::copy替代memcpy进行数据拷贝
     auto frame = CreateTestFrame(testData.data(), testData.size());
     
     EXPECT_NO_THROW({
@@ -346,14 +390,22 @@ TEST_F(AudioAACDecoderTest, OnFrame_AvMallocFailedTest)
 {
     // 首先确保解码器初始化成功
     AudioTrack track = CreateDefaultAudioTrack();
+    // 值0x1: 模拟非空的有效指针，表示找到AAC解码器成功
     EXPECT_CALL(*mockCodec_, avcodec_find_decoder(AV_CODEC_ID_AAC))
         .WillRepeatedly(Return(reinterpret_cast<const AVCodec*>(0x1)));
+    
+    // 值0x1: 模拟非空的有效指针，表示编码上下文分配成功
     EXPECT_CALL(*mockCodec_, avcodec_alloc_context3(testing::_))
         .WillRepeatedly(Return(reinterpret_cast<AVCodecContext*>(0x1)));
+    
     EXPECT_CALL(*mockCodec_, avcodec_open2(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(0));
+    
+    // 值0x1: 模拟非空的有效指针，表示数据包分配成功
     EXPECT_CALL(*mockCodec_, av_packet_alloc())
         .WillRepeatedly(Return(reinterpret_cast<AVPacket*>(0x1)));
+    
+    // 值0x1: 模拟非空的有效指针，表示音频帧分配成功
     EXPECT_CALL(*mockCodec_, av_frame_alloc())
         .WillRepeatedly(Return(reinterpret_cast<AVFrame*>(0x1)));
     
@@ -363,6 +415,7 @@ TEST_F(AudioAACDecoderTest, OnFrame_AvMallocFailedTest)
     EXPECT_CALL(*mockCodec_, avcodec_receive_frame(testing::_, testing::_))
         .WillOnce(Return(0));
     
+    // 值0x1: 模拟非空的有效指针，表示重采样器分配成功
     EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_, 
                                                testing::_, testing::_, testing::_, testing::_))
         .WillOnce(Return(reinterpret_cast<SwrContext*>(0x1)));
@@ -370,6 +423,7 @@ TEST_F(AudioAACDecoderTest, OnFrame_AvMallocFailedTest)
     EXPECT_CALL(*mockSwr_, swr_init(testing::_))
         .WillOnce(Return(0));
     
+    // 值1024: 1KB的样本缓冲区大小，用于音频转换测试
     EXPECT_CALL(*mockUtil_, av_samples_get_buffer_size(testing::_, testing::_, testing::_, 
                                                        testing::_, testing::_))
         .WillOnce(Return(1024));
@@ -378,8 +432,10 @@ TEST_F(AudioAACDecoderTest, OnFrame_AvMallocFailedTest)
     EXPECT_CALL(*mockCodec_, av_malloc(1024))
         .WillOnce(Return(nullptr));
     
-    // 创建测试frame
-    std::vector<uint8_t> testData = {0xFF, 0xF1, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00};
+    // 创建测试frame - AAC ADTS帧头部数据
+    std::vector<uint8_t> testData = {0xFF, 0xF1, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00}; // 简化的测试数据
+    
+    // 使用std::copy替代memcpy进行数据拷贝
     auto frame = CreateTestFrame(testData.data(), testData.size());
     
     EXPECT_NO_THROW({
@@ -387,19 +443,27 @@ TEST_F(AudioAACDecoderTest, OnFrame_AvMallocFailedTest)
     });
 }
 
- TC//_DEC_015: OnFrame - swr_convert失败测试
+// TC_DEC_015: OnFrame - swr_convert失败测试
 TEST_F(AudioAACDecoderTest, OnFrame_SwrConvertFailedTest)
 {
     // 首先确保解码器初始化成功
     AudioTrack track = CreateDefaultAudioTrack();
+    // 值0x1: 模拟非空的有效指针，表示找到AAC解码器成功
     EXPECT_CALL(*mockCodec_, avcodec_find_decoder(AV_CODEC_ID_AAC))
         .WillRepeatedly(Return(reinterpret_cast<const AVCodec*>(0x1)));
+    
+    // 值0x1: 模拟非空的有效指针，表示编码上下文分配成功
     EXPECT_CALL(*mockCodec_, avcodec_alloc_context3(testing::_))
         .WillRepeatedly(Return(reinterpret_cast<AVCodecContext*>(0x1)));
+    
     EXPECT_CALL(*mockCodec_, avcodec_open2(testing::_, testing::_, testing::_))
         .WillRepeatedly(Return(0));
+    
+    // 值0x1: 模拟非空的有效指针，表示数据包分配成功
     EXPECT_CALL(*mockCodec_, av_packet_alloc())
         .WillRepeatedly(Return(reinterpret_cast<AVPacket*>(0x1)));
+    
+    // 值0x1: 模拟非空的有效指针，表示音频帧分配成功
     EXPECT_CALL(*mockCodec_, av_frame_alloc())
         .WillRepeatedly(Return(reinterpret_cast<AVFrame*>(0x1)));
     
@@ -409,6 +473,7 @@ TEST_F(AudioAACDecoderTest, OnFrame_SwrConvertFailedTest)
     EXPECT_CALL(*mockCodec_, avcodec_receive_frame(testing::_, testing::_))
         .WillOnce(Return(0));
     
+    // 值0x1: 模拟非空的有效指针，表示重采样器分配成功
     EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_, 
                                                testing::_, testing::_, testing::_, testing::_))
         .WillOnce(Return(reinterpret_cast<SwrContext*>(0x1)));
@@ -416,19 +481,23 @@ TEST_F(AudioAACDecoderTest, OnFrame_SwrConvertFailedTest)
     EXPECT_CALL(*mockSwr_, swr_init(testing::_))
         .WillOnce(Return(0));
     
+    // 值1024: 1KB的样本缓冲区大小，用于音频转换测试
     EXPECT_CALL(*mockUtil_, av_samples_get_buffer_size(testing::_, testing::_, testing::_, 
                                                        testing::_, testing::_))
         .WillOnce(Return(1024));
     
+    // 值1024: 分配1024字节的内存用于音频数据转换
     EXPECT_CALL(*mockCodec_, av_malloc(1024))
         .WillOnce(reinterpret_cast<uint8_t*>(0x1));
     
-    // 设置swr_convert返回错误，比如-1或-2
+    // 值-1: 模拟swr_convert调用失败，返回错误码
     EXPECT_CALL(*mockSwr_, swr_convert(testing::_, testing::_, testing::_, testing::_, testing::_))
         .WillOnce(Return(-1));
     
-    // 创建测试frame
-    std::vector<uint8_t> testData = {0xFF, 0xF1, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00};
+    // 创建测试frame - AAC ADTS帧头部数据
+    std::vector<uint8_t> testData = {0xFF, 0xF1, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00}; // 简化的测试数据
+    
+    // 使用std::copy替代memcpy进行数据拷贝
     auto frame = CreateTestFrame(testData.data(), testData.size());
     
     EXPECT_NO_THROW({

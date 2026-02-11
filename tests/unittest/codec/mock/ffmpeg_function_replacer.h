@@ -5,14 +5,11 @@
 #ifndef TESTS_UNITTEST_CODEC_MOCK_FFMPEG_FUNCTION_REPLACER_H
 #define TESTS_UNITTEST_CODEC_MOCK_FFMPEG_FUNCTION_REPLACER_H
 
-extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libswresample/swresample.h>
 #include <libavutil/audio_fifo.h>
 #include <libavutil/channel_layout.h>
 #include <libavutil/error.h>
-}
-
 #include "mock_global.h"
 
 namespace OHOS {
@@ -37,13 +34,12 @@ typedef int (*AvCodecReceiveFrameFunc)(AVCodecContext *avctx, AVFrame *frame);
 typedef int (*AvCodecReceivePacketFunc)(AVCodecContext *avctx, AVPacket *avpkt);
 typedef void (*AvInitPacketFunc)(AVPacket *pkt);
 typedef int (*AvSamplesGetBufferSizeFunc)(int *linesize, int nb_channels, int nb_samples, 
-                                        enum AVSampleFormat sample_fmt, int align);
+    enum AVSampleFormat sample_fmt, int align);
 typedef uint8_t* (*AvMallocFunc)(size_t size);
 typedef void (*AvFreepFunc)(void *ptr);
 typedef SwrContext* (*SwrAllocSetOpts2Func)(SwrContext **ps, const AVChannelLayout *out_ch_layout, 
-                                           AVSampleFormat out_sample_fmt, int out_sample_rate,
-                                           const AVChannelLayout *in_ch_layout, AVSampleFormat in_sample_fmt, 
-                                           int in_sample_rate, int64_t channel_map, void *log_ctx);
+    AVSampleFormat out_sample_fmt, int out_sample_rate, const AVChannelLayout *in_ch_layout,
+    AVSampleFormat in_sample_fmt, int in_sample_rate, int64_t channel_map, void *log_ctx);
 typedef SwrContext* (*SwrAllocFunc)(void);
 typedef void (*SwrFreeFunc)(SwrContext **swr);
 typedef int (*SwrInitFunc)(SwrContext *s);
@@ -60,13 +56,13 @@ typedef int (*AvAudioFifoWriteFunc)(AVAudioFifo *af, void **data, int nb_samples
 typedef int (*AvAudioFifoReadFunc)(AVAudioFifo *af, void **data, int nb_samples);
 typedef int (*AvAudioFifoSizeFunc)(AVAudioFifo *af);
 typedef int (*AvSamplesAllocFunc)(uint8_t **audio_data, int *linesize, int nb_channels, 
-                                 int nb_samples, enum AVSampleFormat sample_fmt, int align);
+    int nb_samples, enum AVSampleFormat sample_fmt, int align);
 typedef int (*AvSamplesCopyFunc)(uint8_t **dst, uint8_t *const *src, int dst_offset, int src_offset,
-                                int nb_samples, int nb_channels, enum AVSampleFormat sample_fmt);
+    int nb_samples, int nb_channels, enum AVSampleFormat sample_fmt);
 typedef int (*AvSamplesSetSilenceFunc)(uint8_t **audio_data, int offset, int nb_samples,
-                                     int nb_channels, enum AVSampleFormat sample_fmt);
+    int nb_channels, enum AVSampleFormat sample_fmt);
 typedef char* (*AvMakeErrorStringFunc)(char *errbuf, size_t errbuf_size, intnum);
- errtypedef int64_t (*AvRescaleFunc)(int64_t a, int64_t b, int64_t c);
+errtypedef int64_t (*AvRescaleFunc)(int64_t a, int64_t b, int64_t c);
 
 // 全局函数指针
 extern AvCodecFindDecoderFunc g_avcodec_find_decoder;
