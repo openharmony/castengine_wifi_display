@@ -264,7 +264,7 @@ TEST_F(AudioAACDecoderTest, OnFrameSuccessTest)
     // 值1024: 1KB的样本缓冲区大小，用于音频转换测试
     EXPECT_CALL(*mockUtil_, av_samples_get_buffer_size(testing::_, testing::_, testing::_,
         testing::_, testing::_))
-        .WillOnce(Return(1024));
+        .WillOnce(Return(1024)); // 1024 单位转换
     
     // 值1024: 分配1024字节的内存用于音频数据转换
     EXPECT_CALL(*mockCodec_, av_malloc(1024))
@@ -272,7 +272,7 @@ TEST_F(AudioAACDecoderTest, OnFrameSuccessTest)
     
     // 值1024: 成功转换1024个样本点
     EXPECT_CALL(*mockSwr_, swr_convert(testing::_, testing::_, testing::_, testing::_, testing::_))
-        .WillOnce(Return(1024));
+        .WillOnce(Return(1024)); // 1024 单位转换
     
     // 创建测试frame - AAC ADTS帧头部数据
     std::vector<uint8_t> testData = {0xFF, 0xF1, 0x10, 0x00, 0x10, 0x00, 0x10, 0x00}; // 简化的测试数据
@@ -370,7 +370,7 @@ TEST_F(AudioAACDecoderTest, OnFrame_BufferSizeFailedTest)
         .WillOnce(Return(0));
     
     // 设置一个过大的buffer size，模拟验证失败（110MB + 1字节，超过MAX_AUDIO_BUFFER_SIZE）
-    EXPECT_CALL(*mockUtil_, av_samples_get_buffer_size(testing::_, testing::_, testing::_, 
+    EXPECT_CALL(*mockUtil_, av_samples_get_buffer_size(testing::_, testing::_, testing::_,
         testing::_, testing::_))
         .WillOnce(Return(110 * 100 * 1024 + 1)); // 110 字节 1024 超过MAX_AUDIO_BUFFER_SIZE 100 大小
     
@@ -416,8 +416,8 @@ TEST_F(AudioAACDecoderTest, OnFrame_AvMallocFailedTest)
         .WillOnce(Return(0));
     
     // 值0x1: 模拟非空的有效指针，表示重采样器分配成功
-    EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_, 
-                                               testing::_, testing::_, testing::_, testing::_))
+    EXPECT_CALL(*mockSwr_, swr_alloc_set_opts2(testing::_, testing::_, testing::_, testing::_,
+        testing::_, testing::_, testing::_, testing::_))
         .WillOnce(Return(reinterpret_cast<SwrContext*>(0x1)));
     
     EXPECT_CALL(*mockSwr_, swr_init(testing::_))
