@@ -30,7 +30,7 @@
 #include "utils/data_buffer.h"
 #include "utils/timeout_timer.h"
 
-constexpr size_t INITIAL_BUFFER_CAPACITY = 50;
+constexpr size_t INITIAL_BUFFER_CAPACITY = 500;
 constexpr size_t MAX_RECEIVER_SIZE = 16;
 constexpr uint32_t INVALID_INDEX = static_cast<uint32_t>(-1);
 constexpr uint32_t RECV_FLAG_BASE = 0x0001;
