@@ -436,7 +436,8 @@ HWTEST_F(WfdSourceSceneTest, OnP2pPeerConnected_004, TestSize.Level1)
     EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), Start(_, _))
         .WillOnce(Return(TEST_SUCCESS));
     EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), CreateAgent(_, _, _, _))
-        .WillOnce(DoAll(SetArgReferee<0>(TEST_CONTEXT_ID + 1), SetArgReferee<1>(TEST_AGENT_ID + 1), Return(TEST_SUCCESS)));
+        .WillOnce(DoAll(SetArgReferee<0>(TEST_CONTEXT_ID + 1),
+        SetArgReferee<1>(TEST_AGENT_ID + 1), Return(TEST_SUCCESS)));
     EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), ForwardEvent(_, _, _, _))
         .WillOnce(Return(TEST_SUCCESS));
     EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), Start(_, _))
@@ -837,7 +838,8 @@ HWTEST_F(WfdSourceSceneTest, CreateScreenCapture_001, TestSize.Level1)
     ASSERT_TRUE(sourceScene_ != nullptr);
 
     EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), CreateAgent(_, _, _, _))
-        .WillOnce(DoAll(SetArgReferee<0>(TEST_INVALID_CONTEXT_ID), SetArgReferee<1>(TEST_INVALID_AGENT_ID), Return(TEST_SUCCESS)));
+        .WillOnce(DoAll(SetArgReferee<0>(TEST_INVALID_CONTEXT_ID),
+        SetArgReferee<1>(TEST_INVALID_AGENT_ID), Return(TEST_SUCCESS)));
 
     int32_t ret = sourceScene_->CreateScreenCapture();
     EXPECT_EQ(ret, ERR_AGENT_CREATE);
@@ -980,7 +982,8 @@ HWTEST_F(WfdSourceSceneTest, AppendCast_004, TestSize.Level1)
     ASSERT_TRUE(sourceScene_ != nullptr);
 
     EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), CreateAgent(_, _, _, _))
-        .WillOnce(DoAll(SetArgReferee<0>(TEST_INVALID_CONTEXT_ID), SetArgReferee<1>(TEST_INVALID_AGENT_ID), Return(TEST_SUCCESS)));
+        .WillOnce(DoAll(SetArgReferee<0>(TEST_INVALID_CONTEXT_ID),
+                  SetArgReferee<1>(TEST_INVALID_AGENT_ID), Return(TEST_SUCCESS)));
     EXPECT_CALL(*(sourceScene_->mockIpcAdapter_), SendRequest(_, _))
         .WillOnce(Return(TEST_SUCCESS));
 
