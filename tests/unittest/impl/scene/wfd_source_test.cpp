@@ -1112,7 +1112,8 @@ HWTEST_F(WfdSourceSceneTest, OnConnectionChanged_002, TestSize.Level1)
     EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), Start(_, _))
         .WillOnce(Return(TEST_SUCCESS));
     EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), CreateAgent(_, _, _, _))
-        .WillOnce(DoAll(SetArgReferee<0>(TEST_CONTEXT_ID + 1), SetArgReferee<1>(TEST_AGENT_ID + 1), Return(TEST_SUCCESS)));
+        .WillOnce(
+            DoAll(SetArgReferee<0>(TEST_CONTEXT_ID + 1), SetArgReferee<1>(TEST_AGENT_ID + 1), Return(TEST_SUCCESS)));
     EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), ForwardEvent(_, _, _, _))
         .WillOnce(Return(TEST_SUCCESS));
     EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), Start(_, _))
@@ -1136,7 +1137,8 @@ HWTEST_F(WfdSourceSceneTest, OnConnectionChanged_003, TestSize.Level1)
         .Times(2)
         .WillRepeatedly(Return(TEST_SUCCESS));
     EXPECT_CALL(*(sourceScene_->mockSharingAdapter_), CreateAgent(_, _, _, _))
-        .WillOnce(DoAll(SetArgReferee<0>(TEST_INVALID_CONTEXT_ID), SetArgReferee<1>(TEST_INVALID_AGENT_ID), Return(TEST_SUCCESS)));
+        .WillOnce(DoAll(SetArgReferee<0>(TEST_INVALID_CONTEXT_ID), SetArgReferee<1>(TEST_INVALID_AGENT_ID),
+                        Return(TEST_SUCCESS)));
 
     sourceScene_->OnConnectionChanged(connectionInfo);
 }
@@ -1964,8 +1966,8 @@ HWTEST_F(WfdSourceSceneTest, OnP2pActionResult_001, TestSize.Level1)
 {
     ASSERT_TRUE(sourceScene_ != nullptr);
     ASSERT_TRUE(sourceScene_->wfdP2pCallback_ != nullptr);
-    sourceScene_->wfdP2pCallback_->OnP2pActionResult(Wifi::P2pActionCallback::CREATE_GROUP, 
-                                                     Wifi::ErrCode::WIFI_OPT_SUCCESS);
+    sourceScene_->wfdP2pCallback_->OnP2pActionResult(Wifi::P2pActionCallback::CREATE_GROUP,
+                                                    Wifi::ErrCode::WIFI_OPT_SUCCESS);
 }
 
 /**
