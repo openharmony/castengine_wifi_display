@@ -1503,8 +1503,8 @@ HWTEST_F(AgentDTTest, Agent_PushNextStep_008, Function | SmallTest | Level1)
            
     });
     agentSrc_->PushNextStep(statusMsg);
+}
 
-(statusMsg);
 HWTEST_F(AgentDTTest, Agent_PushNextStep_009, Function | SmallTest | Level1)
 {
     ASSERT_TRUE(agentSrc_ != nullptr);
@@ -1904,6 +1904,5 @@ HWTEST_F(AgentDTTest, Agent_SetAgentListener_002, Function | SmallTest | Level1)
     EXPECT_TRUE(agentSrc_->agentListener_.expired());
 }
 
-} // namespace
 } // namespace Sharing
 } // namespace OHOS
