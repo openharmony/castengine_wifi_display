@@ -1741,6 +1741,9 @@ void WfdSinkScene::OnInnerEvent(SharingEvent &event)
         }
         case EventType::EVENT_INTERACTION_ACCELERATION_DONE: {
             auto msg = ConvertEventMsg<InteractionEventMsg>(event);
+            if (!msg) {
+                break;
+            }
             SHARING_LOGD("On acceleration done, contextId: %{public}d agentId: %{public}d.", msg->contextId,
                          msg->agentId);
             std::unique_lock<std::mutex> lock(mutex_);
@@ -1760,6 +1763,9 @@ void WfdSinkScene::OnInnerEvent(SharingEvent &event)
         }
         case EventType::EVENT_INTERACTION_STATE_REMOVE_SURFACE: {
             auto msg = ConvertEventMsg<InteractionEventMsg>(event);
+            if (!msg) {
+                break;
+            }
             SHARING_LOGD("On state remove surface, agentId: %{public}d.", msg->agentId);
             std::unique_lock<std::mutex> lock(mutex_);
             devSurfaceItemMap_.erase(msg->surfaceId);
@@ -1768,6 +1774,9 @@ void WfdSinkScene::OnInnerEvent(SharingEvent &event)
         case EVENT_INTERACTION_DECODER_DIED: {
             auto msg = ConvertEventMsg<InteractionEventMsg>(event);
             std::unique_lock<std::mutex> lock(mutex_);
+            if (!msg) {
+                break;
+            }
             auto surfaceItem = devSurfaceItemMap_.find(msg->surfaceId);
             if (surfaceItem != devSurfaceItemMap_.end() && surfaceItem->second != nullptr) {
                 auto itConnection = devConnectionMap_.find(surfaceItem->second->deviceId);
