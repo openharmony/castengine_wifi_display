@@ -1780,7 +1780,9 @@ void WfdSinkScene::OnInnerEvent(SharingEvent &event)
             auto surfaceItem = devSurfaceItemMap_.find(msg->surfaceId);
             if (surfaceItem != devSurfaceItemMap_.end() && surfaceItem->second != nullptr) {
                 auto itConnection = devConnectionMap_.find(surfaceItem->second->deviceId);
-                OnDecoderDied(*itConnection->second);
+                if (itConnection != devConnectionMap_.end() && itConnection->second != nullptr) {
+                    OnDecoderDied(*itConnection->second);
+                }
             }
             break;
         }
