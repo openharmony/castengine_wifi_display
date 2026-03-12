@@ -41,6 +41,7 @@ ohos_source_set("sharing_event_srcs") {
   ]
   external_deps = [
     "graphic_surface:surface",
+    "ipc:ipc_single",
     "hilog:libhilog",
   ]
 

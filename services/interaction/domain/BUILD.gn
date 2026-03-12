@@ -46,6 +46,7 @@ ohos_shared_library("domain_manager") {
     "c_utils:utils",
     "device_manager:devicemanagersdk",
     "graphic_surface:surface",
+    "ipc:ipc_single",
     "hilog:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",

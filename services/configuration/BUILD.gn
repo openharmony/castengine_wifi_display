@@ -46,6 +46,7 @@ ohos_source_set("sharing_configure_srcs") {
 
   external_deps = [
     "graphic_surface:surface",
+    "ipc:ipc_single",
     "hilog:libhilog",
     "ipc:ipc_core",
     "jsoncpp:jsoncpp",

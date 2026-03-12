@@ -47,6 +47,7 @@ ohos_static_library("ipc_codec_srcs") {
   external_deps = [
     "c_utils:utils",
     "graphic_surface:surface",
+    "ipc:ipc_single",
     "hilog:libhilog",
     "ipc:ipc_core",
   ]
