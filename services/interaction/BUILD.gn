@@ -77,6 +77,7 @@ ohos_source_set("sharing_interaction_srcs") {
     "access_token:libtoken_setproc",
     "device_manager:devicemanagersdk",
     "graphic_surface:surface",
+    "ipc:ipc_single",
     "hilog:libhilog",
     "ipc:ipc_core",
     "kv_store:distributeddata_inner",

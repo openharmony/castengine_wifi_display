@@ -42,6 +42,7 @@ ohos_shared_library("sharing_common") {
 
   external_deps = [
     "graphic_surface:surface",
+    "ipc:ipc_single",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "samgr:samgr_proxy",

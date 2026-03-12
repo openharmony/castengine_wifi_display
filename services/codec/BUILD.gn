@@ -65,6 +65,7 @@ ohos_shared_library("sharing_codec") {
     "av_codec:av_codec_client",
     "c_utils:utilsbase",
     "graphic_surface:surface",
+    "ipc:ipc_single",
     "hilog:libhilog",
     "ipc:ipc_core",
     "media_foundation:media_foundation",

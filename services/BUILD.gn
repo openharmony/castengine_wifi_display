@@ -78,6 +78,7 @@ ohos_shared_library("sharing_service") {
     "cJSON:cjson_static",
     "graphic_2d:librender_service_base",
     "graphic_surface:surface",
+    "ipc:ipc_single",
     "hilog:libhilog",
     "samgr:samgr_proxy",
   ]

@@ -65,6 +65,7 @@ ohos_source_set("sharing_media_player_srcs") {
     "audio_framework:audio_renderer",
     "av_codec:av_codec_client",
     "graphic_surface:surface",
+    "ipc:ipc_single",
     "hilog:libhilog",
   ]
 

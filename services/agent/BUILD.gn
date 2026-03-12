@@ -46,6 +46,7 @@ ohos_source_set("sharing_agent_srcs") {
     "audio_framework:audio_policy_client",
     "audio_framework:audio_renderer",
     "graphic_surface:surface",
+    "ipc:ipc_single",
     "hilog:libhilog",
   ]
 

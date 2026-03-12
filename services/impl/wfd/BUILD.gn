@@ -73,6 +73,7 @@ ohos_source_set("sharing_wfd_session_srcs") {
     "av_codec:av_codec_client",
     "c_utils:utils",
     "graphic_surface:surface",
+    "ipc:ipc_single",
     "hilog:libhilog",
   ]
 
