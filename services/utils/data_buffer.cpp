@@ -143,11 +143,13 @@ void DataBuffer::PushData(const char *data, int dataLen)
         if (data_) {
             auto ret = memcpy_s(newBuffer, capacity_, data_, size_);
             if (ret != EOK) {
+                delete[] newBuffer;
                 return;
             }
         }
         auto ret = memcpy_s(newBuffer + size_, capacity_ - size_, data, dataLen);
         if (ret != EOK) {
+            delete[] newBuffer;
             return;
         }
         delete[] data_;
