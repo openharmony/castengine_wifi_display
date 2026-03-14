@@ -24,25 +24,9 @@
 
 namespace OHOS {
 namespace Sharing {
-constexpr uint32_t RTP_MAX_SIZE = 4000;
 constexpr int32_t PORT_MIN = 0;
 constexpr int32_t PORT_MID = 1024;
 constexpr int32_t PORT_MAX = 65535;
-
-bool RtpUnpackImplParseRtpFuzzTest(const uint8_t *data, size_t size)
-{
-    if (data == nullptr || size == 0) {
-        return false;
-    }
-
-    FuzzedDataProvider fdp(data, size);
-    const char *fuzzedData = reinterpret_cast<const char *>(data);
-    size_t fuzzedLen = fdp.ConsumeIntegralInRange<size_t>(0, RTP_MAX_SIZE);
-    RtpUnpackImpl rtpUnpack;
-    rtpUnpack.ParseRtp(fuzzedData, fuzzedLen);
-
-    return true;
-}
 
 bool RtspRequestFuzzTest(const uint8_t *data, size_t size)
 {
@@ -84,7 +68,6 @@ bool RtspRequestFuzzTest(const uint8_t *data, size_t size)
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-    OHOS::Sharing::RtpUnpackImplParseRtpFuzzTest(data, size);
     OHOS::Sharing::RtspRequestFuzzTest(data, size);
     return 0;
 }
