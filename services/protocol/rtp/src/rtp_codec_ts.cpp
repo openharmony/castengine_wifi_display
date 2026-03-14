@@ -201,6 +201,10 @@ int RtpDecoderTs::ReadPacket(uint8_t *buf, int buf_size)
     }
 
     std::unique_lock<std::mutex> lock(queueMutex_);
+    if (dataQueue_.empty()) {
+        SHARING_LOGE("dataQueue is empty");
+        return 0;
+    }
     auto &rtp = dataQueue_.front();
     auto data = rtp->GetPayload();
     if (data == nullptr) {

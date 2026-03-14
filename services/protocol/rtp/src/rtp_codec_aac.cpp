@@ -78,7 +78,7 @@ void RtpDecoderAAC::InputRtp(const RtpPacket::Ptr &rtp)
         dtsInc_ = 0;
     }
 
-    for (int32_t i = 0; i <= auHeaderCount; ++i) {
+    for (int32_t i = 0; i < auHeaderCount; ++i) {
         uint16_t size = ((auHeaderPtr[0] << 8) | auHeaderPtr[1]) >> 3; // 8:byte offset, 3:byte offset
 
         if (ptr + size > end) {
