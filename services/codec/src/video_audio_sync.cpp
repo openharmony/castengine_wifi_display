@@ -71,6 +71,7 @@ bool VideoAudioSync::ProcessAVSyncStrategy(int64_t videoTimestamp)
     }
 
     continueDropCount_ = 0;
+
     return false;
 }
 
