@@ -53,6 +53,11 @@ void RtpDecoderAAC::InputRtp(const RtpPacket::Ptr &rtp)
 
     auto end = ptr + rtp->GetPayloadSize();
 
+    if (rtp->GetPayloadSize() < 2) { // 2: fixed size
+        MEDIA_LOGW("AAC payload too short: %{public}zu", rtp->GetPayloadSize());
+        return;
+    }
+
     auto auHeaderCount = ((ptr[0] << 8) | ptr[1]) >> 4; // 8:byte offset, 4:byte offset
 
     auto auHeaderPtr = ptr + 2;            // 2:unit
