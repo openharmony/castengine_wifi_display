@@ -224,6 +224,10 @@ bool VideoSinkDecoder::DecodeVideoData(const char *data, int32_t size, uint64_t 
     RETURN_FALSE_IF_NULL(videoDecoder_);
 
     std::unique_lock<std::mutex> lock(inMutex_);
+    if (inQueue_.empty() || inBufferQueue_.empty()) {
+        MEDIA_LOGE("input queue is empty, controlId: %{public}u.", controlId_);
+        return false;
+    }
     auto inputIndex = inQueue_.front();
     MEDIA_LOGD("inQueue front: %{public}d.", inputIndex);
     auto inputBuffer = inBufferQueue_.front();
@@ -247,6 +251,10 @@ bool VideoSinkDecoder::DecodeVideoData(const char *data, int32_t size, uint64_t 
     WfdSinkHiSysEvent::GetInstance().RecordMediaDecodeStartTime(MediaReportType::VIDEO, bufferInfo.presentationTimeUs);
 
     auto p = data;
+    if (size < 5) { // 5: data size
+        MEDIA_LOGE("data size too small: %{public}d, controlId: %{public}u.", size, controlId_);
+        return false;
+    }
     p = *(p + 2) == 0x01 ? p + 3 : p + 4; // 2: offset, 3: offset, 4: offset
     if ((p[0] & 0x1f) == 0x06 || (p[0] & 0x1f) == 0x07 || (p[0] & 0x1f) == 0x08) {
         MEDIA_LOGD("media flag codec data controlId: %{public}u.", controlId_);

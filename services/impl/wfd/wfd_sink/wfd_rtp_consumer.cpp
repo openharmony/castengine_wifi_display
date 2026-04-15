@@ -311,6 +311,10 @@ void WfdRtpConsumer::OnRtpUnpackCallback(uint32_t ssrc, const Frame::Ptr &frame)
         }
 
         auto p = frame->Data();
+        if (frame->Size() < 5) { // 5: data size
+            MEDIA_LOGE("data size too small: %{public}d.", frame->Size());
+            return;
+        }
         p = *(p + 2) == 0x01 ? p + 3 : p + 4; // 2: fix offset, 3: fix offset, 4: fix offset
         if (((p[0]) & 0x1f) == 0x01) {
             mediaData = std::make_shared<MediaData>();
@@ -324,6 +328,10 @@ void WfdRtpConsumer::OnRtpUnpackCallback(uint32_t ssrc, const Frame::Ptr &frame)
             frameNums_++;
         } else {
             SplitH264((char *)frame->Data(), frame->Size(), 0, [&](const char *buf, size_t len, size_t prefix) {
+                if (len <= prefix) {
+                    MEDIA_LOGE("Invalid NALU length: %{public}zu, prefix: %{public}zu.", len, prefix);
+                    return;
+                }
                 if ((*(buf + prefix) & 0x1f) == 0x06) {
                     // discard the SEI data
                     return;
