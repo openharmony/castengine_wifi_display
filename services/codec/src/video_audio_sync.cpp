@@ -69,9 +69,7 @@ bool VideoAudioSync::ProcessAVSyncStrategy(int64_t videoTimestamp)
     } else if (earlyUs > AUDIO_LATE_US) {
         audioPlayController_->DropOneFrame();
     }
-
     continueDropCount_ = 0;
-
     return false;
 }
 
