@@ -327,42 +327,43 @@ void WfdRtpConsumer::OnRtpUnpackCallback(uint32_t ssrc, const Frame::Ptr &frame)
             dispatcher->InputData(mediaData);
             frameNums_++;
         } else {
-            SplitH264((char *)frame->Data(), frame->Size(), 0, [&](const char *buf, size_t len, size_t prefix) {
-                if (len <= prefix) {
-                    MEDIA_LOGE("Invalid NALU length: %{public}zu, prefix: %{public}zu.", len, prefix);
-                    return;
-                }
-                if ((*(buf + prefix) & 0x1f) == 0x06) {
-                    // discard the SEI data
-                    return;
-                }
+            SplitH264(reinterpret_cast<const char *>(frame->Data()), frame->Size(), 0,
+                [&](const char *buf, size_t len, size_t prefix) {
+                    if (len <= prefix) {
+                        MEDIA_LOGE("Invalid NALU length: %{public}zu, prefix: %{public}zu.", len, prefix);
+                        return;
+                    }
+                    if ((*(buf + prefix) & 0x1f) == 0x06) {
+                        // discard the SEI data
+                        return;
+                    }
 
-                if ((*(buf + prefix) & 0x1f) == 0x07) {
-                    HandleSpsUpdate(dispatcher, buf, len);
-                    return;
-                }
+                    if ((*(buf + prefix) & 0x1f) == 0x07) {
+                        HandleSpsUpdate(dispatcher, buf, len);
+                        return;
+                    }
 
-                if ((*(buf + prefix) & 0x1f) == 0x08) {
-                    HandlePpsUpdate(dispatcher, buf, len);
-                    return;
-                }
-                
-                auto mediaData = std::make_shared<MediaData>();
-                mediaData->buff = std::make_shared<DataBuffer>();
-                mediaData->mediaType = MEDIA_TYPE_VIDEO;
-                mediaData->isRaw = false;
-                // i-frame is key frame
-                mediaData->keyFrame = (*(buf + prefix) & 0x1f) == 0x05 ? true : false;
+                    if ((*(buf + prefix) & 0x1f) == 0x08) {
+                        HandlePpsUpdate(dispatcher, buf, len);
+                        return;
+                    }
+                    
+                    auto mediaData = std::make_shared<MediaData>();
+                    mediaData->buff = std::make_shared<DataBuffer>();
+                    mediaData->mediaType = MEDIA_TYPE_VIDEO;
+                    mediaData->isRaw = false;
+                    // i-frame is key frame
+                    mediaData->keyFrame = (*(buf + prefix) & 0x1f) == 0x05 ? true : false;
 
-                if (mediaData->keyFrame) {
-                    HandleVideoKeyFrame();
-                }
+                    if (mediaData->keyFrame) {
+                        HandleVideoKeyFrame();
+                    }
 
-                mediaData->buff->ReplaceData((char *)buf, len);
-                mediaData->pts = frame->Pts();
+                    mediaData->buff->ReplaceData(buf, len);
+                    mediaData->pts = frame->Pts();
 
-                dispatcher->InputData(mediaData);
-            });
+                    dispatcher->InputData(mediaData);
+                });
         }
     }
 }
