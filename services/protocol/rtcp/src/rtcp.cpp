@@ -243,6 +243,11 @@ std::shared_ptr<RtcpSdes> RtcpSdes::Create(const std::vector<std::string> &itemT
     if (bytes == 0 || bytes < 0) {
         return nullptr;
     }
+
+    if (bytes < sizeof(RtcpSdes)) {
+        return nullptr;
+    }
+
     auto ptr = (RtcpSdes *)new char[bytes];
     if (ptr == nullptr) {
         return nullptr;
