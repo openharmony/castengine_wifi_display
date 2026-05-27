@@ -23,6 +23,7 @@
 
 namespace OHOS {
 namespace Sharing {
+constexpr int32_t RTCP_SDES_MIN_BYTES = 16;
 
 //------------------------------ RtcpHeader ------------------------------//
 
@@ -240,11 +241,7 @@ std::shared_ptr<RtcpSdes> RtcpSdes::Create(const std::vector<std::string> &itemT
     }
     auto realSize = sizeof(RtcpSdes) - sizeof(SdesChunk) + itemTotalSize;
     auto bytes = AlignSize(realSize);
-    if (bytes == 0 || bytes < 0) {
-        return nullptr;
-    }
-
-    if (bytes < sizeof(RtcpSdes)) {
+    if (bytes < RTCP_SDES_MIN_BYTES) {
         return nullptr;
     }
 
