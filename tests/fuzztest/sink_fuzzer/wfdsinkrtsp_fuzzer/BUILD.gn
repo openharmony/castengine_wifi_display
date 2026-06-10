@@ -39,6 +39,7 @@ ohos_fuzztest("WfdSinkRtspFuzzTest") {
     "graphic_surface:surface",
     "hilog:libhilog",
     "ipc:ipc_single",
+    "media_foundation:media_foundation",
   ]
 
   cflags = [

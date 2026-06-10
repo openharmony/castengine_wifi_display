@@ -68,6 +68,7 @@ ohos_source_set("sharing_media_channel_srcs") {
     "graphic_surface:surface",
     "ipc:ipc_single",
     "hilog:libhilog",
+    "media_foundation:media_foundation",
   ]
 
   subsystem_name = "castplus"
