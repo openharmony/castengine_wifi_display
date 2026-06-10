@@ -60,6 +60,7 @@ ohos_source_set("sharing_screen_capture_srcs") {
     "graphic_surface:sync_fence",
     "hilog:libhilog",
     "window_manager:libdm",
+    "media_foundation:media_foundation",
   ]
 
   subsystem_name = "castplus"

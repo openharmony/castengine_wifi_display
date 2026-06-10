@@ -75,6 +75,7 @@ ohos_source_set("sharing_wfd_srcs") {
     "samgr:samgr_proxy",
     "wifi:wifi_sdk",
     "window_manager:libdm",
+    "media_foundation:media_foundation",
   ]
 
   if (wifi_display_support_sink) {
