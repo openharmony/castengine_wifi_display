@@ -70,6 +70,7 @@ ohos_shared_library("sharing_codec") {
     "ipc:ipc_core",
     "media_foundation:media_foundation",
     "safwk:system_ability_fwk",
+    "ffmpeg:libohosffmpeg",
   ]
 
   subsystem_name = "castplus"
