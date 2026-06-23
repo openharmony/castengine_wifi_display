@@ -15,6 +15,7 @@
 
 #ifndef OHOS_SHARING_BUFFER_DISPATCHER_H
 #define OHOS_SHARING_BUFFER_DISPATCHER_H
+#include <atomic>
 #include <condition_variable>
 #include <functional>
 #include <list>
@@ -316,7 +317,7 @@ private:
 
 private:
     bool running_ = false;
-    bool writing_ = false;
+    std::atomic<bool> writing_ = false;
     bool videoNeedActivate_ = false;
     bool audioNeedActivate_ = false;
     bool capacityEvaluating_ = false;

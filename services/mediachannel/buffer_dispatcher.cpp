@@ -688,6 +688,7 @@ int32_t BufferDispatcher::AttachReceiver(BufferReceiver::Ptr receiver)
     receiver->SetSource(shared_from_this());
     notifiers_.emplace(receiver->GetReceiverId(), notifier);
 
+    std::lock_guard<std::shared_mutex> bufferLock(bufferMutex_);
     if (circularBuffer_.empty()) {
         notifier->audioIndex = INVALID_INDEX;
         notifier->videoIndex = INVALID_INDEX;
@@ -823,7 +824,7 @@ void BufferDispatcher::SetBufferDispatcherListener(BufferDispatcherListener::Ptr
     writingTimer_->StartTimer(
         WRITING_TIMTOUT, "waiting for continuous data inputs",
         [this]() {
-            if (!writing_) {
+            if (!writing_.exchange(false)) {
                 SHARING_LOGI("writing timeout");
                 auto listener = listener_.lock();
                 if (listener) {
@@ -831,7 +832,6 @@ void BufferDispatcher::SetBufferDispatcherListener(BufferDispatcherListener::Ptr
                 }
             } else {
                 SHARING_LOGI("restart timer");
-                writing_ = false;
             }
         },
         true);
@@ -925,8 +925,8 @@ int32_t BufferDispatcher::InputData(const MediaData::Ptr &data)
     MEDIA_LOGD("inputmediatype: %{public}d, keyFrame: %{public}d, pts: %{public}" PRIu64 ".", data->mediaType,
                data->keyFrame, data->pts);
 
-    if (!writing_) {
-        writing_ = true;
+    if (!writing_.load()) {
+        writing_.store(true);
     }
 
     DataSpec::Ptr dataSpec = std::make_shared<DataSpec>();
@@ -1399,6 +1399,7 @@ bool BufferDispatcher::HeadFrameNeedReserve()
 {
     MEDIA_LOGD("trace.");
     if (!circularBuffer_.empty()) {
+        std::lock_guard<std::mutex> locker(notifyMutex_);
         uint8_t temp = readRefFlag_;
         MEDIA_LOGD("IsHeadFrameNeedReserve Head reserveFlag %{public}d readRefFlag_ %{public}d.",
                    circularBuffer_.front()->reserveFlag.load(), readRefFlag_);

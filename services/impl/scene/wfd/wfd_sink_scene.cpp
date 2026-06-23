@@ -271,6 +271,10 @@ void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &in
                 GetAnonymousMAC(connectionInfo.mac).c_str(), GetAnonymousIp(connectionInfo.ip).c_str(),
                 connectionInfo.ctrlPort);
             parent->OnP2pPeerConnected(connectionInfo);
+            if (!parent->isSinkRunning_) {
+                SHARING_LOGE("sink is not running, no need to AddBoundDevice");
+                return;
+            }
             Wifi::WifiP2pGroupInfo group;
             parent->p2pInstance_->GetCurrentGroup(group);
             wfdTrustListManager_.AddBoundDevice(group);

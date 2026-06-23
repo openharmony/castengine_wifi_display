@@ -16,6 +16,7 @@
 #ifndef OHOS_SHARING_BASE_CONSUMER_H
 #define OHOS_SHARING_BASE_CONSUMER_H
 
+#include <atomic>
 #include <functional>
 #include <memory>
 #include <cstdint>
@@ -73,7 +74,7 @@ protected:
 
 protected:
     bool isInit_ = false;
-    bool isPaused_ = false;
+    std::atomic<bool> isPaused_ = false;
     bool isRunning_ = false;
     bool isPcSource_ = false;
     uint32_t sinkAgentId_ = INVALID_ID;
