@@ -44,9 +44,17 @@ void RtpDecoderTs::Release()
     }
 
     exit_ = true;
+    queueCond_.notify_one();
     if (decodeThread_ && decodeThread_->joinable()) {
         decodeThread_->join();
         decodeThread_ = nullptr;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(queueMutex_);
+        while (!dataQueue_.empty()) {
+            dataQueue_.pop();
+        }
     }
 
     if (avFormatContext_) {
@@ -80,6 +88,7 @@ void RtpDecoderTs::InputRtp(const RtpPacket::Ptr &rtp)
 
     std::lock_guard<std::mutex> lock(queueMutex_);
     dataQueue_.emplace(rtp);
+    queueCond_.notify_one();
 }
 
 void RtpDecoderTs::SetOnFrame(const OnFrame &cb)
@@ -192,18 +201,20 @@ int RtpDecoderTs::StaticReadPacket(void *opaque, uint8_t *buf, int buf_size)
 int RtpDecoderTs::ReadPacket(uint8_t *buf, int buf_size)
 {
     RETURN_INVALID_IF_NULL(buf);
-    while (dataQueue_.empty()) {
-        if (exit_ == true) {
-            SHARING_LOGI("read packet exit.");
-            return 0;
-        }
-        std::this_thread::sleep_for(std::chrono::microseconds(5)); // 5: wait times
-    }
-
     std::unique_lock<std::mutex> lock(queueMutex_);
     if (dataQueue_.empty()) {
-        SHARING_LOGE("dataQueue is empty");
-        return 0;
+        if (exit_ == true) {
+            SHARING_LOGI("read packet exit.");
+            return -1;
+        }
+        queueCond_.wait(lock, [this] { return !dataQueue_.empty() || exit_; });
+        if (exit_) {
+            SHARING_LOGI("read packet exit.");
+            return -1;
+        }
+        if (dataQueue_.empty()) {
+            return 0;
+        }
     }
     auto &rtp = dataQueue_.front();
     auto data = rtp->GetPayload();

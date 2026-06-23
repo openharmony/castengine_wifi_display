@@ -16,6 +16,7 @@
 #ifndef OHOS_SHARING_TS_RTP_CODEC_H
 #define OHOS_SHARING_TS_RTP_CODEC_H
 
+#include <condition_variable>
 #include <memory>
 #include <queue>
 #include <thread>
@@ -55,6 +56,7 @@ private:
     int audioStreamIndex_ = -1;
 
     std::mutex queueMutex_;
+    std::condition_variable queueCond_;
     std::queue<RtpPacket::Ptr> dataQueue_;
     std::unique_ptr<std::thread> decodeThread_;
 
