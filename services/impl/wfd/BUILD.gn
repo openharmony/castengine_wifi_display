@@ -37,29 +37,10 @@ ohos_source_set("sharing_wfd_session_srcs") {
 
   sources = [ "$SHARING_ROOT_DIR/services/impl/wfd/wfd_message.cpp" ]
 
-  if (wifi_display_support_source) {
-    sources += [
-      "$SHARING_ROOT_DIR/services/impl/wfd/wfd_source/wfd_rtp_producer.cpp",
-      "$SHARING_ROOT_DIR/services/impl/wfd/wfd_source/wfd_source_session.cpp",
-    ]
-
-    include_dirs += [
-      "$SHARING_ROOT_DIR/services/impl/screen_capture",
-      "$SHARING_ROOT_DIR/services/impl/wfd/wfd_source",
-    ]
-  }
-
-  if (wifi_display_support_sink) {
-    sources += [
-      "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink/wfd_rtp_consumer.cpp",
-      "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink/wfd_sink_session.cpp",
-    ]
-    include_dirs += [ "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink" ]
-  }
-
   configs = [
     "$SHARING_ROOT_DIR/tests:coverage_flags",
     "$SHARING_ROOT_DIR:wifi_display_default_config",
+    "$SHARING_ROOT_DIR:wifi_display_feature_flags",
   ]
 
   deps = [
@@ -68,6 +49,14 @@ ohos_source_set("sharing_wfd_session_srcs") {
     "$SHARING_ROOT_DIR/services/interaction:sharing_interaction_srcs",
     "$SHARING_ROOT_DIR/services/mediachannel:sharing_media_channel_srcs",
   ]
+
+  if (wifi_display_support_sink) {
+    deps += [ "$SHARING_ROOT_DIR/services/sink/impl/wfd:sharing_wfd_sink_session_srcs" ]
+  }
+
+  if (wifi_display_support_source) {
+    deps += [ "$SHARING_ROOT_DIR/services/source/impl/wfd:sharing_wfd_source_session_srcs" ]
+  }
 
   external_deps = [
     "av_codec:av_codec_client",

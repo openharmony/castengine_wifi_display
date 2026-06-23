@@ -1,0 +1,73 @@
+# Copyright (c) 2026 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Licensed under the Apache License, version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/CastEngine/castengine_wifi_display/config.gni")
+
+ohos_source_set("sharing_wfd_source_scene_srcs") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    boundary_sanitize = true
+    ubsan = true
+    integer_overflow = true
+  }
+
+  include_dirs = [
+    "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/impl/scene/wfd",
+    "$SHARING_ROOT_DIR/services/source/impl/scene/wfd",
+    "$SHARING_ROOT_DIR/services/impl/wfd",
+    "$SHARING_ROOT_DIR/services/source/impl/wfd/wfd_source",
+    "$SHARING_ROOT_DIR/services/source/impl/screen_capture",
+    "$SHARING_ROOT_DIR/services/common",
+    "$SHARING_ROOT_DIR/services/interaction/ipc_codec",
+  ]
+
+  sources = [
+    "$SHARING_ROOT_DIR/services/source/impl/scene/wfd/wfd_source_scene.cpp",
+  ]
+
+  configs = [
+    "$SHARING_ROOT_DIR/tests:coverage_flags",
+    "$SHARING_ROOT_DIR:wifi_display_default_config",
+    "$SHARING_ROOT_DIR:wifi_display_feature_flags",
+  ]
+
+  deps = [
+    "$SHARING_ROOT_DIR/services/agent:sharing_agent_srcs",
+    "$SHARING_ROOT_DIR/services/source/agent:sharing_source_agent_srcs",
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/interaction:sharing_interaction_srcs",
+    "$SHARING_ROOT_DIR/services/mediachannel:sharing_media_channel_srcs",
+  ]
+
+  external_deps = [
+    "av_codec:av_codec_client",
+    "c_utils:utils",
+    "device_manager:devicemanagersdk",
+    "graphic_surface:surface",
+    "ipc:ipc_single",
+    "hilog:libhilog",
+    "hisysevent:libhisysevent",
+    "openssl:libcrypto_shared",
+    "openssl:libssl_shared",
+    "samgr:samgr_proxy",
+    "wifi:wifi_sdk",
+    "window_manager:libdm",
+  ]
+
+  subsystem_name = "castplus"
+  part_name = "sharing_framework"
+}

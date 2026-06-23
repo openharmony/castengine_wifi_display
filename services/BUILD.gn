@@ -45,7 +45,6 @@ ohos_shared_library("sharing_service") {
     "event:sharing_event_srcs",
     "interaction:sharing_interaction_srcs",
     "mediachannel:sharing_media_channel_srcs",
-    "mediaplayer:sharing_media_player_srcs",
     "scheduler:sharing_scheduler_srcs",
   ]
 
@@ -58,15 +57,32 @@ ohos_shared_library("sharing_service") {
     "utils:sharing_utils",
   ]
 
-  if (sharing_framework_support_wfd) {
+  if (wifi_display_support_sink) {
     deps += [
       "impl/scene/wfd:sharing_wfd_srcs",
-      "impl/screen_capture:sharing_screen_capture_srcs",
       "impl/wfd:sharing_wfd_session_srcs",
+      "sink/agent:sharing_sink_agent_srcs",
+      "sink/mediaplayer:sharing_media_player_srcs",
+      "sink/impl/wfd:sharing_wfd_sink_session_srcs",
+      "sink/impl/scene/wfd:sharing_wfd_sink_scene_srcs",
     ]
   }
 
-  configs = [ "$SHARING_ROOT_DIR/tests:coverage_flags" ]
+  if (wifi_display_support_source) {
+    deps += [
+      "impl/scene/wfd:sharing_wfd_srcs",
+      "impl/wfd:sharing_wfd_session_srcs",
+      "source/agent:sharing_source_agent_srcs",
+      "source/impl/screen_capture:sharing_screen_capture_srcs",
+      "source/impl/wfd:sharing_wfd_source_session_srcs",
+      "source/impl/scene/wfd:sharing_wfd_source_scene_srcs",
+    ]
+  }
+
+  configs = [
+    "$SHARING_ROOT_DIR/tests:coverage_flags",
+    "$SHARING_ROOT_DIR:wifi_display_feature_flags",
+  ]
 
   external_deps = [
     "access_token:libaccesstoken_sdk",

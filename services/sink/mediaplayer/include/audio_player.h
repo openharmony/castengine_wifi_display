@@ -20,7 +20,7 @@
 #include "common/const_def.h"
 #include "common/identifier.h"
 #include "common/media_log.h"
-#include "mediaplayer/include/audio_sink.h"
+#include "audio_sink.h"
 #include "utils/data_buffer.h"
 
 namespace OHOS {

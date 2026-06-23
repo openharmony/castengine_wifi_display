@@ -236,7 +236,7 @@ void Agent::HandleProsumerError(SessionStatusMsg::Ptr &statusMsg)
             SHARING_LOGI("none process case.");
             break;
     }
-#ifdef WFD_SINK
+#ifdef WIFI_DISPLAY_SINK
     WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::SESSION_NEGOTIATION,
                                                 SinkErrorCode::WIFI_DISPLAY_CONSUMER_ERROR);
 #endif

@@ -31,9 +31,9 @@ ohos_unittest("wfd_screen_capture_test") {
     "$SHARING_ROOT_DIR/services/codec/include",
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
     "$SHARING_ROOT_DIR/services/mediachannel",
-    "$SHARING_ROOT_DIR/services/mediaplayer/include",
-    "$SHARING_ROOT_DIR/services/impl/screen_capture",
-    "$SHARING_ROOT_DIR/services/impl/screen_capture/mediasource",
+    "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/source/impl/screen_capture",
+    "$SHARING_ROOT_DIR/services/source/impl/screen_capture/mediasource",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "./mock",
   ]

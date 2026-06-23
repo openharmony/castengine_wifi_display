@@ -14,8 +14,8 @@
  */
 
 #include "context.h"
-#include "agent/sinkagent/sink_agent.h"
-#include "agent/srcagent/src_agent.h"
+#include "sink/agent/sinkagent/sink_agent.h"
+#include "source/agent/srcagent/src_agent.h"
 #include "common/common_macro.h"
 #include "common/event_channel.h"
 #include "common/sharing_log.h"

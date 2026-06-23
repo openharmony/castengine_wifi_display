@@ -14,7 +14,7 @@
  */
 
 #include "sink_agent_unit_test.h"
-#include "agent/sinkagent/sink_agent.h"
+#include "sink/agent/sinkagent/sink_agent.h"
 #include "common/sharing_log.h"
 using namespace testing::ext;
 

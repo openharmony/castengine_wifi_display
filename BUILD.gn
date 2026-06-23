@@ -24,6 +24,16 @@ group("sharing_packages") {
   ]
 }
 
+config("wifi_display_feature_flags") {
+  cflags = []
+  if (wifi_display_support_sink) {
+    cflags += [ "-DWIFI_DISPLAY_SINK" ]
+  }
+  if (wifi_display_support_source) {
+    cflags += [ "-DWIFI_DISPLAY_SOURCE" ]
+  }
+}
+
 config("wifi_display_default_config") {
   if (wifi_display_support_sink) {
     cflags = [

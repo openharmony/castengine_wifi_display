@@ -780,7 +780,7 @@ HWTEST_F(VideoSourceScreenDTTest, VideoSourceScreenDT_StopScreenSourceCapture_00
     EXPECT_NO_THROW(videoSourceScreen_->StopScreenSourceCapture());
 }
 
-#ifdef WFD_SINK
+#ifdef WIFI_DISPLAY_SINK
 /**
  * @tc.name: VideoSourceScreenDT_SetEncoderSurface_001
  * @tc.desc: SetEncoderSurface - 测试screenId_无效分支
