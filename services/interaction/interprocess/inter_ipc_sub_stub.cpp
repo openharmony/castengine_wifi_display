@@ -60,6 +60,7 @@ int32_t InterIpcSubStub::SetListenerObject(std::string key, const sptr<IRemoteOb
 
     std::unique_lock<std::mutex> lock(mutex_);
     peerProxys_[key] = peerProxy;
+    SHARING_LOGD("peer key: %{public}s, listener num: %{public}zu.", key.c_str(), peerProxys_.size());
     lock.unlock();
 
     auto interaction = InteractionManager::GetInstance().GetInteraction(key);
@@ -76,7 +77,6 @@ int32_t InterIpcSubStub::SetListenerObject(std::string key, const sptr<IRemoteOb
         SHARING_LOGE("adpater is null key: %{public}s.", key.c_str());
     }
 
-    SHARING_LOGD("peer key: %{public}s, listener num: %{public}zu.", key.c_str(), peerProxys_.size());
     auto deathRecipient = new (std::nothrow) InterIpcDeathRecipient(key);
     if (deathRecipient == nullptr) {
         SHARING_LOGE("deathRecipient create failed.");
@@ -98,7 +98,10 @@ int32_t InterIpcSubStub::SetListenerObject(std::string key, const sptr<IRemoteOb
 void InterIpcSubStub::OnRemoteDied()
 {
     SHARING_LOGD("sub Stub OnRemoteDied trace.");
-    peerProxys_.clear();
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        peerProxys_.clear();
+    }
     auto listener = stubListener_.lock();
     if (listener) {
         listener->OnRemoteDied();
