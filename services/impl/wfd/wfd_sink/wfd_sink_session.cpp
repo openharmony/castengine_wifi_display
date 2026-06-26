@@ -382,7 +382,7 @@ void WfdSinkSession::OnClientReadData(int32_t fd, DataBuffer::Ptr buf)
             ret = request.Parse(ret.info);
             if (ret.code == RtspErrorType::OK) {
                 SHARING_LOGD("Recv RTSP Request [method:%{public}s] message.", request.GetMethod().c_str());
-                HandleRequest(request, message);
+                HandleRequest(request, ret.info);
                 return;
             }
         }

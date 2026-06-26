@@ -16,6 +16,7 @@
 #ifndef OHOS_SHARING_WFD_RTP_CONSUMER_H
 #define OHOS_SHARING_WFD_RTP_CONSUMER_H
 
+#include <atomic>
 #include <chrono>
 #include "common/common_macro.h"
 #include "common/object.h"
@@ -86,7 +87,7 @@ private:
     std::chrono::steady_clock::time_point gopInterval_;
     std::pair<int32_t, NetworkFactory::ServerPtr> rtpServer_ = {0, nullptr};
 
-    MediaType mediaTypePaused_ = MEDIA_TYPE_AV;
+    std::atomic<int> mediaTypePaused_ = MEDIA_TYPE_AV;
 
     RtpUnpack::Ptr rtpUnpacker_ = nullptr;
 };
