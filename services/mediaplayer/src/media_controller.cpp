@@ -128,9 +128,30 @@ void MediaController::Stop()
     SHARING_LOGI("media play stop done, mediachannelId: %{public}u.", mediachannelId_);
 }
 
+void MediaController::ReportAVSyncExceptionIfNeeded()
+{
+    uint32_t videoTooLateCount = 0;
+    uint32_t audioTooLateCount = 0;
+    uint32_t videoDropFrameCount = 0;
+    if (nullptr == videoAudioSync_) {
+        return;
+    }
+    videoAudioSync_->GetAVSyncExceptionCount(videoTooLateCount, audioTooLateCount, videoDropFrameCount);
+    if (videoTooLateCount > 0 || audioTooLateCount > 0 || videoDropFrameCount > 0) {
+        SHARING_LOGI("AV sync exception: videoTooLate=%{public}u, audioTooLate=%{public}u, videoDropFrame=%{public}u",
+                     videoTooLateCount, audioTooLateCount, videoDropFrameCount);
+        WfdSinkHiSysEvent::GetInstance().ReportAVSyncException(__func__, videoTooLateCount, audioTooLateCount,
+                                                               videoDropFrameCount);
+    }
+    videoAudioSync_->ResetAVSyncExceptionCount();
+}
+
 void MediaController::Release()
 {
     SHARING_LOGD("trace.");
+
+    ReportAVSyncExceptionIfNeeded();
+
     if (nullptr != audioPlayController_) {
         audioPlayController_->Release();
         audioPlayController_.reset();

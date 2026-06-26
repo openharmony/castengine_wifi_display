@@ -17,6 +17,7 @@
 #include "hisysevent.h"
 #include "sharing_log.h"
 #include "utils/utils.h"
+#include "nlohmann/json.hpp"
 
 namespace OHOS {
 namespace Sharing {
@@ -279,6 +280,50 @@ void WfdSinkHiSysEvent::ReportError(const std::string &funcName, const std::stri
         default:
             break;
     }
+}
+
+void WfdSinkHiSysEvent::ReportAVSyncException(const std::string &funcName, uint32_t videoTooLateCount,
+                                              uint32_t audioTooLateCount, uint32_t videoDropFrameCount)
+{
+    nlohmann::json extraData;
+    extraData["videoTooLateCount"] = videoTooLateCount;
+    extraData["audioTooLateCount"] = audioTooLateCount;
+    extraData["videoDropFrameCount"] = videoDropFrameCount;
+    WriteHisysEventWithExtraData(funcName, SinkStage::AV_SYNC_PROCESS, SinkErrorCode::WIFI_DISPLAY_SYNC_FAILED,
+                                 extraData.dump());
+}
+
+void WfdSinkHiSysEvent::ReportRtpPacketLost(const std::string &funcName, int32_t lostCount)
+{
+    nlohmann::json extraData;
+    extraData["lostCount"] = lostCount;
+    WriteHisysEventWithExtraData(funcName, SinkStage::RTP_DEMUX, SinkErrorCode::WIFI_DISPLAY_RTP_PACKET_LOST,
+                                 extraData.dump());
+}
+
+void WfdSinkHiSysEvent::WriteHisysEventWithExtraData(const std::string &funcName, SinkStage sinkStage,
+                                                     SinkErrorCode errorCode, const std::string &extraDataStr)
+{
+    HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME,
+        HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
+        "FUNC_NAME", funcName.c_str(),
+        "BIZ_SCENE", sinkBizScene_,
+        "BIZ_STAGE", static_cast<int32_t>(sinkStage),
+        "STAGE_RES", static_cast<int32_t>(SinkStageRes::FAIL),
+        "ERROR_CODE", static_cast<int32_t>(errorCode),
+        "EXTRA_DATA", extraDataStr.c_str(),
+        "ORG_PKG", SHARING_SINK_ORG_PKG,
+        "HOST_PKG", SHARING_SINK_HOST_PKG,
+        "TO_CALL_PKG", "",
+        "LOCAL_NET_ID", devInfo_.localNetId.c_str(),
+        "LOCAL_WIFI_MAC", devInfo_.localWifiMac.c_str(),
+        "LOCAL_DEV_NAME", devInfo_.localDevName.c_str(),
+        "LOCAL_DEV_TYPE", SHARING_SINK_LOCAL_DEV_TYPE,
+        "LOCAL_IP", devInfo_.localIp.c_str(),
+        "PEER_NET_ID", devInfo_.peerNetId.c_str(),
+        "PEER_WIFI_MAC", devInfo_.peerWifiMac.c_str(),
+        "PEER_IP", devInfo_.peerIp.c_str(),
+        "PEER_DEV_NAME", devInfo_.peerDevName.c_str());
 }
 
 void WfdSinkHiSysEvent::P2PReportError(const std::string &funcName, SinkErrorCode errorCode)

@@ -88,6 +88,8 @@ enum class SinkErrorCode : int32_t {
     WIFI_DISPLAY_VIDEO_DECODE_TIMEOUT,
     WIFI_DISPLAY_AUDIO_DECODE_TIMEOUT,
     WIFI_DISPLAY_SYNC_FAILED,
+    WIFI_DISPLAY_RTP_PACKET_LOST,
+    WIFI_DISPLAY_AUDIO_FOCUS_LOST,
     //系统模块错误码
     WIFI_DISPLAY_GENERAL_ERROR = 476315748,
     WIFI_DISPLAY_BAD_PARAMETER,
@@ -145,11 +147,16 @@ public:
 
     void ThirdSceneEndReport(const std::string &funcName, const std::string &toCallpkg, SinkStage sinkStage);
 
-    void ReportError(const std::string &funcName, const std::string &toCallpkg,
-                    SinkStage sinkStage, SinkErrorCode errorCode);
+    void ReportError(const std::string &funcName, const std::string &toCallpkg, SinkStage sinkStage,
+                     SinkErrorCode errorCode);
 
     void P2PReportError(const std::string &funcName, SinkErrorCode errorCode);
-    
+
+    void ReportAVSyncException(const std::string &funcName, uint32_t videoTooLateCount, uint32_t audioTooLateCount,
+                               uint32_t videoDropFrameCount);
+
+    void ReportRtpPacketLost(const std::string &funcName, int32_t lostCount);
+
     //更换场景
     void ChangeHisysEventScene(SinkBizScene scene);
 
@@ -166,6 +173,8 @@ private:
     void ReportDecodeError(MediaReportType type);
     void RecordDecordStartTime(uint64_t pts, std::map<uint64_t, uint64_t>& decodeMap);
     void ReportDecodeTime(uint64_t pts, std::map<uint64_t, uint64_t>& decodeMap, MediaReportType type);
+    void WriteHisysEventWithExtraData(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode,
+                                      const std::string &extraDataStr);
 
 private:
     WfdSinkHiSysEvent() = default;

@@ -29,7 +29,7 @@ constexpr static uint32_t AUDIO_DECODE_DEFAULT_CHANNEL_COUNT = 2;
 constexpr static uint32_t ERROR_DECODER_INIT = -1;
 constexpr static uint32_t MAX_BUFFER_SIZE = 30;
 constexpr static uint32_t NEXT_FRAME_WAIT_TIME = 20;
-constexpr static int32_t AUDIO_DECODE_DROP_INTERVAL = 2000 * 1000;
+constexpr static int32_t AUDIO_DECODE_DROP_INTERVAL = 500 * 1000;
 constexpr static int32_t NO_AUDIO_FRAME_INTERVAL = 300 * 1000;
 
 enum AudioFrameState : int8_t {

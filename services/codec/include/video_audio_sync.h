@@ -29,6 +29,9 @@ public:
 
     bool IsNeedDrop(int64_t videoTimestamp);
     void SetAudioPlayController(std::shared_ptr<AudioPlayController> audioPlayController);
+    void GetAVSyncExceptionCount(uint32_t &videoTooLateCount, uint32_t &audioTooLateCount,
+                                 uint32_t &videoDropFrameCount);
+    void ResetAVSyncExceptionCount();
 
 private:
     bool ProcessAVSyncStrategy(int64_t videoTimestamp);
@@ -38,10 +41,17 @@ private:
     static constexpr int64_t VIDEO_LATE_US = -100 * 1000;
     static constexpr int64_t VIDEO_TOO_LATE_US = -200 * 1000;
     static constexpr int64_t DROP_ONE_FRAME_TIME = 1000 * 1000 / 30;
+    static constexpr int32_t CONSECUTIVE_THRESHOLD = 10;
 
     bool isFirstFrame_ = true;
     int32_t continueDropCount_ = 0;
     std::shared_ptr<AudioPlayController> audioPlayController_ = nullptr;
+
+    uint32_t videoTooLateCount_ = 0;
+    uint32_t audioTooLateCount_ = 0;
+    uint32_t videoDropFrameCount_ = 0;
+    uint32_t videoTooLateConsecutiveCount_ = 0;
+    uint32_t audioTooLateConsecutiveCount_ = 0;
 };
 } // namespace Sharing
 } // namespace OHOS

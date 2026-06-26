@@ -57,6 +57,8 @@ public:
     void OnPlayControllerNotify(ProsumerStatusMsg::Ptr &statusMsg);
 
 private:
+    void ReportAVSyncExceptionIfNeeded();
+
     uint32_t mediachannelId_ = 0;
     std::mutex playAudioMutex_;
     std::mutex playVideoMutex_;

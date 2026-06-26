@@ -59,6 +59,7 @@
         "data_share",
         "os_account",
         "cJSON",
+        "json",
         "jsoncpp",
         "openssl",
         "selinux_adapter"

@@ -59,15 +59,29 @@ bool VideoAudioSync::ProcessAVSyncStrategy(int64_t videoTimestamp)
     SHARING_LOGD("videoTimestamp: %{public}" PRId64 "; audioPts: %{public}" PRId64 "; earlyUs: %{public}" PRId64 "",
                  videoTimestamp, audioPts, earlyUs);
     if (earlyUs < VIDEO_TOO_LATE_US) {
-        SHARING_LOGE("Video is too late, something may wrong!");
+        SHARING_LOGE("Video is too late, something may wrong! earlyUs = %{public}" PRId64"", earlyUs);
+        ++videoTooLateConsecutiveCount_;
+        if (videoTooLateConsecutiveCount_ >= CONSECUTIVE_THRESHOLD) {
+            ++videoTooLateCount_;
+            videoTooLateConsecutiveCount_ = 0;
+            SHARING_LOGE("Video is too late consecutive %{public}d times", videoTooLateCount_);
+        }
     } else if (earlyUs < VIDEO_LATE_US && continueDropCount_ <= 0) {
         ++continueDropCount_;
+        ++videoDropFrameCount_;
         return true;
-    } else if (earlyUs > AUDIO_TOO_LATE_US) {
-        SHARING_LOGE("Audio is too late, something may wrong!");
-        std::this_thread::sleep_for(std::chrono::microseconds(DROP_ONE_FRAME_TIME));
     } else if (earlyUs > AUDIO_LATE_US) {
+        SHARING_LOGE("Audio is too late, drop audio fram! earlyUs =  %{public}" PRId64 "", earlyUs);
+        ++audioTooLateConsecutiveCount_;
+        if (audioTooLateConsecutiveCount_ >= CONSECUTIVE_THRESHOLD) {
+            ++audioTooLateCount_;
+            audioTooLateConsecutiveCount_ = 0;
+            SHARING_LOGE("Audio is too late consecutive %{public}d times", audioTooLateCount_);
+        }
         audioPlayController_->DropOneFrame();
+    } else {
+        videoTooLateConsecutiveCount_ = 0;
+        audioTooLateConsecutiveCount_ = 0;
     }
 
     continueDropCount_ = 0;
@@ -77,6 +91,23 @@ bool VideoAudioSync::ProcessAVSyncStrategy(int64_t videoTimestamp)
 void VideoAudioSync::SetAudioPlayController(std::shared_ptr<AudioPlayController> audioPlayController)
 {
     audioPlayController_ = audioPlayController;
+}
+
+void VideoAudioSync::GetAVSyncExceptionCount(uint32_t &videoTooLateCount, uint32_t &audioTooLateCount,
+                                             uint32_t &videoDropFrameCount)
+{
+    videoTooLateCount = videoTooLateCount_;
+    audioTooLateCount = audioTooLateCount_;
+    videoDropFrameCount = videoDropFrameCount_;
+}
+
+void VideoAudioSync::ResetAVSyncExceptionCount()
+{
+    videoTooLateCount_ = 0;
+    audioTooLateCount_ = 0;
+    videoDropFrameCount_ = 0;
+    videoTooLateConsecutiveCount_ = 0;
+    audioTooLateConsecutiveCount_ = 0;
 }
 
 } // namespace Sharing

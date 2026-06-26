@@ -20,6 +20,8 @@
 #include "buffer_dispatcher.h"
 #include "common/event_comm.h"
 #include "mediaplayer/include/audio_player.h"
+#include "common/sharing_sink_hisysevent.h"
+#include "utils/timeout_timer.h"
 
 
 namespace OHOS {
@@ -37,18 +39,25 @@ public:
     bool Init(AudioTrack &audioTrack, bool isPcSource);
     bool Start(BufferDispatcher::Ptr &dispatcher);
     int64_t GetAudioDecoderTimestamp();
+    void SetAudioFocusState(bool hasFocus);
 
 protected:
     void StopAudioThread();
     void AudioPlayThread();
     void StartAudioThread();
+    void OnAudioFocusTimeout();
 
 private:
+    static constexpr int64_t AUDIO_FOCUS_TIMEOUT_SEC = 10;
+
     uint32_t mediachannelId_ = 0;
     std::atomic_bool isAudioRunning_ = false;
     std::shared_ptr<AudioPlayer> audioPlayer_ = nullptr;
     std::shared_ptr<std::thread> audioPlayThread_ = nullptr;
     std::shared_ptr<BufferReceiver> bufferReceiver_ = nullptr;
+
+    bool hasAudioFocus_ = true;
+    TimeoutTimer focusTimer_;
 };
 
 } // namespace Sharing

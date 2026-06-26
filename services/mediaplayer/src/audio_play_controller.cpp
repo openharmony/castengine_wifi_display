@@ -72,6 +72,7 @@ bool AudioPlayController::Start(BufferDispatcher::Ptr &dispatcher)
         isAudioRunning_ = true;
         dispatcher->AttachReceiver(bufferReceiver_);
         StartAudioThread();
+        audioPlayer_->SetAudioFocusChangeCallback([this](bool hasFocus) { this->SetAudioFocusState(hasFocus); });
     } else {
         return false;
     }
@@ -99,6 +100,7 @@ void AudioPlayController::Stop(BufferDispatcher::Ptr &dispatcher)
 void AudioPlayController::Release()
 {
     SHARING_LOGD("trace.");
+    focusTimer_.StopTimer();
     if (nullptr != audioPlayer_) {
         audioPlayer_->Release();
         audioPlayer_.reset();
@@ -195,6 +197,31 @@ void AudioPlayController::DropOneFrame()
     if (audioPlayer_) {
         audioPlayer_->DropOneFrame();
     }
+}
+
+void AudioPlayController::SetAudioFocusState(bool hasFocus)
+{
+    if (hasFocus) {
+        if (!hasAudioFocus_) {
+            SHARING_LOGI("Audio focus regained");
+            hasAudioFocus_ = true;
+            focusTimer_.StopTimer();
+        }
+    } else {
+        if (hasAudioFocus_) {
+            SHARING_LOGW("Audio focus lost");
+            hasAudioFocus_ = false;
+            focusTimer_.StartTimer(AUDIO_FOCUS_TIMEOUT_SEC, "AudioFocusTimeout",
+                                   [this]() { this->OnAudioFocusTimeout(); });
+        }
+    }
+}
+
+void AudioPlayController::OnAudioFocusTimeout()
+{
+    SHARING_LOGE("Audio focus lost for 10s");
+    WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::AUDIO_DECODE,
+                                                 SinkErrorCode::WIFI_DISPLAY_AUDIO_FOCUS_LOST);
 }
 
 } // namespace Sharing

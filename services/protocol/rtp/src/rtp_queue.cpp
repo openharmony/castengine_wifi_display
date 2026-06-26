@@ -113,11 +113,22 @@ void RtpPacketSortor::SortPacket(uint16_t seq, RtpPacket::Ptr packet)
     RETURN_IF_NULL(packet);
     if (!IsSeqValid(seq)) {
         SHARING_LOGW("ignore rtp seq:%{public}hu out of expect range, expect seq:%{public}hu", seq, nextSeqOut_);
+        ++rtpPacketLostConsecutiveCount_;
+        if (rtpPacketLostConsecutiveCount_ >= RTP_PACKET_LOST_THRESHOLD) {
+            ++rtpPacketLostCount_;
+            rtpPacketLostConsecutiveCount_ = 0;
+        }
         return;
     }
 
+    rtpPacketLostConsecutiveCount_ = 0;
     pktSortCacheMap_.emplace(seq, std::move(packet));
     TryPopPacket();
+}
+
+int32_t RtpPacketSortor::GetRtpPacketLostCount() const
+{
+    return rtpPacketLostCount_;
 }
 
 void RtpPacketSortor::Flush()
