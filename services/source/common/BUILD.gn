@@ -14,5 +14,35 @@
 import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
-group("source_common_placeholder") {
+ohos_source_set("sharing_source_common_srcs") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    boundary_sanitize = true
+    ubsan = true
+    integer_overflow = true
+  }
+
+  include_dirs = [
+    "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/source/common/include",
+    "$SHARING_ROOT_DIR/services/common",
+  ]
+
+  sources = [ "src/sharing_hisysevent.cpp" ]
+
+  configs = [
+    "$SHARING_ROOT_DIR/tests:coverage_flags",
+    "$SHARING_ROOT_DIR:wifi_display_feature_flags",
+  ]
+
+  external_deps = [
+    "graphic_surface:surface",
+    "hisysevent:libhisysevent",
+    "hilog:libhilog",
+  ]
+
+  subsystem_name = "castplus"
+  part_name = "sharing_framework"
 }

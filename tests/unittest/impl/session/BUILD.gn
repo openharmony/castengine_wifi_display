@@ -29,9 +29,12 @@ ohos_unittest("wfd_sink_session_test") {
     "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/impl/wfd",
     "$SHARING_ROOT_DIR/services/sink/impl/wfd/wfd_sink",
+    "$SHARING_ROOT_DIR/services/sink/impl/wfd/include",
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/protocol/rtp/include",
+    "$SHARING_ROOT_DIR/services/sink/protocol/rtp/include",
+    "$SHARING_ROOT_DIR/services/sink/impl/scene/wfd/include",
     "./mock",
   ]
 
@@ -80,9 +83,12 @@ ohos_unittest("wfd_source_session_test") {
     "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/impl/wfd",
     "$SHARING_ROOT_DIR/services/source/impl/wfd/wfd_source",
+    "$SHARING_ROOT_DIR/services/source/impl/wfd/include",
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/protocol/rtp/include",
+    "$SHARING_ROOT_DIR/services/source/protocol/rtp/include",
+    "$SHARING_ROOT_DIR/services/source/impl/scene/wfd/include",
     "./mock",
   ]
 

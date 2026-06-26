@@ -27,7 +27,7 @@
 #include "protocol/frame/h264_frame.h"
 #include "surface.h"
 #include "utils/data_buffer.h"
-#include "common/sharing_sink_hisysevent.h"
+#include "sharing_sink_hisysevent.h"
 
 using namespace OHOS::MediaAVCodec;
 

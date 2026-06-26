@@ -25,7 +25,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include "frame/frame.h"
-#include "rtp_factory.h"
+#include "sink/protocol/rtp/include/rtp_sink_factory.h"
 
 #define BUF_SIZE 2 * 1024
 
@@ -86,7 +86,7 @@ int main(int argc, char **argv)
     FILE *fh264 = fopen(h264file, "wb");
     FILE *faac = fopen(aacfile, "wb");
 
-    auto unPack = RtpFactory::CreateRtpUnpack();
+    auto unPack = RtpSinkFactory::CreateRtpUnpack();
     unPack->SetOnRtpUnpack([=](uint32_t ssrc, const Frame::Ptr &frame) {
         printf("SetOnRtpUnpack\n");
         if (frame->GetTrackType() == TRACK_VIDEO) {

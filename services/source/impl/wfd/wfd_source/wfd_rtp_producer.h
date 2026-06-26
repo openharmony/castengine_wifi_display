@@ -19,7 +19,7 @@
 #include <atomic>
 #include <string>
 #include "buffer_dispatcher.h"
-#include "codec/include/codec_factory.h"
+#include "source/codec/include/source_codec_factory.h"
 #include "common/event_comm.h"
 #include "event/handle_event_base.h"
 #include "frame/frame.h"
@@ -30,9 +30,9 @@
 #include "network/network_factory.h"
 #include "protocol/rtcp/include/rtcp_context.h"
 #include "protocol/rtp/include/rtp_def.h"
-#include "protocol/rtp/include/rtp_factory.h"
-#include "protocol/rtp/include/rtp_pack.h"
-#include "wfd_media_def.h"
+#include "source/protocol/rtp/include/rtp_source_factory.h"
+#include "source/protocol/rtp/include/rtp_pack.h"
+#include "source_media_def.h"
 
 namespace OHOS {
 namespace Sharing {

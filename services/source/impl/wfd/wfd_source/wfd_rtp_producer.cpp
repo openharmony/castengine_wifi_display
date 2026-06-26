@@ -22,8 +22,8 @@
 #include "protocol/frame/aac_frame.h"
 #include "protocol/frame/h264_frame.h"
 #include "utils/utils.h"
-#include "wfd_media_def.h"
-#include "wfd_session_def.h"
+#include "source_media_def.h"
+#include "source_session_def.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -231,7 +231,7 @@ int32_t WfdRtpProducer::InitTsRtpPacker(uint32_t ssrc, size_t mtuSize, uint32_t 
                                         RtpPayloadStream ps)
 {
     SHARING_LOGI("%{public}s.", __FUNCTION__);
-    tsPacker_ = RtpFactory::CreateRtpPack(ssrc, mtuSize, sampleRate, pt, ps, 0);
+    tsPacker_ = RtpSourceFactory::CreateRtpPack(ssrc, mtuSize, sampleRate, pt, ps, 0);
     if (tsPacker_ == nullptr) {
         SHARING_LOGE("createRtpPacker failed.");
         return -1;

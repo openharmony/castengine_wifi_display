@@ -37,17 +37,7 @@ ohos_shared_library("sharing_rtp") {
     "$SHARING_ROOT_DIR/services/protocol/frame/frame.cpp",
     "$SHARING_ROOT_DIR/services/protocol/frame/frame_merger.cpp",
     "$SHARING_ROOT_DIR/services/protocol/frame/h264_frame.cpp",
-    "$SHARING_ROOT_DIR/services/protocol/rtp/src/adts.cpp",
-    "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_codec_aac.cpp",
-    "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_codec_g711.cpp",
-    "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_codec_h264.cpp",
-    "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_codec_ts.cpp",
-    "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_factory.cpp",
-    "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_maker.cpp",
-    "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_pack_impl.cpp",
     "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_packet.cpp",
-    "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_queue.cpp",
-    "$SHARING_ROOT_DIR/services/protocol/rtp/src/rtp_unpack_impl.cpp",
   ]
 
   configs = [ "$SHARING_ROOT_DIR/tests:coverage_flags" ]
@@ -57,6 +47,22 @@ ohos_shared_library("sharing_rtp") {
     "$SHARING_ROOT_DIR/services/protocol/rtcp:sharing_rtcp_srcs",
     "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
+
+  if (wifi_display_support_sink) {
+    deps += [ "$SHARING_ROOT_DIR/services/sink/protocol/rtp:sharing_sink_rtp_srcs" ]
+    include_dirs += [
+      "$SHARING_ROOT_DIR/services/sink/common/include",
+      "$SHARING_ROOT_DIR/services/sink/protocol/rtp/include",
+    ]
+  }
+
+  if (wifi_display_support_source) {
+    deps += [ "$SHARING_ROOT_DIR/services/source/protocol/rtp:sharing_source_rtp_srcs" ]
+    include_dirs += [
+      "$SHARING_ROOT_DIR/services/source/common/include",
+      "$SHARING_ROOT_DIR/services/source/protocol/rtp/include",
+    ]
+  }
 
   external_deps = [
     "c_utils:utils",

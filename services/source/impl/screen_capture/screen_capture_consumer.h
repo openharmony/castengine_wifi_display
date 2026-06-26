@@ -17,9 +17,9 @@
 #define OHOS_SHARING_SCREEN_CAPTURE_CONSUMER_H
 
 #include <mutex>
-#include "audio_aac_codec.h"
+#include "audio_aac_encoder.h"
 #include "audio_source_capturer.h"
-#include "codec_factory.h"
+#include "source_codec_factory.h"
 #include "magic_enum.hpp"
 #include "mediachannel/base_consumer.h"
 #include "video_source_encoder.h"

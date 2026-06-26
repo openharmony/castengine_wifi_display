@@ -1,0 +1,66 @@
+/*
+ * Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "rtp_encoder_g711.h"
+#include "common/common_macro.h"
+#include "common/media_log.h"
+
+namespace OHOS {
+namespace Sharing {
+RtpEncoderG711::RtpEncoderG711(uint32_t ssrc, uint32_t mtuSize, uint32_t sampleRate, uint8_t payloadType,
+                               uint32_t channels, uint16_t seq)
+    : RtpMaker(ssrc, mtuSize, payloadType, sampleRate, seq)
+{
+    cacheFrame_ = FrameImpl::Create();
+    cacheFrame_->codecId_ = CODEC_G711A;
+    channels_ = channels;
+}
+
+void RtpEncoderG711::InputFrame(const Frame::Ptr &frame)
+{
+    RETURN_IF_NULL(frame);
+    RETURN_IF_NULL(cacheFrame_);
+    MEDIA_LOGD("rtpEncoderG711::InputFrame enter.");
+    auto dur = ((size_t)cacheFrame_->Size() - cacheFrame_->PrefixSize()) / (8 * channels_);
+    auto next_pts = cacheFrame_->Pts() + dur;
+    if (next_pts == 0) {
+        cacheFrame_->pts_ = frame->Pts();
+    } else {
+        if ((next_pts + 20) < frame->Pts()) { // 20:interval ms
+            cacheFrame_->pts_ = frame->Pts() - dur;
+        }
+    }
+
+    cacheFrame_->Append(frame->Data() + frame->PrefixSize(), frame->Size() - frame->PrefixSize());
+
+    auto stamp = cacheFrame_->Pts();
+    auto ptr = cacheFrame_->Data() + cacheFrame_->PrefixSize();
+    auto len = (size_t)cacheFrame_->Size() - cacheFrame_->PrefixSize();
+    auto rtpPack = MakeRtp(ptr, len, false, stamp);
+    if (onRtpPack_) {
+        MEDIA_LOGD("rtpEncoderG711::InputFrame onRtpPack size: %{public}d.", (int32_t)len);
+        onRtpPack_(rtpPack);
+    }
+
+    cacheFrame_->Clear();
+    cacheFrame_->pts_ += 46; // 371 / 8k = 46.375ms
+}
+
+void RtpEncoderG711::SetOnRtpPack(const OnRtpPack &cb)
+{
+    onRtpPack_ = cb;
+}
+} // namespace Sharing
+} // namespace OHOS

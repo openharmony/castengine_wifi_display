@@ -18,9 +18,11 @@ group("sharing_sink_package") {
   if (wifi_display_support_sink) {
     deps = [
       "agent:sharing_sink_agent_srcs",
+      "common:sharing_sink_common_srcs",
       "mediaplayer:sharing_media_player_srcs",
       "impl/wfd:sharing_wfd_sink_session_srcs",
       "impl/scene/wfd:sharing_wfd_sink_scene_srcs",
+      "protocol/rtp:sharing_sink_rtp_srcs",
     ]
   }
 }

@@ -28,12 +28,13 @@
 #include "system_ability_status_change_stub.h"
 #include "sink/data_share_helper.h"
 #include "utils/utils.h"
+#include "sink_def.h"
 #include "wfd_def.h"
 #include "wfd_msg.h"
 #include "sink/wfd_trust_list_manager.h"
 #include "wifi_device.h"
 #include "wifi_p2p.h"
-#include "common/sharing_sink_hisysevent.h"
+#include "sharing_sink_hisysevent.h"
 
 namespace OHOS {
 namespace Sharing {

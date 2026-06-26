@@ -27,6 +27,8 @@ ohos_executable("sharing_codec_demo") {
     "$SHARING_ROOT_DIR/services/common",
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
+    "$SHARING_ROOT_DIR/services/sink/codec/include",
+    "$SHARING_ROOT_DIR/services/source/codec/include",
   ]
 
   sources = [ "codec_demo.cpp" ]
@@ -55,6 +57,8 @@ ohos_executable("sharing_codec_video_demo") {
     "$SHARING_ROOT_DIR/services/common",
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
+    "$SHARING_ROOT_DIR/services/sink/codec/include",
+    "$SHARING_ROOT_DIR/services/source/codec/include",
     "//foundation/multimedia/player_framework/interfaces/inner_api/native/media/include",
     "//foundation/multimedia/player_framework/services/utils/include",
     "//foundation/graphic/graphic_2d/interfaces/innerkits/common",

@@ -1,0 +1,65 @@
+# Copyright (c) 2026 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/CastEngine/castengine_wifi_display/config.gni")
+
+ohos_source_set("sharing_sink_rtp_srcs") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    boundary_sanitize = true
+    ubsan = true
+    integer_overflow = true
+  }
+
+  include_dirs = [
+    "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/protocol",
+    "$SHARING_ROOT_DIR/services/protocol/rtp/include",
+    "$SHARING_ROOT_DIR/services/sink/common/include",
+    "$SHARING_ROOT_DIR/services/sink/protocol/rtp/include",
+  ]
+
+  sources = [
+    "$SHARING_ROOT_DIR/services/sink/protocol/rtp/src/adts.cpp",
+    "$SHARING_ROOT_DIR/services/sink/protocol/rtp/src/rtp_decoder_aac.cpp",
+    "$SHARING_ROOT_DIR/services/sink/protocol/rtp/src/rtp_decoder_g711.cpp",
+    "$SHARING_ROOT_DIR/services/sink/protocol/rtp/src/rtp_decoder_h264.cpp",
+    "$SHARING_ROOT_DIR/services/sink/protocol/rtp/src/rtp_decoder_ts.cpp",
+    "$SHARING_ROOT_DIR/services/sink/protocol/rtp/src/rtp_queue.cpp",
+    "$SHARING_ROOT_DIR/services/sink/protocol/rtp/src/rtp_sink_factory.cpp",
+    "$SHARING_ROOT_DIR/services/sink/protocol/rtp/src/rtp_unpack_impl.cpp",
+  ]
+
+  configs = [
+    "$SHARING_ROOT_DIR/tests:coverage_flags",
+    "$SHARING_ROOT_DIR:wifi_display_feature_flags",
+  ]
+
+  deps = [
+    "$SHARING_ROOT_DIR/services/common:sharing_common",
+    "$SHARING_ROOT_DIR/services/protocol/rtcp:sharing_rtcp_srcs",
+    "$SHARING_ROOT_DIR/services/sink/common:sharing_sink_common_srcs",
+  ]
+
+  external_deps = [
+    "c_utils:utils",
+    "ffmpeg:libohosffmpeg",
+    "hilog:libhilog",
+  ]
+
+  subsystem_name = "castplus"
+  part_name = "sharing_framework"
+}

@@ -19,7 +19,7 @@
 #include <gmock/gmock.h>
 #define private public
 #define protected public
-#include "rtp_unpack.h"
+#include "sink/protocol/rtp/include/rtp_unpack.h"
 #undef private
 #undef protected
 

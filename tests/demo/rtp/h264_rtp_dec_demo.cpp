@@ -26,7 +26,8 @@
 #include <unistd.h>
 #include "frame/frame.h"
 #include "rtp_def.h"
-#include "rtp_factory.h"
+#include "sink/protocol/rtp/include/rtp_sink_factory.h"
+#include "source/protocol/rtp/include/rtp_source_factory.h"
 
 #define BUF_SIZE 2 * 1024
 
@@ -93,14 +94,15 @@ int main(int argc, char **argv)
 
     auto extra = std::make_shared<AACExtra>();
     extra->aacConfig_ = "1210";
-    auto aacPack = RtpFactory::CreateRtpPack(4568712, 1400, 44100, 97, RtpPayloadStream::MPEG4_GENERIC);
+    auto aacPack = RtpSourceFactory::CreateRtpPack(4568712, 1400, 44100, 97, RtpPayloadStream::MPEG4_GENERIC);
 
     aacPack->SetOnRtpPack([=](const RtpPacket::Ptr &rtp) {
         printf("rtp packed seq: %d, timestamp: %d, size: %d\n", rtp->GetSeq(), rtp->GetStamp(), rtp->Size());
         fwrite(rtp->Data(), rtp->Size(), 1, faacrtp);
     });
 
-    auto aacunPack = RtpFactory::CreateRtpUnpack(RtpPlaylodParam{97, 44100, RtpPayloadStream::MPEG4_GENERIC, extra});
+    auto aacunPack = RtpSinkFactory::CreateRtpUnpack(
+        RtpPlaylodParam{97, 44100, RtpPayloadStream::MPEG4_GENERIC, extra});
     aacunPack->SetOnRtpUnpack([=](uint32_t ssrc, const Frame::Ptr &frame) {
         printf("SetOnRtpUnpack\n");
         if (frame->GetTrackType() == TRACK_AUDIO) {
@@ -121,7 +123,7 @@ int main(int argc, char **argv)
 
     StartRtpServer(1234, [aacunPack](const char *buf, size_t len) { aacunPack->ParseRtp(buf, len); });
 
-    auto h264unPack = RtpFactory::CreateRtpUnpack(RtpPlaylodParam{96, 90000, RtpPayloadStream::H264});
+    auto h264unPack = RtpSinkFactory::CreateRtpUnpack(RtpPlaylodParam{96, 90000, RtpPayloadStream::H264});
     h264unPack->SetOnRtpUnpack([=](uint32_t ssrc, const Frame::Ptr &frame) {
         if (frame->GetTrackType() == TRACK_VIDEO) {
             printf("h264 data: len: %d dts: %d", frame->Size(), frame->Dts());

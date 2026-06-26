@@ -27,6 +27,7 @@ ohos_fuzztest("WfdSinkRtspFuzzTest") {
     "$SHARING_ROOT_DIR/services/protocol/rtp/include",
     "$SHARING_ROOT_DIR/services/protocol/rtsp/include",
     "$SHARING_ROOT_DIR/services/common",
+    "$SHARING_ROOT_DIR/services/sink/protocol/rtp/include",
   ]
 
   deps = [ 

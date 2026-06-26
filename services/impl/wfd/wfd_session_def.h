@@ -179,35 +179,6 @@ struct WfdSceneEventMsg : public InteractionEventMsg {
     std::string mac;
 };
 
-struct WfdSinkSessionEventMsg : public SessionEventMsg {
-    using Ptr = std::shared_ptr<WfdSinkSessionEventMsg>;
-
-    uint16_t localPort = 0;
-    uint16_t remotePort = 0;
-
-    std::string remoteIp;
-    std::string localIp;
-    std::string mac;
-
-    AudioFormat audioFormat = AUDIO_NONE;
-    VideoFormat videoFormat = VIDEO_NONE;
-    WfdParamsInfo wfdParamsInfo;
-};
-
-struct WfdSourceSessionEventMsg : public SessionEventMsg {
-    using Ptr = std::shared_ptr<WfdSourceSessionEventMsg>;
-
-    uint32_t sinkAgentId;
-    uint16_t localPort = 0;
-    uint16_t remotePort = 0;
-
-    std::string ip;
-    std::string mac;
-
-    AudioFormat audioFormat = AUDIO_48000_16_2;
-    VideoFormat videoFormat = VIDEO_1920X1080_30;
-};
-
 // Table 34. Supported CEA Resolution/Refresh Rates
 enum WfdCeaResolution {
     CEA_640_480_P60 = 0,

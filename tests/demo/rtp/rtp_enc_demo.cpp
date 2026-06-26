@@ -29,7 +29,7 @@
 #include "frame/frame.h"
 #include "frame/h264_frame.h"
 #include "rtp_def.h"
-#include "rtp_factory.h"
+#include "source/protocol/rtp/include/rtp_source_factory.h"
 
 using namespace OHOS::Sharing;
 
@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
     printf("%s -t %d -f %s -o %s -p %d", argv[0], gType, gFileName, gIP, gPort);
 
     if (gType == 0) {
-        auto aacPack = RtpFactory::CreateRtpPack(4568712, 1400, 48000, 97, RtpPayloadStream::MPEG4_GENERIC);
+        auto aacPack = RtpSourceFactory::CreateRtpPack(4568712, 1400, 48000, 97, RtpPayloadStream::MPEG4_GENERIC);
 
         aacPack->SetOnRtpPack([=](const RtpPacket::Ptr &rtp) {
             printf("rtp packed seq: %d, timestamp: %d, size: %d", rtp->GetSeq(), rtp->GetStamp(), rtp->Size());
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
             aacPack->InputFrame(frame);
         });
     } else if (gType == 1) {
-        auto avcPack = RtpFactory::CreateRtpPack(4568713, 1400, 90000, 96, RtpPayloadStream::H264);
+        auto avcPack = RtpSourceFactory::CreateRtpPack(4568713, 1400, 90000, 96, RtpPayloadStream::H264);
 
         avcPack->SetOnRtpPack([=](const RtpPacket::Ptr &rtp) {
             printf("rtp packed seq: %d, timestamp: %d, size: %d", rtp->GetSeq(), rtp->GetStamp(), rtp->Size());
@@ -323,7 +323,7 @@ int main(int argc, char *argv[])
             avcPack->InputFrame(frame);
         });
     } else if (gType == 2) {
-        auto g711Pack = RtpFactory::CreateRtpPack(4568713, 1400, 8000, 97, RtpPayloadStream::PCMA, 2);
+        auto g711Pack = RtpSourceFactory::CreateRtpPack(4568713, 1400, 8000, 97, RtpPayloadStream::PCMA, 2);
 
         g711Pack->SetOnRtpPack([=](const RtpPacket::Ptr &rtp) {
             printf("rtp packed seq: %d, timestamp: %d, size: %d", rtp->GetSeq(), rtp->GetStamp(), rtp->Size());

@@ -37,14 +37,14 @@ ohos_shared_library("sharing_codec") {
   sources = [
     "$SHARING_ROOT_DIR/services/protocol/frame/frame.cpp",
     "$SHARING_ROOT_DIR/services/protocol/frame/h264_frame.cpp",
-    "src/audio_aac_codec.cpp",
-    "src/audio_g711_codec.cpp",
-    "src/codec_factory.cpp",
     "src/media_frame_pipeline.cpp",
   ]
 
   if (wifi_display_support_sink) {
     sources += [
+      "$SHARING_ROOT_DIR/services/sink/codec/src/audio_aac_decoder.cpp",
+      "$SHARING_ROOT_DIR/services/sink/codec/src/audio_g711_decoder.cpp",
+      "$SHARING_ROOT_DIR/services/sink/codec/src/sink_codec_factory.cpp",
       "$SHARING_ROOT_DIR/services/sink/codec/src/video_sink_decoder.cpp",
       "$SHARING_ROOT_DIR/services/sink/codec/src/audio_avcodec_decoder.cpp",
       "$SHARING_ROOT_DIR/services/sink/codec/src/video_audio_sync.cpp",
@@ -52,11 +52,15 @@ ohos_shared_library("sharing_codec") {
     include_dirs += [
       "$SHARING_ROOT_DIR/services/sink/codec/include",
       "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
+      "$SHARING_ROOT_DIR/services/sink/common/include",
     ]
   }
 
   if (wifi_display_support_source) {
     sources += [
+      "$SHARING_ROOT_DIR/services/source/codec/src/audio_aac_encoder.cpp",
+      "$SHARING_ROOT_DIR/services/source/codec/src/audio_g711_encoder.cpp",
+      "$SHARING_ROOT_DIR/services/source/codec/src/source_codec_factory.cpp",
       "$SHARING_ROOT_DIR/services/source/codec/src/video_source_encoder.cpp",
       "$SHARING_ROOT_DIR/services/source/codec/src/audio_pcm_processor.cpp",
     ]

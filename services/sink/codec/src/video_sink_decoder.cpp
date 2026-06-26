@@ -22,7 +22,7 @@
 #include "common/common_macro.h"
 #include "common/media_log.h"
 #include "configuration/include/config.h"
-#include "common/sharing_sink_hisysevent.h"
+#include "sharing_sink_hisysevent.h"
 #include "utils/utils.h"
 
 namespace OHOS {
