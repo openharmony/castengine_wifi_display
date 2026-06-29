@@ -328,10 +328,16 @@ void AudioSink::OnInterrupt(const AudioStandard::InterruptEvent &interruptEvent)
         case AudioStandard::InterruptHint::INTERRUPT_HINT_PAUSE:
             // 音频流暂停，暂停音频写入
             needWrite_ = false;
+            if (onAudioFocusChange_) {
+                onAudioFocusChange_(false);
+            }
             break;
         case AudioStandard::InterruptHint::INTERRUPT_HINT_RESUME:
             // 音频流恢复，恢复音频写入和重新起播
             Start();
+            if (onAudioFocusChange_) {
+                onAudioFocusChange_(true);
+            }
             break;
         default:
             break;
@@ -349,5 +355,9 @@ void AudioSink::SetIsPcSource(bool isPcSource)
     isPcSource_ = isPcSource;
 }
 
+void AudioSink::SetAudioFocusChangeCallback(std::function<void(bool hasFocus)> callback)
+{
+    onAudioFocusChange_ = callback;
+}
 } // namespace Sharing
 } // namespace OHOS

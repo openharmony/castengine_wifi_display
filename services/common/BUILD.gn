@@ -46,6 +46,7 @@ ohos_shared_library("sharing_common") {
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "samgr:samgr_proxy",
+    "json:nlohmann_json_static",
   ]
 
   part_name = "sharing_framework"

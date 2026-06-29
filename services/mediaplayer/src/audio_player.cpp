@@ -141,5 +141,12 @@ void AudioPlayer::DropOneFrame()
     }
 }
 
+void AudioPlayer::SetAudioFocusChangeCallback(std::function<void(bool hasFocus)> callback)
+{
+    if (audioSink_) {
+        audioSink_->SetAudioFocusChangeCallback(callback);
+    }
+}
+
 } // namespace Sharing
 } // namespace OHOS

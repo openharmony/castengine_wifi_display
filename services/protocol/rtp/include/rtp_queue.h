@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <functional>
 #include <map>
+#include "common/sharing_sink_hisysevent.h"
 #include "rtp_packet.h"
 
 namespace OHOS {
@@ -41,6 +42,8 @@ public:
 
     size_t GetJitterSize() const;
 
+    int32_t GetRtpPacketLostCount() const;
+
 private:
     bool IsSeqValid(uint16_t seq) const;
     void SetSortSize();
@@ -49,6 +52,7 @@ private:
 
 private:
     static const size_t SORT_CACHE_MIN_SIZE = 64;
+    static constexpr int32_t RTP_PACKET_LOST_THRESHOLD = 5;
 
     uint16_t nextSeqOut_ = 0;
 
@@ -62,6 +66,9 @@ private:
     std::map<uint16_t, RtpPacket::Ptr> pktSortCacheMap_;
 
     OnSort onSort_ = nullptr;
+
+    int32_t rtpPacketLostCount_ = 0;
+    int32_t rtpPacketLostConsecutiveCount_ = 0;
 };
 } // namespace Sharing
 } // namespace OHOS

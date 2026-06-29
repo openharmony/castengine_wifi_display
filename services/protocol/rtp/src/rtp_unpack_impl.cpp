@@ -119,6 +119,14 @@ void RtpUnpackImpl::OnRtpDecode(int32_t pt, const Frame::Ptr &frame)
 
 void RtpUnpackImpl::Release()
 {
+    for (auto &item : rtpSort_) {
+        if (item.second != nullptr) {
+            int32_t lostCount = item.second->GetRtpPacketLostCount();
+            if (lostCount > 0) {
+                WfdSinkHiSysEvent::GetInstance().ReportRtpPacketLost(__func__, lostCount);
+            }
+        }
+    }
     rtpDecoder_.clear();
     rtpSort_.clear();
 }

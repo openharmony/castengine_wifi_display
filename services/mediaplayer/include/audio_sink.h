@@ -82,6 +82,7 @@ public:
                        const AudioStandard::StateChangeCmdType cmdType) override;
     void OnInterrupt(const AudioStandard::InterruptEvent &interruptEvent) override;
     void SetIsPcSource(bool isPcSource);
+    void SetAudioFocusChangeCallback(std::function<void(bool hasFocus)> callback);
 
 private:
     bool running_ = false;
@@ -91,6 +92,7 @@ private:
 
     std::mutex mutex_;
     std::unique_ptr<OHOS::AudioStandard::AudioRenderer> audioRenderer_ = nullptr;
+    std::function<void(bool hasFocus)> onAudioFocusChange_ = nullptr;
 };
 
 } // namespace Sharing
