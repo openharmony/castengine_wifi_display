@@ -14,7 +14,7 @@
  */
 
 #include "src_agent_unit_test.h"
-#include "agent/srcagent/src_agent.h"
+#include "source/agent/srcagent/src_agent.h"
 #include "common/sharing_log.h"
 using namespace testing::ext;
 

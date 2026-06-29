@@ -19,7 +19,7 @@
 #include <thread>
 #include "buffer_dispatcher.h"
 #include "common/event_comm.h"
-#include "mediaplayer/include/audio_player.h"
+#include "sink/mediaplayer/include/audio_player.h"
 #include "common/sharing_sink_hisysevent.h"
 #include "utils/timeout_timer.h"
 

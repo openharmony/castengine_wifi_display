@@ -18,7 +18,7 @@
 
 #include <thread>
 #include "buffer_dispatcher.h"
-#include "codec/include/video_sink_decoder.h"
+#include "video_sink_decoder.h"
 #include "common/event_comm.h"
 #include "common/sharing_log.h"
 #include "video_audio_sync.h"

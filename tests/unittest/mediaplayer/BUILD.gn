@@ -44,7 +44,7 @@ ohos_unittest("audiosink_unit_test") {
   }
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
-    "$SHARING_ROOT_DIR/services/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
     "$SHARING_ROOT_DIR/services/mediachannel",
@@ -88,7 +88,7 @@ ohos_unittest("audioplayer_unit_test") {
   }
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
-    "$SHARING_ROOT_DIR/services/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
     "$SHARING_ROOT_DIR/services/mediachannel",
@@ -131,7 +131,7 @@ ohos_unittest("audioplaycontroller_unit_test") {
   }
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
-    "$SHARING_ROOT_DIR/services/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
     "$SHARING_ROOT_DIR/services/mediachannel",
@@ -174,7 +174,7 @@ ohos_unittest("videoplaycontroller_unit_test") {
   }
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
-    "$SHARING_ROOT_DIR/services/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
     "$SHARING_ROOT_DIR/services/mediachannel",
@@ -220,7 +220,7 @@ ohos_unittest("mediacontroller_unit_test") {
   }
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
-    "$SHARING_ROOT_DIR/services/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
     "$SHARING_ROOT_DIR/services/mediachannel",

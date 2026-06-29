@@ -25,9 +25,9 @@ ohos_unittest("wfd_rtp_consumer_test") {
     "$SHARING_ROOT_DIR/services/common",
     "$SHARING_ROOT_DIR/services/mediachannel",
     "$SHARING_ROOT_DIR/services/network/interfaces",
-    "$SHARING_ROOT_DIR/services/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/impl/wfd",
-    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink",
+    "$SHARING_ROOT_DIR/services/sink/impl/wfd/wfd_sink",
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/protocol/rtp/include",
@@ -35,7 +35,7 @@ ohos_unittest("wfd_rtp_consumer_test") {
   ]
 
   sources = [
-    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink/wfd_rtp_consumer.cpp",
+    "$SHARING_ROOT_DIR/services/sink/impl/wfd/wfd_sink/wfd_rtp_consumer.cpp",
     "$SHARING_ROOT_DIR/services/mediachannel/base_consumer.cpp",
     "$SHARING_ROOT_DIR/services/mediachannel/buffer_dispatcher.cpp",
     "$SHARING_ROOT_DIR/services/protocol/frame/frame.cpp",
@@ -77,9 +77,9 @@ ohos_unittest("wfd_rtp_producer_test") {
     "$SHARING_ROOT_DIR/services/common",
     "$SHARING_ROOT_DIR/services/mediachannel",
     "$SHARING_ROOT_DIR/services/network/interfaces",
-    "$SHARING_ROOT_DIR/services/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/impl/wfd",
-    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_source",
+    "$SHARING_ROOT_DIR/services/source/impl/wfd/wfd_source",
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/protocol/rtp/include",
@@ -87,7 +87,7 @@ ohos_unittest("wfd_rtp_producer_test") {
   ]
 
   sources = [
-    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_source/wfd_rtp_producer.cpp",
+    "$SHARING_ROOT_DIR/services/source/impl/wfd/wfd_source/wfd_rtp_producer.cpp",
     "$SHARING_ROOT_DIR/services/mediachannel/base_producer.cpp",
     "$SHARING_ROOT_DIR/services/mediachannel/buffer_dispatcher.cpp",
     "$SHARING_ROOT_DIR/services/protocol/frame/frame.cpp",

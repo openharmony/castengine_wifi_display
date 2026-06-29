@@ -15,9 +15,13 @@
 
 #include "codec_factory.h"
 #include "audio_aac_codec.h"
+#ifdef WIFI_DISPLAY_SINK
 #include "audio_avcodec_decoder.h"
+#endif
 #include "audio_g711_codec.h"
+#ifdef WIFI_DISPLAY_SOURCE
 #include "audio_pcm_processor.h"
+#endif
 #include "sharing_log.h"
 
 namespace OHOS {
@@ -38,7 +42,9 @@ std::shared_ptr<AudioEncoder> CodecFactory::CreateAudioEncoder(CodecId format)
             encoder.reset(new AudioAACEncoder());
             break;
         case CODEC_PCM:
+#ifdef WIFI_DISPLAY_SOURCE
             encoder.reset(new AudioPcmProcessor());
+#endif
             break;
         default:
             SHARING_LOGE("unsupported codec format %{public}d.", (int32_t)format);
@@ -60,7 +66,9 @@ std::shared_ptr<AudioDecoder> CodecFactory::CreateAudioDecoder(CodecId format)
             decoder.reset(new AudioG711Decoder(G711_TYPE::G711_ULAW));
             break;
         case CODEC_AAC:
+#ifdef WIFI_DISPLAY_SINK
             decoder.reset(new AudioAvCodecDecoder());
+#endif
             break;
         default:
             SHARING_LOGE("unsupported codec format %{public}d.", (int32_t)format);

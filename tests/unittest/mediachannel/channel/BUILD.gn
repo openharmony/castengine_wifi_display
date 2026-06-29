@@ -25,7 +25,7 @@ ohos_unittest("media_channel_unit_test") {
     "$SHARING_ROOT_DIR/services/mediachannel",
     "$SHARING_ROOT_DIR/frameworks/innerkitsimpl",
     "$SHARING_ROOT_DIR/services/utils/native/base/include",
-    "$SHARING_ROOT_DIR/services/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/utils/native/base/include",
     "$SHARING_ROOT_DIR/services/codec/include",
     "$SHARING_ROOT_DIR/services/utils",
@@ -72,7 +72,7 @@ ohos_unittest("media_channel_unit_test") {
     "$SHARING_ROOT_DIR/services/configuration:sharing_configure_srcs",
     "$SHARING_ROOT_DIR/services/event:sharing_event_srcs",
     "$SHARING_ROOT_DIR/services/mediachannel:sharing_media_channel_srcs",
-    "$SHARING_ROOT_DIR/services/mediaplayer:sharing_media_player_srcs",
+    "$SHARING_ROOT_DIR/services/sink/mediaplayer:sharing_media_player_srcs",
     "$SHARING_ROOT_DIR/services/utils:sharing_utils",
     "//third_party/googletest:gtest_main",
   ]

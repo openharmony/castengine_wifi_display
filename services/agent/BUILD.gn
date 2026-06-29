@@ -31,20 +31,15 @@ ohos_source_set("sharing_agent_srcs") {
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
   ]
 
-  sources = [
-    "agent.cpp",
-    "sinkagent/sink_agent.cpp",
-    "srcagent/src_agent.cpp",
-  ]
+  sources = [ "agent.cpp" ]
+
   configs = [
     "$SHARING_ROOT_DIR/tests:coverage_flags",
     "$SHARING_ROOT_DIR:wifi_display_default_config",
+    "$SHARING_ROOT_DIR:wifi_display_feature_flags",
   ]
+
   external_deps = [
-    "audio_framework:audio_foundation",
-    "audio_framework:audio_manager_client",
-    "audio_framework:audio_policy_client",
-    "audio_framework:audio_renderer",
     "graphic_surface:surface",
     "ipc:ipc_single",
     "hilog:libhilog",

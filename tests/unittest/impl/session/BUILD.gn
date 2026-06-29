@@ -26,9 +26,9 @@ ohos_unittest("wfd_sink_session_test") {
     "$SHARING_ROOT_DIR/services/common",
     "$SHARING_ROOT_DIR/services/mediachannel",
     "$SHARING_ROOT_DIR/services/network/interfaces",
-    "$SHARING_ROOT_DIR/services/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/impl/wfd",
-    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink",
+    "$SHARING_ROOT_DIR/services/sink/impl/wfd/wfd_sink",
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/protocol/rtp/include",
@@ -37,7 +37,7 @@ ohos_unittest("wfd_sink_session_test") {
 
   sources = [
     "$SHARING_ROOT_DIR/services/impl/wfd/wfd_message.cpp",
-    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_sink/wfd_sink_session.cpp",
+    "$SHARING_ROOT_DIR/services/sink/impl/wfd/wfd_sink/wfd_sink_session.cpp",
     "./mock/mock_wfd_sink_session.cpp",
     "wfd_sink_session_test.cpp",
   ]
@@ -77,9 +77,9 @@ ohos_unittest("wfd_source_session_test") {
     "$SHARING_ROOT_DIR/services/common",
     "$SHARING_ROOT_DIR/services/mediachannel",
     "$SHARING_ROOT_DIR/services/network/interfaces",
-    "$SHARING_ROOT_DIR/services/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/impl/wfd",
-    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_source",
+    "$SHARING_ROOT_DIR/services/source/impl/wfd/wfd_source",
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/protocol/rtp/include",
@@ -88,7 +88,7 @@ ohos_unittest("wfd_source_session_test") {
 
   sources = [
     "$SHARING_ROOT_DIR/services/impl/wfd/wfd_message.cpp",
-    "$SHARING_ROOT_DIR/services/impl/wfd/wfd_source/wfd_source_session.cpp",
+    "$SHARING_ROOT_DIR/services/source/impl/wfd/wfd_source/wfd_source_session.cpp",
     "./mock/mock_wfd_source_session.cpp",
     "wfd_source_session_test.cpp",
   ]

@@ -1,9 +1,9 @@
-# Copyright (c) 2023 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Copyright (c) 2026 Shenzhen Kaihong Digital Industry Development Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,53 +14,53 @@
 import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
-ohos_source_set("sharing_screen_capture_srcs") {
+ohos_source_set("sharing_wfd_sink_session_srcs") {
   sanitize = {
     cfi = true
+    boundary_sanitize = true
     cfi_cross_dso = true
     debug = false
-    boundary_sanitize = true
     ubsan = true
     integer_overflow = true
   }
-
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
-    "$SHARING_ROOT_DIR/services/impl/screen_capture",
-    "$SHARING_ROOT_DIR/services/impl/screen_capture/mediasource",
+    "$SHARING_ROOT_DIR/services/impl/wfd",
+    "$SHARING_ROOT_DIR/services/sink/impl/wfd/wfd_sink",
+    "$SHARING_ROOT_DIR/services/network",
+    "$SHARING_ROOT_DIR/services/mediachannel",
     "$SHARING_ROOT_DIR/services/utils",
     "$SHARING_ROOT_DIR/services/common",
-    "$SHARING_ROOT_DIR/services/codec/include",
+    "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
-    "$SHARING_ROOT_DIR/services/extend/magic_enum",
+    "$SHARING_ROOT_DIR/services/protocol/rtp",
   ]
 
   sources = [
-    "$SHARING_ROOT_DIR/services/impl/screen_capture/mediasource/audio_source_capturer.cpp",
-    "$SHARING_ROOT_DIR/services/impl/screen_capture/mediasource/video_source_screen.cpp",
-    "$SHARING_ROOT_DIR/services/impl/screen_capture/screen_capture_consumer.cpp",
-    "$SHARING_ROOT_DIR/services/impl/screen_capture/screen_capture_session.cpp",
+    "$SHARING_ROOT_DIR/services/sink/impl/wfd/wfd_sink/wfd_rtp_consumer.cpp",
+    "$SHARING_ROOT_DIR/services/sink/impl/wfd/wfd_sink/wfd_sink_session.cpp",
+  ]
+
+  configs = [
+    "$SHARING_ROOT_DIR/tests:coverage_flags",
+    "$SHARING_ROOT_DIR:wifi_display_default_config",
+    "$SHARING_ROOT_DIR:wifi_display_feature_flags",
   ]
 
   deps = [
     "$SHARING_ROOT_DIR/services/agent:sharing_agent_srcs",
+    "$SHARING_ROOT_DIR/services/sink/agent:sharing_sink_agent_srcs",
     "$SHARING_ROOT_DIR/services/common:sharing_common",
     "$SHARING_ROOT_DIR/services/interaction:sharing_interaction_srcs",
     "$SHARING_ROOT_DIR/services/mediachannel:sharing_media_channel_srcs",
   ]
 
   external_deps = [
-    "audio_framework:audio_capturer",
     "av_codec:av_codec_client",
     "c_utils:utils",
-    "drivers_peripheral_display:hdi_gralloc_client",
-    "graphic_2d:librender_service_base",
     "graphic_surface:surface",
     "ipc:ipc_single",
-    "graphic_surface:sync_fence",
     "hilog:libhilog",
-    "window_manager:libdm",
-    "media_foundation:media_foundation",
   ]
 
   subsystem_name = "castplus"

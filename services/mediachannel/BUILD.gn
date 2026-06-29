@@ -40,11 +40,11 @@ ohos_source_set("sharing_media_channel_srcs") {
   configs = [
     "$SHARING_ROOT_DIR/tests:coverage_flags",
     "$SHARING_ROOT_DIR:wifi_display_default_config",
+    "$SHARING_ROOT_DIR:wifi_display_feature_flags",
   ]
 
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
-    "$SHARING_ROOT_DIR/services/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/mediachannel",
     "$SHARING_ROOT_DIR/services/utils",
     "$SHARING_ROOT_DIR/services/common",
@@ -55,6 +55,13 @@ ohos_source_set("sharing_media_channel_srcs") {
     "$SHARING_ROOT_DIR/services/protocol/rtp/interfaces",
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
   ]
+
+  if (wifi_display_support_sink) {
+    include_dirs += [
+      "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
+      "$SHARING_ROOT_DIR/services/sink/codec/include",
+    ]
+  }
 
   external_deps = [
     "access_token:libaccesstoken_sdk",

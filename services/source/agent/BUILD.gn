@@ -1,0 +1,57 @@
+# Copyright (c) 2026 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Licensed under the Apache License, version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/CastEngine/castengine_wifi_display/config.gni")
+
+ohos_source_set("sharing_source_agent_srcs") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+    boundary_sanitize = true
+    ubsan = true
+    integer_overflow = true
+  }
+
+  include_dirs = [
+    "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/agent",
+    "$SHARING_ROOT_DIR/services/network",
+    "$SHARING_ROOT_DIR/services/network/interfaces",
+    "$SHARING_ROOT_DIR/services/extend/magic_enum",
+  ]
+
+  sources = [ "srcagent/src_agent.cpp" ]
+
+  configs = [
+    "$SHARING_ROOT_DIR/tests:coverage_flags",
+    "$SHARING_ROOT_DIR:wifi_display_default_config",
+    "$SHARING_ROOT_DIR:wifi_display_feature_flags",
+  ]
+
+  deps = []
+
+  external_deps = [
+    "audio_framework:audio_foundation",
+    "audio_framework:audio_manager_client",
+    "audio_framework:audio_policy_client",
+    "audio_framework:audio_renderer",
+    "graphic_surface:surface",
+    "ipc:ipc_single",
+    "hilog:libhilog",
+  ]
+
+  subsystem_name = "castplus"
+  part_name = "sharing_framework"
+}

@@ -29,7 +29,6 @@ ohos_shared_library("sharing_codec") {
     "$SHARING_ROOT_DIR/services/codec/include",
     "$SHARING_ROOT_DIR/services",
     "$SHARING_ROOT_DIR/services/common",
-    "$SHARING_ROOT_DIR/services/mediaplayer/include",
     "$SHARING_ROOT_DIR/services/mediachannel",
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
@@ -39,20 +38,43 @@ ohos_shared_library("sharing_codec") {
     "$SHARING_ROOT_DIR/services/protocol/frame/frame.cpp",
     "$SHARING_ROOT_DIR/services/protocol/frame/h264_frame.cpp",
     "src/audio_aac_codec.cpp",
-    "src/audio_avcodec_decoder.cpp",
     "src/audio_g711_codec.cpp",
-    "src/audio_pcm_processor.cpp",
     "src/codec_factory.cpp",
     "src/media_frame_pipeline.cpp",
-    "src/video_audio_sync.cpp",
-    "src/video_sink_decoder.cpp",
-    "src/video_source_encoder.cpp",
   ]
+
+  if (wifi_display_support_sink) {
+    sources += [
+      "$SHARING_ROOT_DIR/services/sink/codec/src/video_sink_decoder.cpp",
+      "$SHARING_ROOT_DIR/services/sink/codec/src/audio_avcodec_decoder.cpp",
+      "$SHARING_ROOT_DIR/services/sink/codec/src/video_audio_sync.cpp",
+    ]
+    include_dirs += [
+      "$SHARING_ROOT_DIR/services/sink/codec/include",
+      "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
+    ]
+  }
+
+  if (wifi_display_support_source) {
+    sources += [
+      "$SHARING_ROOT_DIR/services/source/codec/src/video_source_encoder.cpp",
+      "$SHARING_ROOT_DIR/services/source/codec/src/audio_pcm_processor.cpp",
+    ]
+    include_dirs += [ "$SHARING_ROOT_DIR/services/source/codec/include" ]
+  }
 
   deps = [
     "$SHARING_ROOT_DIR/services/common:sharing_common",
-    "$SHARING_ROOT_DIR/services/mediaplayer:sharing_media_player_srcs",
     "$SHARING_ROOT_DIR/services/utils:sharing_utils",
+  ]
+
+  if (wifi_display_support_sink) {
+    deps += [ "$SHARING_ROOT_DIR/services/sink/mediaplayer:sharing_media_player_srcs" ]
+  }
+
+  configs = [
+    "$SHARING_ROOT_DIR/tests:coverage_flags",
+    "$SHARING_ROOT_DIR:wifi_display_feature_flags",
   ]
 
   if (wifi_display_support_sink) {
@@ -64,7 +86,9 @@ ohos_shared_library("sharing_codec") {
     "audio_framework:audio_renderer",
     "av_codec:av_codec_client",
     "c_utils:utilsbase",
+    "ffmpeg:libohosffmpeg",
     "graphic_surface:surface",
+    "hisysevent:libhisysevent",
     "ipc:ipc_single",
     "hilog:libhilog",
     "ipc:ipc_core",

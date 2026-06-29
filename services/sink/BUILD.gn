@@ -1,0 +1,26 @@
+# Copyright (c) 2026 Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+import("//foundation/CastEngine/castengine_wifi_display/config.gni")
+
+group("sharing_sink_package") {
+  if (wifi_display_support_sink) {
+    deps = [
+      "agent:sharing_sink_agent_srcs",
+      "mediaplayer:sharing_media_player_srcs",
+      "impl/wfd:sharing_wfd_sink_session_srcs",
+      "impl/scene/wfd:sharing_wfd_sink_scene_srcs",
+    ]
+  }
+}
