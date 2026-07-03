@@ -61,5 +61,6 @@ ohos_unittest("wfd_screen_capture_test") {
     "graphic_surface:sync_fence",
     "hilog:libhilog",
     "window_manager:libdm",
+    "media_foundation:media_foundation",
   ]
 }

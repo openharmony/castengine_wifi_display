@@ -68,6 +68,7 @@ ohos_unittest("wfd_rtp_consumer_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "window_manager:libdm",
+    "media_foundation:media_foundation",
   ]
 }
 
@@ -122,5 +123,6 @@ ohos_unittest("wfd_rtp_producer_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "window_manager:libdm",
+    "media_foundation:media_foundation",
   ]
 }

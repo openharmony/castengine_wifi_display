@@ -68,6 +68,7 @@ ohos_unittest("wfd_sink_session_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "window_manager:libdm",
+    "media_foundation:media_foundation",
   ]
 }
 
@@ -122,6 +123,7 @@ ohos_unittest("wfd_source_session_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "window_manager:libdm",
+    "media_foundation:media_foundation",
   ]
 }
 
@@ -158,5 +160,6 @@ ohos_unittest("wfd_message_test") {
     "hilog:libhilog",
     "ipc:ipc_core",
     "window_manager:libdm",
+    "media_foundation:media_foundation",
   ]
 }
