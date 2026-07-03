@@ -20,7 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "codec_factory.h"
+#include "sink/codec/include/sink_codec_factory.h"
+#include "source/codec/include/source_codec_factory.h"
 #include "common/sharing_log.h"
 #include "frame.h"
 #include "media_frame_pipeline.h"
@@ -90,7 +91,7 @@ private:
 
 void DecodeG711(char *data, int length, std::fstream &fd)
 {
-    std::shared_ptr<AudioDecoder> decoder = CodecFactory::CreateAudioDecoder(CODEC_G711A);
+    std::shared_ptr<AudioDecoder> decoder = SinkCodecFactory::CreateAudioDecoder(CODEC_G711A);
     if (!decoder) {
         return;
     }
@@ -115,7 +116,7 @@ void DecodeG711(char *data, int length, std::fstream &fd)
 
 void DecodeAAC(char *data, int length, std::fstream &fd)
 {
-    std::shared_ptr<AudioDecoder> decoder = CodecFactory::CreateAudioDecoder(OHOS::Sharing::CODEC_AAC);
+    std::shared_ptr<AudioDecoder> decoder = SinkCodecFactory::CreateAudioDecoder(OHOS::Sharing::CODEC_AAC);
     if (!decoder) {
         return;
     }
@@ -140,7 +141,7 @@ void DecodeAAC(char *data, int length, std::fstream &fd)
 
 void EncodeG711(char *data, int length, std::fstream &fd)
 {
-    std::shared_ptr<AudioEncoder> encoder = CodecFactory::CreateAudioEncoder(CODEC_G711A);
+    std::shared_ptr<AudioEncoder> encoder = SourceCodecFactory::CreateAudioEncoder(CODEC_G711A);
     if (!encoder) {
         return;
     }

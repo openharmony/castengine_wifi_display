@@ -26,7 +26,7 @@
 #include "kits/c/wifi_hid2d.h"
 #include "system_ability_definition.h"
 #include "utils/utils.h"
-#include "wfd_session_def.h"
+#include "sink_session_def.h"
 
 using namespace OHOS::DistributedHardware;
 namespace OHOS {

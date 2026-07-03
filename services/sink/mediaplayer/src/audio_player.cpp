@@ -36,7 +36,7 @@ bool AudioPlayer::Init(const AudioTrack &audioTrack, bool isPcSource)
     audioSink_->SetIsPcSource(isPcSource);
     audioDecoderReceiver_ = std::make_shared<AudioDecoderReceiver>(audioSink_);
 
-    audioDecoder_ = CodecFactory::CreateAudioDecoder(audioCodecId_);
+    audioDecoder_ = SinkCodecFactory::CreateAudioDecoder(audioCodecId_);
     if (audioDecoder_ == nullptr) {
         SHARING_LOGE("CreateAudioDecoder failed for CodecId:%{public}d!", (int32_t)audioCodecId_);
         return false;

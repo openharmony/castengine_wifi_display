@@ -15,7 +15,7 @@
 
 #include "wfd_rtp_producer_test.h"
 #include "mock_rtp_pack.h"
-#include "wfd_media_def.h"
+#include "source/impl/wfd/include/source_media_def.h"
 
 using namespace testing;
 using namespace testing::ext;

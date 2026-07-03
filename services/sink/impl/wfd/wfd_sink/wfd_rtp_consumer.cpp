@@ -20,9 +20,9 @@
 #include "configuration/include/config.h"
 #include "event_comm.h"
 #include "protocol/frame/h264_frame.h"
-#include "wfd_media_def.h"
-#include "wfd_session_def.h"
-#include "common/sharing_sink_hisysevent.h"
+#include "sink_media_def.h"
+#include "sink_session_def.h"
+#include "sharing_sink_hisysevent.h"
 
 namespace OHOS {
 namespace Sharing {
@@ -197,7 +197,7 @@ bool WfdRtpConsumer::InitRtpUnpacker()
 {
     SHARING_LOGD("trace.");
     RtpPlaylodParam arpp = {33, 90000, RtpPayloadStream::MPEG2_TS}; // 33 : ts rtp payload, 90000 : sampe rate
-    rtpUnpacker_ = RtpFactory::CreateRtpUnpack(arpp);
+    rtpUnpacker_ = RtpSinkFactory::CreateRtpUnpack(arpp);
     if (rtpUnpacker_ != nullptr) {
         // data callback
         rtpUnpacker_->SetOnRtpUnpack(

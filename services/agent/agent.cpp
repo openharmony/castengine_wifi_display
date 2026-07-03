@@ -19,7 +19,7 @@
 #include "common/event_channel.h"
 #include "common/reflect_registration.h"
 #include "common/sharing_log.h"
-#include "common/sharing_sink_hisysevent.h"
+#include "sharing_sink_hisysevent.h"
 #include "magic_enum.hpp"
 
 namespace OHOS {

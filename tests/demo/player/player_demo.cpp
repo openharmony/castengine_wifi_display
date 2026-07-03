@@ -26,13 +26,13 @@
 #include <sys/socket.h>
 #include <thread>
 #include <unistd.h>
-#include "codec_factory.h"
+#include "sink/codec/include/sink_codec_factory.h"
 #include "common/sharing_log.h"
 #include "frame.h"
 #include "media_frame_pipeline.h"
 #include "media_player.h"
 #include "rtp_def.h"
-#include "rtp_factory.h"
+#include "sink/protocol/rtp/include/rtp_sink_factory.h"
 
 using namespace OHOS::Sharing;
 
@@ -115,7 +115,7 @@ std::shared_ptr<MediaPlayer> InitMediaPlayer(int channels, int sampleRate)
 
 void DecodeG711ByTime(char *data, int length)
 {
-    std::shared_ptr<AudioDecoder> decoder = CodecFactory::CreateAudioDecoder(CODEC_G711A);
+    std::shared_ptr<AudioDecoder> decoder = SinkCodecFactory::CreateAudioDecoder(CODEC_G711A);
     if (!decoder) {
         return;
     }
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
     } else if (gType == 1) {
         // recv rtp g711 stream,  decode rtp, play
 
-        std::shared_ptr<AudioDecoder> decoder = CodecFactory::CreateAudioDecoder(CODEC_G711A);
+        std::shared_ptr<AudioDecoder> decoder = SinkCodecFactory::CreateAudioDecoder(CODEC_G711A);
         if (!decoder) {
             return -1;
         }
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
         auto rawReceiver = std::make_shared<RawDataReceiver>(player);
         decoder->AddAudioDestination(rawReceiver);
 
-        auto g711Unpack = RtpFactory::CreateRtpUnpack(RtpPlaylodParam{97, 8000, RtpPayloadStream::PCMA});
+        auto g711Unpack = RtpSinkFactory::CreateRtpUnpack(RtpPlaylodParam{97, 8000, RtpPayloadStream::PCMA});
         g711Unpack->SetOnRtpUnpack([=](uint32_t ssrc, const Frame::Ptr &frame) {
             SHARING_LOGD("setOnRtpUnpack");
             if (frame->GetTrackType() == TRACK_AUDIO) {

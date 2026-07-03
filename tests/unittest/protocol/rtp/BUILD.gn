@@ -29,6 +29,8 @@ ohos_unittest("rtp_unit_test") {
     "$SHARING_ROOT_DIR/services/protocol/rtcp/include",
     "$SHARING_ROOT_DIR/services/protocol/rtp/include",
     "$SHARING_ROOT_DIR/services/protocol/rtsp/include",
+    "$SHARING_ROOT_DIR/services/sink/protocol/rtp/include",
+    "$SHARING_ROOT_DIR/services/source/protocol/rtp/include",
   ]
 
   sources = [ "rtp_unit_test.cpp" ]

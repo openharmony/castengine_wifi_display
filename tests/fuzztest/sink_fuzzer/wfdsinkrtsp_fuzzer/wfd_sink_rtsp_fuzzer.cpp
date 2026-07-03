@@ -16,8 +16,8 @@
 #include <fuzzer/FuzzedDataProvider.h>
 #include <string>
 #include "common/const_def.h"
-#include "protocol/rtp/include/rtp_queue.h"
-#include "protocol/rtp/include/rtp_unpack_impl.h"
+#include "sink/protocol/rtp/include/rtp_queue.h"
+#include "sink/protocol/rtp/include/rtp_unpack_impl.h"
 #include "wfd_sink_rtsp_fuzzer.h"
 #include "protocol/rtsp/include/rtsp_response.h"
 #include "protocol/rtsp/include/rtsp_request.h"

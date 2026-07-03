@@ -24,7 +24,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include "rtp_def.h"
-#include "rtp_factory.h"
+#include "sink/protocol/rtp/include/rtp_sink_factory.h"
+#include "source/protocol/rtp/include/rtp_source_factory.h"
 
 using namespace OHOS::Sharing;
 
@@ -148,7 +149,7 @@ int main(int argc, char *argv[])
         gAudioFd = fopen(gAudioFileName, "wb");
     }
     if (gType == 1) {
-        auto h264unPack = RtpFactory::CreateRtpUnpack(RtpPlaylodParam{96, 90000, RtpPayloadStream::H264});
+        auto h264unPack = RtpSinkFactory::CreateRtpUnpack(RtpPlaylodParam{96, 90000, RtpPayloadStream::H264});
         h264unPack->SetOnRtpUnpack([=](uint32_t ssrc, const Frame::Ptr &frame) {
             if (frame->GetTrackType() == TRACK_VIDEO) {
                 printf("h264 data: len: %d dts: %d\n", frame->Size(), frame->Dts());
@@ -173,12 +174,11 @@ int main(int argc, char *argv[])
             printf("\n");
             h264unPack->ParseRtp(buf, len);
         });
-
     } else if (gType == 0) {
         auto extra = std::make_shared<AACExtra>();
         extra->aacConfig_ = "1210";
         auto aacunPack =
-            RtpFactory::CreateRtpUnpack(RtpPlaylodParam{97, 44100, RtpPayloadStream::MPEG4_GENERIC, extra});
+            RtpSinkFactory::CreateRtpUnpack(RtpPlaylodParam{97, 44100, RtpPayloadStream::MPEG4_GENERIC, extra});
         aacunPack->SetOnRtpUnpack([=](uint32_t ssrc, const Frame::Ptr &frame) {
             printf("SetOnRtpUnpack\n");
             if (frame->GetTrackType() == TRACK_AUDIO) {
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
             aacunPack->ParseRtp(buf, len);
         });
     } else if (gType == 2) {
-        auto g711Unpack = RtpFactory::CreateRtpUnpack(RtpPlaylodParam{97, 8000, RtpPayloadStream::PCMA});
+        auto g711Unpack = RtpSinkFactory::CreateRtpUnpack(RtpPlaylodParam{97, 8000, RtpPayloadStream::PCMA});
         g711Unpack->SetOnRtpUnpack([=](uint32_t ssrc, const Frame::Ptr &frame) {
             printf("SetOnRtpUnpack\n");
             if (frame->GetTrackType() == TRACK_AUDIO) {
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
             g711Unpack->ParseRtp(buf, len);
         });
     } else if (gType == 3) {
-        auto tsUnpack = RtpFactory::CreateRtpUnpack(RtpPlaylodParam{33, 90000, RtpPayloadStream::MPEG2_TS});
+        auto tsUnpack = RtpSinkFactory::CreateRtpUnpack(RtpPlaylodParam{33, 90000, RtpPayloadStream::MPEG2_TS});
         tsUnpack->SetOnRtpUnpack([=](uint32_t ssrc, const Frame::Ptr &frame) {
             printf("mpegts OnRtpUnpack in TrackType = %d size=%d dts=%d\n", frame->GetTrackType(), frame->Size(),
                    frame->Dts());

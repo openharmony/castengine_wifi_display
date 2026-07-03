@@ -14,7 +14,7 @@
  */
 
 #include "wfd_rtp_consumer_test.h"
-#include "wfd_media_def.h"
+#include "sink/impl/wfd/include/sink_media_def.h"
 
 using namespace testing;
 using namespace testing::ext;

@@ -18,9 +18,11 @@ group("sharing_source_package") {
   if (wifi_display_support_source) {
     deps = [
       "agent:sharing_source_agent_srcs",
+      "common:sharing_source_common_srcs",
       "impl/screen_capture:sharing_screen_capture_srcs",
       "impl/wfd:sharing_wfd_source_session_srcs",
       "impl/scene/wfd:sharing_wfd_source_scene_srcs",
+      "protocol/rtp:sharing_source_rtp_srcs",
     ]
   }
 }

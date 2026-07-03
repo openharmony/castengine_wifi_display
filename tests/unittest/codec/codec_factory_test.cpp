@@ -15,7 +15,8 @@
 
 #include <gtest/gtest.h>
 #include <memory>
-#include "codec_factory.h"
+#include "sink/codec/include/sink_codec_factory.h"
+#include "source/codec/include/source_codec_factory.h"
 #include "audio_encoder.h"
 #include "audio_decoder.h"
 #include "video_encoder.h"
@@ -32,71 +33,71 @@ protected:
 
 TEST_F(CodecFactoryTest, CreateAudioEncoder_G711A)
 {
-    auto encoder = CodecFactory::CreateAudioEncoder(CODEC_G711A);
+    auto encoder = SourceCodecFactory::CreateAudioEncoder(CODEC_G711A);
     ASSERT_NE(encoder, nullptr);
     EXPECT_EQ(encoder->inited_, false);
 }
 
 TEST_F(CodecFactoryTest, CreateAudioEncoder_G711U)
 {
-    auto encoder = CodecFactory::CreateAudioEncoder(CODEC_G711U);
+    auto encoder = SourceCodecFactory::CreateAudioEncoder(CODEC_G711U);
     ASSERT_NE(encoder, nullptr);
     EXPECT_EQ(encoder->inited_, false);
 }
 
 TEST_F(CodecFactoryTest, CreateAudioEncoder_AAC)
 {
-    auto encoder = CodecFactory::CreateAudioEncoder(CODEC_AAC);
+    auto encoder = SourceCodecFactory::CreateAudioEncoder(CODEC_AAC);
     ASSERT_NE(encoder, nullptr);
     EXPECT_EQ(encoder->inited_, false);
 }
 
 TEST_F(CodecFactoryTest, CreateAudioEncoder_PCM)
 {
-    auto encoder = CodecFactory::CreateAudioEncoder(CODEC_PCM);
+    auto encoder = SourceCodecFactory::CreateAudioEncoder(CODEC_PCM);
     ASSERT_NE(encoder, nullptr);
     EXPECT_EQ(encoder->inited_, false);
 }
 
 TEST_F(CodecFactoryTest, CreateAudioEncoder_InvalidFormat)
 {
-    auto encoder = CodecFactory::CreateAudioEncoder(CODEC_H264);
+    auto encoder = SourceCodecFactory::CreateAudioEncoder(CODEC_H264);
     EXPECT_EQ(encoder, nullptr);
 }
 
 TEST_F(CodecFactoryTest, CreateAudioDecoder_G711A)
 {
-    auto decoder = CodecFactory::CreateAudioDecoder(CODEC_G711A);
+    auto decoder = SinkCodecFactory::CreateAudioDecoder(CODEC_G711A);
     ASSERT_NE(decoder, nullptr);
 }
 
 TEST_F(CodecFactoryTest, CreateAudioDecoder_G711U)
 {
-    auto decoder = CodecFactory::CreateAudioDecoder(CODEC_G711U);
+    auto decoder = SinkCodecFactory::CreateAudioDecoder(CODEC_G711U);
     ASSERT_NE(decoder, nullptr);
 }
 
 TEST_F(CodecFactoryTest, CreateAudioDecoder_AAC)
 {
-    auto decoder = CodecFactory::CreateAudioDecoder(CODEC_AAC);
+    auto decoder = SinkCodecFactory::CreateAudioDecoder(CODEC_AAC);
     ASSERT_NE(decoder, nullptr);
 }
 
 TEST_F(CodecFactoryTest, CreateAudioDecoder_InvalidFormat)
 {
-    auto decoder = CodecFactory::CreateAudioDecoder(CODEC_H264);
+    auto decoder = SinkCodecFactory::CreateAudioDecoder(CODEC_H264);
     EXPECT_EQ(decoder, nullptr);
 }
 
 TEST_F(CodecFactoryTest, CreateVideoEncoder_NotSupported)
 {
-    auto encoder = CodecFactory::CreateVideoEncoder(CODEC_H264);
+    auto encoder = SourceCodecFactory::CreateVideoEncoder(CODEC_H264);
     EXPECT_EQ(encoder, nullptr);
 }
 
 TEST_F(CodecFactoryTest, CreateVideoDecoder_NotSupported)
 {
-    auto decoder = CodecFactory::CreateVideoDecoder(CODEC_H264);
+    auto decoder = SinkCodecFactory::CreateVideoDecoder(CODEC_H264);
     EXPECT_EQ(decoder, nullptr);
 }
 

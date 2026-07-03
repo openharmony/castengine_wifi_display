@@ -19,7 +19,7 @@
 #include <iostream>
 #include <mutex>
 #include <queue>
-#include "audio_aac_codec.h"
+#include "audio_aac_encoder.h"
 #include "audio_capturer.h"
 
 namespace OHOS {

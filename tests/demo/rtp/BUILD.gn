@@ -20,6 +20,8 @@ config("sharing_demo_config") {
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/rtp",
     "$SHARING_ROOT_DIR/services/protocol/rtp/include",
+    "$SHARING_ROOT_DIR/services/sink/protocol/rtp/include",
+    "$SHARING_ROOT_DIR/services/source/protocol/rtp/include",
   ]
 }
 

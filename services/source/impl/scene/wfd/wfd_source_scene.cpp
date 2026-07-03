@@ -25,7 +25,7 @@
 #include "network/socket/socket_utils.h"
 #include "screen_capture_def.h"
 #include "utils/utils.h"
-#include "wfd_session_def.h"
+#include "source_session_def.h"
 
 namespace OHOS {
 namespace Sharing {

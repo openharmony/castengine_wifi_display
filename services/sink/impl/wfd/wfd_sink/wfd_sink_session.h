@@ -27,7 +27,7 @@
 #include "protocol/rtsp/include/rtsp_response.h"
 #include "utils/timeout_timer.h"
 #include "wfd_message.h"
-#include "wfd_session_def.h"
+#include "sink_session_def.h"
 
 namespace OHOS {
 namespace Sharing {

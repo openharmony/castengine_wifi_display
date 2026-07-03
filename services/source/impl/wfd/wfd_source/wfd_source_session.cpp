@@ -21,7 +21,7 @@
 #include "mediachannel/media_channel_def.h"
 #include "screen_capture_def.h"
 #include "utils/utils.h"
-#include "wfd_media_def.h"
+#include "source_media_def.h"
 #include "wfd_message.h"
 
 namespace OHOS {

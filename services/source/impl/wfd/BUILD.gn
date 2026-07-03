@@ -25,8 +25,13 @@ ohos_source_set("sharing_wfd_source_session_srcs") {
   }
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/codec/include",
+    "$SHARING_ROOT_DIR/services/impl/scene/wfd",
     "$SHARING_ROOT_DIR/services/impl/wfd",
+    "$SHARING_ROOT_DIR/services/source/impl/wfd/include",
     "$SHARING_ROOT_DIR/services/source/impl/wfd/wfd_source",
+    "$SHARING_ROOT_DIR/services/source/impl/scene/wfd/include",
+    "$SHARING_ROOT_DIR/services/source/common/include",
     "$SHARING_ROOT_DIR/services/source/impl/screen_capture",
     "$SHARING_ROOT_DIR/services/network",
     "$SHARING_ROOT_DIR/services/mediachannel",
@@ -35,6 +40,9 @@ ohos_source_set("sharing_wfd_source_session_srcs") {
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/protocol/rtp",
+    "$SHARING_ROOT_DIR/services/protocol/rtp/include",
+    "$SHARING_ROOT_DIR/services/source/codec/include",
+    "$SHARING_ROOT_DIR/services/source/protocol/rtp/include",
   ]
 
   sources = [

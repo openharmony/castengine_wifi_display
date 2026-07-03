@@ -33,10 +33,11 @@ ohos_shared_library("sharing_common") {
   sources = [
     "common.cpp",
     "reflect_registration.cpp",
-    "sharing_hisysevent.cpp",
-    "sharing_sink_hisysevent.cpp",
   ]
+
   deps = [
+    "$SHARING_ROOT_DIR/services/sink/common:sharing_sink_common_srcs",
+    "$SHARING_ROOT_DIR/services/source/common:sharing_source_common_srcs",
     "$SHARING_ROOT_DIR/services/utils:sharing_utils",
   ]
 
@@ -46,7 +47,6 @@ ohos_shared_library("sharing_common") {
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "samgr:samgr_proxy",
-    "json:nlohmann_json_static",
   ]
 
   part_name = "sharing_framework"

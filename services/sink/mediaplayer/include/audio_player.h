@@ -16,7 +16,7 @@
 #ifndef OHOS_SHARING_AUDIO_SINK_DECODER_H
 #define OHOS_SHARING_AUDIO_SINK_DECODER_H
 
-#include "codec/include/codec_factory.h"
+#include "sink/codec/include/sink_codec_factory.h"
 #include "common/const_def.h"
 #include "common/identifier.h"
 #include "common/media_log.h"

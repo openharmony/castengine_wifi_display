@@ -17,18 +17,23 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include "common/sharing_log.h"
-#include "protocol/rtp/include/adts.h"
-#include "protocol/rtp/include/rtp_codec_aac.h"
-#include "protocol/rtp/include/rtp_codec_g711.h"
-#include "protocol/rtp/include/rtp_codec_h264.h"
-#include "protocol/rtp/include/rtp_codec_ts.h"
-#include "protocol/rtp/include/rtp_factory.h"
-#include "protocol/rtp/include/rtp_maker.h"
-#include "protocol/rtp/include/rtp_pack.h"
-#include "protocol/rtp/include/rtp_pack_impl.h"
+#include "sink/protocol/rtp/include/adts.h"
+#include "sink/protocol/rtp/include/rtp_decoder_aac.h"
+#include "source/protocol/rtp/include/rtp_encoder_aac.h"
+#include "sink/protocol/rtp/include/rtp_decoder_g711.h"
+#include "source/protocol/rtp/include/rtp_encoder_g711.h"
+#include "sink/protocol/rtp/include/rtp_decoder_h264.h"
+#include "source/protocol/rtp/include/rtp_encoder_h264.h"
+#include "sink/protocol/rtp/include/rtp_decoder_ts.h"
+#include "source/protocol/rtp/include/rtp_encoder_ts.h"
+#include "sink/protocol/rtp/include/rtp_sink_factory.h"
+#include "source/protocol/rtp/include/rtp_source_factory.h"
+#include "source/protocol/rtp/include/rtp_maker.h"
+#include "source/protocol/rtp/include/rtp_pack.h"
+#include "source/protocol/rtp/include/rtp_pack_impl.h"
 #include "protocol/rtp/include/rtp_packet.h"
-#include "protocol/rtp/include/rtp_queue.h"
-#include "protocol/rtp/include/rtp_unpack_impl.h"
+#include "sink/protocol/rtp/include/rtp_queue.h"
+#include "sink/protocol/rtp/include/rtp_unpack_impl.h"
 
 using namespace testing::ext;
 using namespace OHOS::Sharing;
@@ -706,14 +711,14 @@ HWTEST_F(RtpUnitTest, RtpUnitTest_054, Function | SmallTest | Level2)
     uint8_t pt = 0;
     RtpPayloadStream ps = RtpPayloadStream::H264;
     uint32_t audioChannels = 0;
-    auto ret = RtpFactory::CreateRtpPack(ssrc, mtuSize, sampleRate, pt, ps, audioChannels);
+    auto ret = RtpSourceFactory::CreateRtpPack(ssrc, mtuSize, sampleRate, pt, ps, audioChannels);
     EXPECT_NE(ret, nullptr);
 }
 
 HWTEST_F(RtpUnitTest, RtpUnitTest_055, Function | SmallTest | Level2)
 {
     const RtpPlaylodParam rpp;
-    auto ret = RtpFactory::CreateRtpUnpack(rpp);
+    auto ret = RtpSinkFactory::CreateRtpUnpack(rpp);
     EXPECT_NE(ret, nullptr);
 }
 
@@ -725,7 +730,7 @@ HWTEST_F(RtpUnitTest, RtpUnitTest_056, Function | SmallTest | Level2)
     uint8_t pt = 0;
     RtpPayloadStream ps = RtpPayloadStream::H264;
     uint32_t audioChannels = 1;
-    auto ret = RtpFactory::CreateRtpPack(ssrc, mtuSize, sampleRate, pt, ps, audioChannels);
+    auto ret = RtpSourceFactory::CreateRtpPack(ssrc, mtuSize, sampleRate, pt, ps, audioChannels);
     EXPECT_NE(ret, nullptr);
 }
 

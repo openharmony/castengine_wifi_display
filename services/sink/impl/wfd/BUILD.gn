@@ -25,8 +25,13 @@ ohos_source_set("sharing_wfd_sink_session_srcs") {
   }
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/codec/include",
+    "$SHARING_ROOT_DIR/services/impl/scene/wfd",
     "$SHARING_ROOT_DIR/services/impl/wfd",
+    "$SHARING_ROOT_DIR/services/sink/impl/wfd/include",
     "$SHARING_ROOT_DIR/services/sink/impl/wfd/wfd_sink",
+    "$SHARING_ROOT_DIR/services/sink/impl/scene/wfd/include",
+    "$SHARING_ROOT_DIR/services/sink/common/include",
     "$SHARING_ROOT_DIR/services/network",
     "$SHARING_ROOT_DIR/services/mediachannel",
     "$SHARING_ROOT_DIR/services/utils",
@@ -34,6 +39,9 @@ ohos_source_set("sharing_wfd_sink_session_srcs") {
     "$SHARING_ROOT_DIR/services/protocol",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/protocol/rtp",
+    "$SHARING_ROOT_DIR/services/protocol/rtp/include",
+    "$SHARING_ROOT_DIR/services/sink/codec/include",
+    "$SHARING_ROOT_DIR/services/sink/protocol/rtp/include",
   ]
 
   sources = [

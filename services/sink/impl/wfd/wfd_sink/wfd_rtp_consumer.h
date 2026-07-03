@@ -26,8 +26,8 @@
 #include "network/network_factory.h"
 #include "protocol/rtcp/include/rtcp_context.h"
 #include "protocol/rtp/include/rtp_def.h"
-#include "protocol/rtp/include/rtp_factory.h"
-#include "protocol/rtp/include/rtp_unpack.h"
+#include "sink/protocol/rtp/include/rtp_sink_factory.h"
+#include "sink/protocol/rtp/include/rtp_unpack.h"
 
 namespace OHOS {
 namespace Sharing {

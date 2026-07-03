@@ -22,8 +22,8 @@
 #include "extend/magic_enum/magic_enum.hpp"
 #include "mediachannel/media_channel_def.h"
 #include "utils/utils.h"
-#include "wfd_media_def.h"
-#include "common/sharing_sink_hisysevent.h"
+#include "sink_media_def.h"
+#include "sharing_sink_hisysevent.h"
 
 namespace OHOS {
 namespace Sharing {

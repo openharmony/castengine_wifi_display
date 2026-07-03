@@ -27,7 +27,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include "rtp_def.h"
-#include "rtp_factory.h"
+#include "sink/protocol/rtp/include/rtp_sink_factory.h"
+#include "source/protocol/rtp/include/rtp_source_factory.h"
 #include "rtsp_client.h"
 #include "sharing_log.h"
 
@@ -103,7 +104,7 @@ void RecvSaveH264()
         printf("Save H264 (%s)\n", file.c_str());
     }
 
-    auto h264unPack = RtpFactory::CreateRtpUnpack(RtpPlaylodParam{96, 90000, RtpPayloadStream::H264});
+    auto h264unPack = RtpSinkFactory::CreateRtpUnpack(RtpPlaylodParam{96, 90000, RtpPayloadStream::H264});
     h264unPack->SetOnRtpUnpack([=](uint32_t ssrc, const Frame::Ptr &frame) {
         if (frame->GetTrackType() == TRACK_VIDEO) {
             printf("h264 data: len: %d dts: %d\n", frame->Size(), frame->Dts());

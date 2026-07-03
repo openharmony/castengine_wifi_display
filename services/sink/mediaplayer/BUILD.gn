@@ -39,7 +39,9 @@ ohos_source_set("sharing_media_player_srcs") {
 
   include_dirs = [
     "$SHARING_ROOT_DIR/services",
+    "$SHARING_ROOT_DIR/services/codec/include",
     "$SHARING_ROOT_DIR/services/sink/mediaplayer/include",
+    "$SHARING_ROOT_DIR/services/sink/common/include",
     "$SHARING_ROOT_DIR/services/protocol/frame",
     "$SHARING_ROOT_DIR/services/extend/magic_enum",
     "$SHARING_ROOT_DIR/services/mediachannel",

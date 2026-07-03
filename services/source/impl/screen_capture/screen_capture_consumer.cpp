@@ -348,7 +348,7 @@ bool ScreenCaptureConsumer::InitAudioCapture()
 bool ScreenCaptureConsumer::InitAudioEncoder()
 {
     SHARING_LOGD("trace.");
-    audioEncoder_ = CodecFactory::CreateAudioEncoder(audioTrack_.codecId);
+    audioEncoder_ = SourceCodecFactory::CreateAudioEncoder(audioTrack_.codecId);
     if (!audioEncoder_) {
         SHARING_LOGE("create audio encoder failed.");
         return false;
