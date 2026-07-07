@@ -74,7 +74,7 @@ ohos_source_set("sharing_interaction_srcs") {
     "ability_runtime:ability_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
-    "access_token:libtoken_setproc",
+    "access_token:libtokensetproc_shared",
     "device_manager:devicemanagersdk",
     "graphic_surface:surface",
     "ipc:ipc_single",

@@ -89,7 +89,7 @@ ohos_shared_library("sharing_codec") {
     "audio_framework:audio_foundation",
     "audio_framework:audio_renderer",
     "av_codec:av_codec_client",
-    "c_utils:utilsbase",
+    "c_utils:utils",
     "ffmpeg:libohosffmpeg",
     "graphic_surface:surface",
     "hisysevent:libhisysevent",
