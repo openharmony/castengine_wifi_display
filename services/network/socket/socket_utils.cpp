@@ -213,6 +213,11 @@ bool SocketUtils::ConnectSocket(int32_t fd, bool isAsync, const std::string &ip,
 bool SocketUtils::CheckAsyncConnect(int32_t fd)
 {
     SHARING_LOGD("trace.");
+    if (fd < 0 || fd >= FD_SETSIZE) {
+        SHARING_LOGE("fd out of select range: %{public}d.", fd);
+        return false;
+    }
+
     struct timeval timeout;
     timeout.tv_sec = 2;           // 2: wait +2 second
     timeout.tv_usec = 500 * 1000; // 500 * 1000: wait +0.5 second

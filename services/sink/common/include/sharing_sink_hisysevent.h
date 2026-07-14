@@ -175,6 +175,7 @@ private:
     void ReportDecodeTime(uint64_t pts, std::map<uint64_t, uint64_t>& decodeMap, MediaReportType type);
     void WriteHisysEventWithExtraData(const std::string &funcName, SinkStage sinkStage, SinkErrorCode errorCode,
                                       const std::string &extraDataStr);
+    SinkHisyseventDevInfo GetDevInfoCopy();
 
 private:
     WfdSinkHiSysEvent() = default;
@@ -192,6 +193,7 @@ private:
     std::map<uint64_t, uint64_t> audioDecoderTime_{};
     std::map<uint64_t, uint64_t> videoDecoderTime_{};
     std::mutex decodeMutex_{};
+    std::mutex devInfoMutex_{};
 };
 
 }  // namespace Sharing
