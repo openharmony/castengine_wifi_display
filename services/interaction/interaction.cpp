@@ -33,6 +33,11 @@ Interaction::~Interaction()
 bool Interaction::CreateScene(const std::string &className)
 {
     SHARING_LOGD("trace.");
+    if (className != "WfdSourceScene" && className != "WfdSinkScene") {
+        SHARING_LOGE("invalid scene className: %{public}s.", className.c_str());
+        return false;
+    }
+    
     scene_ = ClassReflector<BaseScene>::Class2Instance(className);
     if (scene_ == nullptr) {
         SHARING_LOGE("create scene error.");
