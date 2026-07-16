@@ -792,7 +792,12 @@ int32_t WfdSinkScene::HandleStart(std::shared_ptr<WfdSinkStartReq> &msg, std::sh
 
 int32_t WfdSinkScene::HandleStop(std::shared_ptr<WfdSinkStopReq> &msg, std::shared_ptr<WfdCommonRsp> &reply)
 {
-    SHARING_LOGD("handle stop, now connect device num: %{public}zu.", devConnectionMap_.size());
+    size_t connectionCount = 0;
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        connectionCount = devConnectionMap_.size();
+    }
+    SHARING_LOGD("handle stop, now connect device num: %{public}zu.", connectionCount);
     (void)msg;
     (void)reply;
     if (!isSinkRunning_) {
@@ -864,6 +869,8 @@ int32_t WfdSinkScene::HandleAppendSurface(std::shared_ptr<WfdAppendSurfaceReq> &
         int32_t foregroundSurfaceNum = 0;
         for (auto item : devSurfaceItemMap_) {
             if ((item.second != nullptr) && (item.second->deviceId == msg->deviceId) && (!item.second->deleting)) {
+                lock.unlock();
+                SHARING_LOGE("Only one surface can be set.");
                 OnInnerError(0, 0, SharingErrorCode::ERR_STATE_EXCEPTION, "Only one surface can be set.");
                 return ERR_STATE_EXCEPTION;
             }
@@ -899,7 +906,9 @@ int32_t WfdSinkScene::HandleAppendSurface(std::shared_ptr<WfdAppendSurfaceReq> &
                                               devSurfaceItem->sceneType);
             }
             itemDev->second->state = ConnectionState::PLAYING;
-            OnConnectionChanged(*itemDev->second);
+            ConnectionInfo connectionInfo = *itemDev->second;
+            lock.unlock();
+            OnConnectionChanged(connectionInfo);
         }
     }
     return 0;
@@ -929,7 +938,16 @@ int32_t WfdSinkScene::HandleRemoveSurface(std::shared_ptr<WfdRemoveSurfaceReq> &
         if (item == devSurfaceItemMap_.end()) {
             lock.unlock();
             SHARING_LOGE("can not find surfaceid, surfaceid: %{public}" PRId64 ".", msg->surfaceId);
-            OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleAppendSurface can't find the dev");
+            OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleRemoveSurface can't find the surface");
+            return -1;
+        }
+
+        if (item->second->deviceId != msg->deviceId) {
+            lock.unlock();
+            SHARING_LOGE("surface does not belong to device, surfaceid: %{public}" PRId64 ", deviceId: %{private}s.",
+                         msg->surfaceId, GetAnonymousMAC(msg->deviceId).c_str());
+            OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER,
+                         "HandleRemoveSurface surface does not belong to device");
             return -1;
         }
 
@@ -992,6 +1010,15 @@ int32_t WfdSinkScene::HandleSetSceneType(std::shared_ptr<SetSceneTypeReq> &msg, 
             lock.unlock();
             SHARING_LOGE("can not find surfaceid, surfaceid: %{public}" PRId64 ".", msg->surfaceId);
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleSetSceneType can't find the surfaceId");
+            return -1;
+        }
+
+        if (itemSurface->second->deviceId != msg->deviceId) {
+            lock.unlock();
+            SHARING_LOGE("surface does not belong to device, surfaceId: %{public}" PRId64 ", deviceId: %{private}s.",
+                         msg->surfaceId, GetAnonymousMAC(msg->deviceId).c_str());
+            OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER,
+                         "HandleSetSceneType surface does not belong to device");
             return -1;
         }
 
@@ -1342,6 +1369,7 @@ void WfdSinkScene::UnRegisterWfdAbilityListener()
 void WfdSinkScene::WfdP2pStart()
 {
     SHARING_LOGI("trace.");
+    std::unique_lock<std::mutex> lock(mutex_);
     if (p2pInstance_) {
         Wifi::WifiP2pWfdInfo wfdInfo;
         wfdInfo.SetWfdEnabled(true);
@@ -1450,6 +1478,15 @@ void WfdSinkScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
 
     {
         std::unique_lock<std::mutex> lock(mutex_);
+        if (!isSinkRunning_) {
+            SHARING_LOGW("sink service has been stopped.");
+            return;
+        }
+        if (connectionInfo.mac.empty()) {
+            SHARING_LOGW("mac is empty, drop peer connected.");
+            return;
+        }
+
         if (devConnectionMap_.count(connectionInfo.mac)) {
             SHARING_LOGW("devcie is alerady connected, mac: %{private}s.", GetAnonymousMAC(connectionInfo.mac).c_str());
             return;
@@ -1636,10 +1673,13 @@ void WfdSinkScene::OnInnerError(uint32_t contextId, uint32_t agentId, SharingErr
     msg->agentId = agentId;
     msg->errorCode = errorCode;
 
-    for (auto &item : devConnectionMap_) {
-        if ((contextId == item.second->contextId) && (agentId == item.second->agentId)) {
-            msg->mac = item.second->mac;
-            break;
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        for (auto &item : devConnectionMap_) {
+            if ((contextId == item.second->contextId) && (agentId == item.second->agentId)) {
+                msg->mac = item.second->mac;
+                break;
+            }
         }
     }
 
@@ -1704,8 +1744,9 @@ void WfdSinkScene::OnInnerDestroy(uint32_t contextId, uint32_t agentId, AgentTyp
                 "disconnected, contextId: %{public}u, agentId: %{public}u, devMac: %{private}s, devIp: %{private}s.",
                 contextId, agentId, GetAnonymousMAC(connectionInfo.mac).c_str(),
                 GetAnonymousIp(connectionInfo.ip).c_str());
+            lock.unlock();
             OnConnectionChanged(connectionInfo);
-
+            lock.lock();
             P2pRemoveClient(connectionInfo);
 
             devConnectionMap_.erase(item.second->mac);

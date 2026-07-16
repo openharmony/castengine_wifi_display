@@ -96,7 +96,8 @@ public:
     bool DecodeAble() override
     {
         auto nalPtr = (uint8_t *)this->Data() + this->PrefixSize();
-        if (strlen((char *)nalPtr) < 2) { // 2: 2 bytes
+        auto payloadSize = this->Size() - this->PrefixSize();
+        if (payloadSize < 2) { // 2: 2 bytes
             return false;
         }
         auto type = H264_TYPE(*nalPtr);
