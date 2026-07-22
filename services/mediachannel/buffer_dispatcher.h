@@ -316,7 +316,7 @@ private:
     static int32_t NotifyThreadWorker(void *userParam);
 
 private:
-    bool running_ = false;
+    std::atomic<bool> running_ = false;
     std::atomic<bool> writing_ = false;
     bool videoNeedActivate_ = false;
     bool audioNeedActivate_ = false;

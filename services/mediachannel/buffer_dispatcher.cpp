@@ -456,7 +456,7 @@ BufferDispatcher::BufferDispatcher(uint32_t maxCapacity, uint32_t capacityIncrem
 BufferDispatcher::~BufferDispatcher()
 {
     SHARING_LOGI("BufferDispatcher dtor.");
-    running_ = false;
+    running_.store(false);
     StopDispatch();
     FlushBuffer();
     ReleaseIdleBuffer();
@@ -466,7 +466,7 @@ BufferDispatcher::~BufferDispatcher()
 void BufferDispatcher::StartDispatch()
 {
     SHARING_LOGD("trace.");
-    running_ = true;
+    running_.store(true);
     notifyThread_ = std::thread([this] {
         this->NotifyThreadWorker(this);
     });
@@ -477,7 +477,7 @@ void BufferDispatcher::StartDispatch()
 void BufferDispatcher::StopDispatch()
 {
     SHARING_LOGD("trace.");
-    running_ = false;
+    running_.store(false);
     continueNotify_ = true;
 
     if (writingTimer_) {
@@ -1467,7 +1467,7 @@ int32_t BufferDispatcher::NotifyThreadWorker(void *userParam)
     SHARING_LOGI("BufferDispatcher DataNotifier thread in.");
     RETURN_INVALID_IF_NULL(userParam);
     BufferDispatcher *dispatcher = (BufferDispatcher *)userParam;
-    while (dispatcher->running_) {
+    while (dispatcher->running_.load()) {
         std::unique_lock<std::mutex> locker(dispatcher->notifyMutex_);
         uint32_t notifyRef = dispatcher->dataBitRef_ & dispatcher->recvBitRef_;
         MEDIA_LOGD("DataBitRef %{public}u   recvBitRef_ %{public}d   notifyRef_ %{public}d.",
