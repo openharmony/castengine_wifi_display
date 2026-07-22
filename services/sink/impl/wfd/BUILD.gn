@@ -15,6 +15,7 @@ import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 ohos_source_set("sharing_wfd_sink_session_srcs") {
+  branch_protector_ret = "pac_ret"
   sanitize = {
     cfi = true
     boundary_sanitize = true
