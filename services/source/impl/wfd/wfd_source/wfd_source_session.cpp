@@ -342,6 +342,10 @@ void WfdSourceSession::HandleProsumerInitState(SharingEvent &event)
 void WfdSourceSession::OnAccept(std::weak_ptr<INetworkSession> session)
 {
     SHARING_LOGI("%{public}s.", __FUNCTION__);
+    if (wfdState_ != WfdSessionState::M0) {
+        SHARING_LOGE("OnAccept, error state: %{public}s", std::string(magic_enum::enum_name(wfdState_)).c_str());
+        return;
+    }
     auto sessionPtr = session.lock();
     if (sessionPtr) {
         rtspServerFd_ = sessionPtr->GetSocketInfo()->GetPeerFd();
@@ -351,7 +355,12 @@ void WfdSourceSession::OnAccept(std::weak_ptr<INetworkSession> session)
                      GetAnonyString(sourceIp_).c_str());
         auto sa = std::make_shared<WfdSourceNetworkSession>(session, shared_from_this());
         sessionPtr->RegisterCallback(std::move(sa));
-        sessionPtr->Start();
+        bool ret = sessionPtr->Start();
+        if (!ret) {
+            SHARING_LOGE("start session fail");
+            sessionPtr->Shutdown();
+            return;
+        }
         if (!SendM1Request(sessionPtr)) {
             SHARING_LOGE("WFD source SendM1Request error.");
         }
