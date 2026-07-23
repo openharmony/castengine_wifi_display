@@ -90,9 +90,22 @@ int32_t DomainRpcServiceStub::SetListenerObject(const sptr<IRemoteObject> &objec
     }
 
     std::string peerDevId = IPCSkeleton::GetCallingDeviceID();
+    sptr<IDomainRpcService> oldProxy;
+    sptr<DomainRpcDeathRecipient> oldRecipient;
     std::unique_lock<std::mutex> lock(mutex_);
+    // Remove old death recipient from old proxy before overwriting
+    auto oldProxyIt = peerProxys_.find(peerDevId);
+    auto oldRecipientIt = deathRecipients_.find(peerDevId);
+    if (oldProxyIt != peerProxys_.end() && oldRecipientIt != deathRecipients_.end()) {
+        oldProxy = oldProxyIt->second;
+        oldRecipient = oldRecipientIt->second;
+    }
     peerProxys_[peerDevId] = peerProxy;
     lock.unlock();
+    if (oldProxy != nullptr && oldProxy->AsObject() != nullptr && oldRecipient != nullptr) {
+        oldProxy->AsObject()->RemoveDeathRecipient(oldRecipient);
+        oldRecipient->SetDeathListener(nullptr);
+    }
     SHARING_LOGD("peer deviceId: %{public}s, listener num: %{public}zu.", GetAnonymousDeviceId(peerDevId).c_str(),
                  peerProxys_.size());
 

@@ -804,12 +804,22 @@ SharingErrorCode MediaChannel::HandleStartProducer(SharingEvent &event)
         auto iter = producers_.find(channelMsg->prosumerId);
         if (iter != producers_.end() && (iter->second)) {
             auto producer = iter->second;
-            dispatcher_->AttachReceiver(producer);
-            statusMsg->status = PROSUMER_START;
-            producer->UpdateOperation(statusMsg);
-            producer->StartDispatchThread();
-            SHARING_LOGD("media start producer success, mediachannelId: %{public}u.", GetId());
-            return SharingErrorCode::ERR_OK;
+            int32_t ret = dispatcher_->AttachReceiver(producer);
+            if (ret != 0) {
+                SHARING_LOGE("attach receiver failed, producerId: %{public}u, mediachannelId: %{public}u.",
+                             channelMsg->prosumerId, GetId());
+                statusMsg->errorCode = ERR_PROSUMER_START;
+                statusMsg->prosumerId = channelMsg->prosumerId;
+                statusMsg->agentId = channelMsg->agentId;
+                SendAgentEvent(statusMsg, EVENT_AGENT_PROSUMER_ERROR);
+                return SharingErrorCode::ERR_PROSUMER_START;
+            } else {
+                statusMsg->status = PROSUMER_START;
+                producer->UpdateOperation(statusMsg);
+                producer->StartDispatchThread();
+                SHARING_LOGD("media start producer success, mediachannelId: %{public}u.", GetId());
+                return SharingErrorCode::ERR_OK;
+            }
         } else {
             SHARING_LOGW("cann't find producerId: %{public}u, mediachannelId: %{public}u, agentId: %{public}u.",
                          channelMsg->prosumerId, GetId(), channelMsg->agentId);

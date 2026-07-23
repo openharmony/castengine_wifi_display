@@ -29,23 +29,31 @@ DomainRpcClient::DomainRpcClient() : IDomainPeer(REMOTE_CALLER_CLIENT)
 void DomainRpcClient::OnRemoteDied(std::string deviceId)
 {
     SHARING_LOGD("trace.");
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (domainProxy_ != nullptr) {
-        (void)domainProxy_->AsObject()->RemoveDeathRecipient(deathRecipient_);
-        domainProxy_ = nullptr;
+    sptr<IDomainRpcService> oldProxy;
+    sptr<DomainRpcDeathRecipient> oldRecipient;
+    std::shared_ptr<IDomainPeerListener> listener;
+    std::string remoteId;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (domainProxy_ != nullptr) {
+            oldProxy = domainProxy_;
+            domainProxy_ = nullptr;
+        }
+        if (deathRecipient_ != nullptr) {
+            oldRecipient = deathRecipient_;
+            deathRecipient_ = nullptr;
+        }
+        listenerStub_ = nullptr;
+        remoteId = remoteId_;
+        remoteId_ = "";
+        listener = peerListener_.lock();
     }
-
-    auto listener = peerListener_.lock();
+    if (oldProxy != nullptr && oldProxy->AsObject() != nullptr && oldRecipient != nullptr) {
+        oldProxy->AsObject()->RemoveDeathRecipient(oldRecipient);
+    }
     if (listener != nullptr) {
-        listener->OnPeerDisconnected(remoteId_);
+        listener->OnPeerDisconnected(remoteId);
     }
-
-    if (deathRecipient_ != nullptr) {
-        deathRecipient_ = nullptr;
-    }
-
-    listenerStub_ = nullptr;
-    remoteId_ = "";
 }
 
 sptr<IDomainRpcService> DomainRpcClient::GetDomainProxy(std::string deviceId)
@@ -100,18 +108,24 @@ sptr<IDomainRpcService> DomainRpcClient::GetDomainProxy(std::string deviceId)
 void DomainRpcClient::SetDomainProxy(sptr<IDomainRpcService> peerProxy)
 {
     SHARING_LOGD("trace.");
+    std::lock_guard<std::mutex> lock(mutex_);
     domainProxy_ = peerProxy;
 }
 
 sptr<IDomainRpcService> DomainRpcClient::GetSubProxy(int32_t type)
 {
     SHARING_LOGD("trace.");
-    if (domainProxy_ == nullptr) {
+    sptr<IDomainRpcService> proxy;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        proxy = domainProxy_;
+    }
+    if (proxy == nullptr) {
         SHARING_LOGE("get subsystem ability '%{public}d' proxy null.", type);
         return nullptr;
     }
 
-    sptr<IRemoteObject> object = domainProxy_->GetSubSystemAbility(type);
+    sptr<IRemoteObject> object = proxy->GetSubSystemAbility(type);
     if (!object) {
         SHARING_LOGE("get subsystem ability type '%{public}d' not exist.", type);
         return nullptr;
@@ -165,9 +179,14 @@ void DomainRpcClient::SetPeerListener(std::weak_ptr<IDomainPeerListener> listene
 int32_t DomainRpcClient::SendDomainRequest(std::string remoteId, std::shared_ptr<BaseDomainMsg> BaseMsg)
 {
     SHARING_LOGD("trace.");
+    sptr<IDomainRpcService> proxy;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        proxy = domainProxy_;
+    }
     std::shared_ptr<BaseDomainMsg> replyMsg = std::make_shared<BaseDomainMsg>();
-    if (domainProxy_ != nullptr) {
-        domainProxy_->DoRpcCommand(BaseMsg, replyMsg);
+    if (proxy != nullptr) {
+        proxy->DoRpcCommand(BaseMsg, replyMsg);
     } else {
         SHARING_LOGE("domain proxy is null.");
     }

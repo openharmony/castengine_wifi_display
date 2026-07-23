@@ -1400,7 +1400,7 @@ bool BufferDispatcher::HeadFrameNeedReserve()
     MEDIA_LOGD("trace.");
     if (!circularBuffer_.empty()) {
         std::lock_guard<std::mutex> locker(notifyMutex_);
-        uint8_t temp = readRefFlag_;
+        uint16_t temp = readRefFlag_;
         MEDIA_LOGD("IsHeadFrameNeedReserve Head reserveFlag %{public}d readRefFlag_ %{public}d.",
                    circularBuffer_.front()->reserveFlag.load(), readRefFlag_);
         return temp ^ circularBuffer_.front()->reserveFlag;
