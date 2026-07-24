@@ -15,6 +15,7 @@ import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 ohos_shared_library("sharing_codec") {
+  branch_protector_ret = "pac_ret"
   install_enable = true
 
   sanitize = {
