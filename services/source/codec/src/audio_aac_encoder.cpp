@@ -347,7 +347,6 @@ void AudioAACEncoder::OnFrame(const Frame::Ptr &frame)
                 break;
             } else if (error < 0) {
                 SHARING_LOGE("recv failed:%{public}s", av_make_error_string(errBuf, AV_ERROR_MAX_STRING_SIZE, error));
-                break;
             }
 
             encPacket_->dts = av_rescale(encPacket_->dts, 1000, enc_->time_base.den); // rescale time base 1000.

@@ -903,8 +903,7 @@ int32_t BufferDispatcher::ReadBufferData(uint32_t receiverId, MediaType type,
     if (IsKeyVideoFrame(data)) {
         int32_t bufferVideoCacheCnt = 0;
         for (size_t i = (size_t)readIndex + 1; i < circularBuffer_.size(); i++) {
-            if (circularBuffer_[i] != nullptr && circularBuffer_[i]->mediaData != nullptr &&
-                circularBuffer_[i]->mediaData->mediaType == MEDIA_TYPE_VIDEO)
+            if (circularBuffer_[static_cast<int32_t>(i)]->mediaData->mediaType == MEDIA_TYPE_VIDEO)
                 bufferVideoCacheCnt++;
         }
         MEDIA_LOGD("TEST STATISTIC:interval: buffer cache %{public}d frames.", bufferVideoCacheCnt);
