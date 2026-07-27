@@ -66,6 +66,9 @@ public:
 
     void SetSize(int32_t size)
     {
+        if (size < 0 || size > capacity_) {
+            return;
+        }
         size_ = size;
     }
 

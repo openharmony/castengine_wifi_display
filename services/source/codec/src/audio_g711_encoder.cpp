@@ -40,6 +40,9 @@ void AudioG711Encoder::OnFrame(const Frame::Ptr &frame)
 
     auto payload = frame->Data();
     int32_t outLength = frame->Size() / 2; // 2: double size
+    if (outLength <= 0) {
+        return;
+    }
     if ((int32_t)outBuffer_.size() != outLength) {
         outBuffer_.resize(outLength);
     }

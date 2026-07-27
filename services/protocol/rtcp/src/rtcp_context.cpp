@@ -33,6 +33,9 @@ void RtcpContext::OnRtp(uint16_t /*seq*/, uint32_t stamp, uint64_t ntpStampMs, u
 DataBuffer::Ptr RtcpSenderContext::CreateRtcpSR(uint32_t rtcpSSRC)
 {
     auto rtcp = RtcpSR::Create(0);
+    if (rtcp == nullptr) {
+        return nullptr;
+    }
     rtcp->SetNtpStamp(lastNtpStampMs_);
     rtcp->rtpts_ = htonl(lastRtpStamp_);
     rtcp->ssrc_ = htonl(rtcpSSRC);

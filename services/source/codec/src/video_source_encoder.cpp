@@ -93,6 +93,9 @@ bool VideoSourceEncoder::InitEncoder(const VideoSourceConfigure &configure)
 bool VideoSourceEncoder::CreateEncoder(const VideoSourceConfigure &configure)
 {
     SHARING_LOGI("%{public}s.", __FUNCTION__);
+    if (videoEncoder_ != nullptr) {
+        ReleaseEncoder();
+    }
     switch (configure.codecType_) {
         case CodecId::CODEC_H264:
             videoEncoder_ = OHOS::MediaAVCodec::VideoEncoderFactory::CreateByMime("video/avc");

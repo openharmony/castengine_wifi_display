@@ -329,7 +329,12 @@ bool ScreenCaptureConsumer::InitVideoCapture(uint64_t screenId)
         return false;
     }
     videoSourceScreen_ = std::make_shared<VideoSourceScreen>(videoSourceEncoder_->GetEncoderSurface());
-    videoSourceScreen_->InitScreenSource(config);
+    int32_t ret = videoSourceScreen_->InitScreenSource(config);
+    if (ret != ERR_OK) {
+        SHARING_LOGE("InitScreenSource failed, ret: %{public}d.", ret);
+        OnInitVideoCaptureError();
+        return false;
+    }
     return true;
 }
 
@@ -354,7 +359,11 @@ bool ScreenCaptureConsumer::InitAudioEncoder()
         return false;
     }
 
-    audioEncoder_->Init(AUDIO_CHANNEL_STEREO, AUDIO_SAMPLE_BIT_S16LE, AUDIO_SAMPLE_RATE_48000);
+    int32_t ret = audioEncoder_->Init(AUDIO_CHANNEL_STEREO, AUDIO_SAMPLE_BIT_S16LE, AUDIO_SAMPLE_RATE_48000);
+    if (ret != 0) {
+        SHARING_LOGE("audio encoder init failed, ret: %{public}d.", ret);
+        return false;
+    }
     audioEncoderReceiver_ = std::make_shared<AudioEncoderReceiver>(shared_from_this());
     audioEncoder_->AddAudioDestination(audioEncoderReceiver_);
     return true;
@@ -451,10 +460,9 @@ void ScreenCaptureConsumer::OnInitVideoCaptureError()
 {
     SHARING_LOGD("trace.");
     auto statusMsg = std::make_shared<ProsumerStatusMsg>();
+    statusMsg->status = PROSUMER_NOTIFY_ERROR;
     statusMsg->errorCode = ERR_PROSUMER_VIDEO_CAPTURE;
-    if (audioTrack_.codecId == CODEC_NONE) {
-        statusMsg->status = PROSUMER_NOTIFY_ERROR;
-    }
+    statusMsg->eventMsg = std::make_shared<EventMsg>();
 
     Notify(statusMsg);
 }

@@ -369,7 +369,7 @@ void WfdSourceSession::OnAccept(std::weak_ptr<INetworkSession> session)
 
 void WfdSourceSession::OnServerReadData(int32_t fd, DataBuffer::Ptr buf, INetworkSession::Ptr session)
 {
-    if (rtspServerFd_ != fd || session == nullptr) {
+    if (rtspServerFd_ != fd || session == nullptr || buf == nullptr) {
         SHARING_LOGW("OnServerReadData rtspServerFd_: %{public}d, fd: %{public}d.", rtspServerFd_, fd);
         return;
     }

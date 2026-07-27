@@ -60,6 +60,7 @@ static void SetupHeader(RtcpHeader *rtcp, RtcpType type, int32_t reportCount, in
     rtcp->padding_ = 0;
     if (reportCount > 0x1F) {
         SHARING_LOGD("reportCount is too large.");
+        return;
     }
 
     rtcp->reportCount_ = reportCount;
@@ -74,7 +75,7 @@ static void SetupPadding(RtcpHeader *rtcp, size_t paddingSize)
     if (paddingSize) {
         rtcp->padding_ = 1;
         int32_t size = rtcp->GetSize();
-        if (size - 1 < 0 || size - 1 >= (int32_t)sizeof(RtcpHeader)) {
+        if (size - 1 < 0) {
             return;
         }
         ((uint8_t *)rtcp)[size - 1] = paddingSize & 0xFF;
@@ -92,7 +93,7 @@ std::shared_ptr<RtcpSR> RtcpSR::Create(int32_t itemCount)
     if (bytes == 0 || bytes < 0) {
         return nullptr;
     }
-    auto ptr = (RtcpSR *)new char[bytes];
+    auto ptr = (RtcpSR *)new (std::nothrow) char[bytes];
     if (ptr == nullptr) {
         return nullptr;
     }
@@ -196,7 +197,7 @@ std::shared_ptr<RtcpRR> RtcpRR::Create(size_t itemCount)
     if (bytes == 0 || bytes < 0) {
         return nullptr;
     }
-    auto ptr = (RtcpRR *)new char[bytes];
+    auto ptr = (RtcpRR *)new (std::nothrow) char[bytes];
     if (ptr == nullptr) {
         return nullptr;
     }
@@ -245,7 +246,7 @@ std::shared_ptr<RtcpSdes> RtcpSdes::Create(const std::vector<std::string> &itemT
         return nullptr;
     }
 
-    auto ptr = (RtcpSdes *)new char[bytes];
+    auto ptr = (RtcpSdes *)new (std::nothrow) char[bytes];
     if (ptr == nullptr) {
         return nullptr;
     }
@@ -315,12 +316,12 @@ std::shared_ptr<RtcpFB> RtcpFB::CreateInner(RtcpType type, int32_t fmt, const vo
     if (bytes == 0 || bytes < 0) {
         return nullptr;
     }
-    auto ptr = (RtcpFB *)new char[bytes];
+    auto ptr = (RtcpFB *)new (std::nothrow) char[bytes];
     if (ptr == nullptr) {
         return nullptr;
     }
     if (fci && fciLen) {
-        auto ret = memcpy_s((char *)ptr + sizeof(RtcpFB), fciLen, fci, fciLen);
+        auto ret = memcpy_s((char *)ptr + sizeof(RtcpFB), bytes - sizeof(RtcpFB), fci, fciLen);
         if (ret != EOK) {
             return nullptr;
         }
@@ -342,7 +343,7 @@ std::shared_ptr<RtcpBye> RtcpBye::Create(const std::vector<uint32_t> &ssrcs, con
     if (bytes == 0 || bytes < 0) {
         return nullptr;
     }
-    auto ptr = (RtcpBye *)new char[bytes];
+    auto ptr = (RtcpBye *)new (std::nothrow) char[bytes];
     if (ptr == nullptr) {
         return nullptr;
     }
@@ -398,7 +399,7 @@ std::shared_ptr<RtcpXRDLRR> RtcpXRDLRR::Create(size_t itemCount)
     if (bytes == 0 || bytes < 0) {
         return nullptr;
     }
-    auto ptr = (RtcpXRDLRR *)new char[bytes];
+    auto ptr = (RtcpXRDLRR *)new (std::nothrow) char[bytes];
     if (ptr == nullptr) {
         return nullptr;
     }

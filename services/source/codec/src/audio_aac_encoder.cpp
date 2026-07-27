@@ -71,7 +71,12 @@ AudioAACEncoder::~AudioAACEncoder()
     }
 
     if (swrData_) {
+        av_freep(&swrData_[0]);
         av_freep(&swrData_);
+    }
+
+    if (fifo_) {
+        av_audio_fifo_free(fifo_);
     }
 
     if (outBuffer_) {
@@ -206,11 +211,13 @@ int AudioAACEncoder::AddSamplesToFifo(uint8_t **samples, int frame_size)
     if ((error = av_audio_fifo_realloc(fifo_, av_audio_fifo_size(fifo_) + frame_size)) < 0) {
         SHARING_LOGE("Could not reallocate FIFO(%{public}d:%{public}s)", error,
                      av_make_error_string(errBuf, AV_ERROR_MAX_STRING_SIZE, error));
+        return error;
     }
 
     if ((error = av_audio_fifo_write(fifo_, (void **)samples, frame_size)) < frame_size) {
         SHARING_LOGE("Could not write data to FIFO(%{public}d:%{public}s)", error,
                      av_make_error_string(errBuf, AV_ERROR_MAX_STRING_SIZE, error));
+        return error;
     }
 
     return 0;
@@ -233,6 +240,11 @@ void AddAdtsHeader(uint8_t *data, int dataSize)
     // 16 bits frame length
     // 16 bits buffer fullness
     // 1 bit number of raw data blocks in frame (set to 0)
+
+    if (data == nullptr || dataSize < 0) {
+        SHARING_LOGE("invalid params");
+        return;
+    }
 
     uint8_t adtsHeader[ADTS_HEADER_SIZE];
     int profile = 2;                // 2: AAC LC
@@ -264,6 +276,10 @@ void AddAdtsHeader(uint8_t *data, int dataSize)
 void AudioAACEncoder::DoSwr(const Frame::Ptr &frame)
 {
     RETURN_IF_NULL(frame);
+    if (swr_ == nullptr || enc_ == nullptr || swrData_ == nullptr || enc_->frame_size <= 0) {
+        SHARING_LOGE("DoSwr invalid state");
+        return;
+    }
     int err = 0;
     int error = 0;
     int in_samples = frame->Size();
@@ -282,6 +298,7 @@ void AudioAACEncoder::DoSwr(const Frame::Ptr &frame)
         if ((error = frame_size) < 0) {
             SHARING_LOGE("Could not convert input samples(%{public}d:%{public}s)", error,
                          av_make_error_string(errBuf, AV_ERROR_MAX_STRING_SIZE, error));
+            break;
         }
 
         in_sample[0] = NULL;
@@ -330,6 +347,7 @@ void AudioAACEncoder::OnFrame(const Frame::Ptr &frame)
                 break;
             } else if (error < 0) {
                 SHARING_LOGE("recv failed:%{public}s", av_make_error_string(errBuf, AV_ERROR_MAX_STRING_SIZE, error));
+                break;
             }
 
             encPacket_->dts = av_rescale(encPacket_->dts, 1000, enc_->time_base.den); // rescale time base 1000.

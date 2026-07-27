@@ -229,7 +229,9 @@ int RtpEncoderTs::WritePacket(void *opaque, const uint8_t *buf, int buf_size)
     if (encoder->onRtpPack_) {
         auto rtp =
             encoder->MakeRtp(reinterpret_cast<const void *>(buf), buf_size, encoder->keyFrame_, encoder->timeStamp_);
-        encoder->onRtpPack_(rtp);
+        if (rtp != nullptr) {
+            encoder->onRtpPack_(rtp);
+        }
     }
 
     return 0;
