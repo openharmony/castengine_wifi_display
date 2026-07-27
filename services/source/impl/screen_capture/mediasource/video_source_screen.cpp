@@ -62,7 +62,7 @@ int32_t VideoSourceScreen::InitScreenSource(const VideoSourceConfigure &configur
     uint64_t screenId = CreateVirtualScreen(configure);
     if (screenId == SCREEN_ID_INVALID) {
         SHARING_LOGE("CreateVirtualScreen failed.");
-        return ERR_INVALID_SCREENID;
+        return ERR_GENERAL_ERROR;
     }
     srcScreenId_ = configure.srcScreenId_;
     return ERR_OK;
@@ -171,7 +171,7 @@ int32_t VideoSourceScreen::SetEncoderSurface(sptr<OHOS::Surface> surface)
     SHARING_LOGI("%{public}s.", __FUNCTION__);
     if (screenId_ == SCREEN_ID_INVALID) {
         SHARING_LOGE("Failed, invalid screenId!");
-        return ERR_INVALID_SCREENID;
+        return ERR_GENERAL_ERROR;
     }
     if (surface == nullptr) {
         SHARING_LOGE("Surface is nullptr!");
