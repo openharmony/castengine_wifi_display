@@ -20,6 +20,7 @@
 
 namespace OHOS {
 namespace Sharing {
+constexpr int32_t MAX_CAPACITY = 1000 * 1000 * 1000;
 
 DataBuffer::DataBuffer(int size)
 {
