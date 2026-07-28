@@ -63,6 +63,10 @@ void ScreenCaptureSession::HandleRtspPlay(SharingEvent &event)
 {
     SHARING_LOGD("trace.");
     auto inputMsg = ConvertEventMsg<ScreenCaptureSessionEventMsg>(event);
+    if (inputMsg == nullptr) {
+        SHARING_LOGE("inputMsg is null.");
+        return;
+    }
     auto statusMsg = std::make_shared<SessionStatusMsg>();
     auto eventMsg = std::make_shared<ScreenCaptureConsumerEventMsg>();
     eventMsg->type = EventType::EVENT_WFD_NOTIFY_RTSP_PLAYED;
@@ -173,6 +177,8 @@ void ScreenCaptureSession::UpdateOperation(SessionStatusMsg::Ptr &statusMsg)
 void ScreenCaptureSession::NotifyProsumerInit(SessionStatusMsg::Ptr &statusMsg)
 {
     SHARING_LOGD("trace.");
+    RETURN_IF_NULL(statusMsg);
+    RETURN_IF_NULL(statusMsg->msg);
     auto eventMsg = std::make_shared<ScreenCaptureConsumerEventMsg>();
     eventMsg->type = EventType::EVENT_SCREEN_CAPTURE_INIT;
     eventMsg->toMgr = ModuleType::MODULE_MEDIACHANNEL;

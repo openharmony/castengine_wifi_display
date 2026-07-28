@@ -20,10 +20,17 @@
 
 namespace OHOS {
 namespace Sharing {
+constexpr int32_t MAX_CAPACITY = 1000 * 1000 * 1000;
 
 DataBuffer::DataBuffer(int size)
 {
-    data_ = new uint8_t[size + 1];
+    if (size <= 0 || size > MAX_CAPACITY) {
+        return;
+    }
+    data_ = new (std::nothrow) uint8_t[size + 1];
+    if (!data_) {
+        return;
+    }
     data_[size] = '\0';
     capacity_ = size;
     size_ = 0;
@@ -33,10 +40,17 @@ DataBuffer::DataBuffer(const DataBuffer &other) noexcept
 {
     if (other.data_ && other.size_) {
         capacity_ = other.size_;
-        data_ = new uint8_t[capacity_ + 1];
+        data_ = new (std::nothrow) uint8_t[capacity_ + 1];
+        if (!data_) {
+            capacity_ = 0;
+            return;
+        }
         auto ret = memcpy_s(data_, capacity_ + 1, other.data_, other.size_);
         if (ret != EOK) {
-            size_ = other.size_;
+            delete[] data_;
+            data_ = nullptr;
+            capacity_ = 0;
+            return;
         }
         size_ = other.size_;
     }
@@ -46,14 +60,18 @@ DataBuffer &DataBuffer::operator=(const DataBuffer &other) noexcept
 {
     if (this != &other) {
         if (other.data_ && other.size_) {
-            capacity_ = other.size_;
-            delete[] data_;
-            data_ = new uint8_t[capacity_ + 1];
-            auto ret = memcpy_s(data_, capacity_ + 1, other.data_, other.size_);
-            if (ret != EOK) {
-                size_ = other.size_;
+            auto newData = new (std::nothrow) uint8_t[other.size_ + 1];
+            if (!newData) {
                 return *this;
             }
+            auto ret = memcpy_s(newData, other.size_ + 1, other.data_, other.size_);
+            if (ret != EOK) {
+                delete[] newData;
+                return *this;
+            }
+            delete[] data_;
+            data_ = newData;
+            capacity_ = other.size_;
             size_ = other.size_;
         }
     }
@@ -97,11 +115,17 @@ DataBuffer::~DataBuffer()
 
 void DataBuffer::Resize(int size)
 {
+    if (size <= 0 || size > MAX_CAPACITY) {
+        return;
+    }
+
     if (size > capacity_) {
-        capacity_ = size;
-        auto data2 = new uint8_t[capacity_];
+        auto data2 = new (std::nothrow) uint8_t[size];
+        if (!data2) {
+            return;
+        }
         if (data_ && size_ > 0) {
-            auto ret = memcpy_s(data2, capacity_, data_, size_);
+            auto ret = memcpy_s(data2, size, data_, size_);
             if (ret != EOK) {
                 delete[] data2;
                 return;
@@ -112,12 +136,17 @@ void DataBuffer::Resize(int size)
             data_ = nullptr;
         }
         data_ = data2;
+        capacity_ = size;
     } else if (size < capacity_) {
         if (data_) {
             delete[] data_;
         }
+        data_ = new (std::nothrow) uint8_t[size];
+        if (!data_) {
+            capacity_ = 0;
+            return;
+        }
         capacity_ = size;
-        data_ = new uint8_t[capacity_];
         size_ = 0;
     }
 }
@@ -168,7 +197,11 @@ void DataBuffer::ReplaceData(const char *data, int dataLen)
         if (data_)
             delete[] data_;
         capacity_ = dataLen;
-        data_ = new uint8_t[capacity_];
+        data_ = new (std::nothrow) uint8_t[capacity_];
+        if (!data_) {
+            capacity_ = 0;
+            return;
+        }
     }
 
     auto ret = memcpy_s(data_, capacity_, data, dataLen);
@@ -189,8 +222,14 @@ void DataBuffer::SetCapacity(int capacity)
         data_ = nullptr;
     }
     
-    data_ = new uint8_t[capacity];
+    data_ = new (std::nothrow) uint8_t[capacity];
+    if (!data_) {
+        capacity_ = 0;
+        size_ = 0;
+        return;
+    }
     capacity_ = capacity;
+    size_ = 0;
 }
 
 } // namespace Sharing

@@ -333,7 +333,8 @@ bool DataNotifier::DataAvailable(MediaType type)
                (videoIndex < dispatcher->GetLatestVideoIndex() || !dispatcher->IsRead(GetReceiverId(), videoIndex + 1));
     } else {
         return videoIndex != INVALID_INDEX &&
-               (videoIndex < dispatcher->GetBufferSize() - 1 || !dispatcher->IsRead(GetReceiverId(), videoIndex + 1));
+               ((dispatcher->GetBufferSize() > 0 && videoIndex < dispatcher->GetBufferSize() - 1) ||
+                !dispatcher->IsRead(GetReceiverId(), videoIndex + 1));
     }
 
     return false;
@@ -493,6 +494,10 @@ void BufferDispatcher::StopDispatch()
 void BufferDispatcher::SetBufferCapacity(size_t capacity)
 {
     SHARING_LOGD("trace.");
+    if (capacity == 0 || capacity > maxBufferCapacity_) {
+        SHARING_LOGE("invalid capacity %{public}zu, max %{public}u.", capacity, maxBufferCapacity_);
+        return;
+    }
     std::unique_lock<std::shared_mutex> locker(bufferMutex_);
     circularBuffer_.set_capacity(capacity);
 }
@@ -1354,6 +1359,10 @@ void BufferDispatcher::ResetAllIndex()
 bool BufferDispatcher::IsDataReaded(uint32_t receiverId, DataSpec::Ptr &dataSpec)
 {
     MEDIA_LOGD("trace.");
+    if (dataSpec == nullptr) {
+        SHARING_LOGE("BufferDispatcher EMPTY dataSpec.");
+        return false;
+    }
     uint32_t index = FindReceiverIndex(receiverId);
     if (index == INVALID_INDEX) {
         return false;
@@ -1593,6 +1602,9 @@ void BufferDispatcher::SetReceiverDataRef(uint32_t receiverId, MediaType type, b
 
     if (type == MEDIA_TYPE_AUDIO) {
         uint32_t audioBit = index * 2;
+        if (audioBit >= 32) { // 32: bit width of uint32_t
+            return;
+        }
         uint32_t bitRef = RECV_FLAG_BASE << audioBit;
         MEDIA_LOGD("Audio recvid %{public}d ,bitRef %{public}d ready %{public}d.", receiverId, bitRef, ready);
         if (!ready) {
@@ -1603,6 +1615,9 @@ void BufferDispatcher::SetReceiverDataRef(uint32_t receiverId, MediaType type, b
         }
     } else if (type == MEDIA_TYPE_VIDEO) {
         uint32_t videoBit = index * 2 + 1;
+        if (videoBit >= 32) { // 32: bit width of uint32_t
+            return;
+        }
         uint32_t bitRef = RECV_FLAG_BASE << videoBit;
         MEDIA_LOGD("Video recvid %{public}d ,bitRef %{public}d ready %{public}d.", receiverId, bitRef, ready);
         if (!ready) {
@@ -1624,6 +1639,9 @@ void BufferDispatcher::SetReceiverReadRef(uint32_t receiverId, MediaType type, b
 
     if (type == MEDIA_TYPE_AUDIO) {
         uint32_t audioBit = index * 2;
+        if (audioBit >= 32) { // 32: bit width of uint32_t
+            return;
+        }
         uint32_t bitRef = RECV_FLAG_BASE << audioBit;
         MEDIA_LOGD("Audio recvid %{public}d ,bitRef %{public}d ready %{public}d.", receiverId, bitRef, ready);
 
@@ -1635,6 +1653,9 @@ void BufferDispatcher::SetReceiverReadRef(uint32_t receiverId, MediaType type, b
         }
     } else if (type == MEDIA_TYPE_VIDEO) {
         uint32_t videoBit = index * 2 + 1;
+        if (videoBit >= 32) { // 32: bit width of uint32_t
+            return;
+        }
         uint32_t bitRef = RECV_FLAG_BASE << videoBit;
         MEDIA_LOGD("Video recvid %{public}d ,bitRef %{public}d ready %{public}d.", receiverId, bitRef, ready);
 
@@ -1665,6 +1686,9 @@ uint32_t BufferDispatcher::GetReceiverIndexRef(uint32_t receiverId)
 {
     SHARING_LOGD("trace.");
     uint32_t index = FindReceiverIndex(receiverId);
+    if (index == INVALID_INDEX) {
+        return 0;
+    }
     uint32_t audioBit = index * 2;
     uint32_t videoBit = index * 2 + 1;
     uint32_t retBitRef = 0x0000;
@@ -1738,6 +1762,10 @@ void BufferDispatcher::SetReceiverReadFlag(uint32_t receiverId, DataSpec::Ptr &d
 {
     MEDIA_LOGD("trace.");
     RETURN_IF_NULL(dataSpec);
+    if (dataSpec->mediaData == nullptr) {
+        SHARING_LOGE("BufferDispatcher EMPTY mediaData.");
+        return;
+    }
     uint32_t index = FindReceiverIndex(receiverId);
     if (index != INVALID_INDEX) {
         dataSpec->reserveFlag |= RECV_FLAG_BASE << index;

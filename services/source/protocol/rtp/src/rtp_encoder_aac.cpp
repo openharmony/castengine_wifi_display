@@ -33,18 +33,28 @@ void RtpEncoderAAC::InputFrame(const Frame::Ptr &frame)
     RETURN_IF_NULL(frame);
     MEDIA_LOGD("rtpEncoderAAC::InputFrame.");
     auto stamp = frame->Dts();
-    auto data = frame->Data() + frame->PrefixSize();
-    auto len = (size_t)frame->Size() - frame->PrefixSize();
+    int32_t frameSize = frame->Size();
+    auto prefixSize = frame->PrefixSize();
+    if (frameSize <= 0 || (uint32_t)frameSize < prefixSize) {
+        MEDIA_LOGE("invalid frame size: %{public}d, prefixSize: %{public}zu.", frameSize, prefixSize);
+        return;
+    }
+    auto data = frame->Data() + prefixSize;
+    auto len = (size_t)frameSize - prefixSize;
     auto ptr = (char *)data;
     auto remain_size = len;
     auto max_size = GetMaxSize() - 4; // 4:avc start code size
+    if (max_size == 0 || max_size > sizeof(sectionBuf_) - 4) {
+        MEDIA_LOGE("invalid max_size: %{public}zu.", max_size);
+        return;
+    }
     while (remain_size > 0) {
         if (remain_size <= max_size) {
             sectionBuf_[0] = 0;
             sectionBuf_[1] = 16;                                                 // 16:constants
             sectionBuf_[2] = (len >> 5) & 0xFF;                                  // 5:byte offset,2:byte offset
             sectionBuf_[3] = ((len & 0x1F) << 3) & 0xFF;                         // 3:byte offset
-            auto ret = memcpy_s(sectionBuf_ + 4, remain_size, ptr, remain_size); // 4:byte offset
+            auto ret = memcpy_s(sectionBuf_ + 4, sizeof(sectionBuf_) - 4, ptr, remain_size); // 4:byte offset
             if (ret != EOK) {
                 MEDIA_LOGE("mem copy data failed.");
                 break;
@@ -56,7 +66,7 @@ void RtpEncoderAAC::InputFrame(const Frame::Ptr &frame)
         sectionBuf_[1] = 16;                                           // 16:byte offset
         sectionBuf_[2] = ((len) >> 5) & 0xFF;                          // 2:byte offset, 5:byte offset
         sectionBuf_[3] = ((len & 0x1F) << 3) & 0xFF;                   // 3:byte offset
-        auto ret = memcpy_s(sectionBuf_ + 4, max_size, ptr, max_size); // 4:byte offset
+        auto ret = memcpy_s(sectionBuf_ + 4, sizeof(sectionBuf_) - 4, ptr, max_size); // 4:byte offset
         if (ret != EOK) {
             MEDIA_LOGE("mem copy data failed.");
             break;
@@ -77,7 +87,7 @@ void RtpEncoderAAC::MakeAACRtp(const void *data, size_t len, bool mark, uint32_t
     MEDIA_LOGD("rtpEncoderAAC::MakeAACRtp len: %{public}zu, stamp: %{public}u.", len, stamp);
     RETURN_IF_NULL(data);
     auto rtp = MakeRtp(data, len, mark, stamp);
-    if (onRtpPack_) {
+    if (onRtpPack_ && rtp != nullptr) {
         onRtpPack_(rtp);
     }
 }

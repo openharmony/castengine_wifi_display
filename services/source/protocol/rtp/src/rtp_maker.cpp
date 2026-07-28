@@ -33,6 +33,9 @@ RtpMaker::~RtpMaker() {}
 
 size_t RtpMaker::GetMaxSize() const
 {
+    if (mtuSize_ <= RtpPacket::RTP_HEADER_SIZE) {
+        return 0;
+    }
     return mtuSize_ - RtpPacket::RTP_HEADER_SIZE;
 }
 
@@ -62,6 +65,9 @@ RtpPacket::Ptr RtpMaker::MakeRtp(const void *data, size_t len, bool mark, uint32
     rtp->SetSize(size);
 
     auto header = rtp->GetHeader();
+    if (!header) {
+        return nullptr;
+    }
     header->version_ = RtpPacket::RTP_VERSION;
     header->padding_ = 0;
     header->ext_ = 0;
