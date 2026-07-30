@@ -28,6 +28,7 @@ config("sharing_service_config") {
 }
 
 ohos_shared_library("sharingwfd_client") {
+  branch_protector_ret = "pac_ret"
   install_enable = true
 
   sanitize = {
