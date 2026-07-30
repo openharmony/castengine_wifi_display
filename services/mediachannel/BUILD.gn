@@ -15,6 +15,7 @@ import("//build/ohos.gni")
 import("//foundation/CastEngine/castengine_wifi_display/config.gni")
 
 ohos_source_set("sharing_media_channel_srcs") {
+  branch_protector_ret = "pac_ret"
   cflags = [
     "-Wno-invalid-noreturn",
     "-Wno-deprecated-builtins",

@@ -14,6 +14,7 @@
 import("//build/ohos.gni")
 
 ohos_static_library("dmkit") {
+  branch_protector_ret = "pac_ret"
   sanitize = {
     cfi = true
     cfi_cross_dso = true

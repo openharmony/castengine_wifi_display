@@ -30,6 +30,7 @@ config("sharing_service_config") {
 }
 
 ohos_source_set("sharing_interaction_srcs") {
+  branch_protector_ret = "pac_ret"
   configs = [ ":sharing_service_config" ]
 
   sanitize = {
