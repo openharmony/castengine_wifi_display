@@ -106,7 +106,11 @@ void AudioAACDecoder::OnFrame(const Frame::Ptr &frame)
     avPacket_->size = frame->Size();
 
     avcodec_send_packet(codecCtx_, avPacket_);
-    avcodec_receive_frame(codecCtx_, avFrame_);
+    int ret = avcodec_receive_frame(codecCtx_, avFrame_);
+    if (ret < 0) {
+        SHARING_LOGE("avcodec receive frame failed, ret=%{public}d", ret);
+        return;
+    }
 
     if (swrContext_ == nullptr) {
         int ret = swr_alloc_set_opts2(&swrContext_, &avFrame_->ch_layout, AV_SAMPLE_FMT_S16, avFrame_->sample_rate,
