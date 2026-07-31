@@ -74,7 +74,7 @@ private:
     void HandlePpsFrame(BufferDispatcher::Ptr dispatcher, const Frame::Ptr &frame);
 
 private:
-    bool paused_ = false;
+    std::atomic<bool> paused_ = false;
 
     std::mutex mutex_;
 
