@@ -156,7 +156,9 @@ private:
     void P2pRemoveClient(ConnectionInfo &connectionInfo);
 
     void OnP2pPeerDisconnected(const std::string &mac);
-    void OnP2pPeerConnected(ConnectionInfo &connectionInfo);
+    bool OnP2pPeerConnected(ConnectionInfo &connectionInfo);
+    bool CreateSinkAgentLocked(std::shared_ptr<ISharingAdapter> &sharingAdapter, ConnectionInfo &connectionInfo);
+    void NotifyPeerRejected(ConnectionInfo &connectionInfo);
     void OnConnectionChanged(ConnectionInfo &connectionInfo);
     void OnP2pPeerDisconnected(ConnectionInfo &connectionInfo);
 
@@ -174,6 +176,7 @@ private:
     int32_t HandleStart(std::shared_ptr<WfdSinkStartReq> &msg, std::shared_ptr<WfdCommonRsp> &reply);
 
     int32_t HandleSetSceneType(std::shared_ptr<SetSceneTypeReq> &msg, std::shared_ptr<WfdCommonRsp> &reply);
+    int32_t UpdateSurfaceSceneType(std::shared_ptr<SetSceneTypeReq> &msg, uint32_t &contextId, uint32_t &agentId);
     int32_t HandleSetMediaFormat(std::shared_ptr<SetMediaFormatReq> &msg, std::shared_ptr<WfdCommonRsp> &reply);
     int32_t HandleAppendSurface(std::shared_ptr<WfdAppendSurfaceReq> &msg, std::shared_ptr<WfdCommonRsp> &reply);
     int32_t HandleRemoveSurface(std::shared_ptr<WfdRemoveSurfaceReq> &msg, std::shared_ptr<WfdCommonRsp> &reply);
@@ -192,6 +195,25 @@ private:
     void FillAndReportDeviceInfo(const ConnectionInfo &connectionInfo);
 
     void NotifyIsPcSource();
+    void HandleGcJoinGroup(ConnectionInfo &connectionInfo, WfdTrustListManager &trustListManager);
+    static bool LoadConfigInt(const std::string &group, const std::string &key, const std::string &defaultValue,
+                         int32_t &out);
+    static bool IsValidCodecId(int32_t id)
+    {
+        return id >= 0 && id < CODEC_MAX;
+    }
+
+    static bool IsValidVideoFormat(int32_t id)
+    {
+        return id >= 0 && id <= VIDEO_1920X1080_60;
+    }
+
+    static bool IsValidAudioFormat(int32_t id)
+    {
+        return (id >= AUDIO_8000_8_1 && id <= AUDIO_8000_16_2) || (id >= AUDIO_11025_8_1 && id <= AUDIO_11025_16_2) ||
+               (id >= AUDIO_22050_8_1 && id <= AUDIO_22050_16_2) || (id >= AUDIO_44100_8_1 && id <= AUDIO_44100_16_4) ||
+               (id >= AUDIO_48000_8_1 && id <= AUDIO_48000_16_8);
+    }
 
 private:
     std::atomic_bool isSinkRunning_ = false;
