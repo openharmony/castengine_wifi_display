@@ -16,6 +16,7 @@
 #ifndef OHOS_SHARING_AUDIO_PLAY_CONTROLLER_H
 #define OHOS_SHARING_AUDIO_PLAY_CONTROLLER_H
 
+#include <mutex>
 #include <thread>
 #include "buffer_dispatcher.h"
 #include "common/event_comm.h"
@@ -55,8 +56,9 @@ private:
     std::shared_ptr<AudioPlayer> audioPlayer_ = nullptr;
     std::shared_ptr<std::thread> audioPlayThread_ = nullptr;
     std::shared_ptr<BufferReceiver> bufferReceiver_ = nullptr;
+    std::mutex audioPlayerMutex_;
 
-    bool hasAudioFocus_ = true;
+    std::atomic_bool hasAudioFocus_ = true;
     TimeoutTimer focusTimer_;
 };
 

@@ -182,9 +182,9 @@ private:
     ~ WfdSinkHiSysEvent() = default;
     SinkHisyseventDevInfo devInfo_;
 
-    int32_t sinkBizScene_ = 0;
-    bool hiSysEventStart_ = true;
-    int32_t startTime_ = 0;
+    std::atomic<int32_t> sinkBizScene_{0};
+    std::atomic<bool> hiSysEventStart_{true};
+    std::atomic<int32_t> startTime_{0};
 
     uint32_t audioFreezeCount_ = 0;
     uint32_t videoFreezeCount_ = 0;

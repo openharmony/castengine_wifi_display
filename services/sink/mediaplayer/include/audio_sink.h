@@ -87,12 +87,14 @@ public:
 private:
     bool running_ = false;
     bool isPcSource_ = false;
-    bool needWrite_ = false;
+    std::atomic<bool> needWrite_{false};
     uint32_t playerId_ = -1;
 
     std::mutex mutex_;
     std::unique_ptr<OHOS::AudioStandard::AudioRenderer> audioRenderer_ = nullptr;
     std::function<void(bool hasFocus)> onAudioFocusChange_ = nullptr;
+    std::mutex audioRenderMutex_;
+    std::mutex stateMutex_;
 };
 
 } // namespace Sharing
