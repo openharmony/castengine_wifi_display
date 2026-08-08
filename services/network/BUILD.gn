@@ -67,6 +67,7 @@ ohos_shared_library("sharing_network") {
     "c_utils:utils",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
+    "bounds_checking_function:libsec_shared",
   ]
 
   subsystem_name = "castplus"
