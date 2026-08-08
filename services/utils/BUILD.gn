@@ -50,6 +50,7 @@ ohos_static_library("sharing_utils") {
     "hilog:libhilog",
     "openssl:libcrypto_shared",
     "openssl:libssl_shared",
+    "bounds_checking_function:libsec_shared",
   ]
 
   part_name = "sharing_framework"
