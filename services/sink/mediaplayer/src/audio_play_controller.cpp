@@ -35,6 +35,7 @@ AudioPlayController::AudioPlayController(uint32_t mediaChannelId)
 AudioPlayController::~AudioPlayController()
 {
     SHARING_LOGD("delete audio play controller, mediachannelId: %{public}u.", mediachannelId_);
+    Release();
 }
 
 bool AudioPlayController::Init(AudioTrack &audioTrack, bool isPcSource)
@@ -58,6 +59,7 @@ bool AudioPlayController::Start(BufferDispatcher::Ptr &dispatcher)
 {
     SHARING_LOGD("trace.");
     RETURN_FALSE_IF_NULL(dispatcher);
+    std::lock_guard<std::mutex> lock(audioPlayerMutex_);
     if (nullptr == audioPlayer_) {
         SHARING_LOGE("audio play need init first.");
         return false;
@@ -87,13 +89,15 @@ void AudioPlayController::Stop(BufferDispatcher::Ptr &dispatcher)
         dispatcher->DetachReceiver(bufferReceiver_);
     }
 
+    isAudioRunning_ = false;
+    if (bufferReceiver_) {
+        bufferReceiver_->NotifyReadStop();
+    }
+    StopAudioThread();
+
+    std::lock_guard<std::mutex> lock(audioPlayerMutex_);
     if (audioPlayer_) {
         audioPlayer_->Stop();
-        isAudioRunning_ = false;
-        if (bufferReceiver_) {
-            bufferReceiver_->NotifyReadStop();
-        }
-        StopAudioThread();
     }
 }
 
@@ -101,6 +105,9 @@ void AudioPlayController::Release()
 {
     SHARING_LOGD("trace.");
     focusTimer_.StopTimer();
+    isAudioRunning_ = false;
+    StopAudioThread();
+    std::lock_guard<std::mutex> lock(audioPlayerMutex_);
     if (nullptr != audioPlayer_) {
         audioPlayer_->Release();
         audioPlayer_.reset();
@@ -148,7 +155,7 @@ void AudioPlayController::AudioPlayThread()
         if (bufferReceiver_) {
             ret = bufferReceiver_->RequestRead(MediaType::MEDIA_TYPE_AUDIO, [&outData](const MediaData::Ptr &data) {
                 MEDIA_LOGD("request start.");
-                if (data == nullptr) {
+                if (data == nullptr || !data->buff) {
                     return;
                 }
                 outData->buff->ReplaceData(data->buff->Peek(), data->buff->Size());
@@ -166,6 +173,7 @@ void AudioPlayController::AudioPlayThread()
             continue;
         }
 
+        std::lock_guard<std::mutex> lock(audioPlayerMutex_);
         if (audioPlayer_) {
             MEDIA_LOGD("process audio mediaChannelId: %{public}u, size: %{public}d.", mediachannelId_,
                        outData->buff->Size());
@@ -179,6 +187,7 @@ void AudioPlayController::AudioPlayThread()
 void AudioPlayController::SetVolume(float volume)
 {
     SHARING_LOGD("Volume: %{public}f.", volume);
+    std::lock_guard<std::mutex> lock(audioPlayerMutex_);
     if (audioPlayer_) {
         audioPlayer_->SetVolume(volume);
     }
@@ -186,6 +195,7 @@ void AudioPlayController::SetVolume(float volume)
 
 int64_t AudioPlayController::GetAudioDecoderTimestamp()
 {
+    std::lock_guard<std::mutex> lock(audioPlayerMutex_);
     if (audioPlayer_) {
         return audioPlayer_->GetDecoderTimestamp();
     }
@@ -194,6 +204,7 @@ int64_t AudioPlayController::GetAudioDecoderTimestamp()
 
 void AudioPlayController::DropOneFrame()
 {
+    std::lock_guard<std::mutex> lock(audioPlayerMutex_);
     if (audioPlayer_) {
         audioPlayer_->DropOneFrame();
     }
@@ -202,15 +213,15 @@ void AudioPlayController::DropOneFrame()
 void AudioPlayController::SetAudioFocusState(bool hasFocus)
 {
     if (hasFocus) {
-        if (!hasAudioFocus_) {
+        if (!hasAudioFocus_.load()) {
             SHARING_LOGI("Audio focus regained");
-            hasAudioFocus_ = true;
+            hasAudioFocus_.store(true);
             focusTimer_.StopTimer();
         }
     } else {
-        if (hasAudioFocus_) {
+        if (hasAudioFocus_.load()) {
             SHARING_LOGW("Audio focus lost");
-            hasAudioFocus_ = false;
+            hasAudioFocus_.store(false);
             focusTimer_.StartTimer(AUDIO_FOCUS_TIMEOUT_SEC, "AudioFocusTimeout",
                                    [this]() { this->OnAudioFocusTimeout(); });
         }

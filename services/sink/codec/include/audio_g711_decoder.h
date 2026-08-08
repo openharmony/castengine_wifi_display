@@ -23,6 +23,8 @@ namespace OHOS {
 namespace Sharing {
 enum G711_TYPE { G711_ALAW, G711_ULAW };
 
+constexpr static int32_t HALF = 2;
+
 class AudioG711Decoder : public AudioDecoder {
 public:
     AudioG711Decoder(G711_TYPE type);

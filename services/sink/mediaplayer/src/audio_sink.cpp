@@ -36,6 +36,7 @@ AudioSink::~AudioSink()
 int32_t AudioSink::Prepare()
 {
     SHARING_LOGD("playerId: %{public}u.", playerId_);
+    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     audioRenderer_ = AudioStandard::AudioRenderer::Create(AudioStandard::AudioStreamType::STREAM_MUSIC);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL.");
@@ -48,6 +49,7 @@ int32_t AudioSink::Prepare()
 int32_t AudioSink::Prepare(int32_t channels, int32_t sampleRate)
 {
     SHARING_LOGD("channels(%{public}d) sampleRate(%{public}d) playerId: %{public}u.", channels, sampleRate, playerId_);
+    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     audioRenderer_ = AudioStandard::AudioRenderer::Create(AudioStandard::AudioStreamType::STREAM_MUSIC);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL.");
@@ -63,12 +65,16 @@ int32_t AudioSink::Prepare(int32_t channels, int32_t sampleRate)
 int32_t AudioSink::Start()
 {
     SHARING_LOGD("playerId: %{public}u.", playerId_);
+    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL.");
         return PLAYER_ERROR_EMPTY_INSTANCE;
     }
 
-    audioRenderer_->Start();
+    if (audioRenderer_->Start()) {
+        SHARING_LOGE("audioRender start failed");
+        return -1;
+    }
     running_ = true;
     needWrite_ = true;
     return PLAYER_SUCCESS;
@@ -77,6 +83,7 @@ int32_t AudioSink::Start()
 int32_t AudioSink::Stop()
 {
     SHARING_LOGD("playerId: %{public}u.", playerId_);
+    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL playerId: %{public}u!", playerId_);
         return PLAYER_ERROR_EMPTY_INSTANCE;
@@ -97,6 +104,7 @@ int32_t AudioSink::Stop()
 int32_t AudioSink::Pause()
 {
     SHARING_LOGD("playerId: %{public}u.", playerId_);
+    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL.");
         return PLAYER_ERROR_EMPTY_INSTANCE;
@@ -113,6 +121,7 @@ int32_t AudioSink::Pause()
 int32_t AudioSink::Drain()
 {
     SHARING_LOGD("playerId: %{public}u.", playerId_);
+    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL.");
         return PLAYER_ERROR_EMPTY_INSTANCE;
@@ -129,6 +138,7 @@ int32_t AudioSink::Drain()
 int32_t AudioSink::Flush()
 {
     SHARING_LOGD("playerId: %{public}u.", playerId_);
+    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL.");
         return PLAYER_ERROR_EMPTY_INSTANCE;
@@ -145,6 +155,7 @@ int32_t AudioSink::Flush()
 int32_t AudioSink::Release()
 {
     SHARING_LOGD("playerId: %{public}u.", playerId_);
+    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL.");
         return PLAYER_ERROR_EMPTY_INSTANCE;
@@ -160,6 +171,7 @@ int32_t AudioSink::SetParameters(int32_t bitsPerSample, int32_t channels, int32_
     (void)bitsPerSample;
     SHARING_LOGD("enter, channels:%{public}d, sampleRate:%{public}d.", channels, sampleRate);
 
+    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL.");
         return PLAYER_ERROR_EMPTY_INSTANCE;
@@ -223,6 +235,7 @@ int32_t AudioSink::SetParameters(int32_t bitsPerSample, int32_t channels, int32_
 int32_t AudioSink::GetParameters(int32_t &bitsPerSample, int32_t &channels, int32_t &sampleRate)
 {
     SHARING_LOGD("playerId: %{public}u.", playerId_);
+    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL.");
         return PLAYER_ERROR_EMPTY_INSTANCE;
@@ -243,6 +256,7 @@ int32_t AudioSink::GetParameters(int32_t &bitsPerSample, int32_t &channels, int3
 int32_t AudioSink::GetBufferSize(int32_t &bufferSize)
 {
     SHARING_LOGD("playerId: %{public}u.", playerId_);
+    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL.");
         return PLAYER_ERROR_EMPTY_INSTANCE;
@@ -254,13 +268,18 @@ int32_t AudioSink::GetBufferSize(int32_t &bufferSize)
         return -1;
     }
 
-    bufferSize = (int32_t)size;
+    if (size > INT32_MAX) {
+        SHARING_LOGE("buffer size too large: %{public}zu", size);
+        return -1;
+    }
+    bufferSize = static_cast<int32_t>(size);
     return PLAYER_SUCCESS;
 }
 
 int32_t AudioSink::SetVolume(float volume)
 {
     SHARING_LOGD("playerId: %{public}u.", playerId_);
+    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL.");
         return PLAYER_ERROR_EMPTY_INSTANCE;
@@ -277,6 +296,7 @@ int32_t AudioSink::SetVolume(float volume)
 int32_t AudioSink::GetVolume(float &volume)
 {
     SHARING_LOGD("playerId: %{public}u.", playerId_);
+    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL.");
         return PLAYER_ERROR_EMPTY_INSTANCE;
@@ -289,6 +309,11 @@ int32_t AudioSink::GetVolume(float &volume)
 int32_t AudioSink::Write(uint8_t *buffer, size_t size)
 {
     MEDIA_LOGD("playerId: %{public}u.", playerId_);
+    if (buffer == nullptr || size == 0) {
+        MEDIA_LOGE("buffer is nullptr or size is 0.");
+        return PLAYER_ERROR_INVALID_PARAMS;
+    }
+    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL.");
         return PLAYER_ERROR_EMPTY_INSTANCE;
@@ -324,6 +349,7 @@ int32_t AudioSink::Write(uint8_t *buffer, size_t size)
 void AudioSink::OnInterrupt(const AudioStandard::InterruptEvent &interruptEvent)
 {
     SHARING_LOGI("OnInterrupt hintType: %{public}d", interruptEvent.hintType);
+    std::lock_guard<std::mutex> lock(stateMutex_);
     switch (interruptEvent.hintType) {
         case AudioStandard::InterruptHint::INTERRUPT_HINT_PAUSE:
             // 音频流暂停，暂停音频写入
@@ -357,6 +383,7 @@ void AudioSink::SetIsPcSource(bool isPcSource)
 
 void AudioSink::SetAudioFocusChangeCallback(std::function<void(bool hasFocus)> callback)
 {
+    std::lock_guard<std::mutex> lock(stateMutex_);
     onAudioFocusChange_ = callback;
 }
 } // namespace Sharing

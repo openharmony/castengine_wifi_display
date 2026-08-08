@@ -47,8 +47,12 @@ void AudioG711Decoder::OnFrame(const Frame::Ptr &frame)
 
     auto payload = frame->Data();
     int32_t length = frame->Size();
-    if ((int32_t)outBuffer_.size() != length * 2) { // 2: double size
-        outBuffer_.resize(length * 2);              // 2: double size
+    if (length < 0 || length > INT32_MAX / HALF) {
+        SHARING_LOGE("invalid frame size %{public}d", length);
+        return;
+    }
+    if ((int32_t)outBuffer_.size() != length * HALF) { // 2: double size
+        outBuffer_.resize(length * HALF);              // 2: double size
     }
 
     Decode((uint8_t *)payload, length, (int16_t *)outBuffer_.data());

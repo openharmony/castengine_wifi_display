@@ -61,29 +61,29 @@ void WfdSinkHiSysEvent::SetHiSysEventDevInfo(const WfdSinkHiSysEvent::SinkHisyse
 
 void WfdSinkHiSysEvent::GetStartTime(std::chrono::system_clock::time_point startTime)
 {
-    startTime_ = std::chrono::duration_cast<std::chrono::seconds>(startTime.time_since_epoch()).count();
+    startTime_.store(std::chrono::duration_cast<std::chrono::seconds>(startTime.time_since_epoch()).count());
 }
 
 void WfdSinkHiSysEvent::ChangeHisysEventScene(SinkBizScene scene)
 {
-    sinkBizScene_ = static_cast<int32_t>(scene);
+    sinkBizScene_.store(static_cast<int32_t>(scene));
 }
 
 void WfdSinkHiSysEvent::StartReport(const std::string &funcName, const std::string &toCallpkg,
                                     SinkStage sinkStage, SinkStageRes sinkStageRes)
 {
-    if (sinkBizScene_ == static_cast<int32_t>(SinkBizScene::ESTABLISH_MIRRORING)) {
-        hiSysEventStart_ = true;
+    if (sinkBizScene_.load() == static_cast<int32_t>(SinkBizScene::ESTABLISH_MIRRORING)) {
+        hiSysEventStart_.store(true);
         Reset();
     }
-    if (hiSysEventStart_ == false) {
+    if (hiSysEventStart_.load() == false) {
         SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
         return;
     }
     auto devInfoCopy = GetDevInfoCopy();
     HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME, HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
                     "FUNC_NAME", funcName.c_str(),
-                    "BIZ_SCENE", sinkBizScene_,
+                    "BIZ_SCENE", sinkBizScene_.load(),
                     "BIZ_STAGE", static_cast<int32_t>(sinkStage),
                     "STAGE_RES", static_cast<int32_t>(sinkStageRes),
                     "BIZ_STATE", static_cast<int32_t>(SinkBIZState::BIZ_STATE_BEGIN),
@@ -104,14 +104,14 @@ void WfdSinkHiSysEvent::StartReport(const std::string &funcName, const std::stri
 void WfdSinkHiSysEvent::Report(const std::string &funcName, const std::string &toCallpkg,
                                SinkStage sinkStage, SinkStageRes sinkStageRes)
 {
-    if (hiSysEventStart_ == false) {
+    if (hiSysEventStart_.load() == false) {
         SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
         return;
     }
     auto devInfoCopy = GetDevInfoCopy();
     HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME, HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
                     "FUNC_NAME", funcName.c_str(),
-                    "BIZ_SCENE", sinkBizScene_,
+                    "BIZ_SCENE", sinkBizScene_.load(),
                     "BIZ_STAGE", static_cast<int32_t>(sinkStage),
                     "STAGE_RES", static_cast<int32_t>(sinkStageRes),
                     "ORG_PKG", SHARING_SINK_ORG_PKG,
@@ -131,14 +131,14 @@ void WfdSinkHiSysEvent::Report(const std::string &funcName, const std::string &t
 void WfdSinkHiSysEvent::FirstSceneEndReport(const std::string &funcName, const std::string &toCallpkg,
                                             SinkStage sinkStage, SinkStageRes sinkStageRes)
 {
-    if (hiSysEventStart_ == false) {
+    if (hiSysEventStart_.load() == false) {
         SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
         return;
     }
     auto devInfoCopy = GetDevInfoCopy();
     HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME, HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
                     "FUNC_NAME", funcName.c_str(),
-                    "BIZ_SCENE", sinkBizScene_,
+                    "BIZ_SCENE", sinkBizScene_.load(),
                     "BIZ_STAGE", static_cast<int32_t>(sinkStage),
                     "STAGE_RES", static_cast<int32_t>(sinkStageRes),
                     "BIZ_STATE", static_cast<int32_t>(SinkBIZState::BIZ_STATE_END),
@@ -159,13 +159,13 @@ void WfdSinkHiSysEvent::FirstSceneEndReport(const std::string &funcName, const s
 void WfdSinkHiSysEvent::ThirdSceneEndReport(const std::string &funcName, const std::string &toCallpkg,
                                             SinkStage sinkStage)
 {
-    if (hiSysEventStart_ == false) {
+    if (hiSysEventStart_.load() == false) {
         SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
         return;
     }
     std::chrono::system_clock::time_point endTimePoint = std::chrono::system_clock::now();
     int32_t endTime = std::chrono::duration_cast<std::chrono::seconds>(endTimePoint.time_since_epoch()).count();
-    int32_t duration = endTime - startTime_;
+    int32_t duration = endTime - startTime_.load();
 
     auto devInfoCopy = GetDevInfoCopy();
     HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME, HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
@@ -187,7 +187,7 @@ void WfdSinkHiSysEvent::ThirdSceneEndReport(const std::string &funcName, const s
                     "PEER_IP", devInfoCopy.peerIp.c_str(),
                     "PEER_DEV_NAME", devInfoCopy.peerDevName.c_str(),
                     "SERVICE_DURATION", duration);
-    hiSysEventStart_ = false;
+    hiSysEventStart_.store(false);
 }
 
 void WfdSinkHiSysEvent::ReportEstablishMirroringError(const std::string &funcName, const std::string &toCallpkg,
@@ -197,7 +197,7 @@ void WfdSinkHiSysEvent::ReportEstablishMirroringError(const std::string &funcNam
     HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME,
         HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
         "FUNC_NAME", funcName.c_str(),
-        "BIZ_SCENE", sinkBizScene_,
+        "BIZ_SCENE", sinkBizScene_.load(),
         "BIZ_STAGE", static_cast<int32_t>(sinkStage),
         "STAGE_RES", static_cast<int32_t>(SinkStageRes::FAIL),
         "ERROR_CODE", static_cast<int32_t>(errorCode),
@@ -223,7 +223,7 @@ void WfdSinkHiSysEvent::ReportStabilityError(const std::string &funcName, const 
     HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME,
         HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
         "FUNC_NAME", funcName.c_str(),
-        "BIZ_SCENE", sinkBizScene_,
+        "BIZ_SCENE", sinkBizScene_.load(),
         "BIZ_STAGE", static_cast<int32_t>(sinkStage),
         "STAGE_RES", static_cast<int32_t>(SinkStageRes::FAIL),
         "ERROR_CODE", static_cast<int32_t>(errorCode),
@@ -248,7 +248,7 @@ void WfdSinkHiSysEvent::ReportDisconnectError(const std::string &funcName, const
     HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME,
         HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
         "FUNC_NAME", funcName.c_str(),
-        "BIZ_SCENE", sinkBizScene_,
+        "BIZ_SCENE", sinkBizScene_.load(),
         "BIZ_STAGE", static_cast<int32_t>(sinkStage),
         "STAGE_RES", static_cast<int32_t>(SinkStageRes::FAIL),
         "ERROR_CODE", static_cast<int32_t>(errorCode),
@@ -272,26 +272,26 @@ void WfdSinkHiSysEvent::ReportDisconnectError(const std::string &funcName, const
 void WfdSinkHiSysEvent::ReportError(const std::string &funcName, const std::string &toCallpkg,
                                     SinkStage sinkStage, SinkErrorCode errorCode)
 {
-    if (hiSysEventStart_ == false) {
+    if (hiSysEventStart_.load() == false) {
         SHARING_LOGE("func:%{public}s, sinkStage:%{public}d, scece is Invalid", funcName.c_str(), sinkStage);
         return;
     }
 
     std::chrono::system_clock::time_point endTimePoint = std::chrono::system_clock::now();
     int endTime = std::chrono::duration_cast<std::chrono::seconds>(endTimePoint.time_since_epoch()).count();
-    int32_t duration = endTime - startTime_;
+    int32_t duration = endTime - startTime_.load();
 
-    switch (static_cast<SinkBizScene>(sinkBizScene_)) {
+    switch (static_cast<SinkBizScene>(sinkBizScene_.load())) {
         case SinkBizScene::ESTABLISH_MIRRORING:
             ReportEstablishMirroringError(funcName, toCallpkg, sinkStage, errorCode, duration);
-            hiSysEventStart_ = false;
+            hiSysEventStart_.store(false);
             break;
         case SinkBizScene::MIRRORING_STABILITY:
             ReportStabilityError(funcName, toCallpkg, sinkStage, errorCode);
             break;
         case SinkBizScene::DISCONNECT_MIRRORING:
             ReportDisconnectError(funcName, toCallpkg, sinkStage, errorCode, duration);
-            hiSysEventStart_ = false;
+            hiSysEventStart_.store(false);
             break;
         default:
             break;
@@ -324,7 +324,7 @@ void WfdSinkHiSysEvent::WriteHisysEventWithExtraData(const std::string &funcName
     HiSysEventWrite(SHARING_SINK_DFX_DOMAIN_NAME, SHARING_SINK_EVENT_NAME,
         HiviewDFX::HiSysEvent::EventType::BEHAVIOR,
         "FUNC_NAME", funcName.c_str(),
-        "BIZ_SCENE", sinkBizScene_,
+        "BIZ_SCENE", sinkBizScene_.load(),
         "BIZ_STAGE", static_cast<int32_t>(sinkStage),
         "STAGE_RES", static_cast<int32_t>(SinkStageRes::FAIL),
         "ERROR_CODE", static_cast<int32_t>(errorCode),
@@ -368,12 +368,12 @@ void WfdSinkHiSysEvent::P2PReportError(const std::string &funcName, SinkErrorCod
 
 int32_t WfdSinkHiSysEvent::GetCurrentScene()
 {
-    return sinkBizScene_;
+    return sinkBizScene_.load();
 }
 
 void WfdSinkHiSysEvent::ReportDecodeError(MediaReportType type)
 {
-    if (hiSysEventStart_ == false) {
+    if (hiSysEventStart_.load() == false) {
         return;
     }
 
