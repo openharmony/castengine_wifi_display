@@ -1574,7 +1574,9 @@ void BufferDispatcher::ActiveDataRef(MediaType type, bool keyFrame)
     for (auto &[recvId, notifier] : notifiers_) {
         auto index = notifier->GetReadIndex();
         if (type == MEDIA_TYPE_AUDIO) {
-            bitRef |= RECV_FLAG_BASE << (index * 2); // 2: fix offset, get audio notifyer id
+            if (index != INVALID_INDEX) {
+                bitRef |= RECV_FLAG_BASE << (index * 2); // 2: fix offset, get audio notifyer id
+            }
             continue;
         }
         bool keyModeReceiver = false;
