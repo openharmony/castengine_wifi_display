@@ -22,11 +22,11 @@
 #include "const_def.h"
 #include "extend/magic_enum/magic_enum.hpp"
 #include "iservice_registry.h"
-#include "network/socket/socket_utils.h"
 #include "kits/c/wifi_hid2d.h"
+#include "network/socket/socket_utils.h"
+#include "sink_session_def.h"
 #include "system_ability_definition.h"
 #include "utils/utils.h"
-#include "sink_session_def.h"
 
 using namespace OHOS::DistributedHardware;
 namespace OHOS {
@@ -47,9 +47,8 @@ void WfdSinkScene::WfdSystemAbilityListener::OnAddSystemAbility(int32_t systemAb
         scene->OnWifiAbilityResume();
     }
 }
- 
-void WfdSinkScene::WfdSystemAbilityListener::OnRemoveSystemAbility(int32_t systemAbilityId,
-    const std::string& deviceId)
+
+void WfdSinkScene::WfdSystemAbilityListener::OnRemoveSystemAbility(int32_t systemAbilityId, const std::string &deviceId)
 {
     if (systemAbilityId == WIFI_DEVICE_ABILITY_ID) {
         SHARING_LOGI("%{public}s, id is %{public}d.", __FUNCTION__, systemAbilityId);
@@ -75,19 +74,19 @@ void WfdSinkScene::WfdP2pCallback::OnP2pStateChanged(int32_t state)
             case (int32_t)Wifi::P2pState::P2P_STATE_STARTING:
                 break;
             case (int32_t)Wifi::P2pState::P2P_STATE_STARTED:
-                if (parent->isSinkRunning_) {
+                if (parent->isSinkRunning_.load()) {
                     parent->WfdP2pStart();
                 }
                 break;
             case (int32_t)Wifi::P2pState::P2P_STATE_CLOSING:
                 break;
             case (int32_t)Wifi::P2pState::P2P_STATE_CLOSED:
-                if (parent->isSinkRunning_) {
-                    parent->isSinkRunning_ = false;
+                if (parent->isSinkRunning_.load()) {
+                    parent->isSinkRunning_.store(false);
                     parent->WfdP2pStop();
                     parent->OnInnerError("", SharingErrorCode::ERR_NETWORK_ERROR, "NETWORK ERROR, P2P MODULE STOPPED");
-                    WfdSinkHiSysEvent::GetInstance().P2PReportError(__func__,
-                                                                    SinkErrorCode::WIFI_DISPLAY_P2P_DISCONNECTED_STATE_CLOSED);
+                    WfdSinkHiSysEvent::GetInstance().P2PReportError(
+                        __func__, SinkErrorCode::WIFI_DISPLAY_P2P_DISCONNECTED_STATE_CLOSED);
                 }
                 break;
             default:
@@ -159,13 +158,12 @@ void WfdSinkScene::WfdP2pCallback::OnP2pServicesChanged(const std::vector<Wifi::
     SHARING_LOGD("trace.");
 }
 
-
 void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLinkedInfo &info)
 {
     SHARING_LOGI("trace");
     auto parent = parent_.lock();
     RETURN_IF_NULL(parent);
-    if (!parent->isSinkRunning_) {
+    if (!parent->isSinkRunning_.load()) {
         return;
     }
 
@@ -188,6 +186,10 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
         return;
     }
 
+    if (parent->p2pInstance_ == nullptr) {
+        SHARING_LOGE("p2pInstance_ is null");
+        return;
+    }
     parent->p2pInstance_->StopP2pListen();
     Wifi::WifiP2pGroupInfo group;
     if (Wifi::ErrCode::WIFI_OPT_SUCCESS != parent->p2pInstance_->GetCurrentGroup(group)) {
@@ -227,60 +229,73 @@ void WfdSinkScene::WfdP2pCallback::OnP2pConnectionChanged(const Wifi::WifiP2pLin
         std::unique_lock<std::mutex> lock(parent->currentConnectDevMutex_);
         currentConnectDev = parent->currentConnectDev_;
     }
-    parent->OnP2pPeerConnected(currentConnectDev);
-    std::unique_lock<std::mutex> lock(parent->currentConnectDevMutex_);
-    parent->currentConnectDev_ = currentConnectDev;
+    if (parent->OnP2pPeerConnected(currentConnectDev)) {
+        std::unique_lock<std::mutex> lock(parent->currentConnectDevMutex_);
+        parent->currentConnectDev_ = currentConnectDev;
+    }
 }
 
 void WfdSinkScene::WfdP2pCallback::OnP2pGcJoinGroup(const OHOS::Wifi::GcInfo &info)
 {
     SHARING_LOGI("trace.");
     auto parent = parent_.lock();
-    if (parent && parent->p2pInstance_) {
-        std::vector<Wifi::WifiP2pDevice> devices;
-        if (Wifi::ErrCode::WIFI_OPT_SUCCESS != parent->p2pInstance_->QueryP2pDevices(devices)) {
-            SHARING_LOGE("QueryP2pDevices failed");
-            return;
-        }
-        SHARING_LOGI("QueryP2pDevices ip:%{private}s addr: %{private}s host: %{private}s.",
-                     GetAnonymousIp(info.ip).c_str(), GetAnonymousMAC(info.mac).c_str(),
-                     GetAnonyString(info.host).c_str());
-        if (info.ip == "0.0.0.0" || info.ip == "") {
-            SHARING_LOGE("device: %{private}s leased ip is: 0.0.0.0.", GetAnonymousMAC(info.mac).c_str());
-            parent->OnInnerError(info.mac.c_str(), ERR_P2P_DHCP_INVALID_IP, "ip is: 0.0.0.0.");
-            return;
-        }
-
-        for (auto itDev : devices) {
-            if (itDev.GetDeviceAddress() != info.mac) {
-                continue;
-            }
-            ConnectionInfo connectionInfo;
-            connectionInfo.ip = info.ip;
-            connectionInfo.mac = itDev.GetDeviceAddress();
-            connectionInfo.primaryDeviceType = itDev.GetPrimaryDeviceType();
-            connectionInfo.secondaryDeviceType = itDev.GetSecondaryDeviceType();
-            connectionInfo.ctrlPort = itDev.GetWfdInfo().GetCtrlPort();
-            connectionInfo.deviceName = itDev.GetDeviceName();
-            connectionInfo.state = ConnectionState::CONNECTED;
-            {
-                std::unique_lock<std::mutex> lock(parent->currentConnectDevMutex_);
-                parent->currentConnectDev_ = connectionInfo;
-            }
-            SHARING_LOGD("device connected, mac: %{private}s, ip: %{private}s, port: %{private}d",
-                GetAnonymousMAC(connectionInfo.mac).c_str(), GetAnonymousIp(connectionInfo.ip).c_str(),
-                connectionInfo.ctrlPort);
-            parent->OnP2pPeerConnected(connectionInfo);
-            if (!parent->isSinkRunning_) {
-                SHARING_LOGE("sink is not running, no need to AddBoundDevice");
-                return;
-            }
-            Wifi::WifiP2pGroupInfo group;
-            parent->p2pInstance_->GetCurrentGroup(group);
-            wfdTrustListManager_.AddBoundDevice(group);
-            return;
-        }
+    if (!parent || !parent->p2pInstance_) {
+        return;
     }
+    std::vector<Wifi::WifiP2pDevice> devices;
+    if (Wifi::ErrCode::WIFI_OPT_SUCCESS != parent->p2pInstance_->QueryP2pDevices(devices)) {
+        SHARING_LOGE("QueryP2pDevices failed");
+        return;
+    }
+    SHARING_LOGI("QueryP2pDevices ip:%{private}s addr: %{private}s host: %{private}s.", GetAnonymousIp(info.ip).c_str(),
+                 GetAnonymousMAC(info.mac).c_str(), GetAnonyString(info.host).c_str());
+    if (info.ip == "0.0.0.0" || info.ip == "") {
+        SHARING_LOGE("device: %{private}s leased ip is: 0.0.0.0.", GetAnonymousMAC(info.mac).c_str());
+        parent->OnInnerError(info.mac.c_str(), ERR_P2P_DHCP_INVALID_IP, "ip is: 0.0.0.0.");
+        return;
+    }
+
+    for (auto itDev : devices) {
+        if (itDev.GetDeviceAddress() != info.mac) {
+            continue;
+        }
+        ConnectionInfo connectionInfo;
+        connectionInfo.ip = info.ip;
+        connectionInfo.mac = itDev.GetDeviceAddress();
+        connectionInfo.primaryDeviceType = itDev.GetPrimaryDeviceType();
+        connectionInfo.secondaryDeviceType = itDev.GetSecondaryDeviceType();
+        connectionInfo.ctrlPort = itDev.GetWfdInfo().GetCtrlPort();
+        connectionInfo.deviceName = itDev.GetDeviceName();
+        connectionInfo.state = ConnectionState::CONNECTED;
+        parent->HandleGcJoinGroup(connectionInfo, wfdTrustListManager_);
+        return;
+    }
+}
+
+void WfdSinkScene::HandleGcJoinGroup(ConnectionInfo &connectionInfo, WfdTrustListManager &trustListManager)
+{
+    {
+        std::unique_lock<std::mutex> lock(currentConnectDevMutex_);
+        currentConnectDev_ = connectionInfo;
+    }
+    SHARING_LOGD("device connected, mac: %{private}s, ip: %{private}s, port: %{private}d",
+                 GetAnonymousMAC(connectionInfo.mac).c_str(), GetAnonymousIp(connectionInfo.ip).c_str(),
+                 connectionInfo.ctrlPort);
+    if (!OnP2pPeerConnected(connectionInfo)) {
+        SHARING_LOGE("OnP2pPeerConnected failed, no need to AddBoundDevice");
+        return;
+    }
+
+    if (!isSinkRunning_.load()) {
+        SHARING_LOGE("sink is not running, no need to AddBoundDevice");
+        return;
+    }
+    Wifi::WifiP2pGroupInfo group;
+    if (Wifi::ErrCode::WIFI_OPT_SUCCESS != p2pInstance_->GetCurrentGroup(group)) {
+        SHARING_LOGE("GetCurrentGroup fail, ignore add group");
+        return;
+    }
+    trustListManager.AddBoundDevice(group);
 }
 
 void WfdSinkScene::WfdP2pCallback::OnP2pGcLeaveGroup(const OHOS::Wifi::GcInfo &info)
@@ -294,14 +309,14 @@ void WfdSinkScene::WfdP2pCallback::OnP2pDiscoveryChanged(bool isChange)
 }
 
 std::unordered_map<Wifi::ErrCode, SinkErrorCode> WfdSinkScene::WfdP2pCallback::wifiErrorMapping_ = {
-    { Wifi::WIFI_OPT_FAILED, SinkErrorCode::WIFI_DISPLAY_P2P_FAILED },
-    { Wifi::WIFI_OPT_NOT_SUPPORTED, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_NOT_SUPPORTED },
-    { Wifi::WIFI_OPT_INVALID_PARAM, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_INVALID_PARAM },
-    { Wifi::WIFI_OPT_FORBID_AIRPLANE, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_FORBID_AIRPLANE },
-    { Wifi::WIFI_OPT_FORBID_POWSAVING, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_FORBID_POWSAVING },
-    { Wifi::WIFI_OPT_PERMISSION_DENIED, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_PERMISSION_DENIED },
-    { Wifi::WIFI_OPT_OPEN_FAIL_WHEN_CLOSING, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_OPEN_FAIL_WHEN_CLOSING },
-    { Wifi::WIFI_OPT_P2P_NOT_OPENED, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_P2P_NOT_OPENED },
+    {Wifi::WIFI_OPT_FAILED, SinkErrorCode::WIFI_DISPLAY_P2P_FAILED},
+    {Wifi::WIFI_OPT_NOT_SUPPORTED, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_NOT_SUPPORTED},
+    {Wifi::WIFI_OPT_INVALID_PARAM, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_INVALID_PARAM},
+    {Wifi::WIFI_OPT_FORBID_AIRPLANE, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_FORBID_AIRPLANE},
+    {Wifi::WIFI_OPT_FORBID_POWSAVING, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_FORBID_POWSAVING},
+    {Wifi::WIFI_OPT_PERMISSION_DENIED, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_PERMISSION_DENIED},
+    {Wifi::WIFI_OPT_OPEN_FAIL_WHEN_CLOSING, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_OPEN_FAIL_WHEN_CLOSING},
+    {Wifi::WIFI_OPT_P2P_NOT_OPENED, SinkErrorCode::WIFI_DISPLAY_P2P_OPT_P2P_NOT_OPENED},
 };
 
 bool WfdSinkScene::WfdP2pCallback::GetErrorCode(Wifi::ErrCode errorCode, SinkErrorCode &sharingError)
@@ -350,7 +365,7 @@ void WfdSinkScene::WifiCallback::OnWifiStateChanged(int state)
     SHARING_LOGI("OnWifiStateChanged state %{public}d", state);
     if (state == static_cast<int32_t>(Wifi::WifiState::ENABLED)) {
         auto parent = parent_.lock();
-        if (parent && parent->isSinkRunning_) {
+        if (parent && parent->isSinkRunning_.load()) {
             parent->WfdP2pStart();
         }
     }
@@ -370,7 +385,7 @@ void WfdSinkScene::WifiCallback::OnWifiConnectionChanged(int state, const OHOS::
             std::unique_lock<std::mutex> lock(parent->currentConnectDevMutex_);
             mac = parent->currentConnectDev_.mac;
         }
-        if (parent->isSinkRunning_ && mac == "") {
+        if (parent->isSinkRunning_.load() && mac == "") {
             parent->WfdP2pStart();
         }
     }
@@ -400,7 +415,7 @@ void WfdSinkScene::DeviceNameObserver::OnChange()
 {
     SHARING_LOGI("deviceName observer onChange");
     auto scene = scene_.lock();
-    if (scene && scene->isSinkRunning_) {
+    if (scene && scene->isSinkRunning_.load()) {
         scene->InitP2pName();
     }
 }
@@ -417,56 +432,44 @@ WfdSinkScene::~WfdSinkScene()
     Release();
 }
 
+bool WfdSinkScene::LoadConfigInt(const std::string &group, const std::string &key, const std::string &defaultValue,
+                                 int32_t &out)
+{
+    SharingValue::Ptr values = nullptr;
+    auto ret = Config::GetInstance().GetConfig(group, key, defaultValue, values);
+    if (ret == CONFIGURE_ERROR_NONE && values != nullptr && values->IsInt32()) {
+        values->GetValue<int32_t>(out);
+        return true;
+    }
+    return false;
+}
+
 void WfdSinkScene::Initialize()
 {
     SHARING_LOGD("trace.");
-    SharingValue::Ptr values = nullptr;
 
-    auto ret = Config::GetInstance().GetConfig("sharingWfd", "ctrlport", "defaultWfdCtrlport", values);
-    if (ret == CONFIGURE_ERROR_NONE) {
-        values->GetValue<int32_t>(ctrlPort_);
-    }
+    LoadConfigInt("sharingWfd", "ctrlport", "defaultWfdCtrlport", ctrlPort_);
+    LoadConfigInt("sharingWfd", "abilityLimit", "accessDevMaximum", accessDevMaximum_);
+    LoadConfigInt("sharingWfd", "abilityLimit", "surfaceMaximum", surfaceMaximum_);
+    LoadConfigInt("sharingWfd", "abilityLimit", "foregroundMaximum", foregroundMaximum_);
 
-    ret = Config::GetInstance().GetConfig("sharingWfd", "abilityLimit", "accessDevMaximum", values);
-    if (ret == CONFIGURE_ERROR_NONE) {
-        values->GetValue<int32_t>(accessDevMaximum_);
-    }
-
-    ret = Config::GetInstance().GetConfig("sharingWfd", "abilityLimit", "surfaceMaximum", values);
-    if (ret == CONFIGURE_ERROR_NONE) {
-        values->GetValue<int32_t>(surfaceMaximum_);
-    }
-
-    ret = Config::GetInstance().GetConfig("sharingWfd", "abilityLimit", "foregroundMaximum", values);
-    if (ret == CONFIGURE_ERROR_NONE) {
-        values->GetValue<int32_t>(foregroundMaximum_);
-    }
-
-    ret = Config::GetInstance().GetConfig("sharingWfd", "mediaFormat", "videoCodec", values);
-    if (ret == CONFIGURE_ERROR_NONE) {
-        int32_t videoCodec;
-        values->GetValue<int32_t>(videoCodec);
+    int32_t videoCodec = 0;
+    if (LoadConfigInt("sharingWfd", "mediaFormat", "videoCodec", videoCodec) && IsValidCodecId(videoCodec)) {
         videoCodecId_ = static_cast<CodecId>(videoCodec);
     }
 
-    ret = Config::GetInstance().GetConfig("sharingWfd", "mediaFormat", "videoFormat", values);
-    if (ret == CONFIGURE_ERROR_NONE) {
-        int32_t videoFormat;
-        values->GetValue<int32_t>(videoFormat);
+    int32_t videoFormat = 0;
+    if (LoadConfigInt("sharingWfd", "mediaFormat", "videoFormat", videoFormat) && IsValidVideoFormat(videoFormat)) {
         videoFormatId_ = static_cast<VideoFormat>(videoFormat);
     }
 
-    ret = Config::GetInstance().GetConfig("sharingWfd", "mediaFormat", "audioCodec", values);
-    if (ret == CONFIGURE_ERROR_NONE) {
-        int32_t audioCodec;
-        values->GetValue<int32_t>(audioCodec);
+    int32_t audioCodec = 0;
+    if (LoadConfigInt("sharingWfd", "mediaFormat", "audioCodec", audioCodec) && IsValidCodecId(audioCodec)) {
         audioCodecId_ = static_cast<CodecId>(audioCodec);
     }
 
-    ret = Config::GetInstance().GetConfig("sharingWfd", "mediaFormat", "audioFormat", values);
-    if (ret == CONFIGURE_ERROR_NONE) {
-        int32_t audioFormat;
-        values->GetValue<int32_t>(audioFormat);
+    int32_t audioFormat = 0;
+    if (LoadConfigInt("sharingWfd", "mediaFormat", "audioFormat", audioFormat) && IsValidAudioFormat(audioFormat)) {
         audioFormatId_ = static_cast<AudioFormat>(audioFormat);
     }
 
@@ -523,6 +526,10 @@ void WfdSinkScene::RegisterDevNameObserver()
 
 void WfdSinkScene::UnRegisterDevNameObserver()
 {
+    if (deviceNameObserver_ == nullptr) {
+        SHARING_LOGI("deviceNameObserver_ is nullptr, skip unregister");
+        return;
+    }
     int32_t ret = DataShareHelper::GetInstance().UnregisterObserver(deviceNameObserver_);
     SHARING_LOGI("unregister name observer ret=%{public}d", ret);
     deviceNameObserver_ = nullptr;
@@ -548,14 +555,16 @@ void WfdSinkScene::RegisterP2pListener()
     sptr<WfdP2pCallback> wfdP2pCallback(new WfdP2pCallback(shared_from_this()));
     std::vector<std::string> event = {EVENT_P2P_PEER_DEVICE_CHANGE, EVENT_P2P_CONN_STATE_CHANGE,
                                       EVENT_P2P_GC_JOIN_GROUP, EVENT_P2P_GC_LEAVE_GROUP, EVENT_P2P_ACTION_RESULT};
-    p2pInstance_->RegisterCallBack(wfdP2pCallback, event);
+    if (Wifi::ErrCode::WIFI_OPT_SUCCESS != p2pInstance_->RegisterCallBack(wfdP2pCallback, event)) {
+        SHARING_LOGE("RegisterCallBack failed");
+    }
 }
 
 void WfdSinkScene::RegisterWifiStatusChangeListener()
 {
     auto deviceInstance = Wifi::WifiDevice::GetInstance(WIFI_DEVICE_ABILITY_ID);
     RETURN_IF_NULL(deviceInstance);
-    auto callback = sptr<Wifi::IWifiDeviceCallBack> (new WifiCallback(shared_from_this()));
+    auto callback = sptr<Wifi::IWifiDeviceCallBack>(new WifiCallback(shared_from_this()));
     std::vector<std::string> events = {EVENT_STA_POWER_STATE_CHANGE, EVENT_STA_CONN_STATE_CHANGE};
     deviceInstance->RegisterCallBack(callback, events);
 }
@@ -752,7 +761,7 @@ int32_t WfdSinkScene::HandleStart(std::shared_ptr<WfdSinkStartReq> &msg, std::sh
     SHARING_LOGD("trace.");
     (void)msg;
     (void)reply;
-    if (isSinkRunning_) {
+    if (isSinkRunning_.load()) {
         SHARING_LOGW("p2p sink is running.");
         return 0;
     }
@@ -771,7 +780,7 @@ int32_t WfdSinkScene::HandleStart(std::shared_ptr<WfdSinkStartReq> &msg, std::sh
             ret = -1;
             break;
         case (int32_t)Wifi::P2pState::P2P_STATE_STARTED:
-            isSinkRunning_ = true;
+            isSinkRunning_.store(true);
             WfdP2pStart();
             break;
         case (int32_t)Wifi::P2pState::P2P_STATE_CLOSED:
@@ -779,7 +788,7 @@ int32_t WfdSinkScene::HandleStart(std::shared_ptr<WfdSinkStartReq> &msg, std::sh
                 SHARING_LOGE("EnableP2p failed");
                 return -1;
             }
-            isSinkRunning_ = true;
+            isSinkRunning_.store(true);
             WfdP2pStart();
             break;
         default:
@@ -800,12 +809,12 @@ int32_t WfdSinkScene::HandleStop(std::shared_ptr<WfdSinkStopReq> &msg, std::shar
     SHARING_LOGD("handle stop, now connect device num: %{public}zu.", connectionCount);
     (void)msg;
     (void)reply;
-    if (!isSinkRunning_) {
+    if (!isSinkRunning_.load()) {
         SHARING_LOGW("p2p sink is not running.");
         return -1;
     }
 
-    isSinkRunning_ = false;
+    isSinkRunning_.store(false);
     WfdP2pStop();
 
     return 0;
@@ -828,12 +837,12 @@ int32_t WfdSinkScene::HandleAppendSurface(std::shared_ptr<WfdAppendSurfaceReq> &
             SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonymousMAC(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleAppendSurface can't find the dev");
             WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::SESSION_NEGOTIATION,
-                                                        SinkErrorCode::WIFI_DISPLAY_BAD_PARAMETER);
+                                                         SinkErrorCode::WIFI_DISPLAY_BAD_PARAMETER);
             return -1;
         }
         int32_t surfaceNum = 0;
         for (auto itemSurface = devSurfaceItemMap_.begin(); itemSurface != devSurfaceItemMap_.end();) {
-            if (!itemSurface->second->deleting) {
+            if (itemSurface->second != nullptr && !itemSurface->second->deleting) {
                 surfaceNum++;
             }
             itemSurface++;
@@ -844,7 +853,7 @@ int32_t WfdSinkScene::HandleAppendSurface(std::shared_ptr<WfdAppendSurfaceReq> &
             SHARING_LOGE("surface is too much.");
             OnInnerError(0, 0, SharingErrorCode::ERR_SERVICE_LIMIT, "HandleAppendSurface surface is too much");
             WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::SESSION_NEGOTIATION,
-                                                        SinkErrorCode::WIFI_DISPLAY_ADD_SURFACE_ERROR);
+                                                         SinkErrorCode::WIFI_DISPLAY_ADD_SURFACE_ERROR);
             return -1;
         }
 
@@ -862,7 +871,7 @@ int32_t WfdSinkScene::HandleAppendSurface(std::shared_ptr<WfdAppendSurfaceReq> &
             lock.unlock();
             OnInnerError(0, 0, SharingErrorCode::ERR_STATE_EXCEPTION, "HandleAppendSurface this surface is using");
             WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::SESSION_NEGOTIATION,
-                                                        SinkErrorCode::WIFI_DISPLAY_ADD_SURFACE_ERROR);
+                                                         SinkErrorCode::WIFI_DISPLAY_ADD_SURFACE_ERROR);
             return ERR_STATE_EXCEPTION;
         }
 
@@ -930,7 +939,7 @@ int32_t WfdSinkScene::HandleRemoveSurface(std::shared_ptr<WfdRemoveSurfaceReq> &
             SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonymousMAC(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleRemoveSurface can't find the dev");
             WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::SESSION_NEGOTIATION,
-                                                        SinkErrorCode::WIFI_DISPLAY_BAD_PARAMETER);
+                                                         SinkErrorCode::WIFI_DISPLAY_BAD_PARAMETER);
             return -1;
         }
 
@@ -964,6 +973,11 @@ int32_t WfdSinkScene::HandleSetMediaFormat(std::shared_ptr<SetMediaFormatReq> &m
     SHARING_LOGD("trace.");
     (void)reply;
     RETURN_INVALID_IF_NULL(msg);
+    if (!IsValidCodecId(msg->videoAttr.codecType) || !IsValidCodecId(msg->audioAttr.codecType) ||
+        !IsValidVideoFormat(msg->videoAttr.formatId) || !IsValidAudioFormat(msg->audioAttr.formatId)) {
+        return -1;
+    }
+
     {
         std::unique_lock<std::mutex> lock(mutex_);
         auto itemDev = devConnectionMap_.find(msg->deviceId);
@@ -972,7 +986,7 @@ int32_t WfdSinkScene::HandleSetMediaFormat(std::shared_ptr<SetMediaFormatReq> &m
             SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonymousMAC(msg->deviceId).c_str());
             OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleSetMediaFormat can not find dev");
             WfdSinkHiSysEvent::GetInstance().ReportError(__func__, "", SinkStage::SESSION_NEGOTIATION,
-                                                        SinkErrorCode::WIFI_DISPLAY_BAD_PARAMETER);
+                                                         SinkErrorCode::WIFI_DISPLAY_BAD_PARAMETER);
             return -1;
         }
         itemDev->second->videoCodecId = static_cast<CodecId>(msg->videoAttr.codecType);
@@ -981,6 +995,57 @@ int32_t WfdSinkScene::HandleSetMediaFormat(std::shared_ptr<SetMediaFormatReq> &m
         itemDev->second->audioFormatId = static_cast<AudioFormat>(msg->audioAttr.formatId);
     }
 
+    return 0;
+}
+
+int32_t WfdSinkScene::UpdateSurfaceSceneType(std::shared_ptr<SetSceneTypeReq> &msg, uint32_t &contextId,
+                                             uint32_t &agentId)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    auto itemDev = devConnectionMap_.find(msg->deviceId);
+    if (itemDev == devConnectionMap_.end() || itemDev->second == nullptr) {
+        lock.unlock();
+        SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonymousMAC(msg->deviceId).c_str());
+        OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleSetSceneType can not find dev");
+        return -1;
+    }
+    auto itemSurface = devSurfaceItemMap_.find(msg->surfaceId);
+    if (itemSurface == devSurfaceItemMap_.end() || itemSurface->second == nullptr || itemSurface->second->deleting) {
+        lock.unlock();
+        SHARING_LOGE("can not find surfaceid, surfaceid: %{public}" PRId64 ".", msg->surfaceId);
+        OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleSetSceneType can't find the surfaceId");
+        return -1;
+    }
+    if (itemSurface->second->deviceId != msg->deviceId) {
+        lock.unlock();
+        SHARING_LOGE("surface does not belong to device, surfaceId: %{public}" PRId64 ", deviceId: %{private}s.",
+                     msg->surfaceId, GetAnonymousMAC(msg->deviceId).c_str());
+        OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleSetSceneType surface does not belong to device");
+        return -1;
+    }
+    contextId = itemDev->second->contextId;
+    agentId = itemDev->second->agentId;
+    uint32_t foregroundSurfaceNum = 1;
+    if (msg->sceneType == SceneType::FOREGROUND) {
+        for (auto item : devSurfaceItemMap_) {
+            if ((item.second == nullptr) || ((item.first == msg->surfaceId) && (!item.second->deleting))) {
+                continue;
+            }
+            if (item.second->sceneType == SceneType::FOREGROUND) {
+                foregroundSurfaceNum++;
+            }
+        }
+        if (foregroundSurfaceNum > static_cast<uint32_t>(foregroundMaximum_)) {
+            lock.unlock();
+            SHARING_LOGE("foreground surfaces is too much.");
+            OnInnerError(0, 0, SharingErrorCode::ERR_SERVICE_LIMIT, "foreground surfaces is too much");
+            return -1;
+        } else {
+            itemSurface->second->sceneType = SceneType::FOREGROUND;
+        }
+    } else {
+        itemSurface->second->sceneType = SceneType::BACKGROUND;
+    }
     return 0;
 }
 
@@ -994,61 +1059,8 @@ int32_t WfdSinkScene::HandleSetSceneType(std::shared_ptr<SetSceneTypeReq> &msg, 
 
     uint32_t contextId = INVALID_ID;
     uint32_t agentId = INVALID_ID;
-    {
-        std::unique_lock<std::mutex> lock(mutex_);
-        auto itemDev = devConnectionMap_.find(msg->deviceId);
-        if (itemDev == devConnectionMap_.end() || itemDev->second == nullptr) {
-            lock.unlock();
-            SHARING_LOGE("can not find dev, mac: %{private}s.", GetAnonymousMAC(msg->deviceId).c_str());
-            OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleSetSceneType can not find dev");
-            return -1;
-        }
-
-        auto itemSurface = devSurfaceItemMap_.find(msg->surfaceId);
-        if (itemSurface == devSurfaceItemMap_.end() || itemSurface->second == nullptr
-            || itemSurface->second->deleting) {
-            lock.unlock();
-            SHARING_LOGE("can not find surfaceid, surfaceid: %{public}" PRId64 ".", msg->surfaceId);
-            OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER, "HandleSetSceneType can't find the surfaceId");
-            return -1;
-        }
-
-        if (itemSurface->second->deviceId != msg->deviceId) {
-            lock.unlock();
-            SHARING_LOGE("surface does not belong to device, surfaceId: %{public}" PRId64 ", deviceId: %{private}s.",
-                         msg->surfaceId, GetAnonymousMAC(msg->deviceId).c_str());
-            OnInnerError(0, 0, SharingErrorCode::ERR_BAD_PARAMETER,
-                         "HandleSetSceneType surface does not belong to device");
-            return -1;
-        }
-
-        contextId = itemDev->second->contextId;
-        agentId = itemDev->second->agentId;
-
-        uint32_t foregroundSurfaceNum = 1;
-        if (msg->sceneType == SceneType::FOREGROUND) {
-            for (auto item : devSurfaceItemMap_) {
-                if ((item.first == msg->surfaceId) && (!item.second->deleting)) {
-                    continue;
-                }
-
-                if (item.second->sceneType == SceneType::FOREGROUND) {
-                    foregroundSurfaceNum++;
-                }
-            }
-
-            if (foregroundSurfaceNum > static_cast<uint32_t>(foregroundMaximum_)) {
-                lock.unlock();
-                SHARING_LOGE("foreground surfaces is too much.");
-                OnInnerError(0, 0, SharingErrorCode::ERR_SERVICE_LIMIT,
-                             "HandleSetSceneType foreground surfaces is too much");
-                return -1;
-            } else {
-                itemSurface->second->sceneType = SceneType::FOREGROUND;
-            }
-        } else {
-            itemSurface->second->sceneType = SceneType::BACKGROUND;
-        }
+    if (UpdateSurfaceSceneType(msg, contextId, agentId) != 0) {
+        return -1;
     }
 
     if ((contextId == INVALID_ID) || (agentId == INVALID_ID)) {
@@ -1244,7 +1256,7 @@ int32_t WfdSinkScene::HandleClose(std::shared_ptr<WfdCloseReq> &msg, std::shared
 
     WfdSinkHiSysEvent::GetInstance().ChangeHisysEventScene(SinkBizScene::DISCONNECT_MIRRORING);
     WfdSinkHiSysEvent::GetInstance().StartReport(__func__, "", SinkStage::RECEIVE_DISCONNECT_EVENT,
-                                                SinkStageRes::SUCCESS);
+                                                 SinkStageRes::SUCCESS);
 
     ConnectionInfo connectionInfo;
     {
@@ -1326,6 +1338,7 @@ int32_t WfdSinkScene::HandleDeleteBoundDevice(std::shared_ptr<WfdDeleteBoundDevi
     SHARING_LOGI("%{public}s.", __FUNCTION__);
     (void)reply;
     RETURN_INVALID_IF_NULL(msg);
+    RETURN_INVALID_IF_NULL(reply);
     reply->ret = wfdTrustListManager_.DeleteBoundDeviceGroup(msg->deviceAddress);
     return 0;
 }
@@ -1339,6 +1352,12 @@ void WfdSinkScene::RegisterWfdAbilityListener()
         SHARING_LOGE("get system ability manager fail");
         return;
     }
+
+    if (sysAbilityListener_ != nullptr) {
+        SHARING_LOGE("unregister old wfd ability listener");
+        samgrProxy->UnSubscribeSystemAbility(WIFI_DEVICE_ABILITY_ID, sysAbilityListener_);
+    }
+
     sysAbilityListener_ = new (std::nothrow) WfdSystemAbilityListener(shared_from_this());
     if (sysAbilityListener_ == nullptr) {
         SHARING_LOGE("sysAbilityListener create failed.");
@@ -1420,6 +1439,10 @@ void WfdSinkScene::WfdP2pStop()
 
 void WfdSinkScene::FillAndReportDeviceInfo(const ConnectionInfo &connectionInfo)
 {
+    if (p2pInstance_ == nullptr) {
+        SHARING_LOGE("p2pInstance_ is nullptr");
+        return;
+    }
     Wifi::WifiP2pGroupInfo group;
     p2pInstance_->GetCurrentGroup(group);
     int32_t netWorkId = group.GetNetworkId();
@@ -1442,92 +1465,97 @@ void WfdSinkScene::FillAndReportDeviceInfo(const ConnectionInfo &connectionInfo)
     WfdSinkHiSysEvent::GetInstance().SetHiSysEventDevInfo(devInfo);
 }
 
-void WfdSinkScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
+bool WfdSinkScene::CreateSinkAgentLocked(std::shared_ptr<ISharingAdapter> &sharingAdapter,
+                                         ConnectionInfo &connectionInfo)
 {
-    SHARING_LOGD("trace.");
-    if (!isSinkRunning_) {
-        SHARING_LOGW("sink service is not running.");
-        return;
+    uint32_t contextId = INVALID_ID;
+    uint32_t agentId = INVALID_ID;
+
+    sharingAdapter->CreateAgent(contextId, agentId, AgentType::SINK_AGENT, "WfdSinkSession");
+    if (contextId == INVALID_ID || agentId == INVALID_ID) {
+        SHARING_LOGE("connected, create sink agent failed, devMac: %{private}s.",
+                     GetAnonymousMAC(connectionInfo.mac).c_str());
+        return false;
     }
+    SHARING_LOGI("connected, create sink agent, contextId: %{public}u, "
+                 "agentId: %{public}u, devMac: %{private}s, devIp: %{private}s.",
+                 contextId, agentId, GetAnonymousMAC(connectionInfo.mac).c_str(),
+                 GetAnonymousIp(connectionInfo.ip).c_str());
+    FillAndReportDeviceInfo(connectionInfo);
+    std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
+    WfdSinkHiSysEvent::GetInstance().GetStartTime(startTime);
+    WfdSinkHiSysEvent::GetInstance().ChangeHisysEventScene(SinkBizScene::ESTABLISH_MIRRORING);
+    WfdSinkHiSysEvent::GetInstance().StartReport(__func__, "wpa_supplicant", SinkStage::P2P_CONNECT_SUCCESS,
+                                                 SinkStageRes::SUCCESS);
+    connectionInfo.contextId = contextId;
+    connectionInfo.agentId = agentId;
+    connectionInfo.videoCodecId = videoCodecId_;
+    connectionInfo.videoFormatId = videoFormatId_;
+    connectionInfo.audioCodecId = audioCodecId_;
+    connectionInfo.audioFormatId = audioFormatId_;
 
-    auto sharingAdapter = sharingAdapter_.lock();
-    RETURN_IF_NULL(sharingAdapter);
+    std::shared_ptr<ConnectionInfo> connectionInfoPtr = std::make_shared<ConnectionInfo>(connectionInfo);
+    RETURN_FALSE_IF_NULL(connectionInfoPtr);
+    devConnectionMap_.emplace(connectionInfo.mac, connectionInfoPtr);
+    SHARING_LOGI("connected, devMac: %{private}s, devIp: %{private}s.", GetAnonymousMAC(connectionInfo.mac).c_str(),
+                 GetAnonymousIp(connectionInfo.ip).c_str());
+    return true;
+}
 
-    uint32_t len = 0;
-    {
-        std::unique_lock<std::mutex> lock(mutex_);
-        len = devConnectionMap_.size();
-    }
-
-    if (len >= static_cast<uint32_t>(accessDevMaximum_)) {
-        SHARING_LOGE("too more device.");
-        P2pRemoveClient(connectionInfo);
-
-        auto ipcAdapter = ipcAdapter_.lock();
-        RETURN_IF_NULL(ipcAdapter);
-
+void WfdSinkScene::NotifyPeerRejected(ConnectionInfo &connectionInfo)
+{
+    P2pRemoveClient(connectionInfo);
+    auto ipcAdapter = ipcAdapter_.lock();
+    if (ipcAdapter != nullptr) {
         auto msg = std::make_shared<WfdErrorMsg>();
         msg->message = "Maximum number of devices reached";
         msg->errorCode = ERR_RECEIVING_LIMIT;
 
         auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
         ipcAdapter->SendRequest(msg, reply);
+    }
+}
 
-        return;
+bool WfdSinkScene::OnP2pPeerConnected(ConnectionInfo &connectionInfo)
+{
+    SHARING_LOGD("trace.");
+    if (!isSinkRunning_.load()) {
+        SHARING_LOGW("sink service is not running.");
+        return false;
     }
 
+    auto sharingAdapter = sharingAdapter_.lock();
+    RETURN_FALSE_IF_NULL(sharingAdapter);
+    bool shouldReject = false;
     {
         std::unique_lock<std::mutex> lock(mutex_);
-        if (!isSinkRunning_) {
+        if (!isSinkRunning_.load()) {
             SHARING_LOGW("sink service has been stopped.");
-            return;
+            return false;
         }
         if (connectionInfo.mac.empty()) {
             SHARING_LOGW("mac is empty, drop peer connected.");
-            return;
+            return false;
         }
 
-        if (devConnectionMap_.count(connectionInfo.mac)) {
+        if (devConnectionMap_.size() >= static_cast<uint32_t>(accessDevMaximum_)) {
+            SHARING_LOGE("too more device.");
+            shouldReject = true;
+        } else if (devConnectionMap_.count(connectionInfo.mac)) {
             SHARING_LOGW("devcie is alerady connected, mac: %{private}s.", GetAnonymousMAC(connectionInfo.mac).c_str());
-            return;
+            return false;
+        } else if (!CreateSinkAgentLocked(sharingAdapter, connectionInfo)) {
+            return false;
         }
+    }
 
-        uint32_t contextId = INVALID_ID;
-        uint32_t agentId = INVALID_ID;
-
-        sharingAdapter->CreateAgent(contextId, agentId, AgentType::SINK_AGENT, "WfdSinkSession");
-        if (contextId == INVALID_ID || agentId == INVALID_ID) {
-            lock.unlock();
-            SHARING_LOGE("connected, create sink agent failed, devMac: %{private}s.",
-                         GetAnonymousMAC(connectionInfo.mac).c_str());
-            return;
-        } else {
-            SHARING_LOGI("connected, create sink agent, contextId: %{public}u, "
-                "agentId: %{public}u, devMac: %{private}s, devIp: %{private}s.", contextId, agentId,
-                GetAnonymousMAC(connectionInfo.mac).c_str(), GetAnonymousIp(connectionInfo.ip).c_str());
-                FillAndReportDeviceInfo(connectionInfo);
-                std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
-                WfdSinkHiSysEvent::GetInstance().GetStartTime(startTime);
-                WfdSinkHiSysEvent::GetInstance().ChangeHisysEventScene(SinkBizScene::ESTABLISH_MIRRORING);
-                WfdSinkHiSysEvent::GetInstance().StartReport(__func__, "wpa_supplicant", SinkStage::P2P_CONNECT_SUCCESS,
-                                                            SinkStageRes::SUCCESS);
-        }
-
-        connectionInfo.contextId = contextId;
-        connectionInfo.agentId = agentId;
-        connectionInfo.videoCodecId = videoCodecId_;
-        connectionInfo.videoFormatId = videoFormatId_;
-        connectionInfo.audioCodecId = audioCodecId_;
-        connectionInfo.audioFormatId = audioFormatId_;
-
-        std::shared_ptr<ConnectionInfo> connectionInfoPtr = std::make_shared<ConnectionInfo>(connectionInfo);
-        RETURN_IF_NULL(connectionInfoPtr);
-        devConnectionMap_.emplace(connectionInfo.mac, connectionInfoPtr);
-        SHARING_LOGI("connected, devMac: %{private}s, devIp: %{private}s.", GetAnonymousMAC(connectionInfo.mac).c_str(),
-            GetAnonymousIp(connectionInfo.ip).c_str());
+    if (shouldReject) {
+        NotifyPeerRejected(connectionInfo);
+        return false;
     }
     SetWifiScene(1);
     OnConnectionChanged(connectionInfo);
+    return true;
 }
 
 void WfdSinkScene::OnP2pPeerDisconnected(ConnectionInfo &connectionInfo)
@@ -1676,7 +1704,8 @@ void WfdSinkScene::OnInnerError(uint32_t contextId, uint32_t agentId, SharingErr
     {
         std::unique_lock<std::mutex> lock(mutex_);
         for (auto &item : devConnectionMap_) {
-            if ((contextId == item.second->contextId) && (agentId == item.second->agentId)) {
+            if ((item.second != nullptr) && (contextId == item.second->contextId) &&
+                (agentId == item.second->agentId)) {
                 msg->mac = item.second->mac;
                 break;
             }
@@ -1707,6 +1736,7 @@ void WfdSinkScene::OnInnerError(std::string deviceId, SharingErrorCode errorCode
     msg->message = message;
     msg->mac = deviceId;
     msg->errorCode = errorCode;
+    ErrorCodeFiltering(msg->errorCode);
 
     auto reply = std::static_pointer_cast<BaseMsg>(std::make_shared<WfdCommonRsp>());
 
@@ -1767,7 +1797,7 @@ void WfdSinkScene::OnInnerEvent(SharingEvent &event)
             if (msg) {
                 std::unique_lock<std::mutex> lock(mutex_);
                 auto itConnection = devConnectionMap_.find(msg->mac);
-                if (itConnection == devConnectionMap_.end()) {
+                if (itConnection == devConnectionMap_.end() || itConnection->second == nullptr) {
                     SHARING_LOGD("can't find dev %{private}s.", GetAnonymousMAC(msg->mac).c_str());
                     break;
                 }
@@ -1913,8 +1943,8 @@ void WfdSinkScene::OnDecoderDied(ConnectionInfo &connectionInfo)
     ipcAdapter->SendRequest(msg, reply);
 
     SHARING_LOGD("failed at device ip: %{private}s, mac: %{private}s, state: %{public}s.",
-        GetAnonymousIp(connectionInfo.ip).c_str(), GetAnonymousMAC(connectionInfo.mac).c_str(),
-        std::string(magic_enum::enum_name(connectionInfo.state)).c_str());
+                 GetAnonymousIp(connectionInfo.ip).c_str(), GetAnonymousMAC(connectionInfo.mac).c_str(),
+                 std::string(magic_enum::enum_name(connectionInfo.state)).c_str());
 }
 
 void WfdSinkScene::OnRemoteDied()
