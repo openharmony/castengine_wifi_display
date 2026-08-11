@@ -69,5 +69,6 @@ bool RtspRequestFuzzTest(const uint8_t *data, size_t size)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     OHOS::Sharing::RtspRequestFuzzTest(data, size);
+
     return 0;
 }
