@@ -114,12 +114,14 @@ RtspError RtspResponse::Parse(const std::string &response)
             auto separator = item.find('=');
             if (separator != std::string::npos && item.length() >= separator + 2) { // 2:fixed size
                 auto key = item.substr(0, separator);
+                auto value = item.substr(separator + 2); // 2:fixed size
+                if (value.empty()) {
+                    continue;
+                }
                 if (key == "Digest realm") {
-                    auto value = item.substr(separator + 2); // 2:fixed size
                     value.pop_back();
                     digestRealm_ = value;
                 } else if (key == "nonce") {
-                    auto value = item.substr(separator + 2); // 2:fixed size
                     value.pop_back();
                     nonce_ = value;
                 }
