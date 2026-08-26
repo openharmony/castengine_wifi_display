@@ -1569,7 +1569,7 @@ void WfdSinkScene::OnP2pPeerDisconnected(ConnectionInfo &connectionInfo)
     {
         std::unique_lock<std::mutex> lock(mutex_);
         auto itemDev = devConnectionMap_.find(connectionInfo.mac);
-        if (itemDev == devConnectionMap_.end()) {
+        if (itemDev == devConnectionMap_.end() || itemDev->second == nullptr) {
             lock.unlock();
             SHARING_LOGW("can not find dev, mac: %{private}s.", GetAnonymousMAC(connectionInfo.mac).c_str());
             return;
@@ -1620,7 +1620,7 @@ void WfdSinkScene::OnP2pPeerDisconnected(const std::string &mac)
     {
         std::unique_lock<std::mutex> lock(mutex_);
         auto itemDev = devConnectionMap_.find(mac);
-        if (itemDev == devConnectionMap_.end()) {
+        if (itemDev == devConnectionMap_.end() || itemDev->second == nullptr) {
             lock.unlock();
             SHARING_LOGW("can not find dev, mac: %{private}s.", GetAnonymousMAC(mac).c_str());
             return;
