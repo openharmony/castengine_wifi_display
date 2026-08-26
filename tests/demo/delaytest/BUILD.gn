@@ -46,7 +46,8 @@ ohos_executable("loop_back_demo") {
     "audio_framework:audio_client",
     "audio_framework:audio_renderer",
     "hilog:libhilog",
-    "selinux_adapter:librestorecon"
+    "selinux_adapter:librestorecon",
+    "bounds_checking_function:libsec_shared"
   ]
 
   subsystem_name = "castplus"
