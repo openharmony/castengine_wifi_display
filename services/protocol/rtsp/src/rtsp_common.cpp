@@ -14,6 +14,7 @@
  */
 
 #include "rtsp_common.h"
+#include <charconv>
 #include <regex>
 #include "common/media_log.h"
 
@@ -114,7 +115,13 @@ RtspError RtspCommon::ParseMessage(const std::string &message, std::vector<std::
     // parse body
     if (messageV.size() == 2 && header.find(RTSP_TOKEN_CONTENT_TYPE) != header.end() && // 2:fixed size
         header.find(RTSP_TOKEN_CONTENT_LENGTH) != header.end()) {
-        int32_t length = atoi(header.at(RTSP_TOKEN_CONTENT_LENGTH).c_str());
+        const std::string &lengthText = header.at(RTSP_TOKEN_CONTENT_LENGTH);
+        int32_t length = 0;
+        auto parsed = std::from_chars(lengthText.data(), lengthText.data() + lengthText.size(), length);
+        if (parsed.ec != std::errc{} || parsed.ptr != lengthText.data() + lengthText.size() || length < 0) {
+            SHARING_LOGE("invalid Content-Length: %{public}s", lengthText.c_str());
+            return {RtspErrorType::INVALID_MESSAGE, "invalid Content-Length"};
+        }
         if (length == 0 || messageV.size() <= 1) {
             SHARING_LOGW("Content-Length == 0 or no body.");
             return {};
