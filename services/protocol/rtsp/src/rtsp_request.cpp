@@ -14,6 +14,7 @@
  */
 
 #include "rtsp_request.h"
+#include <charconv>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -72,7 +73,15 @@ RtspError RtspRequest::Parse(const std::string &request)
     url_ = firstLine[1];
 
     if (tokens_.find(RTSP_TOKEN_CSEQ) != tokens_.end()) {
-        cSeq_ = atoi(tokens_.at(RTSP_TOKEN_CSEQ).c_str());
+        const std::string &cSeqText = tokens_.at(RTSP_TOKEN_CSEQ);
+        int32_t cSeq = 0;
+        auto parsed = std::from_chars(cSeqText.data(), cSeqText.data() + cSeqText.size(), cSeq);
+        if (parsed.ec != std::errc{} || parsed.ptr != cSeqText.data() + cSeqText.size()) {
+            tokens_.clear();
+            body_.clear();
+            return {RtspErrorType::INVALID_MESSAGE, "invalid CSeq"};
+        }
+        cSeq_ = cSeq;
     }
 
     if (tokens_.find(RTSP_TOKEN_UA) != tokens_.end()) {
