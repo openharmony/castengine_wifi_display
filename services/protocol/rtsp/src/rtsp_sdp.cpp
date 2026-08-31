@@ -14,6 +14,7 @@
  */
 
 #include "rtsp_sdp.h"
+#include <charconv>
 #include <cmath>
 #include <securec.h>
 #include "common/common_macro.h"
@@ -32,7 +33,13 @@ bool SessionOrigin::Parse(const std::string &origin)
 
     username = sm[1].str();
     sessionId = sm[2].str();                    // 2:byte offset
-    sessionVersion = (uint32_t)atoi(sm[3].str().c_str()); // 3:byte offset
+    const std::string sessionVersionText = sm[3].str();
+    auto sessionVersionResult = std::from_chars(sessionVersionText.data(),
+        sessionVersionText.data() + sessionVersionText.size(), sessionVersion);
+    if (sessionVersionResult.ec != std::errc{} ||
+        sessionVersionResult.ptr != sessionVersionText.data() + sessionVersionText.size()) {
+        return false;
+    }
     netType = sm[4].str();                      // 4:byte offset
     addrType = sm[5].str();                     // 5:byte offset
     unicastAddr = sm[6].str();                  // 6:byte offset
@@ -51,9 +58,17 @@ bool MediaLine::Parse(const std::string &mediaLine)
         return false;
     }
     mediaType = sm[1].str();
-    port = atoi(sm[2].str().c_str()); // 2:byte offset
+    const std::string portText = sm[2].str();
+    auto portResult = std::from_chars(portText.data(), portText.data() + portText.size(), port);
+    if (portResult.ec != std::errc{} || portResult.ptr != portText.data() + portText.size()) {
+        return false;
+    }
     protoType = sm[4].str();          // 4:byte offset
-    fmt = atoi(sm[5].str().c_str());  // 5:byte offset
+    const std::string fmtText = sm[5].str();
+    auto fmtResult = std::from_chars(fmtText.data(), fmtText.data() + fmtText.size(), fmt);
+    if (fmtResult.ec != std::errc{} || fmtResult.ptr != fmtText.data() + fmtText.size()) {
+        return false;
+    }
     return true;
 }
 
