@@ -482,6 +482,7 @@ void BufferDispatcher::StopDispatch()
     continueNotify_ = true;
 
     if (writingTimer_) {
+        isWritingTimerRunning_.store(false);
         writingTimer_.reset();
     }
 
@@ -825,7 +826,18 @@ void BufferDispatcher::SetBufferDispatcherListener(BufferDispatcherListener::Ptr
 {
     SHARING_LOGD("trace.");
     listener_ = listener;
+    StartWritingTimer();
+}
+
+void BufferDispatcher::StartWritingTimer()
+{
+    SHARING_LOGD("trace.");
     RETURN_IF_NULL(writingTimer_);
+    if (isWritingTimerRunning_.load()) {
+        SHARING_LOGI("writing timer already running, skip.");
+        return;
+    }
+    isWritingTimerRunning_.store(true);
     writingTimer_->StartTimer(
         WRITING_TIMTOUT, "waiting for continuous data inputs",
         [this]() {
@@ -840,6 +852,16 @@ void BufferDispatcher::SetBufferDispatcherListener(BufferDispatcherListener::Ptr
             }
         },
         true);
+}
+
+void BufferDispatcher::StopWritingTimer()
+{
+    SHARING_LOGD("trace.");
+    if (writingTimer_ && isWritingTimerRunning_.load()) {
+        writingTimer_->StopTimer();
+        isWritingTimerRunning_.store(false);
+        SHARING_LOGI("writing timer stopped.");
+    }
 }
 
 DataNotifier::Ptr BufferDispatcher::GetNotifierByReceiverPtr(BufferReceiver::Ptr receiver)

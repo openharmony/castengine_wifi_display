@@ -120,10 +120,12 @@ void WfdRtpConsumer::UpdateOperation(ProsumerStatusMsg::Ptr &statusMsg)
             isPaused_ = true;
             mediaTypePaused_ = statusMsg->mediaType;
             statusMsg->status = PROSUMER_NOTIFY_PAUSE_SUCCESS;
+            UpdateWritingTimerState(true);
             break;
         case PROSUMER_RESUME:
             isPaused_ = false;
             statusMsg->status = PROSUMER_NOTIFY_RESUME_SUCCESS;
+            UpdateWritingTimerState(false);
             break;
         case PROSUMER_STOP:
             Stop();
@@ -139,6 +141,28 @@ void WfdRtpConsumer::UpdateOperation(ProsumerStatusMsg::Ptr &statusMsg)
     }
 
     Notify(statusMsg);
+}
+
+void WfdRtpConsumer::UpdateWritingTimerState(bool isPaused)
+{
+    SHARING_LOGI("isPaused: %{public}d.", isPaused);
+    auto listener = listener_.lock();
+    if (!listener) {
+        SHARING_LOGE("UpdateWritingTimerState failed, listener is null.");
+        return;
+    }
+
+    auto dispatcher = listener->GetDispatcher();
+    if (!dispatcher) {
+        SHARING_LOGE("UpdateWritingTimerState failed, dispatcher is null.");
+        return;
+    }
+
+    if (isPaused) {
+        dispatcher->StopWritingTimer();
+    } else {
+        dispatcher->StartWritingTimer();
+    }
 }
 
 bool WfdRtpConsumer::Init()
