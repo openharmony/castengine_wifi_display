@@ -14,11 +14,22 @@
  */
 
 #include "rtsp_response.h"
+#include <charconv>
 #include <iostream>
 #include <sstream>
 
 namespace OHOS {
 namespace Sharing {
+namespace {
+bool ParseInt32(const std::string &value, int32_t &result)
+{
+    const char *begin = value.data();
+    const char *end = begin + value.size();
+    auto parsed = std::from_chars(begin, end, result);
+    return parsed.ec == std::errc{} && parsed.ptr == end;
+}
+} // namespace
+
 std::string RtspResponse::Stringify()
 {
     std::stringstream ss;
@@ -79,10 +90,18 @@ RtspError RtspResponse::Parse(const std::string &response)
         return {RtspErrorType::INVALID_MESSAGE, "invalid message"};
     }
 
-    status_ = atoi(firstLine[1].c_str());
+    int32_t parsedStatus = 0;
+    if (!ParseInt32(firstLine[1], parsedStatus)) {
+        return {RtspErrorType::INVALID_MESSAGE, "invalid status"};
+    }
+    status_ = parsedStatus;
 
     if (tokens_.find(RTSP_TOKEN_CSEQ) != tokens_.end()) {
-        cSeq_ = (int32_t)strtol(tokens_.at(RTSP_TOKEN_CSEQ).c_str(), nullptr, 10); // 10:unit
+        int32_t parsedCSeq = 0;
+        if (!ParseInt32(tokens_.at(RTSP_TOKEN_CSEQ), parsedCSeq)) {
+            return {RtspErrorType::INVALID_MESSAGE, "invalid cseq"};
+        }
+        cSeq_ = parsedCSeq;
     }
 
     if (tokens_.find(RTSP_TOKEN_DATE) != tokens_.end()) {
@@ -101,7 +120,11 @@ RtspError RtspResponse::Parse(const std::string &response)
             auto ti = to.find('=');
             if (ti != std::string::npos) {
                 auto timeoutStr = to.substr(ti + 1);
-                timeout_ = atoi(timeoutStr.c_str());
+                int32_t parsedTimeout = 0;
+                if (!ParseInt32(timeoutStr, parsedTimeout)) {
+                    return {RtspErrorType::INVALID_MESSAGE, "invalid session timeout"};
+                }
+                timeout_ = parsedTimeout;
             }
 
             session_ = session_.substr(0, si);
