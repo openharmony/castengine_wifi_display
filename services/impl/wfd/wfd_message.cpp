@@ -14,6 +14,7 @@
  */
 
 #include "wfd_message.h"
+#include <charconv>
 #include <cstdio>
 #include <iomanip>
 #include <iostream>
@@ -28,6 +29,17 @@ constexpr int32_t BIT_OFFSET_THREE = 3;
 constexpr int32_t BIT_OFFSET_FOUR = 4;
 constexpr int32_t BIT_OFFSET_EIGHT = 8;
 constexpr int32_t BIT_OFFSET_TWELVE = 12;
+
+namespace {
+int32_t ParseBinary(const std::string &value)
+{
+    int32_t result = 0;
+    const char *begin = value.data();
+    const char *end = begin + value.size();
+    auto parsed = std::from_chars(begin, end, result, 2);
+    return (parsed.ec == std::errc{} && parsed.ptr == end) ? result : 0;
+}
+} // namespace
 
 WfdRtspM1Response::WfdRtspM1Response(int32_t cseq, int32_t status) : RtspResponseOptions(cseq, status)
 {
@@ -259,7 +271,7 @@ std::string WfdRtspM3Response::GetSupportAudioCodecList()
                 ss << "," << RTSP_SP;
             }
             ss << codec << RTSP_SP << std::setfill('0') << std::setw(BIT_OFFSET_EIGHT) << std::hex
-               << std::stoi(modes.c_str(), nullptr, BIT_OFFSET_TWO) << RTSP_SP << "00";
+               << ParseBinary(modes) << RTSP_SP << "00";
         }
         isFirst = false;
     }
