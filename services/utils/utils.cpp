@@ -14,6 +14,7 @@
  */
 
 #include "utils.h"
+#include <charconv>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -37,7 +38,11 @@ unsigned long long GetThreadId()
     std::stringstream buf;
     buf << tid;
     std::string stid = buf.str();
-    return std::stoull(stid);
+    unsigned long long threadId = 0;
+    const char *begin = stid.data();
+    const char *end = begin + stid.size();
+    auto parsed = std::from_chars(begin, end, threadId);
+    return (parsed.ec == std::errc{} && parsed.ptr == end) ? threadId : 0;
 }
 
 std::vector<std::string> Split(const std::string &s, const char *delim)
