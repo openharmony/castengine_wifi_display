@@ -256,6 +256,8 @@ public:
     void ReleaseIdleBuffer();
     void EnableKeyMode(bool enable);
     void EnableRapidMode(bool enable);
+    void StopWritingTimer();
+    void StartWritingTimer();
     void ClearReadBit(uint32_t receiverId, MediaType type) override;
     void ClearDataBit(uint32_t receiverId, MediaType type) override;
     void SetReceiverReadFlag(uint32_t receiverId, DataSpec::Ptr &dataSpec);
@@ -344,6 +346,7 @@ private:
     std::list<uint32_t> keyIndexList_;
     std::weak_ptr<BufferDispatcherListener> listener_;
     std::unique_ptr<TimeoutTimer> writingTimer_ = nullptr;
+    std::atomic<bool> isWritingTimerRunning_ = false;
     std::unordered_map<uint32_t, DataNotifier::Ptr> notifiers_;
 
     circular_buffer<DataSpec::Ptr> circularBuffer_;

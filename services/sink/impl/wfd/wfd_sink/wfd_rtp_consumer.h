@@ -74,6 +74,7 @@ private:
                           Setter setFunc);
     void HandleSpsUpdate(std::shared_ptr<BufferDispatcher> dispatcher, const char *buf, size_t len);
     void HandlePpsUpdate(std::shared_ptr<BufferDispatcher> dispatcher, const char *buf, size_t len);
+    void UpdateWritingTimerState(bool isPaused);
 
 private:
     bool isFirstPacket_ = true;

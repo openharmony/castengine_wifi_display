@@ -80,6 +80,7 @@ void TimeoutTimer::StopTimer()
 {
     SHARING_LOGD("cancel timeout timer (%{public}s).", taskName_.c_str());
     std::lock_guard<std::mutex> lock(taskMutex_);
+    reuse_ = false;
 
     if (state_ == State::WORKING) {
         state_ = State::CANCELLED;
