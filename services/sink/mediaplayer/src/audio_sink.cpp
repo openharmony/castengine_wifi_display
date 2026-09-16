@@ -313,7 +313,6 @@ int32_t AudioSink::Write(uint8_t *buffer, size_t size)
         MEDIA_LOGE("buffer is nullptr or size is 0.");
         return PLAYER_ERROR_INVALID_PARAMS;
     }
-    std::lock_guard<std::mutex> lock(audioRenderMutex_);
     if (!audioRenderer_) {
         SHARING_LOGE("audioRenderer_ is NULL.");
         return PLAYER_ERROR_EMPTY_INSTANCE;

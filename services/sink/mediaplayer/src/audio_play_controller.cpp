@@ -173,7 +173,6 @@ void AudioPlayController::AudioPlayThread()
             continue;
         }
 
-        std::lock_guard<std::mutex> lock(audioPlayerMutex_);
         if (audioPlayer_) {
             MEDIA_LOGD("process audio mediaChannelId: %{public}u, size: %{public}d.", mediachannelId_,
                        outData->buff->Size());
@@ -195,7 +194,6 @@ void AudioPlayController::SetVolume(float volume)
 
 int64_t AudioPlayController::GetAudioDecoderTimestamp()
 {
-    std::lock_guard<std::mutex> lock(audioPlayerMutex_);
     if (audioPlayer_) {
         return audioPlayer_->GetDecoderTimestamp();
     }
@@ -204,7 +202,6 @@ int64_t AudioPlayController::GetAudioDecoderTimestamp()
 
 void AudioPlayController::DropOneFrame()
 {
-    std::lock_guard<std::mutex> lock(audioPlayerMutex_);
     if (audioPlayer_) {
         audioPlayer_->DropOneFrame();
     }
