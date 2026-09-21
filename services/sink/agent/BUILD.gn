@@ -51,6 +51,7 @@ ohos_source_set("sharing_sink_agent_srcs") {
     "graphic_surface:surface",
     "ipc:ipc_single",
     "hilog:libhilog",
+    "c_utils:utils",
   ]
 
   subsystem_name = "castplus"

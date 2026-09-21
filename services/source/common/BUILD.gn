@@ -43,6 +43,7 @@ ohos_source_set("sharing_source_common_srcs") {
     "hilog:libhilog",
     "bounds_checking_function:libsec_shared",
     "samgr:samgr_proxy",
+    "c_utils:utils",
   ]
 
   subsystem_name = "castplus"
