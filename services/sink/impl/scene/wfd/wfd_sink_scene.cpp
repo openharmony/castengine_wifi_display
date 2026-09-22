@@ -542,6 +542,7 @@ void WfdSinkScene::InitP2pName()
     if (DeviceManager::GetInstance().GetLocalDisplayDeviceName(DM_PKG_NAME, DM_MAX_NAME_LENGTH, deviceName) != DM_OK) {
         SHARING_LOGW("getLocalDeviceInfo from dm failed");
     } else {
+        SHARING_LOGI("SetP2pDeviceName, deviceName=%{public}s", GetAnonyDevName(deviceName).c_str());
         if (p2pInstance_) {
             p2pInstance_->SetP2pDeviceName(deviceName);
         }
